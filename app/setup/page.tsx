@@ -1,0 +1,176 @@
+"use client";
+
+import { useSearchParams, useRouter } from "next/navigation";
+import { FormEvent, Suspense, useEffect, useMemo } from "react";
+import { Check, HeartHandshake, UserRoundCheck } from "lucide-react";
+import { Button, Card, FieldLabel, inputClassName } from "@/components/ui";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import {
+  defaultConsumerSettings,
+  type ConsumerMode,
+  type ConsumerSettings,
+} from "@/lib/mock-data";
+import { clearSampleFamilyData } from "@/lib/sample-data";
+import { storageKeys } from "@/lib/storage-keys";
+
+const careOptions = ["약 복용", "병원 일정", "건강검진", "식사/수면/운동", "정서 안부"];
+
+export default function SetupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SetupContent />
+    </Suspense>
+  );
+}
+
+function SetupContent() {
+  const params = useSearchParams();
+  const router = useRouter();
+  const initialMode: ConsumerMode = params.get("mode") === "self" ? "self-care" : "family-care";
+  const freshStart = params.get("fresh") === "1";
+  const [settings, setSettings] = useLocalStorage<ConsumerSettings>(
+    storageKeys.consumerSettings,
+    { ...defaultConsumerSettings, mode: initialMode },
+  );
+
+  const isFamily = settings.mode === "family-care";
+  const title = isFamily ? "부모님 챙기기 설정" : "내 루틴 설정";
+
+  const selectedCount = useMemo(() => settings.careItems.length, [settings.careItems]);
+
+  useEffect(() => {
+    if (!freshStart) return;
+    clearSampleFamilyData();
+    setSettings({ ...defaultConsumerSettings, mode: "family-care" });
+  }, [freshStart, setSettings]);
+
+  function toggleCareItem(item: string) {
+    setSettings((current) => ({
+      ...current,
+      careItems: current.careItems.includes(item)
+        ? current.careItems.filter((value) => value !== item)
+        : [...current.careItems, item],
+    }));
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    router.push("/home");
+  }
+
+  return (
+    <main className="mx-auto min-h-screen w-full max-w-[440px] bg-brand-cream px-5 py-6 text-brand-ink shadow-[0_0_80px_rgba(32,51,47,0.10)]">
+      <header>
+        <p className="text-sm font-bold text-brand-coral">처음 설정</p>
+        <h1 className="brand-title mt-2 text-3xl">{title}</h1>
+        <p className="soft-copy mt-2 text-sm text-stone-600">
+          몇 가지만 정하면 오늘의 안부 홈과 루틴이 자동으로 준비됩니다.
+        </p>
+      </header>
+
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <button
+          className={`rounded-xl border p-4 text-left ${isFamily ? "border-brand-sage bg-brand-mint" : "border-brand-line bg-white"}`}
+          onClick={() => setSettings((current) => ({ ...current, mode: "family-care" }))}
+        >
+          <HeartHandshake size={22} aria-hidden />
+          <span className="mt-2 block text-sm font-bold">부모님 챙기기</span>
+        </button>
+        <button
+          className={`rounded-xl border p-4 text-left ${!isFamily ? "border-brand-sage bg-brand-mint" : "border-brand-line bg-white"}`}
+          onClick={() => setSettings((current) => ({ ...current, mode: "self-care" }))}
+        >
+          <UserRoundCheck size={22} aria-hidden />
+          <span className="mt-2 block text-sm font-bold">내 일상 관리</span>
+        </button>
+      </div>
+
+      <form onSubmit={submit} className="mt-5 space-y-4">
+        <Card className="space-y-4">
+          <div className="grid gap-2">
+            <FieldLabel>{isFamily ? "부모님 이름" : "내 이름"}</FieldLabel>
+            <input
+              className={inputClassName}
+              value={settings.name}
+              onChange={(event) =>
+                setSettings((current) => ({ ...current, name: event.target.value }))
+              }
+              placeholder={isFamily ? "예: 엄마" : "예: 내 이름"}
+            />
+          </div>
+          {isFamily ? (
+            <>
+              <div className="grid gap-2">
+                <FieldLabel>관계</FieldLabel>
+                <input
+                  className={inputClassName}
+                  value={settings.relation}
+                  onChange={(event) =>
+                    setSettings((current) => ({ ...current, relation: event.target.value }))
+                  }
+                  placeholder="예: 어머니"
+                />
+              </div>
+              <div className="grid gap-2">
+                <FieldLabel>안부 확인 주기</FieldLabel>
+                <select
+                  className={inputClassName}
+                  value={settings.checkFrequency}
+                  onChange={(event) =>
+                    setSettings((current) => ({ ...current, checkFrequency: event.target.value }))
+                  }
+                >
+                  <option>매일</option>
+                  <option>주 2회</option>
+                  <option>주 1회</option>
+                  <option>필요할 때</option>
+                </select>
+              </div>
+            </>
+          ) : (
+            <div className="grid gap-2">
+              <FieldLabel>알림 시간</FieldLabel>
+              <input
+                className={inputClassName}
+                type="time"
+                value={settings.reminderTime}
+                onChange={(event) =>
+                  setSettings((current) => ({ ...current, reminderTime: event.target.value }))
+                }
+              />
+            </div>
+          )}
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between">
+            <FieldLabel>관리하고 싶은 항목</FieldLabel>
+            <span className="text-xs font-bold text-brand-sage">{selectedCount}개 선택</span>
+          </div>
+          <div className="mt-3 grid gap-2">
+            {careOptions.map((item) => {
+              const selected = settings.careItems.includes(item);
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  className={`flex min-h-12 items-center justify-between rounded-lg border px-3 text-left text-sm font-bold ${
+                    selected ? "border-brand-sage bg-brand-mint" : "border-brand-line bg-white"
+                  }`}
+                  onClick={() => toggleCareItem(item)}
+                >
+                  {item}
+                  {selected ? <Check size={18} aria-hidden /> : null}
+                </button>
+              );
+            })}
+          </div>
+        </Card>
+
+        <Button type="submit" className="w-full">
+          오늘의 안부 홈으로 가기
+        </Button>
+      </form>
+    </main>
+  );
+}
