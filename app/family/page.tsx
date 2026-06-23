@@ -1,34 +1,42 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AlertTriangle, CheckCircle2, Clock, Users } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, ShieldCheck, Users } from "lucide-react";
 import { FamilyManagerShell } from "@/components/desktop-shells";
 import { Card } from "@/components/ui";
 import { familyHistory, familyMembers, managedParents } from "@/lib/mock-data";
+import { calculateSafetyStatus, getProfileRequest, getProfileResponses } from "@/lib/safety";
 import { getRelationshipLabel } from "@/lib/share-options";
 
 export default function FamilyDashboardPage() {
+  const parentSafety = managedParents.map((parent) => ({
+    parent,
+    safety: calculateSafetyStatus(getProfileResponses(parent.id), getProfileRequest(parent.id)),
+  }));
+  const safeCount = parentSafety.filter((item) => item.safety.level === "safe").length;
+  const needsCheckCount = parentSafety.filter((item) => item.safety.level === "needs_check").length;
+
   return (
     <FamilyManagerShell
       title="가족 대시보드"
-      description="함께 챙기는 안부 상태와 미확인 항목을 확인합니다."
+      description="부모님이 괜찮은지 안심 상태와 이상 신호를 먼저 확인합니다."
       active="/family"
     >
       <div className="grid gap-4 lg:grid-cols-4">
         <MetricCard icon={<Users size={22} />} label="안부 대상" value={`${managedParents.length}명`} />
-        <MetricCard icon={<CheckCircle2 size={22} />} label="오늘 안부 상태" value="1명 완료" />
-        <MetricCard icon={<Clock size={22} />} label="미확인 항목" value="3건" />
-        <MetricCard icon={<AlertTriangle size={22} />} label="주의 신호" value="1건" />
+        <MetricCard icon={<ShieldCheck size={22} />} label="안심 양호" value={`${safeCount}명`} />
+        <MetricCard icon={<Clock size={22} />} label="응답 대기" value="1건" />
+        <MetricCard icon={<AlertTriangle size={22} />} label="확인 필요" value={`${needsCheckCount}명`} />
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
         <Card>
           <h2 className="text-lg font-bold">안부 대상 목록</h2>
           <div className="mt-4 grid gap-3">
-            {managedParents.map((parent) => (
+            {parentSafety.map(({ parent, safety }) => (
               <Link
                 key={parent.id}
                 href={`/family/member/${parent.id}`}
-                className="rounded-xl border border-brand-line bg-brand-cream/60 p-4 transition hover:border-brand-sage"
+                className="rounded-xl border border-brand-line bg-brand-cream/60 p-4 transition hover:border-[#2563EB] hover:shadow-sm"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -36,9 +44,12 @@ export default function FamilyDashboardPage() {
                     <p className="mt-1 text-sm text-stone-600">
                       {parent.region} · {parent.contactFrequency} · {parent.healthNotes}
                     </p>
+                    <p className="mt-2 text-xs font-bold text-stone-500">
+                      {safety.responseDays}/7일 응답 · {safety.summary}
+                    </p>
                   </div>
-                  <span className="rounded-full bg-brand-mint px-3 py-1 text-xs font-bold">
-                    안부 확인
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${getSafetyPillClass(safety.level)}`}>
+                    {safety.label}
                   </span>
                 </div>
               </Link>
@@ -96,4 +107,10 @@ function MetricCard({
       <p className="mt-1 text-2xl font-bold">{value}</p>
     </Card>
   );
+}
+
+function getSafetyPillClass(level: "safe" | "caution" | "needs_check") {
+  if (level === "safe") return "bg-[#EFF6FF] text-[#1D4ED8]";
+  if (level === "caution") return "bg-amber-50 text-amber-800";
+  return "bg-rose-50 text-rose-700";
 }

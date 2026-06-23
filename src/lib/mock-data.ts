@@ -2,6 +2,7 @@ import type {
   CareSchedule,
   CareTask,
   ParentProfile,
+  ResponseMethod,
   TrustedContact,
 } from "@/types/care";
 import { getTodayISO } from "./dates";
@@ -12,6 +13,11 @@ export type ConsumerSettings = {
   mode: ConsumerMode;
   name: string;
   relation: string;
+  phone: string;
+  responseMethod: ResponseMethod;
+  emergencyName: string;
+  emergencyRelation: string;
+  emergencyContact: string;
   checkFrequency: string;
   careItems: string[];
   reminderTime: string;
@@ -39,6 +45,11 @@ export const defaultConsumerSettings: ConsumerSettings = {
   mode: "family-care",
   name: "엄마",
   relation: "어머니",
+  phone: "010-1111-2222",
+  responseMethod: "sms",
+  emergencyName: "김서연",
+  emergencyRelation: "동생",
+  emergencyContact: "010-2222-8899",
   checkFrequency: "주 2회",
   careItems: ["약 복용", "병원 일정", "건강검진", "정서 안부"],
   reminderTime: "19:30",
@@ -160,6 +171,14 @@ export const managedParents: ParentProfile[] = [
   {
     id: "mom",
     nickname: "엄마",
+    relationship: "어머니",
+    phone: "010-1111-2222",
+    responseMethod: "sms",
+    emergencyContact: {
+      name: "김서연",
+      relationship: "동생",
+      contact: "010-2222-8899",
+    },
     ageRange: "60대 후반",
     region: "부산",
     interests: ["등산", "트로트", "손주 이야기"],
@@ -171,6 +190,14 @@ export const managedParents: ParentProfile[] = [
   {
     id: "dad",
     nickname: "아빠",
+    relationship: "아버지",
+    phone: "010-3333-4444",
+    responseMethod: "phone",
+    emergencyContact: {
+      name: "박지훈",
+      relationship: "조카",
+      contact: "010-5555-7777",
+    },
     ageRange: "70대 초반",
     region: "대전",
     interests: ["바둑", "산책", "야구"],

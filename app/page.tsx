@@ -100,8 +100,8 @@ export default function Home() {
               href="/home"
               icon={<ClipboardCheck size={19} aria-hidden />}
               tone="mint"
-              title="오늘 안부 확인하기"
-              description="부모님의 식사, 약, 컨디션 응답을 확인해요."
+              title="오늘 안심 상태 확인하기"
+              description="부모님의 안부와 이상 신호를 빠르게 확인해요."
             />
           </div>
         </section>

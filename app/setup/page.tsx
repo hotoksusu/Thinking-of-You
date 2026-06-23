@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useMemo } from "react";
-import { Check, HeartHandshake, UserRoundCheck } from "lucide-react";
+import { Check, MessageCircle, Phone, HeartHandshake, Smartphone, UserRoundCheck } from "lucide-react";
 import { Button, Card, FieldLabel, inputClassName } from "@/components/ui";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import {
@@ -14,6 +14,26 @@ import { clearSampleFamilyData } from "@/lib/sample-data";
 import { storageKeys } from "@/lib/storage-keys";
 
 const careOptions = ["약 복용", "병원 일정", "건강검진", "식사/수면/운동", "정서 안부"];
+const contactMethods = [
+  {
+    value: "kakao",
+    label: "카카오톡",
+    description: "카카오톡으로 안부 요청",
+    icon: MessageCircle,
+  },
+  {
+    value: "sms",
+    label: "문자(SMS)",
+    description: "카카오톡 없이 문자로 응답 가능",
+    icon: Smartphone,
+  },
+  {
+    value: "phone",
+    label: "전화 확인",
+    description: "스마트폰 사용이 어려운 경우",
+    icon: Phone,
+  },
+] as const;
 
 export default function SetupPage() {
   return (
@@ -112,6 +132,58 @@ function SetupContent() {
                 />
               </div>
               <div className="grid gap-2">
+                <FieldLabel>연락처</FieldLabel>
+                <input
+                  className={inputClassName}
+                  value={settings.phone ?? ""}
+                  onChange={(event) =>
+                    setSettings((current) => ({ ...current, phone: event.target.value }))
+                  }
+                  placeholder="예: 010-1234-5678"
+                />
+              </div>
+              <div className="grid gap-2">
+                <FieldLabel>연락 방식</FieldLabel>
+                <div className="grid gap-2">
+                  {contactMethods.map((method) => {
+                    const Icon = method.icon;
+                    const selected = (settings.responseMethod ?? "sms") === method.value;
+                    return (
+                      <button
+                        key={method.value}
+                        type="button"
+                        className={`flex min-h-[70px] items-center gap-3 rounded-xl border px-3 text-left transition ${
+                          selected
+                            ? "border-[#2563EB] bg-[#EFF6FF] shadow-sm"
+                            : "border-brand-line bg-white"
+                        }`}
+                        onClick={() =>
+                          setSettings((current) => ({
+                            ...current,
+                            responseMethod: method.value,
+                          }))
+                        }
+                      >
+                        <span
+                          className={`flex size-10 shrink-0 items-center justify-center rounded-full ${
+                            selected ? "bg-[#2563EB] text-white" : "bg-brand-cream text-stone-600"
+                          }`}
+                        >
+                          <Icon size={18} aria-hidden />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-bold">{method.label}</span>
+                          <span className="mt-1 block text-xs leading-5 text-stone-600">
+                            {method.description}
+                          </span>
+                        </span>
+                        {selected ? <Check size={18} className="text-[#2563EB]" aria-hidden /> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="grid gap-2">
                 <FieldLabel>안부 확인 주기</FieldLabel>
                 <select
                   className={inputClassName}
@@ -142,6 +214,50 @@ function SetupContent() {
           )}
         </Card>
 
+        {isFamily ? (
+          <Card className="space-y-4">
+            <div>
+              <FieldLabel>긴급 연락처</FieldLabel>
+              <p className="mt-1 text-xs leading-5 text-stone-600">
+                3일 연속 미응답 같은 상황에서 함께 확인할 사람을 저장해둘 수 있어요.
+              </p>
+            </div>
+            <div className="grid gap-2">
+              <FieldLabel>이름</FieldLabel>
+              <input
+                className={inputClassName}
+                value={settings.emergencyName ?? ""}
+                onChange={(event) =>
+                  setSettings((current) => ({ ...current, emergencyName: event.target.value }))
+                }
+                placeholder="예: 김서연"
+              />
+            </div>
+            <div className="grid gap-2">
+              <FieldLabel>관계</FieldLabel>
+              <input
+                className={inputClassName}
+                value={settings.emergencyRelation ?? ""}
+                onChange={(event) =>
+                  setSettings((current) => ({ ...current, emergencyRelation: event.target.value }))
+                }
+                placeholder="예: 동생, 이웃, 요양보호사"
+              />
+            </div>
+            <div className="grid gap-2">
+              <FieldLabel>연락처</FieldLabel>
+              <input
+                className={inputClassName}
+                value={settings.emergencyContact ?? ""}
+                onChange={(event) =>
+                  setSettings((current) => ({ ...current, emergencyContact: event.target.value }))
+                }
+                placeholder="예: 010-2222-8899"
+              />
+            </div>
+          </Card>
+        ) : null}
+
         <Card>
           <div className="flex items-center justify-between">
             <FieldLabel>관리하고 싶은 항목</FieldLabel>
@@ -168,7 +284,7 @@ function SetupContent() {
         </Card>
 
         <Button type="submit" className="w-full">
-          오늘의 안부 홈으로 가기
+          오늘의 안심 홈으로 가기
         </Button>
       </form>
     </main>

@@ -52,6 +52,10 @@ export type ShareLevel =
 export type ParentProfile = {
   id: string;
   nickname: string;
+  relationship?: string;
+  phone?: string;
+  responseMethod?: ResponseMethod;
+  emergencyContact?: EmergencyContact;
   ageRange: string;
   region: string;
   interests: string[];
@@ -61,6 +65,89 @@ export type ParentProfile = {
   createdAt: string;
   updatedAt?: string;
   isSample?: boolean;
+};
+
+export type ResponseMethod = "kakao" | "sms" | "phone";
+
+export type EmergencyContact = {
+  name: string;
+  relationship: string;
+  contact: string;
+};
+
+export type SafetyStatusLevel = "safe" | "caution" | "needs_check";
+
+export type MealStatus = "했어요" | "안 했어요" | "모르겠어요";
+
+export type MedicineCheckStatus = "복용함" | "미복용" | "모르겠어요";
+
+export type ConditionStatus = "좋아요" | "보통이에요" | "안 좋아요";
+
+export type ContactCheckStatus = "통화함" | "문자함" | "연락 안됨";
+
+export type ActivityStatus = "활동함" | "집에만 있었음" | "모르겠어요";
+
+export type CareRequestStatus =
+  | "ready"
+  | "sent"
+  | "waiting"
+  | "completed"
+  | "no_response";
+
+export type CareResponseRecord = {
+  id: string;
+  profileId: string;
+  date: string;
+  meal: MealStatus;
+  medicine: MedicineCheckStatus;
+  condition: ConditionStatus;
+  contact: ContactCheckStatus;
+  activity: ActivityStatus;
+  note?: string;
+  responseMethod: ResponseMethod;
+  respondedAt?: string;
+};
+
+export type CareRequest = {
+  id: string;
+  profileId: string;
+  sentAt?: string;
+  scheduledAt?: string;
+  status: CareRequestStatus;
+  responseMethod: ResponseMethod;
+};
+
+export type SafetySignal =
+  | "오늘 응답 없음"
+  | "약 복용 미확인"
+  | "컨디션 나쁨"
+  | "2일 연속 미응답"
+  | "3일 연속 미응답";
+
+export type SafetyStatus = {
+  level: SafetyStatusLevel;
+  label: "안심 양호" | "주의 필요" | "확인 필요";
+  summary: string;
+  signals: SafetySignal[];
+  responseDays: number;
+  totalDays: number;
+};
+
+export type ResponsePattern = {
+  days: number;
+  responseRate: number;
+  mealConfirmed: string;
+  medicineConfirmed: string;
+  goodConditionDays: number;
+};
+
+export type MockSchedulerRule = {
+  id: string;
+  profileId: string;
+  time: string;
+  enabled: boolean;
+  nextRunLabel: string;
+  flow: string[];
 };
 
 export type CareTask = {
