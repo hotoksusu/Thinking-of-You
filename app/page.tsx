@@ -11,6 +11,7 @@ import {
   MessageCircle,
   ShieldCheck,
 } from "lucide-react";
+import { PricingSection } from "@/components/pricing-section";
 import { SampleStartButton } from "@/components/sample-start-button";
 
 const alertTags = ["오늘 응답 없음", "약 복용 미확인", "컨디션 나쁨", "2일 연속 미응답"];
@@ -148,6 +149,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <PricingSection />
 
         <footer className="mt-6 border-t border-brand-line pt-5 text-center text-xs leading-6 text-stone-500">
           부모님이 카카오톡을 안 써도 문자·전화로 이어갈 수 있어요.
