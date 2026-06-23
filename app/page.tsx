@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   ArrowRight,
+  Brain,
   CalendarDays,
   CheckCircle2,
   ClipboardCheck,
@@ -10,9 +11,19 @@ import {
   Info,
   MessageCircle,
   ShieldCheck,
+  Sparkles,
+  TrendingDown,
+  Users,
 } from "lucide-react";
 import { PricingSection } from "@/components/pricing-section";
 import { SampleStartButton } from "@/components/sample-start-button";
+import {
+  calculatePeaceScore,
+  detectPatternChanges,
+  generateAiInsight,
+  generateAiReport,
+  getProfileResponses,
+} from "@/lib/safety";
 
 const alertTags = ["오늘 응답 없음", "약 복용 미확인", "컨디션 나쁨", "2일 연속 미응답"];
 const brand = {
@@ -26,6 +37,12 @@ const brand = {
 };
 
 export default function Home() {
+  const responses = getProfileResponses("mom");
+  const peaceScore = calculatePeaceScore(responses);
+  const aiReport = generateAiReport();
+  const patternChanges = detectPatternChanges();
+  const aiInsight = generateAiInsight();
+
   return (
     <main className="min-h-screen bg-[#fff8ed]" style={{ color: brand.text }}>
       <section className="mx-auto min-h-screen w-full max-w-[390px] px-4 pb-8 pt-3">
@@ -38,7 +55,7 @@ export default function Home() {
           </Link>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-1.5 text-[11px] font-bold text-[#2563EB]">
             <CalendarDays size={13} aria-hidden />
-            하루 1분 안부
+            AI 안심 분석
           </span>
         </header>
 
@@ -66,27 +83,43 @@ export default function Home() {
             </div>
             <div className="absolute bottom-3 right-4 inline-flex items-center gap-1.5 rounded-full border border-[#BFDBFE]/80 bg-[#EFF6FF]/90 px-3 py-2 text-xs font-extrabold text-[#2563EB] shadow-sm backdrop-blur">
               <CheckCircle2 size={14} aria-hidden />
-              응답 대기
+              AI 분석 대기
             </div>
           </div>
         </div>
 
         <section className="mt-5">
           <p className="text-sm font-extrabold text-[#2563EB]">
-            자녀가 챙기는 부모님 안부 루틴
+            AI가 먼저 알려주는 부모님 안심 상태
           </p>
-          <h1 className="mt-2 text-[2.08rem] font-black leading-[1.2] tracking-[-0.01em] text-brand-ink">
-            오늘, 안부를
+          <h1 className="mt-2 text-[2.03rem] font-black leading-[1.2] tracking-[-0.01em] text-brand-ink">
+            부모님의 작은 변화를
             <br />
-            놓치지 않도록
+            AI가 먼저 알려드립니다
           </h1>
           <p className="mt-4 text-[15px] leading-7 text-[#6B7280]">
-            부모님과 매일 통화하지 못해도, 식사·약·컨디션을 하루 1분으로
-            확인해요.
+            매일의 안부를 기록하는 데서 끝나지 않고, 평소와 다른 신호를 발견해
+            부모님의 안심 상태를 알려드려요.
           </p>
         </section>
 
-        <section className="mt-5">
+        <section className="mt-5 space-y-3">
+          <PeaceScorePreview score={peaceScore.score} label={peaceScore.label} factors={peaceScore.factors} />
+          <AiReportPreview
+            period={aiReport.period}
+            highlights={aiReport.highlights}
+            opinion={aiReport.opinion}
+            recommendation={aiReport.recommendation}
+          />
+          <PatternChangePreview changes={patternChanges} />
+          <AiInsightPreview
+            period={aiInsight.period}
+            signals={aiInsight.signals}
+            opinion={aiInsight.opinion}
+          />
+        </section>
+
+        <section className="mt-6">
           <h2 className="text-base font-black">무엇을 먼저 하시겠어요?</h2>
           <div className="mt-3 space-y-3">
             <ActionCard
@@ -127,6 +160,57 @@ export default function Home() {
 
         <SampleStartButton className="w-full bg-white" />
 
+        <section className="mt-6">
+          <h2 className="text-lg font-black text-[#111827]">왜 오늘안부인가요?</h2>
+          <div className="mt-3 grid gap-3">
+            <CompareCard
+              title="안부 기록"
+              badge="기존 방식"
+              description="식사·약 복용 여부를 단순히 기록하고 확인해요."
+              items={["단순 기록만 제공", "놓친 신호를 직접 찾아야 함"]}
+            />
+            <CompareCard
+              title="오늘안부"
+              badge="AI 분석"
+              highlighted
+              description="기록을 해석해 평소와 다른 신호를 먼저 보여줘요."
+              items={["변화 감지", "AI 안심 리포트", "미응답 분석", "안심 점수"]}
+            />
+          </div>
+        </section>
+
+        <section className="mt-6 rounded-[1.5rem] border border-[#BFDBFE] bg-white/90 p-4 shadow-[0_16px_38px_rgba(37,99,235,0.08)]">
+          <div className="flex items-start gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#EFF6FF] text-[#2563EB]">
+              <Users size={20} aria-hidden />
+            </span>
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.08em] text-[#2563EB]">
+                Family Network
+              </p>
+              <h2 className="mt-1 text-lg font-black text-[#111827]">가족 안심 네트워크</h2>
+              <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+                형제자매와 함께 부모님의 상태를 확인하고 공유할 수 있습니다.
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 rounded-2xl bg-[#EFF6FF] p-3">
+            <div className="flex items-center justify-between rounded-xl bg-white px-3 py-3 shadow-sm">
+              <span className="font-black text-[#111827]">엄마</span>
+              <span className="rounded-full bg-[#DCFCE7] px-2.5 py-1 text-[11px] font-black text-emerald-700">
+                최근 상태 공유
+              </span>
+            </div>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs font-black text-[#1D4ED8]">
+              {["장녀", "장남", "막내"].map((member) => (
+                <span key={member} className="rounded-full bg-white px-3 py-2 shadow-sm">
+                  {member}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="mt-5 rounded-2xl border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-4 shadow-[0_12px_28px_rgba(37,99,235,0.07)]">
           <div className="flex items-start gap-3">
             <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-white text-[#2563EB] shadow-sm">
@@ -157,6 +241,180 @@ export default function Home() {
         </footer>
       </section>
     </main>
+  );
+}
+
+function PeaceScorePreview({
+  score,
+  label,
+  factors,
+}: {
+  score: number;
+  label: string;
+  factors: string[];
+}) {
+  return (
+    <article className="rounded-[1.5rem] border border-[#BFDBFE] bg-white p-4 shadow-[0_18px_42px_rgba(37,99,235,0.12)]">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-black text-[#2563EB]">오늘의 안심 점수</p>
+          <p className="mt-1 text-[2.5rem] font-black leading-none text-[#111827]">
+            {score}점
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#DCFCE7] px-3 py-1.5 text-xs font-black text-emerald-700">
+          <span className="size-2 rounded-full bg-emerald-500" />
+          {label}
+        </span>
+      </div>
+      <div className="mt-4 space-y-2">
+        {factors.map((factor) => (
+          <p key={factor} className="flex items-center gap-2 text-sm font-bold text-[#374151]">
+            <CheckCircle2 size={16} className="text-[#2563EB]" aria-hidden />
+            {factor}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function AiReportPreview({
+  period,
+  highlights,
+  opinion,
+  recommendation,
+}: {
+  period: string;
+  highlights: string[];
+  opinion: string;
+  recommendation: string;
+}) {
+  return (
+    <article className="rounded-[1.5rem] border border-[#BFDBFE] bg-[#EFF6FF] p-4">
+      <div className="flex items-center gap-2">
+        <span className="flex size-9 items-center justify-center rounded-full bg-[#2563EB] text-white">
+          <Brain size={18} aria-hidden />
+        </span>
+        <div>
+          <p className="text-xs font-black text-[#2563EB]">AI 안심 리포트</p>
+          <h2 className="text-base font-black text-[#111827]">{period}</h2>
+        </div>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {highlights.map((item) => (
+          <p key={item} className="rounded-xl bg-white px-3 py-2 text-xs font-bold text-[#374151]">
+            {item}
+          </p>
+        ))}
+      </div>
+      <p className="mt-3 text-sm font-bold leading-6 text-[#111827]">{opinion}</p>
+      <p className="mt-1 text-xs font-semibold leading-5 text-[#1D4ED8]">{recommendation}</p>
+    </article>
+  );
+}
+
+function PatternChangePreview({
+  changes,
+}: {
+  changes: ReturnType<typeof detectPatternChanges>;
+}) {
+  return (
+    <article className="rounded-[1.5rem] border border-brand-line bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-2">
+        <TrendingDown size={18} className="text-[#2563EB]" aria-hidden />
+        <h2 className="text-base font-black text-[#111827]">최근 변화 감지</h2>
+      </div>
+      <div className="mt-3 space-y-2">
+        {changes.map((change) => (
+          <div key={change.label} className="rounded-xl bg-[#F8FAFC] px-3 py-2.5">
+            <div className="flex items-center justify-between text-sm font-black text-[#111827]">
+              <span>{change.label}</span>
+              <span className="text-[#2563EB]">
+                {change.before} → {change.after}
+              </span>
+            </div>
+            <p className="mt-1 text-xs font-semibold text-[#6B7280]">{change.analysis}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 rounded-xl bg-[#EFF6FF] px-3 py-2 text-xs font-bold leading-5 text-[#1D4ED8]">
+        AI 분석: 최근 생활 패턴 변화가 감지되었습니다.
+      </p>
+    </article>
+  );
+}
+
+function AiInsightPreview({
+  period,
+  signals,
+  opinion,
+}: {
+  period: string;
+  signals: string[];
+  opinion: string;
+}) {
+  return (
+    <article className="rounded-[1.5rem] border border-[#DDD6FE] bg-[#F5F3FF] p-4">
+      <div className="flex items-center gap-2">
+        <Sparkles size={18} className="text-[#2563EB]" aria-hidden />
+        <h2 className="text-base font-black text-[#111827]">AI 인사이트</h2>
+      </div>
+      <p className="mt-2 text-xs font-black text-[#6B7280]">{period}</p>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {signals.map((signal) => (
+          <span key={signal} className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-[#1D4ED8]">
+            {signal}
+          </span>
+        ))}
+      </div>
+      <p className="mt-3 text-sm font-bold leading-6 text-[#111827]">{opinion}</p>
+    </article>
+  );
+}
+
+function CompareCard({
+  title,
+  badge,
+  description,
+  items,
+  highlighted,
+}: {
+  title: string;
+  badge: string;
+  description: string;
+  items: string[];
+  highlighted?: boolean;
+}) {
+  return (
+    <article
+      className={[
+        "rounded-[1.4rem] border p-4",
+        highlighted
+          ? "border-[#2563EB] bg-[#EFF6FF] shadow-[0_14px_34px_rgba(37,99,235,0.12)]"
+          : "border-brand-line bg-white",
+      ].join(" ")}
+    >
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-black text-[#111827]">{title}</h3>
+        <span
+          className={[
+            "rounded-full px-2.5 py-1 text-[10px] font-black",
+            highlighted ? "bg-[#2563EB] text-white" : "bg-stone-100 text-stone-500",
+          ].join(" ")}
+        >
+          {badge}
+        </span>
+      </div>
+      <p className="mt-2 text-xs font-semibold leading-5 text-[#6B7280]">{description}</p>
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        {items.map((item) => (
+          <span key={item} className="rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-[#1D4ED8]">
+            {item}
+          </span>
+        ))}
+      </div>
+    </article>
   );
 }
 

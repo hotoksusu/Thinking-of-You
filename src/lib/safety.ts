@@ -1,8 +1,13 @@
 import type {
+  AiInsight,
+  AiReport,
   CareRequest,
   CareRequestStatus,
   CareResponseRecord,
   MockSchedulerRule,
+  PatternChange,
+  PeaceScore,
+  RiskSignal,
   ResponseMethod,
   ResponsePattern,
   SafetySignal,
@@ -228,6 +233,146 @@ export function calculateSafetyStatus(
     signals,
     responseDays,
     totalDays: 7,
+  };
+}
+
+export function calculatePeaceScore(responses: CareResponseRecord[]): PeaceScore {
+  const recent = responses.slice(0, 7);
+  const responseDays = recent.filter((item) => Boolean(item.respondedAt)).length;
+  const medicineConfirmed = recent.filter((item) => item.medicine === "복용함").length;
+  const goodOrNormalCondition = recent.filter((item) => item.condition !== "안 좋아요").length;
+  const activityConfirmed = recent.filter((item) => item.activity === "활동함").length;
+
+  const responseRate = Math.round((responseDays / 7) * 100);
+  const score = Math.min(
+    100,
+    Math.max(
+      0,
+      Math.round(
+        responseDays * 8 +
+          medicineConfirmed * 4 +
+          goodOrNormalCondition * 2 +
+          activityConfirmed * 2 +
+          2,
+      ),
+    ),
+  );
+
+  if (score >= 90) {
+    return {
+      score,
+      level: "good",
+      label: "양호",
+      summary: "식사·약 복용이 안정적이고 최근 활동도 유지되고 있어요.",
+      responseRate,
+      factors: [`최근 7일 응답률 ${responseRate}%`, "식사·약 복용 정상", "최근 활동 안정적"],
+    };
+  }
+
+  if (score >= 70) {
+    return {
+      score,
+      level: "caution",
+      label: "주의 필요",
+      summary: "큰 이상은 없지만 일부 항목에서 평소와 다른 신호가 보여요.",
+      responseRate,
+      factors: ["응답 흐름 일부 변화", "약 복용 확인 필요", "활동량 관찰 권장"],
+    };
+  }
+
+  return {
+    score,
+    level: "needs_check",
+    label: "확인 필요",
+    summary: "미응답 또는 컨디션 변화가 이어져 직접 확인이 필요해요.",
+    responseRate,
+    factors: ["연속 미응답 가능성", "컨디션 확인 필요", "가족 연락 권장"],
+  };
+}
+
+export function generateAiReport(): AiReport {
+  return {
+    period: "최근 2주 동안",
+    highlights: [
+      "응답 시간 변화 없음",
+      "식사 패턴 안정적",
+      "약 복용 안정적",
+      "활동량 소폭 감소",
+    ],
+    opinion:
+      "현재 큰 이상은 없지만 활동량이 조금 줄어드는 흐름이 보입니다.",
+    recommendation: "이번 주에 한 번 짧게 통화해보는 것을 권장합니다.",
+  };
+}
+
+export function detectPatternChanges(): PatternChange[] {
+  return [
+    {
+      label: "응답 시간",
+      before: "09:05",
+      after: "10:40",
+      analysis: "응답이 평소보다 늦어졌어요.",
+      tone: "caution",
+    },
+    {
+      label: "활동",
+      before: "정상",
+      after: "감소",
+      analysis: "외출·활동 응답이 줄었어요.",
+      tone: "attention",
+    },
+    {
+      label: "컨디션",
+      before: "좋음",
+      after: "보통",
+      analysis: "컨디션 표현이 한 단계 낮아졌어요.",
+      tone: "caution",
+    },
+  ];
+}
+
+export function generateAiInsight(): AiInsight {
+  return {
+    period: "최근 14일간",
+    signals: ["응답 빈도 감소", "활동 감소", "통화 감소"],
+    opinion: "평소보다 생활 패턴이 위축되고 있습니다.",
+    recommendation: "짧은 안부 전화가 도움이 될 수 있습니다.",
+  };
+}
+
+export function generateWeeklyReport(profileId: string) {
+  return {
+    profileId,
+    title: "주간 AI 안심 리포트",
+    summary: "응답과 복약은 안정적이며 활동량은 소폭 감소했습니다.",
+  };
+}
+
+export function generateMonthlyReport(profileId: string) {
+  return {
+    profileId,
+    title: "월간 AI 안심 리포트",
+    summary: "월간 패턴을 비교해 변화 신호와 가족 공유 포인트를 정리합니다.",
+  };
+}
+
+export function detectRiskSignal(responses: CareResponseRecord[]): RiskSignal {
+  const signals = detectSafetySignals(responses);
+  if (signals.includes("3일 연속 미응답")) {
+    return { level: "urgent", message: "3일 연속 미응답이 감지되었습니다." };
+  }
+  if (signals.length > 0) {
+    return { level: "caution", message: signals[0] };
+  }
+  return { level: "info", message: "현재 큰 이상 신호는 없습니다." };
+}
+
+export function sendEmergencyAlert(profileId: string) {
+  return {
+    profileId,
+    sent: false,
+    reason: "mock-only",
+    message: "긴급 연락망 알림 인터페이스가 준비되었습니다.",
   };
 }
 

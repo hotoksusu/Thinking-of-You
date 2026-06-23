@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
   Activity,
+  Brain,
   CalendarDays,
   CheckCircle2,
   HeartPulse,
@@ -13,6 +14,8 @@ import {
   Pill,
   Send,
   Share2,
+  Sparkles,
+  TrendingDown,
 } from "lucide-react";
 import { ConsumerShell } from "@/components/consumer-shell";
 import { Button, Card, inputClassName } from "@/components/ui";
@@ -26,7 +29,11 @@ import {
   type RoutineState,
 } from "@/lib/mock-data";
 import {
+  calculatePeaceScore,
   calculateSafetyStatus,
+  detectPatternChanges,
+  generateAiInsight,
+  generateAiReport,
   getCareRequestStatusLabel,
   getProfileRequest,
   getProfileResponses,
@@ -36,7 +43,15 @@ import {
   startPhoneCheck,
 } from "@/lib/safety";
 import { storageKeys } from "@/lib/storage-keys";
-import type { CareRequest, CareRequestStatus, SafetyStatus } from "@/types/care";
+import type {
+  AiInsight,
+  AiReport,
+  CareRequest,
+  CareRequestStatus,
+  PatternChange,
+  PeaceScore,
+  SafetyStatus,
+} from "@/types/care";
 
 export default function ConsumerHomePage() {
   const [settings] = useLocalStorage<ConsumerSettings>(
@@ -51,6 +66,10 @@ export default function ConsumerHomePage() {
   const [request, setRequest] = useState<CareRequest | undefined>(() => getProfileRequest("mom"));
 
   const responses = useMemo(() => getProfileResponses("mom"), []);
+  const peaceScore = useMemo(() => calculatePeaceScore(responses), [responses]);
+  const aiReport = useMemo(() => generateAiReport(), []);
+  const patternChanges = useMemo(() => detectPatternChanges(), []);
+  const aiInsight = useMemo(() => generateAiInsight(), []);
   const safety = useMemo(() => calculateSafetyStatus(responses, request), [responses, request]);
   const requestSteps: CareRequestStatus[] = ["ready", "sent", "waiting", "completed"];
   const currentRequestStatus = request?.status ?? "ready";
@@ -62,6 +81,10 @@ export default function ConsumerHomePage() {
       active="home"
     >
       <div className="space-y-5">
+        <PeaceScoreCard score={peaceScore} />
+        <AiReportCard report={aiReport} />
+        <PatternChangesCard changes={patternChanges} />
+        <AiInsightCard insight={aiInsight} />
         <SafetyStatusCard safety={safety} />
 
         <Card className="border-[#BFDBFE] bg-[#EFF6FF]">
@@ -100,12 +123,12 @@ export default function ConsumerHomePage() {
 
         <div className="grid grid-cols-2 gap-3">
           <Card>
-            <Pill size={22} className="text-brand-sage" aria-hidden />
+            <Pill size={22} className="text-[#2563EB]" aria-hidden />
             <p className="mt-3 text-sm font-bold">약 복용</p>
             <p className="mt-1 text-xl font-bold">{responses[0]?.medicine ?? "대기"}</p>
           </Card>
           <Card>
-            <HeartPulse size={22} className="text-brand-sage" aria-hidden />
+            <HeartPulse size={22} className="text-[#2563EB]" aria-hidden />
             <p className="mt-3 text-sm font-bold">컨디션</p>
             <p className="mt-1 text-xl font-bold">{responses[0]?.condition ?? "확인 전"}</p>
           </Card>
@@ -124,7 +147,7 @@ export default function ConsumerHomePage() {
 
         <Card>
           <div className="flex items-start gap-3">
-            <CalendarDays size={24} className="text-brand-sage" aria-hidden />
+            <CalendarDays size={24} className="text-[#2563EB]" aria-hidden />
             <div>
               <h2 className="font-bold">가까운 병원/검진 일정</h2>
               <p className="mt-1 text-sm text-stone-600">{schedules[0]?.title} · {schedules[0]?.date}</p>
@@ -172,6 +195,135 @@ export default function ConsumerHomePage() {
     if (method === "sms") setRequest({ ...sendSmsRequest("mom"), status: "waiting" });
     if (method === "phone") setRequest(startPhoneCheck("mom"));
   }
+}
+
+function PeaceScoreCard({ score }: { score: PeaceScore }) {
+  const tone = {
+    good: {
+      dot: "bg-emerald-500",
+      badge: "bg-emerald-50 text-emerald-700",
+      card: "border-[#BFDBFE] bg-white",
+    },
+    caution: {
+      dot: "bg-amber-400",
+      badge: "bg-amber-50 text-amber-800",
+      card: "border-amber-200 bg-amber-50",
+    },
+    needs_check: {
+      dot: "bg-rose-500",
+      badge: "bg-rose-50 text-rose-700",
+      card: "border-rose-200 bg-rose-50",
+    },
+  }[score.level];
+
+  return (
+    <Card className={`${tone.card} border shadow-[0_18px_42px_rgba(37,99,235,0.10)]`}>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-bold text-[#2563EB]">오늘의 안심 점수</p>
+          <p className="mt-2 text-5xl font-black leading-none text-brand-ink">
+            {score.score}점
+          </p>
+        </div>
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${tone.badge}`}>
+          <span className={`size-2 rounded-full ${tone.dot}`} />
+          {score.label}
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-stone-600">{score.summary}</p>
+      <div className="mt-4">
+        <div className="flex items-center justify-between text-xs font-bold text-stone-500">
+          <span>최근 7일 응답률</span>
+          <span>{score.responseRate}%</span>
+        </div>
+        <ProgressBar value={score.responseRate} />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {score.factors.map((factor) => (
+          <p key={factor} className="flex items-center gap-2 rounded-xl bg-[#EFF6FF] px-3 py-2 text-sm font-bold text-[#1D4ED8]">
+            <CheckCircle2 size={16} aria-hidden />
+            {factor}
+          </p>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function AiReportCard({ report }: { report: AiReport }) {
+  return (
+    <Card className="border-[#BFDBFE] bg-[#EFF6FF]">
+      <div className="flex items-start gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#2563EB] text-white">
+          <Brain size={20} aria-hidden />
+        </span>
+        <div>
+          <p className="text-sm font-bold text-[#1D4ED8]">AI 안심 리포트</p>
+          <h2 className="mt-1 text-lg font-bold">{report.period}</h2>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-2">
+        {report.highlights.map((item) => (
+          <p key={item} className="rounded-xl bg-white px-3 py-2 text-sm font-bold text-stone-700">
+            {item}
+          </p>
+        ))}
+      </div>
+      <div className="mt-4 rounded-2xl bg-white px-4 py-3">
+        <p className="text-xs font-black text-[#2563EB]">AI 의견</p>
+        <p className="mt-1 text-sm font-bold leading-6 text-brand-ink">{report.opinion}</p>
+        <p className="mt-1 text-sm leading-6 text-stone-600">{report.recommendation}</p>
+      </div>
+    </Card>
+  );
+}
+
+function PatternChangesCard({ changes }: { changes: PatternChange[] }) {
+  return (
+    <Card>
+      <div className="flex items-center gap-2">
+        <TrendingDown size={20} className="text-[#2563EB]" aria-hidden />
+        <h2 className="font-bold">최근 변화 감지</h2>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {changes.map((change) => (
+          <div key={change.label} className="rounded-xl bg-brand-cream px-3 py-2.5">
+            <div className="flex items-center justify-between text-sm font-bold">
+              <span>{change.label}</span>
+              <span className="text-[#2563EB]">
+                {change.before} → {change.after}
+              </span>
+            </div>
+            <p className="mt-1 text-xs font-semibold text-stone-500">{change.analysis}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 rounded-xl bg-[#EFF6FF] px-3 py-2 text-sm font-bold leading-6 text-[#1D4ED8]">
+        AI 분석: 최근 생활 패턴 변화가 감지되었습니다.
+      </p>
+    </Card>
+  );
+}
+
+function AiInsightCard({ insight }: { insight: AiInsight }) {
+  return (
+    <Card className="border-[#DDD6FE] bg-[#F5F3FF]">
+      <div className="flex items-center gap-2">
+        <Sparkles size={20} className="text-[#2563EB]" aria-hidden />
+        <h2 className="font-bold">AI 인사이트</h2>
+      </div>
+      <p className="mt-2 text-sm font-bold text-stone-500">{insight.period}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {insight.signals.map((signal) => (
+          <span key={signal} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-[#1D4ED8]">
+            {signal}
+          </span>
+        ))}
+      </div>
+      <p className="mt-3 text-sm font-bold leading-6 text-brand-ink">{insight.opinion}</p>
+      <p className="mt-1 text-sm leading-6 text-stone-600">{insight.recommendation}</p>
+    </Card>
+  );
 }
 
 function SafetyStatusCard({ safety }: { safety: SafetyStatus }) {

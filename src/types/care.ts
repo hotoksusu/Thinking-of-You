@@ -133,6 +133,44 @@ export type SafetyStatus = {
   totalDays: number;
 };
 
+export type PeaceScoreLevel = "good" | "caution" | "needs_check";
+
+export type PeaceScore = {
+  score: number;
+  level: PeaceScoreLevel;
+  label: "양호" | "주의 필요" | "확인 필요";
+  summary: string;
+  responseRate: number;
+  factors: string[];
+};
+
+export type AiReport = {
+  period: string;
+  highlights: string[];
+  opinion: string;
+  recommendation: string;
+};
+
+export type PatternChange = {
+  label: string;
+  before: string;
+  after: string;
+  analysis: string;
+  tone: "stable" | "caution" | "attention";
+};
+
+export type AiInsight = {
+  period: string;
+  signals: string[];
+  opinion: string;
+  recommendation: string;
+};
+
+export type RiskSignal = {
+  level: "info" | "caution" | "urgent";
+  message: string;
+};
+
 export type ResponsePattern = {
   days: number;
   responseRate: number;
