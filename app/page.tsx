@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { MessageCircle } from "lucide-react";
 
 const reassuranceBadges = ["AI 안심 분석", "변화 감지", "가족 공유", "개인정보 보호"];
@@ -25,12 +24,9 @@ export default function LandingPage() {
 
         <div className="fade-in relative z-10 grid flex-1 content-center gap-7 pb-6 pt-8 text-center">
           <div className="relative mx-auto w-full max-w-[760px] overflow-hidden rounded-[32px] bg-white/70 p-3 shadow-[0_24px_70px_rgba(37,99,235,0.16)] ring-1 ring-white/80">
-            <Image
-              src="/hero-care.png"
+            <img
+              src="/landing-hero-polished.svg"
               alt="부모님과 자녀가 안심 상태를 확인하는 따뜻한 일러스트"
-              width={1600}
-              height={1000}
-              priority
               className="h-auto w-full rounded-[24px] object-cover"
             />
             <div className="absolute bottom-5 left-5 rounded-[22px] bg-white/95 px-4 py-3 text-left shadow-[0_14px_34px_rgba(37,99,235,0.18)] backdrop-blur">

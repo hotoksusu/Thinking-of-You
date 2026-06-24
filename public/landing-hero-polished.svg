@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Warm family reassurance hero illustration</title>
+  <desc id="desc">A polished illustration of an adult child checking a reassurance app while video calling an elderly parent.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eff6ff"/>
+      <stop offset="0.55" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#fef9c3"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7c79f"/>
+      <stop offset="1" stop-color="#e6a877"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eff6ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#2563eb" flood-opacity="0.16"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#1f2937" flood-opacity="0.12"/>
+    </filter>
+    <clipPath id="tabletClip">
+      <rect x="945" y="172" width="420" height="310" rx="42"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <circle cx="260" cy="170" r="170" fill="#fde047" opacity="0.22"/>
+  <circle cx="1390" cy="820" r="210" fill="#93c5fd" opacity="0.33"/>
+  <circle cx="1325" cy="180" r="130" fill="#bfdbfe" opacity="0.35"/>
+
+  <rect x="114" y="92" width="1372" height="792" rx="72" fill="#ffffff" opacity="0.78"/>
+  <rect x="114" y="92" width="1372" height="792" rx="72" fill="none" stroke="#ffffff" stroke-width="3"/>
+
+  <g filter="url(#shadow)">
+    <rect x="116" y="632" width="1368" height="160" rx="70" fill="#d6a15f"/>
+    <rect x="278" y="650" width="1044" height="72" rx="36" fill="#b9824d" opacity="0.22"/>
+    <rect x="286" y="772" width="142" height="118" rx="32" fill="#b27b48"/>
+    <rect x="1172" y="772" width="142" height="118" rx="32" fill="#b27b48"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="945" y="172" width="420" height="310" rx="42" fill="#ffffff"/>
+    <g clip-path="url(#tabletClip)">
+      <rect x="945" y="172" width="420" height="310" fill="#eff6ff"/>
+      <circle cx="1154" cy="308" r="120" fill="#fde68a" opacity="0.42"/>
+      <path d="M1028 458c16-92 86-146 161-146s146 54 162 146z" fill="#5f8b72"/>
+      <circle cx="1189" cy="275" r="70" fill="url(#skin)"/>
+      <path d="M1110 247c11-58 148-63 166 2 4 15-9 31-24 31h-121c-15 0-25-17-21-33z" fill="#b8b1a6"/>
+      <rect x="1022" y="208" width="84" height="14" rx="7" fill="#2563eb" opacity="0.6"/>
+      <rect x="1125" y="208" width="158" height="14" rx="7" fill="#ef846f"/>
+      <rect x="1034" y="426" width="222" height="26" rx="13" fill="#ffffff" opacity="0.86"/>
+    </g>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="252" y="170" width="430" height="292" rx="44" fill="#dff6ff"/>
+    <rect x="284" y="198" width="366" height="218" rx="28" fill="#effaff"/>
+    <rect x="432" y="198" width="16" height="218" fill="#ffffff"/>
+    <rect x="284" y="296" width="366" height="16" fill="#ffffff"/>
+  </g>
+
+  <g>
+    <path d="M375 638c22-130 116-194 220-194s197 64 220 194z" fill="#f47f65"/>
+    <circle cx="594" cy="396" r="72" fill="url(#skin)"/>
+    <path d="M514 360c12-71 146-85 180-15 16 34-13 62-48 62h-89c-32 0-49-18-43-47z" fill="#19352f"/>
+    <path d="M673 530l104 112 43-45-116-128z" fill="#f7c79f"/>
+    <rect x="691" y="486" width="116" height="42" rx="21" fill="#f7c79f"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="653" y="560" width="160" height="220" rx="34" fill="#12332f"/>
+    <rect x="670" y="582" width="126" height="174" rx="24" fill="#f8fbff"/>
+    <rect x="690" y="606" width="84" height="16" rx="8" fill="#2563eb"/>
+    <rect x="690" y="642" width="60" height="14" rx="7" fill="#22c55e"/>
+    <rect x="690" y="684" width="84" height="12" rx="6" fill="#d1d5db"/>
+    <rect x="690" y="714" width="104" height="12" rx="6" fill="#dbeafe"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="806" y="612" width="244" height="168" rx="28" fill="#ffffff"/>
+    <rect x="832" y="644" width="34" height="28" rx="10" fill="#dcfce7"/>
+    <rect x="884" y="644" width="34" height="28" rx="10" fill="#fef3c7"/>
+    <rect x="936" y="644" width="34" height="28" rx="10" fill="#dbeafe"/>
+    <rect x="988" y="644" width="34" height="28" rx="10" fill="#fde68a"/>
+    <rect x="832" y="693" width="190" height="18" rx="9" fill="#eff6ff"/>
+    <rect x="832" y="728" width="122" height="18" rx="9" fill="#bfdbfe"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="1038" y="646" width="176" height="94" rx="28" fill="#ffffff"/>
+    <rect x="1062" y="672" width="24" height="44" rx="12" fill="#e5e7eb"/>
+    <rect x="1098" y="672" width="24" height="44" rx="12" fill="#eff6ff"/>
+    <rect x="1134" y="672" width="24" height="44" rx="12" fill="#e5e7eb"/>
+    <rect x="1170" y="672" width="24" height="44" rx="12" fill="#eff6ff"/>
+    <rect x="1074" y="672" width="4" height="44" rx="2" fill="#5f8b72"/>
+    <rect x="1146" y="672" width="4" height="44" rx="2" fill="#5f8b72"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="103" y="548" width="330" height="178" rx="38" fill="url(#card)"/>
+    <rect x="131" y="579" width="104" height="16" rx="8" fill="#2563eb"/>
+    <text x="131" y="636" font-family="Arial, sans-serif" font-size="48" font-weight="800" fill="#1f2937">92</text>
+    <circle cx="252" cy="618" r="18" fill="#22c55e"/>
+    <rect x="131" y="662" width="228" height="18" rx="9" fill="#dcfce7"/>
+    <rect x="131" y="690" width="164" height="18" rx="9" fill="#dbeafe"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="1238" y="596" width="92" height="68" rx="32" fill="#ffffff"/>
+    <path d="M1320 611c34 0 44 40 10 52" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round"/>
+  </g>
+</svg>
