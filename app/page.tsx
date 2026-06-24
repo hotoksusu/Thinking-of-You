@@ -7,6 +7,7 @@ import {
   HeartHandshake,
   MessageCircle,
 } from "lucide-react";
+import { InstallGuide } from "@/components/install-guide";
 
 const heroPills = ["부모님의 하루 기록", "가족의 따뜻한 관심", "AI의 변화 분석"];
 
@@ -133,6 +134,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
+        <InstallGuide />
       </section>
 
       <section className="mx-auto w-full max-w-[1120px] px-5 py-16 text-center sm:px-8">

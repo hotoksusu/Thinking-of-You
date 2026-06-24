@@ -6,6 +6,7 @@ import {
   MessageCircle,
   Sparkles,
 } from "lucide-react";
+import { InstallGuide } from "@/components/install-guide";
 import { familyEncouragements } from "@/lib/insights";
 
 const flowSteps = [
@@ -104,6 +105,10 @@ export default function GuidePage() {
             </span>
           ))}
         </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1120px] px-5 py-14 sm:px-8">
+        <InstallGuide />
       </section>
 
       <section className="bg-[#F9FAFB]">

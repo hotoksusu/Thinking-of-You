@@ -16,6 +16,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import { InstallGuide } from "@/components/install-guide";
 import {
   analyzeNoResponsePattern,
   dailyMomentOptions,
@@ -33,6 +34,7 @@ import {
 
 const registrationKey = "oneul-anbu-parent-registered";
 const profileKey = "oneul-anbu-parent-profile";
+const pendingCheckinKey = "oneul-anbu-pending-checkins";
 
 type Tab = "home" | "report" | "signals" | "family" | "settings";
 type ReportPeriod = "daily" | "weekly" | "monthly";
@@ -43,6 +45,16 @@ type ParentProfile = {
   relation: string;
   method: "kakao" | "sms" | "call";
   familyShare: boolean;
+};
+
+type PendingCheckin = {
+  id: string;
+  moment: string;
+  memory: string;
+  mood: string;
+  createdAt: string;
+  status: "pending" | "delivered";
+  deliveredAt?: string;
 };
 
 const defaultProfile: ParentProfile = {
@@ -245,6 +257,9 @@ function WelcomeStep() {
         <MiniSummary title="생활 패턴 생성" value="기분, 순간, 관심사 흐름을 조용히 쌓습니다." />
         <MiniSummary title="AI 변화 분석" value="가족은 원시 기록이 아니라 정리된 리포트를 봅니다." />
       </div>
+      <div className="mt-6">
+        <InstallGuide compact />
+      </div>
     </div>
   );
 }
@@ -427,8 +442,21 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
         </div>
       </section>
 
+      <section className="rounded-[24px] bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-black text-[#6B7280]">오늘 안부 도착 여부</p>
+            <h2 className="mt-2 text-2xl font-black">도착 완료</h2>
+          </div>
+          <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
+            가족 확인 가능
+          </span>
+        </div>
+      </section>
+
       <TodayMomentCard />
       <EncouragementInbox />
+      <InstallGuide compact />
 
       <section className="rounded-[24px] bg-[#EFF6FF] p-5">
         <p className="text-sm font-black text-[#2563EB]">AI 한 줄 의견</p>
@@ -478,6 +506,65 @@ function TodayMomentCard() {
   const [selectedMoment, setSelectedMoment] = useState(dailyMomentOptions[1]);
   const [selectedMemory, setSelectedMemory] = useState(memoryMomentOptions[0]);
   const [selectedMood, setSelectedMood] = useState(weatherMoodOptions[1]);
+  const [isOnline, setIsOnline] = useState(true);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [deliveryMessage, setDeliveryMessage] = useState("");
+
+  useEffect(() => {
+    setIsOnline(navigator.onLine);
+    setPendingCount(readPendingCheckins().filter((item) => item.status === "pending").length);
+
+    function handleOnline() {
+      setIsOnline(true);
+      const delivered = deliverPendingCheckins();
+      setPendingCount(0);
+      if (delivered > 0) {
+        setDeliveryMessage("임시 저장된 오늘 안부를 가족에게 전달했어요.");
+      }
+    }
+
+    function handleOffline() {
+      setIsOnline(false);
+      setDeliveryMessage("아직 가족에게 전달 전이에요.");
+    }
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    if (navigator.onLine) {
+      const delivered = deliverPendingCheckins();
+      if (delivered > 0) {
+        setDeliveryMessage("임시 저장된 오늘 안부를 가족에게 전달했어요.");
+      }
+    }
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  function submitMoment() {
+    const record: PendingCheckin = {
+      id: `checkin-${Date.now()}`,
+      moment: selectedMoment,
+      memory: selectedMemory,
+      mood: selectedMood,
+      createdAt: new Date().toISOString(),
+      status: isOnline ? "delivered" : "pending",
+      deliveredAt: isOnline ? new Date().toISOString() : undefined,
+    };
+
+    if (!isOnline) {
+      const next = [...readPendingCheckins(), record];
+      window.localStorage.setItem(pendingCheckinKey, JSON.stringify(next));
+      setPendingCount(next.filter((item) => item.status === "pending").length);
+      setDeliveryMessage("아직 가족에게 전달 전이에요.");
+      return;
+    }
+
+    setDeliveryMessage("오늘 안부가 가족에게 전달됐어요.");
+  }
 
   return (
     <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
@@ -497,8 +584,54 @@ function TodayMomentCard() {
           {selectedMoment} · {selectedMemory} · {selectedMood}
         </p>
       </div>
+      <div className={`mt-4 rounded-2xl p-4 ${isOnline ? "bg-[#F0FDF4]" : "bg-[#FEF3C7]"}`}>
+        <p className={`text-sm font-black ${isOnline ? "text-[#15803D]" : "text-[#92400E]"}`}>
+          {isOnline ? "온라인 상태" : "오프라인 상태"}
+        </p>
+        <p className={`mt-2 font-bold leading-7 ${isOnline ? "text-[#166534]" : "text-[#92400E]"}`}>
+          {deliveryMessage || (isOnline ? "작성하면 바로 가족에게 전달됩니다." : "인터넷이 연결되면 자동으로 전달됩니다.")}
+        </p>
+        {!isOnline || pendingCount > 0 ? (
+          <p className="mt-2 text-sm font-black text-[#92400E]">
+            {pendingCount > 0 ? `임시 저장 ${pendingCount}건` : "인터넷이 연결되면 자동으로 전달됩니다."}
+          </p>
+        ) : null}
+      </div>
+      <button
+        type="button"
+        onClick={submitMoment}
+        className="mt-4 min-h-14 w-full rounded-2xl bg-[#2563EB] px-5 font-black text-white"
+      >
+        오늘 안부 남기기
+      </button>
     </section>
   );
+}
+
+function readPendingCheckins(): PendingCheckin[] {
+  try {
+    const raw = window.localStorage.getItem(pendingCheckinKey);
+    return raw ? (JSON.parse(raw) as PendingCheckin[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function deliverPendingCheckins() {
+  const items = readPendingCheckins();
+  const pending = items.filter((item) => item.status === "pending");
+
+  if (pending.length === 0) {
+    return 0;
+  }
+
+  const next = items.map((item) =>
+    item.status === "pending"
+      ? { ...item, status: "delivered" as const, deliveredAt: new Date().toISOString() }
+      : item,
+  );
+  window.localStorage.setItem(pendingCheckinKey, JSON.stringify(next));
+  return pending.length;
 }
 
 function MomentChoiceGroup({
