@@ -3,10 +3,12 @@ import {
   ChevronDown,
   CreditCard,
   FileText,
+  HeartHandshake,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { familyEncouragements } from "@/lib/insights";
 
 const startSteps = [
   { title: "기록자 선택", description: "누구의 하루 기록을 쌓을지 먼저 정합니다." },
@@ -45,6 +47,22 @@ const faqs = [
   {
     question: "하루 기록을 남기지 않으면 어떻게 되나요?",
     answer: "기록 공백도 변화 신호로 보고 평소 기록 리듬과 비교합니다. 반복되면 가족 리포트에 확인 권장 신호로 정리됩니다.",
+  },
+  {
+    question: "부모님이 매일 답변해야 하나요?",
+    answer: "아닙니다. 오늘안부는 매일 긴 답변을 요구하지 않습니다. 간단한 기록이나 선택만으로 충분하며, 응답이 없더라도 AI는 장기적인 변화 패턴을 중심으로 분석합니다.",
+  },
+  {
+    question: "부모님을 감시하는 서비스인가요?",
+    answer: "아닙니다. 오늘안부는 감시가 아니라 관심에 가깝습니다. 가족이 응원과 안부를 전하고, AI는 기록 속 변화를 분석해 가족에게 안심 리포트를 제공합니다.",
+  },
+  {
+    question: "왜 가족 메시지 기능이 있나요?",
+    answer: "많은 부모님들은 상태를 확인받는 것보다 관심을 받는 것을 더 좋아합니다. 오늘안부는 안부 확인보다 관심과 연결을 중요하게 생각합니다.",
+  },
+  {
+    question: "부모님이 스마트폰을 잘 사용하지 못해도 괜찮나요?",
+    answer: "괜찮습니다. 오늘안부는 복잡한 입력이나 긴 작성이 필요하지 않습니다. 하루를 표현하는 간단한 선택만으로도 충분히 사용할 수 있습니다.",
   },
   {
     question: "실제 푸시는 되나요?",
@@ -141,6 +159,43 @@ export default function GuidePage() {
           <div className="grid gap-4">
             {dailySteps.map((step) => (
               <ScenarioCard key={step.title} badge={step.time} title={step.title} description={step.description} />
+            ))}
+          </div>
+        </div>
+      </GuideSection>
+
+      <GuideSection
+        eyebrow="가족 응원"
+        title={
+          <>
+            왜 가족 응원 기능이
+            <br />
+            있나요?
+          </>
+        }
+      >
+        <div className="grid gap-6 lg:grid-cols-[0.86fr_1.14fr] lg:items-center">
+          <div className="rounded-[28px] bg-[#EFF6FF] p-6">
+            <HeartHandshake size={28} className="text-[#2563EB]" aria-hidden />
+            <h3 className="mt-5 text-2xl font-black leading-9">
+              오늘안부는 부모님의 상태를 수집하는 서비스가 아닙니다.
+            </h3>
+            <p className="mt-4 font-semibold leading-7 text-[#4B5563]">
+              부모님의 하루를 기록하고, 가족의 관심을 전달하며, AI가 변화와 흐름을 분석하는 서비스입니다.
+            </p>
+            <p className="mt-4 font-semibold leading-7 text-[#4B5563]">
+              가족의 짧은 응원은 부모님에게는 관심과 애정으로 전달되고, AI는 기록과 반응의 변화를 장기적으로 분석합니다.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            {familyEncouragements.map((message) => (
+              <article key={message.id} className="rounded-[24px] bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.06)]">
+                <p className="text-sm font-black text-[#2563EB]">
+                  {message.icon} {message.sender}이 보낸 응원
+                </p>
+                <p className="mt-3 text-lg font-black leading-8">{message.message}</p>
+                <p className="mt-3 text-sm font-black text-[#9CA3AF]">읽기만 해도 괜찮아요</p>
+              </article>
             ))}
           </div>
         </div>

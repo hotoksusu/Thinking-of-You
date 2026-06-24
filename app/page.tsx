@@ -13,6 +13,7 @@ import {
   Smile,
   Users,
 } from "lucide-react";
+import { familyEncouragements } from "@/lib/insights";
 
 const changeSignals = [
   "기록 참여가 줄어듦",
@@ -68,6 +69,29 @@ const trustNotes = [
   "의료 진단이 아닌 안심 상태 분석입니다.",
   "AI는 원시 기록을 감시하지 않고 평소 생활 패턴과의 차이를 정리합니다.",
   "위험을 단정하지 않고, 관심 있게 살펴볼 변화만 알려줍니다.",
+];
+
+const landingFaqs = [
+  {
+    question: "부모님이 매일 답변해야 하나요?",
+    answer:
+      "아닙니다. 오늘안부는 매일 긴 답변을 요구하지 않습니다. 간단한 기록이나 선택만으로 충분하며, 응답이 없더라도 AI는 장기적인 변화 패턴을 중심으로 분석합니다.",
+  },
+  {
+    question: "부모님을 감시하는 서비스인가요?",
+    answer:
+      "아닙니다. 오늘안부는 감시가 아니라 관심에 가깝습니다. 가족이 응원과 안부를 전하고, AI는 기록 속 변화를 분석해 가족에게 안심 리포트를 제공합니다.",
+  },
+  {
+    question: "부모님이 스마트폰을 잘 사용하지 못해도 괜찮나요?",
+    answer:
+      "괜찮습니다. 오늘안부는 복잡한 입력이나 긴 작성이 필요하지 않습니다. 하루를 표현하는 간단한 선택만으로도 충분히 사용할 수 있습니다.",
+  },
+  {
+    question: "왜 가족 메시지 기능이 있나요?",
+    answer:
+      "많은 부모님들은 상태를 확인받는 것보다 관심을 받는 것을 더 좋아합니다. 오늘안부는 안부 확인보다 관심과 연결을 중요하게 생각합니다.",
+  },
 ];
 
 export default function LandingPage() {
@@ -194,6 +218,41 @@ export default function LandingPage() {
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="bg-[#FFF7ED]">
+        <div className="mx-auto grid w-full max-w-[1180px] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div className="max-w-[620px]">
+            <p className="text-sm font-black text-[#2563EB]">가족의 관심 표현</p>
+            <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+              멀리 있어도
+              <br />
+              관심은 가까이 전할 수 있습니다.
+            </h2>
+            <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
+              오늘안부는 단순히 상태를 확인하는 서비스가 아닙니다. 가족이 보내는 작은 관심과 응원이 부모님의 하루에 따뜻하게 전달됩니다.
+            </p>
+            <p className="mt-4 text-lg font-semibold leading-8 text-[#6B7280]">
+              AI는 그 기록 속 변화를 살펴보고 가족에게 안심 리포트를 제공합니다.
+            </p>
+          </div>
+          <div className="grid gap-4">
+            {familyEncouragements.map((message) => (
+              <article
+                key={message.id}
+                className="warm-card rounded-[26px] bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="rounded-full bg-[#EFF6FF] px-3 py-1 text-sm font-black text-[#2563EB]">
+                    {message.icon} {message.sender}의 응원
+                  </span>
+                  <span className="text-sm font-black text-[#9CA3AF]">답장 없어도 괜찮아요</span>
+                </div>
+                <p className="mt-5 text-xl font-black leading-8 text-[#1F2937]">{message.message}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -375,6 +434,27 @@ export default function LandingPage() {
               <p className="text-lg font-black leading-7">{note}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="bg-white">
+        <div className="mx-auto w-full max-w-[1180px] px-5 py-24 sm:px-8">
+          <div className="max-w-[680px]">
+            <p className="text-sm font-black text-[#2563EB]">FAQ</p>
+            <h2 className="mt-4 text-4xl font-black tracking-normal">
+              관심이 쌓여
+              <br />
+              안심이 되는 방식
+            </h2>
+          </div>
+          <div className="mt-10 grid gap-4 lg:grid-cols-2">
+            {landingFaqs.map((faq) => (
+              <article key={faq.question} className="rounded-[24px] bg-[#F9FAFB] p-6">
+                <h3 className="text-xl font-black leading-8">{faq.question}</h3>
+                <p className="mt-4 font-semibold leading-7 text-[#6B7280]">{faq.answer}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

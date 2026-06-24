@@ -19,6 +19,7 @@ import {
 import {
   analyzeNoResponsePattern,
   dailyMomentOptions,
+  familyEncouragements,
   generateFamilyAlert,
   generateLifePatternReport,
   generateReminderSchedule,
@@ -427,6 +428,7 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
       </section>
 
       <TodayMomentCard />
+      <EncouragementInbox />
 
       <section className="rounded-[24px] bg-[#EFF6FF] p-5">
         <p className="text-sm font-black text-[#2563EB]">AI 한 줄 의견</p>
@@ -443,6 +445,32 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
         </div>
       </section>
     </div>
+  );
+}
+
+function EncouragementInbox() {
+  return (
+    <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+      <p className="text-sm font-black text-[#2563EB]">오늘의 응원</p>
+      <h2 className="mt-3 text-3xl font-black leading-tight">읽기만 해도 괜찮아요</h2>
+      <p className="mt-3 font-semibold leading-7 text-[#6B7280]">
+        가족이 보낸 짧은 관심 메시지입니다. 답장을 요구하지 않고, 마음만 전합니다.
+      </p>
+      <div className="mt-5 grid gap-3">
+        {familyEncouragements.slice(0, 2).map((message) => (
+          <article key={message.id} className="rounded-2xl border border-[#E5E7EB] bg-[#FFFDF8] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-black text-[#1F2937]">
+                {message.icon} {message.sender}이 보낸 응원
+              </p>
+              <span className="text-xs font-black text-[#9CA3AF]">{message.sentAt}</span>
+            </div>
+            <p className="mt-3 font-bold leading-7 text-[#4B5563]">{message.message}</p>
+            <p className="mt-3 text-xs font-black text-[#2563EB]">답장하지 않아도 괜찮아요</p>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -793,6 +821,13 @@ function PremiumLockCard({ title, description }: { title: string; description: s
 }
 
 function FamilyTab({ profile }: { profile: ParentProfile }) {
+  const [sentMessage, setSentMessage] = useState<string | null>(null);
+  const quickMessages = [
+    "엄마 오늘도 좋은 하루 보내세요.",
+    "오늘 날씨가 좋네요. 산책도 하시고 맛있는 것도 드세요.",
+    "이번 주말에 전화드릴게요. 사랑합니다.",
+  ];
+
   return (
     <div className="grid gap-5">
       <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
@@ -824,6 +859,30 @@ function FamilyTab({ profile }: { profile: ParentProfile }) {
         <StatusLine label="최근 리포트 확인자" value={profile.relation} />
         <StatusLine label="가족 리포트 공유" value={profile.familyShare ? "켜짐" : "나중에 설정"} />
         <StatusLine label="초대 상태" value="장남 초대 대기" />
+      </SectionCard>
+
+      <SectionCard title="가족 응원 보내기">
+        <p className="mb-4 font-semibold leading-7 text-[#6B7280]">
+          답장을 요구하지 않는 짧은 관심 메시지입니다. 부모님은 읽기만 해도 됩니다.
+        </p>
+        <div className="grid gap-3">
+          {quickMessages.map((message) => (
+            <button
+              key={message}
+              type="button"
+              onClick={() => setSentMessage(message)}
+              className="rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] p-4 text-left font-black leading-7 transition hover:border-[#2563EB] hover:bg-[#EFF6FF]"
+            >
+              {message}
+            </button>
+          ))}
+        </div>
+        {sentMessage ? (
+          <div className="mt-4 rounded-2xl bg-[#EFF6FF] p-4">
+            <p className="text-sm font-black text-[#2563EB]">응원 메시지를 보냈어요</p>
+            <p className="mt-2 font-black leading-7 text-[#1F2937]">{sentMessage}</p>
+          </div>
+        ) : null}
       </SectionCard>
 
       <SectionCard title="가족 초대">

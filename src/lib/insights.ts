@@ -29,6 +29,15 @@ export type LifePatternReport = {
   aiInsight: string;
 };
 
+export type FamilyEncouragement = {
+  id: string;
+  sender: string;
+  icon: string;
+  message: string;
+  sentAt: string;
+  requiresReply: false;
+};
+
 export const dailyMomentOptions = [
   "😊 기분 좋았어요",
   "🙂 평범했어요",
@@ -40,6 +49,33 @@ export const dailyMomentOptions = [
 export const memoryMomentOptions = ["☕ 커피 한 잔", "🌳 산책", "👨‍👩‍👧 가족", "📺 TV", "📚 책"];
 
 export const weatherMoodOptions = ["🌞 맑음", "⛅ 보통", "🌧 조금 지침"];
+
+export const familyEncouragements: FamilyEncouragement[] = [
+  {
+    id: "encourage-daughter",
+    sender: "딸",
+    icon: "❤️",
+    message: "엄마 오늘도 좋은 하루 보내세요.",
+    sentAt: "오늘 오전",
+    requiresReply: false,
+  },
+  {
+    id: "encourage-son",
+    sender: "아들",
+    icon: "☀️",
+    message: "오늘 날씨가 좋네요. 산책도 하시고 맛있는 것도 드세요.",
+    sentAt: "어제 오후",
+    requiresReply: false,
+  },
+  {
+    id: "encourage-family",
+    sender: "가족",
+    icon: "😊",
+    message: "이번 주말에 전화드릴게요. 사랑합니다.",
+    sentAt: "이번 주",
+    requiresReply: false,
+  },
+];
 
 export function analyzeNoResponsePattern() {
   return {
