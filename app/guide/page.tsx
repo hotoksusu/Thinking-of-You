@@ -9,42 +9,42 @@ import {
 import type { ReactNode } from "react";
 
 const startSteps = [
-  { title: "부모님 또는 본인 선택", description: "누구의 안심 상태를 확인할지 먼저 정합니다." },
+  { title: "기록자 선택", description: "누구의 하루 기록을 쌓을지 먼저 정합니다." },
   { title: "대상자 등록", description: "호칭과 관계처럼 필요한 정보만 짧게 입력합니다." },
-  { title: "안부 방식 선택", description: "카카오톡, 문자, 전화 흐름 중 편한 방식을 고릅니다." },
-  { title: "가족 공유 설정", description: "함께 볼 가족을 나중에 초대할 수 있습니다." },
+  { title: "기록 방식 선택", description: "카카오톡, 문자, 전화 흐름 중 편한 방식을 고릅니다." },
+  { title: "가족 리포트 설정", description: "AI가 정리한 변화 리포트를 함께 볼 가족을 초대할 수 있습니다." },
 ];
 
 const dailySteps = [
-  { time: "오늘", title: "원터치 안부 입력", description: "좋아요, 보통이에요, 별로예요 중 하나만 눌러도 됩니다." },
-  { time: "리마인드", title: "입력 안내", description: "정해진 시간에 안부 입력을 부드럽게 다시 알려줍니다." },
-  { time: "미응답", title: "재알림", description: "응답이 없으면 가족 확인 권장 신호로 이어집니다." },
+  { time: "오늘", title: "오늘의 한 순간", description: "기분, 기억, 하루 표현 중 하나만 눌러도 됩니다." },
+  { time: "리마인드", title: "기록 안내", description: "정해진 시간에 대화처럼 부드럽게 다시 알려줍니다." },
+  { time: "공백", title: "리듬 분석", description: "기록 공백은 평소 리듬과 비교해 변화 신호로 분석됩니다." },
 ];
 
 const familyChecks = [
-  { title: "홈", description: "현재 안심 상태와 오늘의 안심 점수를 확인합니다." },
-  { title: "리포트", description: "일간·주간·월간 추이와 AI 리포트를 봅니다." },
-  { title: "변화감지", description: "미응답, 활동량 변화, 위험 신호를 따로 확인합니다." },
+  { title: "홈", description: "생활 안심 점수와 AI 요약을 확인합니다." },
+  { title: "리포트", description: "기록 참여도, 생활 활력, 관심사 변화를 봅니다." },
+  { title: "변화감지", description: "기록 공백, 외부 활동 표현, 긍정 표현 변화를 확인합니다." },
 ];
 
 const reportItems = [
-  { title: "안심 점수", description: "오늘 상태를 숫자로 빠르게 이해합니다." },
+  { title: "생활 안심 점수", description: "하루 기록의 흐름을 숫자로 빠르게 이해합니다." },
   { title: "AI 의견", description: "최근 변화가 어떤 의미인지 짧게 해석합니다." },
-  { title: "변화 원인", description: "응답률, 활동량, 컨디션 신호를 함께 봅니다." },
-  { title: "권장 행동", description: "통화 권장처럼 가족이 할 일을 제안합니다." },
+  { title: "변화 원인", description: "기록 참여도, 활동 표현, 정서 표현을 함께 봅니다." },
+  { title: "권장 행동", description: "부담 없는 대화처럼 가족이 할 일을 제안합니다." },
 ];
 
 const planItems = [
-  { title: "무료", description: "오늘 상태 확인, 기본 안심 점수" },
+  { title: "무료", description: "오늘의 한 순간, 기본 안심 점수" },
   { title: "안심 플랜", description: "변화 감지, 주간 리포트" },
   { title: "가족 플랜", description: "가족 공유, 월간 추이" },
-  { title: "프리미엄", description: "위험 시그널, AI 전화" },
+  { title: "프리미엄", description: "생활 변화 알림, AI 전화" },
 ];
 
 const faqs = [
   {
-    question: "부모님이 입력을 안 하면 어떻게 되나요?",
-    answer: "미응답도 변화 신호로 보고 평소 응답률과 비교합니다. 반복되면 가족 확인 권장 알림으로 이어집니다.",
+    question: "하루 기록을 남기지 않으면 어떻게 되나요?",
+    answer: "기록 공백도 변화 신호로 보고 평소 기록 리듬과 비교합니다. 반복되면 가족 리포트에 확인 권장 신호로 정리됩니다.",
   },
   {
     question: "실제 푸시는 되나요?",
@@ -52,11 +52,11 @@ const faqs = [
   },
   {
     question: "카카오톡 연동은 되나요?",
-    answer: "지금은 안부 방식 선택과 리마인드 흐름을 먼저 보여주고, 실제 카카오톡 연동은 준비 단계입니다.",
+    answer: "지금은 기록 방식 선택과 리마인드 흐름을 먼저 보여주고, 실제 카카오톡 연동은 준비 단계입니다.",
   },
   {
     question: "가족에게 어떤 알림이 가나요?",
-    answer: "3일 연속 미응답, 안심 점수 급락, 활동량 감소처럼 확인이 필요한 변화가 있을 때 알림을 표시하는 구조입니다.",
+    answer: "기록 공백, 긍정 표현 감소, 외부 활동 표현 감소처럼 확인이 필요한 변화가 있을 때 리포트에 표시하는 구조입니다.",
   },
   {
     question: "개인정보는 어떻게 보호되나요?",
@@ -83,7 +83,7 @@ export default function GuidePage() {
             오늘안부 사용법
           </h1>
           <p className="mt-6 max-w-[640px] text-lg font-semibold leading-8 text-[#6B7280]">
-            부모님의 안심 상태를 어떻게 확인하는지, 실제 사용 흐름 중심으로 알려드릴게요.
+            시니어는 하루를 가볍게 남기고, 가족은 AI가 정리한 변화를 확인하는 흐름을 알려드릴게요.
           </p>
         </div>
       </section>
@@ -118,9 +118,9 @@ export default function GuidePage() {
       >
         <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-            <p className="text-sm font-black text-[#2563EB]">오늘 어떠셨어요?</p>
+            <p className="text-sm font-black text-[#2563EB]">오늘 하루는 어땠나요?</p>
             <div className="mt-5 grid gap-3">
-              {["😀 좋아요", "😐 보통이에요", "😞 별로예요"].map((item) => (
+              {["😊 기분 좋았어요", "🙂 평범했어요", "☕ 여유롭게 보냈어요", "🏠 집에서 쉬었어요"].map((item) => (
                 <button
                   key={item}
                   type="button"
@@ -131,7 +131,7 @@ export default function GuidePage() {
               ))}
             </div>
             <div className="mt-5 grid gap-2 sm:grid-cols-3">
-              {["식사했어요", "약 먹었어요", "가벼운 활동했어요"].map((item) => (
+              {["☕ 커피 한 잔", "🌳 산책", "📺 TV"].map((item) => (
                 <span key={item} className="rounded-2xl bg-[#DCFCE7] px-4 py-3 text-sm font-black text-[#15803D]">
                   {item}
                 </span>
@@ -183,9 +183,9 @@ export default function GuidePage() {
           <div className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
             <p className="text-sm font-black text-[#2563EB]">AI 안심 리포트 예시</p>
             <p className="mt-5 text-5xl font-black">87점</p>
-            <p className="mt-4 font-bold text-[#6B7280]">최근 응답률과 활동량이 함께 낮아졌습니다.</p>
+            <p className="mt-4 font-bold text-[#6B7280]">최근 외부 활동 관련 표현이 소폭 줄었습니다.</p>
             <p className="mt-5 rounded-2xl bg-[#EFF6FF] p-4 font-black leading-7 text-[#2563EB]">
-              이번 주 짧은 통화를 권장합니다.
+              이번 주 부담 없는 근황 대화를 권장합니다.
             </p>
           </div>
         </div>

@@ -15,59 +15,59 @@ import {
 } from "lucide-react";
 
 const changeSignals = [
-  "응답 시간이 늦어짐",
-  "활동량이 줄어듦",
+  "기록 참여가 줄어듦",
+  "외부 활동 표현이 줄어듦",
   "하루 흐름이 달라짐",
-  "컨디션 표현이 바뀜",
+  "긍정 표현이 바뀜",
 ];
 
-const heroProofs = ["AI 안심 리포트", "변화 감지 센터", "가족 안심 네트워크", "위험 신호 알림"];
+const heroProofs = ["디지털 하루 기록", "AI 변화 분석", "가족 안심 리포트", "생활 패턴 감지"];
 
 const trendCards = [
-  { title: "일간", description: "오늘의 안심 상태 확인" },
-  { title: "주간", description: "최근 7일 응답률·활동 변화" },
-  { title: "월간", description: "최근 30일 안심 점수 추이" },
+  { title: "일간", description: "오늘의 한 순간 기록" },
+  { title: "주간", description: "최근 7일 기록 참여·활력 변화" },
+  { title: "월간", description: "최근 30일 생활 패턴 추이" },
 ];
 
-const monthlyScores = [92, 89, 87, 85, 82];
+const monthlyScores = [92, 91, 90, 88, 89];
 
 const reminderCards = [
-  { time: "오전 10:00", message: "오늘 컨디션은 어떠세요?" },
-  { time: "오후 2:00", message: "아직 안부가 확인되지 않았어요" },
-  { time: "저녁 7:00", message: "가족에게 확인 권장 알림" },
+  { time: "오전 10:00", message: "오늘 하루를 표현한다면?" },
+  { time: "오후 2:00", message: "오늘 가장 기억에 남는 것은?" },
+  { time: "저녁 7:00", message: "가족 리포트에 변화만 정리" },
 ];
 
 const premiumLocks = [
   { title: "최근 30일 변화 분석", plan: "안심 플랜" },
   { title: "주간 AI 안심 리포트", plan: "가족 플랜" },
-  { title: "위험 시그널 알림", plan: "프리미엄 케어" },
+  { title: "생활 변화 알림", plan: "프리미엄 케어" },
 ];
 
 const comparisonItems = [
   {
     title: "기존 안부 확인",
     tone: "muted",
-    items: ["오늘 식사했나요?", "오늘 괜찮으신가요?", "응답 여부 확인", "가족이 직접 판단"],
+    items: ["상태를 직접 묻기", "매일 체크 부담", "원시 기록 확인", "가족이 직접 판단"],
   },
   {
     title: "오늘안부",
     tone: "brand",
-    items: ["안심 점수", "응답 시간 변화 감지", "활동량 변화 감지", "AI 안심 리포트", "권장 행동 제안"],
+    items: ["하루 한 순간 기록", "생활 패턴 변화 감지", "AI 안심 리포트", "가족에게 요약 제공", "권장 행동 제안"],
   },
 ];
 
 const analysisItems = [
-  { title: "응답 패턴", description: "평소보다 늦거나 달라진 응답 흐름", icon: Clock3 },
-  { title: "생활 신호", description: "평소와 다른 하루 흐름의 변화", icon: HeartHandshake },
-  { title: "활동량 변화", description: "움직임과 외출 신호의 감소", icon: Activity },
-  { title: "반복 응답 누락", description: "하루 이상 반복되는 미응답 패턴", icon: MessageCircle },
-  { title: "감정 표현", description: "평소와 다른 컨디션 표현과 말투", icon: Smile },
+  { title: "기록 참여도", description: "하루 기록을 남기는 리듬의 변화", icon: Clock3 },
+  { title: "생활 활력", description: "평소와 다른 하루 표현의 변화", icon: HeartHandshake },
+  { title: "활동 표현", description: "산책, 외출, 집에서 쉼 같은 표현 흐름", icon: Activity },
+  { title: "관심사 변화", description: "커피, TV, 책, 가족 등 반복 주제 변화", icon: MessageCircle },
+  { title: "정서 표현", description: "맑음, 보통, 지침 같은 하루 표현 변화", icon: Smile },
 ];
 
 const trustNotes = [
   "의료 진단이 아닌 안심 상태 분석입니다.",
-  "AI는 부모님의 평소 신호와 비교해 변화 신호를 보여줍니다.",
-  "위험을 단정하지 않고, 확인이 필요한 신호를 알려줍니다.",
+  "AI는 원시 기록을 감시하지 않고 평소 생활 패턴과의 차이를 정리합니다.",
+  "위험을 단정하지 않고, 관심 있게 살펴볼 변화만 알려줍니다.",
 ];
 
 export default function LandingPage() {
@@ -84,32 +84,32 @@ export default function LandingPage() {
 
       <section className="mx-auto grid w-full max-w-[1180px] gap-14 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[0.96fr_1.04fr] lg:items-center lg:gap-14 lg:pb-28 lg:pt-16">
         <div className="fade-in max-w-[680px]">
-          <p className="text-sm font-black text-[#2563EB]">AI 기반 안심 상태 분석 서비스</p>
+          <p className="text-sm font-black text-[#2563EB]">디지털 일상 기록 기반 AI 안심 서비스</p>
           <h1 className="mt-8 max-w-[680px] text-[2.7rem] font-black leading-[1.2] tracking-[-0.01em] sm:text-[4rem] lg:text-[4.85rem]">
-            <span className="block">중요한 것은</span>
-            <span className="mt-5 block">오늘의 안부가 아닙니다.</span>
+            <span className="block">오늘의 하루가</span>
+            <span className="mt-5 block">쌓이면</span>
             <span className="mt-6 block">
-              평소와 달라진 <span className="text-[#2563EB]">작은 변화</span>입니다.
+              <span className="text-[#2563EB]">안심</span>이 됩니다.
             </span>
           </h1>
           <p className="mt-10 max-w-[580px] text-lg font-semibold leading-8 text-[#4B5563]">
-            AI는 매일의 기록 속에서 변화를 발견하고, 가족이 놓칠 수 있는 신호를 먼저 알려줍니다.
+            시니어는 하루의 한 순간만 가볍게 남기고, AI는 그 기록 속 변화를 분석합니다.
           </p>
           <p className="mt-5 max-w-[540px] text-base font-semibold leading-7 text-[#6B7280]">
-            오늘안부는 단순 안부 기록이 아니라 안심 점수, 변화 감지, AI 리포트로 부모님의 상태를 해석하는 AI 안심 서비스입니다.
+            가족과 기관은 원시 기록이 아니라 AI가 정리한 생활 패턴 변화 리포트를 받습니다.
           </p>
           <div className="mt-9 grid max-w-[520px] gap-3 sm:grid-cols-2">
             <a
               href="/app"
               className="flex min-h-14 items-center justify-center rounded-2xl bg-[#2563EB] px-6 text-base font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.24)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
             >
-              부모님 안심 상태 체험하기
+              하루 기록 체험하기
             </a>
             <a
               href="/app?registered=1"
               className="flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-6 text-base font-black text-[#1F2937] transition hover:-translate-y-0.5 hover:border-[#2563EB] hover:text-[#2563EB]"
             >
-              AI 안심 리포트 보기
+              AI 변화 리포트 보기
             </a>
           </div>
           <div className="mt-6 flex max-w-[520px] flex-wrap gap-2">
@@ -136,12 +136,12 @@ export default function LandingPage() {
           <div className="max-w-[600px]">
             <p className="text-sm font-black text-[#2563EB]">왜 필요한가요?</p>
             <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-              작은 변화는
+              중요한 것은
               <br />
-              대부분 뒤늦게 발견됩니다.
+              하루의 기록이 아니라 변화입니다.
             </h2>
             <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
-              오늘안부는 이런 작은 변화를 AI가 먼저 감지해 가족에게 안심 상태로 알려드립니다.
+              오늘안부는 가벼운 일상 기록이 쌓일 때 나타나는 변화를 AI가 먼저 감지해 가족에게 안심 리포트로 알려드립니다.
             </p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -164,9 +164,9 @@ export default function LandingPage() {
         <div className="max-w-[720px]">
           <p className="text-sm font-black text-[#2563EB]">서비스 차이</p>
           <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-            안부 확인을 넘어
+            관리받는 느낌을 넘어
             <br />
-            변화 감지로
+            하루 기록으로
           </h2>
         </div>
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
@@ -202,12 +202,12 @@ export default function LandingPage() {
           <div className="max-w-[620px]">
             <p className="text-sm font-black text-[#2563EB]">추이 분석</p>
             <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-              오늘만 보지 않고
+              하나의 기록만 보지 않고
               <br />
-              변화를 추적으로 봅니다
+              흐름의 변화를 봅니다
             </h2>
             <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
-              일간·주간·월간 추이로 안심 상태가 어떻게 달라지는지 한눈에 확인합니다.
+              일간·주간·월간 추이로 기록 참여도, 생활 활력, 관심사 변화를 한눈에 확인합니다.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {trendCards.map((card) => (
@@ -219,7 +219,7 @@ export default function LandingPage() {
             </div>
           </div>
           <article className="warm-card rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-            <h3 className="text-xl font-black">최근 30일 안심 점수</h3>
+            <h3 className="text-xl font-black">최근 30일 생활 안심 점수</h3>
             <div className="mt-5 flex h-32 items-end gap-3 rounded-2xl bg-[#F9FAFB] p-4">
               {monthlyScores.map((score, index) => (
                 <div key={`${score}-${index}`} className="flex flex-1 flex-col items-center gap-2">
@@ -228,10 +228,10 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-5 text-2xl font-black leading-9">92 → 89 → 87 → 85 → 82</p>
+            <p className="mt-5 text-2xl font-black leading-9">92 → 91 → 90 → 88 → 89</p>
             <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
               <p className="text-sm font-black text-[#2563EB]">AI 분석</p>
-              <p className="mt-2 font-black leading-7">최근 4주간 안심 점수가 완만하게 하락하고 있습니다.</p>
+              <p className="mt-2 font-black leading-7">최근 4주간 생활 안심 점수는 안정권입니다. 외부 활동 표현만 소폭 줄었습니다.</p>
             </div>
           </article>
         </div>
@@ -246,7 +246,7 @@ export default function LandingPage() {
             부드럽게 다시 알려드립니다
           </h2>
           <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
-            부모님이 안부 입력을 놓쳐도 오늘안부가 정해진 시간에 다시 알려드립니다.
+            하루 기록은 부담 없이, 정해진 시간에 대화처럼 부드럽게 안내합니다.
           </p>
         </div>
         <div className="grid gap-4">
@@ -267,31 +267,31 @@ export default function LandingPage() {
       <section className="bg-[#F9FAFB]">
         <div className="mx-auto grid w-full max-w-[1180px] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="max-w-[620px]">
-            <p className="text-sm font-black text-[#2563EB]">미응답 분석</p>
+            <p className="text-sm font-black text-[#2563EB]">기록 공백 분석</p>
             <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-              미응답도
+              기록이 줄어드는 것도
               <br />
-              중요한 신호입니다
+              변화의 신호입니다
             </h2>
             <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
-              단순히 응답이 없었다고 끝나지 않습니다. 평소 응답 패턴과 비교해 변화 신호로 분석합니다.
+              단순히 하루 기록이 비었다고 판단하지 않습니다. 평소 기록 리듬과 비교해 생활 변화 가능성을 분석합니다.
             </p>
           </div>
           <article className="warm-card rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl bg-[#F9FAFB] p-5">
-                <p className="text-sm font-black text-[#6B7280]">평소 응답률</p>
+                <p className="text-sm font-black text-[#6B7280]">평소 기록 참여율</p>
                 <p className="mt-2 text-4xl font-black">95%</p>
               </div>
               <div className="rounded-2xl bg-[#FEF3C7] p-5">
-                <p className="text-sm font-black text-[#92400E]">최근 7일 응답률</p>
-                <p className="mt-2 text-4xl font-black text-[#92400E]">60%</p>
+                <p className="text-sm font-black text-[#92400E]">최근 7일 기록 참여율</p>
+                <p className="mt-2 text-4xl font-black text-[#92400E]">78%</p>
               </div>
             </div>
             <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
               <p className="text-sm font-black text-[#2563EB]">AI 분석</p>
               <p className="mt-2 font-black leading-7">
-                최근 응답 빈도가 평소보다 줄었습니다. 생활 패턴 변화 가능성이 있어 가족 확인을 권장합니다.
+                최근 기록 참여가 평소보다 조금 줄었습니다. 생활 리듬 변화 가능성이 있어 가벼운 대화를 권장합니다.
               </p>
             </div>
           </article>
@@ -362,7 +362,7 @@ export default function LandingPage() {
             가족을 위한 안심 신호입니다.
           </h2>
           <p className="mt-5 text-lg font-semibold leading-8 text-[#6B7280]">
-            오늘안부는 질병을 판단하지 않습니다. 부모님의 평소 응답과 생활 신호를 기준으로 평소와 다른 변화를 가족에게
+            오늘안부는 질병을 판단하지 않습니다. 시니어가 남긴 하루 기록과 생활 신호를 기준으로 평소와 다른 변화를 가족에게
             보여줍니다.
           </p>
         </div>
@@ -387,7 +387,7 @@ export default function LandingPage() {
             <div>
               <h2 className="text-xl font-black">기관 도입 문의</h2>
               <p className="mt-2 max-w-[620px] font-semibold leading-7 text-[#6B7280]">
-                지자체, 요양기관, 보험사 대상 AI 안심 모니터링 도입을 준비하고 있습니다.
+                지자체, 복지기관, 보험사, 요양기관 대상 생활 패턴 변화 리포트 도입을 준비하고 있습니다.
               </p>
             </div>
           </div>
@@ -411,15 +411,15 @@ function ParentStatusCard() {
           <p className="text-sm font-black text-[#6B7280]">엄마</p>
           <div className="mt-3 flex items-center gap-2">
             <span className="size-3 rounded-full bg-[#22C55E]" />
-            <strong className="text-xl font-black">안심 상태</strong>
+            <strong className="text-xl font-black">생활 흐름</strong>
           </div>
         </div>
         <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">양호</span>
       </div>
       <div className="mt-8">
-        <p className="text-sm font-black text-[#2563EB]">안심 점수</p>
+        <p className="text-sm font-black text-[#2563EB]">생활 안심 점수</p>
         <p className="mt-2 text-6xl font-black leading-none">92점</p>
-        <p className="mt-4 font-bold text-[#6B7280]">최근 이상 신호 없음</p>
+        <p className="mt-4 font-bold text-[#6B7280]">최근 특별한 변화 없음</p>
       </div>
     </article>
   );
@@ -432,14 +432,14 @@ function AiReportCard() {
         <span className="flex size-11 items-center justify-center rounded-2xl bg-[#EFF6FF] text-[#2563EB]">
           <Brain size={22} aria-hidden />
         </span>
-        <h2 className="text-xl font-black">AI 안심 리포트</h2>
+        <h2 className="text-xl font-black">AI 변화 리포트</h2>
       </div>
       <div className="mt-5 grid gap-2 font-semibold leading-7 text-[#4B5563]">
-        <p>최근 생활 패턴에 큰 변화는 없습니다.</p>
-        <p>다만 활동량이 소폭 감소했습니다.</p>
+        <p>최근 기록 참여도는 안정적입니다.</p>
+        <p>다만 외부 활동 관련 표현이 소폭 줄었습니다.</p>
       </div>
       <p className="mt-4 rounded-2xl bg-[#EFF6FF] px-4 py-3 font-black text-[#2563EB]">
-        이번 주 짧은 통화를 권장합니다.
+        이번 주 부담 없는 근황 대화를 권장합니다.
       </p>
     </article>
   );
@@ -456,18 +456,18 @@ function ChangeSignalCard() {
       </div>
       <div className="mt-5 grid gap-4">
         <div>
-          <p className="text-sm font-black text-[#6B7280]">응답 시간</p>
-          <p className="mt-2 text-3xl font-black">09:05 → 10:40</p>
+          <p className="text-sm font-black text-[#6B7280]">기록 참여</p>
+          <p className="mt-2 text-3xl font-black">꾸준함 → 소폭 감소</p>
         </div>
         <div>
-          <p className="text-sm font-black text-[#6B7280]">활동량</p>
-          <p className="mt-2 text-2xl font-black">정상 → 감소</p>
+          <p className="text-sm font-black text-[#6B7280]">하루 표현</p>
+          <p className="mt-2 text-2xl font-black">산책 → 집에서 쉼</p>
         </div>
       </div>
       <div className="mt-5 rounded-2xl bg-[#FEF3C7] px-4 py-3">
         <p className="text-sm font-black text-[#92400E]">AI 분석</p>
         <p className="mt-2 font-black leading-7 text-[#92400E]">
-          평소와 다른 생활 패턴이 감지되었습니다. 이번 주 짧은 통화를 권장합니다.
+          최근 2주간 외부 활동 관련 응답이 감소했습니다. 생활 패턴 변화 여부를 확인해보는 것을 권장합니다.
         </p>
       </div>
     </article>

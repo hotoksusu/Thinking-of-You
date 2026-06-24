@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "오늘안부",
   description:
-    "부모님의 작은 변화를 AI가 먼저 감지하고 안심 상태를 알려주는 서비스",
+    "하루의 작은 기록을 바탕으로 AI가 생활 패턴 변화를 분석하는 안심 서비스",
 };
 
 export const viewport: Viewport = {

@@ -8,17 +8,46 @@ export type ReminderStep = {
 export type TrendPoint = {
   label: string;
   score: number;
-  responseRate?: number;
-  condition?: string;
+  participationRate?: number;
+  mood?: string;
 };
+
+export type DailyMomentRecord = {
+  date: string;
+  moment: string;
+  memory: string;
+  mood: string;
+};
+
+export type LifePatternReport = {
+  period: string;
+  participation: string;
+  vitality: string;
+  activityPattern: string;
+  positiveTrend: string;
+  interestChange: string;
+  aiInsight: string;
+};
+
+export const dailyMomentOptions = [
+  "😊 기분 좋았어요",
+  "🙂 평범했어요",
+  "☕ 여유롭게 보냈어요",
+  "🏠 집에서 쉬었어요",
+  "🚶 바쁘게 보냈어요",
+];
+
+export const memoryMomentOptions = ["☕ 커피 한 잔", "🌳 산책", "👨‍👩‍👧 가족", "📺 TV", "📚 책"];
+
+export const weatherMoodOptions = ["🌞 맑음", "⛅ 보통", "🌧 조금 지침"];
 
 export function analyzeNoResponsePattern() {
   return {
-    baselineResponseRate: 95,
-    recentResponseRate: 60,
-    consecutiveNoResponseDays: 3,
-    summary: "최근 응답 빈도가 평소보다 줄었습니다.",
-    interpretation: "생활 패턴 변화 가능성이 있어 가족 확인을 권장합니다.",
+    baselineParticipationRate: 95,
+    recentParticipationRate: 78,
+    missedRecordDays: 2,
+    summary: "최근 기록 참여 빈도가 평소보다 조금 줄었습니다.",
+    interpretation: "생활 리듬 변화 가능성이 있어 가볍게 근황을 나눠보는 것을 권장합니다.",
   };
 }
 
@@ -27,19 +56,19 @@ export function generateReminderSchedule(): ReminderStep[] {
     {
       step: "1차 알림",
       time: "19:30",
-      message: "오늘 안부를 남겨주세요",
+      message: "오늘의 한 순간을 남겨주세요",
       target: "parent",
     },
     {
       step: "2차 알림",
       time: "20:30",
-      message: "아직 안부가 확인되지 않았어요",
+      message: "오늘 하루를 한 번만 남겨볼까요?",
       target: "parent",
     },
     {
       step: "3차 알림",
       time: "21:30",
-      message: "가족에게 확인 권장 알림 표시",
+      message: "기록 리듬 변화가 가족 리포트에 반영됩니다",
       target: "family",
     },
   ];
@@ -47,41 +76,53 @@ export function generateReminderSchedule(): ReminderStep[] {
 
 export function getDailyTrend() {
   return {
-    title: "오늘의 안심 상태",
-    score: 92,
-    responded: true,
-    condition: "보통이에요",
-    notes: ["오늘 응답 완료", "컨디션 특이 변화 없음", "가벼운 활동 확인"],
+    title: "오늘의 일상 기록",
+    score: 89,
+    recorded: true,
+    mood: "평범했어요",
+    notes: ["오늘의 한 순간 기록 완료", "긍정 표현 유지", "생활 리듬 특이 변화 없음"],
   };
 }
 
 export function getWeeklyTrend(): TrendPoint[] {
   return [
-    { label: "월", score: 92, responseRate: 100 },
-    { label: "화", score: 91, responseRate: 100 },
-    { label: "수", score: 90, responseRate: 85 },
-    { label: "목", score: 88, responseRate: 70 },
-    { label: "금", score: 87, responseRate: 65 },
-    { label: "토", score: 86, responseRate: 60 },
-    { label: "일", score: 85, responseRate: 60 },
+    { label: "월", score: 92, participationRate: 100 },
+    { label: "화", score: 91, participationRate: 100 },
+    { label: "수", score: 90, participationRate: 90 },
+    { label: "목", score: 89, participationRate: 85 },
+    { label: "금", score: 88, participationRate: 85 },
+    { label: "토", score: 88, participationRate: 80 },
+    { label: "일", score: 89, participationRate: 78 },
   ];
 }
 
 export function getMonthlyTrend(): TrendPoint[] {
   return [
     { label: "1주", score: 92 },
-    { label: "2주", score: 89 },
-    { label: "3주", score: 87 },
-    { label: "4주", score: 85 },
-    { label: "이번 주", score: 82 },
+    { label: "2주", score: 91 },
+    { label: "3주", score: 90 },
+    { label: "4주", score: 88 },
+    { label: "이번 주", score: 89 },
   ];
 }
 
 export function generateFamilyAlert() {
   return {
-    title: "최근 변화가 감지되었습니다.",
-    description: "엄마의 응답 빈도가 평소보다 줄었습니다.",
-    recommendation: "이번 주 짧은 통화를 권장합니다.",
-    reasons: ["3일 연속 미응답", "안심 점수 완만한 하락", "활동량 지속 감소"],
+    title: "생활 리듬 변화가 감지되었습니다.",
+    description: "엄마의 기록 참여 빈도와 외부 활동 관련 표현이 평소보다 줄었습니다.",
+    recommendation: "이번 주에는 부담 없는 근황 대화를 권장합니다.",
+    reasons: ["기록 빈도 소폭 감소", "집에서 쉼 응답 증가", "긍정 표현 완만한 감소"],
+  };
+}
+
+export function generateLifePatternReport(): LifePatternReport {
+  return {
+    period: "최근 30일",
+    participation: "꾸준히 하루 기록을 남기고 있습니다.",
+    vitality: "생활 활력은 안정적으로 유지되고 있습니다.",
+    activityPattern: "외부 활동 관련 표현이 최근 2주간 소폭 줄었습니다.",
+    positiveTrend: "긍정 응답은 큰 변화 없이 유지되고 있습니다.",
+    interestChange: "커피, 산책, TV 관련 기록이 반복적으로 나타납니다.",
+    aiInsight: "특별한 이상 신호는 없지만 외부 활동 표현이 줄어 가벼운 대화를 권장합니다.",
   };
 }

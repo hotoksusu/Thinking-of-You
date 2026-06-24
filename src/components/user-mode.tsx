@@ -18,12 +18,16 @@ import {
 } from "lucide-react";
 import {
   analyzeNoResponsePattern,
+  dailyMomentOptions,
   generateFamilyAlert,
+  generateLifePatternReport,
   generateReminderSchedule,
   getDailyTrend,
   getMonthlyTrend,
   getWeeklyTrend,
+  memoryMomentOptions,
   type TrendPoint,
+  weatherMoodOptions,
 } from "@/lib/insights";
 
 const registrationKey = "oneul-anbu-parent-registered";
@@ -55,29 +59,26 @@ const methodLabel = {
 };
 
 const reportHistory = [
-  { title: "최신 AI 리포트", value: "큰 이상은 없지만 활동량이 소폭 감소했습니다." },
-  { title: "주간 리포트", value: "7일 응답률 100%, 식사와 복약 흐름 안정" },
-  { title: "월간 리포트", value: "월 평균 안심 점수 91점, 위험 신호 없음" },
-  { title: "AI 리포트 히스토리", value: "최근 4주 동안 주의 알림 1회" },
+  { title: "최신 AI 리포트", value: "생활 리듬은 안정적이고 외부 활동 표현만 소폭 줄었습니다." },
+  { title: "주간 리포트", value: "7일 기록 참여율 100%, 긍정 표현 유지" },
+  { title: "월간 리포트", value: "월 평균 안심 점수 89점, 큰 변화 없음" },
+  { title: "AI 리포트 히스토리", value: "최근 4주 동안 생활 리듬 변화 1회" },
 ];
 
 const changeSignals = [
-  { title: "응답 시간 변화", value: "최근 5일간 평균보다 2시간 늦어짐", status: "주의" },
-  { title: "체크 빈도 감소", value: "최근 7일 체크 40% 감소", status: "주의" },
-  { title: "식사 체크 감소", value: "이번 주 2회 누락", status: "주의" },
-  { title: "활동 체크 감소", value: "평소보다 12% 감소", status: "주의" },
-  { title: "수면 패턴 변화", value: "새벽 응답 2회", status: "안정" },
-  { title: "연속 미응답", value: "3일 연속 미응답", status: "위험" },
-  { title: "감정 상태 변화", value: "별로예요 응답 2회", status: "주의" },
+  { title: "기록 참여 빈도", value: "최근 7일 기록 참여가 평소보다 조금 줄었습니다.", status: "관찰" },
+  { title: "외부 활동 표현", value: "산책·외출 관련 응답이 최근 2주간 감소했습니다.", status: "관찰" },
+  { title: "긍정 표현 추이", value: "긍정 응답은 안정적으로 유지되고 있습니다.", status: "안정" },
+  { title: "관심사 변화", value: "커피, TV, 책 관련 기록이 반복적으로 나타납니다.", status: "안정" },
+  { title: "생활 리듬", value: "기록 시간대가 평소보다 늦어진 날이 2회 있었습니다.", status: "관찰" },
+  { title: "기록 공백", value: "이틀간 기록 공백이 있었지만 이후 다시 회복했습니다.", status: "안정" },
+  { title: "정서 표현", value: "조금 지침 표현이 지난주보다 1회 늘었습니다.", status: "관찰" },
 ];
 
 const familyNetwork = [
   { name: "엄마", score: 91, status: "안정", checkedBy: "딸" },
   { name: "아빠", score: 74, status: "주의", checkedBy: "아들" },
 ];
-
-const conditionOptions = ["😀 좋아요", "😐 보통이에요", "😞 별로예요"];
-const quickCheckItems = ["식사했어요", "약 먹었어요", "가벼운 활동했어요"];
 
 const reportPeriods = [
   { id: "daily", label: "일간" },
@@ -231,17 +232,17 @@ function WelcomeStep() {
     <div>
       <p className="text-sm font-black text-[#2563EB]">시작 안내</p>
       <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal">
-        부모님의 변화를
+        하루를 남기면
         <br />
-        AI가 먼저 분석합니다
+        AI가 변화를 살펴봅니다
       </h1>
       <p className="mt-5 text-lg font-semibold leading-8 text-[#6B7280]">
-        부모님 등록 후 평소 생활 패턴을 기준으로 샘플 AI 안심 리포트를 바로 보여드립니다.
+        검사처럼 묻지 않습니다. 가벼운 하루 기록이 쌓이면 가족에게는 변화 리포트로 정리됩니다.
       </p>
       <div className="mt-7 grid gap-3">
-        <MiniSummary title="부모님 등록" value="호칭과 확인 방식을 먼저 정합니다." />
-        <MiniSummary title="평소 패턴 생성" value="응답 시간, 활동량, 미응답 기준을 샘플로 만듭니다." />
-        <MiniSummary title="AI 분석 제공" value="가입 직후 안심 점수와 변화 감지 리포트를 확인합니다." />
+        <MiniSummary title="오늘의 한 순간" value="하루에 하나만, 1초 안에 남깁니다." />
+        <MiniSummary title="생활 패턴 생성" value="기분, 순간, 관심사 흐름을 조용히 쌓습니다." />
+        <MiniSummary title="AI 변화 분석" value="가족은 원시 기록이 아니라 정리된 리포트를 봅니다." />
       </div>
     </div>
   );
@@ -255,13 +256,13 @@ function UserTypeStep({
   onChange: (profile: ParentProfile) => void;
 }) {
   return (
-    <StepFrame label="사용자 유형 선택" title="어떤 안심 상태를 확인할까요?">
+    <StepFrame label="사용자 유형 선택" title="어떤 방식으로 시작할까요?">
       <ChoiceGrid
         value={profile.userType}
         options={[
-          { value: "family", title: "부모님 안심 확인", description: "부모님의 변화 신호와 안심 상태를 가족이 확인합니다." },
-          { value: "self", title: "내 안심 상태 관리", description: "내 변화 신호를 가족과 공유할 수 있습니다." },
-          { value: "care", title: "기관 안심 모니터링", description: "향후 기관 도입 흐름에 맞춥니다." },
+          { value: "family", title: "가족으로 보기", description: "AI가 정리한 생활 변화 리포트를 확인합니다." },
+          { value: "self", title: "내 하루 남기기", description: "관리받는 느낌 없이 오늘의 한 순간을 기록합니다." },
+          { value: "care", title: "기관 리포트 준비", description: "생활 패턴 변화 중심의 기관 도입 흐름에 맞춥니다." },
         ]}
         onChange={(userType) => onChange({ ...profile, userType })}
       />
@@ -277,7 +278,7 @@ function ParentInfoStep({
   onChange: (profile: ParentProfile) => void;
 }) {
   return (
-    <StepFrame label="부모님 정보 입력" title="누구의 상태를 확인할까요?">
+    <StepFrame label="기록 대상 설정" title="누구의 하루를 쌓아볼까요?">
       <div className="grid gap-4">
         <label className="grid gap-2 font-black">
           부모님 호칭
@@ -308,13 +309,13 @@ function CareMethodStep({
   onChange: (profile: ParentProfile) => void;
 }) {
   return (
-    <StepFrame label="안부 방식 선택" title="어떤 방식으로 확인할까요?">
+    <StepFrame label="기록 알림 방식" title="어떤 방식으로 하루 기록을 받을까요?">
       <ChoiceGrid
         value={profile.method}
         options={[
-          { value: "kakao", title: "카카오톡", description: "가장 익숙한 방식으로 안부를 확인합니다." },
-          { value: "sms", title: "문자", description: "카카오톡이 어려울 때 사용합니다." },
-          { value: "call", title: "전화", description: "AI 전화 확인 흐름을 준비합니다." },
+          { value: "kakao", title: "카카오톡", description: "익숙한 대화창에서 하루를 남깁니다." },
+          { value: "sms", title: "문자", description: "앱 설치 없이 문자 링크로 기록합니다." },
+          { value: "call", title: "전화", description: "스마트폰이 어려운 분을 위한 전화 기록 흐름입니다." },
         ]}
         onChange={(method) => onChange({ ...profile, method })}
       />
@@ -338,7 +339,7 @@ function FamilyShareStep({
           className={`rounded-2xl border p-5 text-left ${profile.familyShare ? "border-[#2563EB] bg-[#EFF6FF]" : "border-[#E5E7EB] bg-white"}`}
         >
           <strong className="block text-lg">가족 공유 켜기</strong>
-          <span className="mt-2 block font-semibold text-[#6B7280]">형제자매와 안심 상태를 같이 확인합니다.</span>
+          <span className="mt-2 block font-semibold text-[#6B7280]">형제자매와 AI가 정리한 변화 리포트를 같이 확인합니다.</span>
         </button>
         <button
           type="button"
@@ -363,45 +364,47 @@ function CompleteStep({ profile }: { profile: ParentProfile }) {
         샘플 AI 분석이 준비됐어요
       </h1>
       <div className="mt-7 rounded-[24px] bg-[#F9FAFB] p-5">
-        <StatusLine label="안부 방식" value={methodLabel[profile.method]} />
+        <StatusLine label="기록 방식" value={methodLabel[profile.method]} />
         <StatusLine label="가족 공유" value={profile.familyShare ? "사용" : "나중에 설정"} />
-        <StatusLine label="첫 화면" value="AI 안심 리포트" />
-        <StatusLine label="샘플 분석" value="응답 시간 42분 지연 감지" />
+        <StatusLine label="첫 화면" value="AI 생활 변화 리포트" />
+        <StatusLine label="샘플 분석" value="외부 활동 표현 소폭 감소" />
       </div>
     </div>
   );
 }
 
 function HomeTab({ profile }: { profile: ParentProfile }) {
+  const lifeReport = useMemo(() => generateLifePatternReport(), []);
+
   return (
     <div className="grid gap-5">
       <section className="rounded-[30px] bg-[#111827] p-6 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-black text-[#93C5FD]">AI 안심 리포트</p>
-            <h2 className="mt-3 text-4xl font-black tracking-normal">안심점수 86점</h2>
+            <p className="text-sm font-black text-[#93C5FD]">AI 생활 변화 리포트</p>
+            <h2 className="mt-3 text-4xl font-black tracking-normal">안심점수 89점</h2>
           </div>
-          <span className="rounded-full bg-[#FEF3C7] px-3 py-1 text-sm font-black text-[#92400E]">
-            주의
+          <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
+            안정
           </span>
         </div>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl bg-white/10 p-4">
-            <p className="text-sm font-black text-white/60">최근 7일 변화</p>
-            <p className="mt-2 font-black">응답 패턴 안정적</p>
+            <p className="text-sm font-black text-white/60">기록 참여도</p>
+            <p className="mt-2 font-black">{lifeReport.participation}</p>
           </div>
           <div className="rounded-2xl bg-white/10 p-4">
-            <p className="text-sm font-black text-white/60">최근 30일 변화</p>
-            <p className="mt-2 font-black">응답 시간 평균 42분 지연</p>
+            <p className="text-sm font-black text-white/60">생활 활력</p>
+            <p className="mt-2 font-black">{lifeReport.vitality}</p>
           </div>
         </div>
         <div className="mt-5 rounded-2xl bg-white p-4 text-[#1F2937]">
           <p className="text-sm font-black text-[#2563EB]">AI 요약 분석</p>
           <p className="mt-2 font-black leading-7">
-            최근 7일간 응답 패턴은 안정적입니다. 다만 평소보다 응답 시간이 평균 42분 늦어졌습니다.
+            {lifeReport.activityPattern}
           </p>
           <p className="mt-3 font-semibold leading-7 text-[#6B7280]">
-            AI는 생활 리듬 변화 가능성을 감지했습니다. 이번 주에는 짧은 통화를 권장합니다.
+            {lifeReport.aiInsight}
           </p>
         </div>
       </section>
@@ -410,8 +413,8 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-black text-[#6B7280]">{profile.parentName}</p>
-            <h2 className="mt-3 text-4xl font-black tracking-normal">현재 괜찮습니다</h2>
-            <p className="mt-4 text-lg font-bold text-[#6B7280]">최근 이상 신호 없음</p>
+            <h2 className="mt-3 text-4xl font-black tracking-normal">일상 흐름 안정</h2>
+            <p className="mt-4 text-lg font-bold text-[#6B7280]">최근 특별한 변화는 감지되지 않았습니다</p>
           </div>
           <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
             안심
@@ -423,89 +426,109 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
         </div>
       </section>
 
+      <TodayMomentCard />
+
       <section className="rounded-[24px] bg-[#EFF6FF] p-5">
         <p className="text-sm font-black text-[#2563EB]">AI 한 줄 의견</p>
         <p className="mt-3 text-xl font-black leading-8">
-          큰 이상은 없지만 활동량이 소폭 줄어 이번 주 통화를 권장합니다.
+          엄마는 최근에도 꾸준히 기록을 남기고 있으며 생활 패턴은 안정적으로 유지되고 있습니다.
         </p>
       </section>
 
       <section className="rounded-[24px] bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
-        <p className="text-sm font-black text-[#6B7280]">확인 필요한 변화</p>
+        <p className="text-sm font-black text-[#6B7280]">최근 변화 감지</p>
         <div className="mt-4 rounded-2xl bg-[#FEF3C7] px-4 py-4">
-          <p className="font-black text-[#92400E]">응답시간 09:05 → 10:40</p>
-          <p className="mt-2 font-semibold text-[#92400E]">생활 패턴 변화가 감지되었습니다.</p>
+          <p className="font-black text-[#92400E]">외부 활동 관련 응답이 소폭 감소했습니다.</p>
+          <p className="mt-2 font-semibold text-[#92400E]">생활 패턴 변화 여부를 확인해보는 것을 권장합니다.</p>
         </div>
       </section>
     </div>
   );
 }
 
-function ParentTab({ profile }: { profile: ParentProfile }) {
-  const [condition, setCondition] = useState("😐 보통이에요");
-  const [checkedItems, setCheckedItems] = useState<string[]>(["식사했어요"]);
+function TodayMomentCard() {
+  const [selectedMoment, setSelectedMoment] = useState(dailyMomentOptions[1]);
+  const [selectedMemory, setSelectedMemory] = useState(memoryMomentOptions[0]);
+  const [selectedMood, setSelectedMood] = useState(weatherMoodOptions[1]);
 
-  function toggleCheckedItem(item: string) {
-    setCheckedItems((current) =>
-      current.includes(item) ? current.filter((value) => value !== item) : [...current, item],
-    );
-  }
+  return (
+    <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+      <p className="text-sm font-black text-[#2563EB]">오늘의 한 순간</p>
+      <h2 className="mt-3 text-3xl font-black leading-tight">오늘 하루는 어땠나요?</h2>
+      <p className="mt-3 font-semibold leading-7 text-[#6B7280]">
+        검사처럼 답하지 않아도 됩니다. 가장 가까운 느낌 하나만 남겨주세요.
+      </p>
+      <MomentChoiceGroup options={dailyMomentOptions} value={selectedMoment} onChange={setSelectedMoment} />
+      <p className="mt-6 text-sm font-black text-[#6B7280]">오늘 가장 기억에 남는 것은?</p>
+      <MomentChoiceGroup options={memoryMomentOptions} value={selectedMemory} onChange={setSelectedMemory} compact />
+      <p className="mt-6 text-sm font-black text-[#6B7280]">오늘 하루를 표현한다면?</p>
+      <MomentChoiceGroup options={weatherMoodOptions} value={selectedMood} onChange={setSelectedMood} compact />
+      <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
+        <p className="text-sm font-black text-[#2563EB]">저장될 하루 기록</p>
+        <p className="mt-2 font-black leading-7">
+          {selectedMoment} · {selectedMemory} · {selectedMood}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function MomentChoiceGroup({
+  options,
+  value,
+  onChange,
+  compact = false,
+}: {
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div className={`mt-4 grid gap-3 ${compact ? "sm:grid-cols-3" : ""}`}>
+      {options.map((option) => (
+        <button
+          key={option}
+          type="button"
+          onClick={() => onChange(option)}
+          className={`min-h-14 rounded-2xl border px-4 text-left text-base font-black transition ${
+            value === option ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-[#E5E7EB] bg-[#F9FAFB]"
+          }`}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ParentTab({ profile }: { profile: ParentProfile }) {
+  const [moment, setMoment] = useState(dailyMomentOptions[1]);
+  const [memory, setMemory] = useState(memoryMomentOptions[0]);
 
   return (
     <div className="grid gap-5">
       <SectionCard title="프로필">
         <StatusLine label="호칭" value={profile.parentName} />
         <StatusLine label="관계" value={profile.relation} />
-        <StatusLine label="안부 방식" value={methodLabel[profile.method]} />
+        <StatusLine label="기록 방식" value={methodLabel[profile.method]} />
       </SectionCard>
 
-      <SectionCard title="오늘 어떠셨어요?">
-        <div className="grid gap-3">
-          {conditionOptions.map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => setCondition(option)}
-              className={`min-h-16 rounded-2xl border px-5 text-left text-xl font-black transition ${
-                condition === option ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-[#E5E7EB] bg-white"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          {quickCheckItems.map((item) => {
-            const selected = checkedItems.includes(item);
-            return (
-              <button
-                key={item}
-                type="button"
-                onClick={() => toggleCheckedItem(item)}
-                className={`min-h-14 rounded-2xl border px-4 text-left font-black transition ${
-                  selected ? "border-[#22C55E] bg-[#DCFCE7] text-[#15803D]" : "border-[#E5E7EB] bg-[#F9FAFB]"
-                }`}
-              >
-                {selected ? "✓ " : ""}
-                {item}
-              </button>
-            );
-          })}
-        </div>
+      <SectionCard title="오늘의 한 순간">
+        <MomentChoiceGroup options={dailyMomentOptions} value={moment} onChange={setMoment} />
+        <MomentChoiceGroup options={memoryMomentOptions} value={memory} onChange={setMemory} compact />
         <div className="mt-5 rounded-2xl bg-[#F9FAFB] p-4">
-          <p className="text-sm font-black text-[#6B7280]">오늘 상태 기록</p>
-          <p className="mt-2 text-lg font-black">{condition}</p>
-          <p className="mt-1 font-semibold leading-7 text-[#6B7280]">
-            {checkedItems.length ? checkedItems.join(" · ") : "추가 선택 없음"}
-          </p>
+          <p className="text-sm font-black text-[#6B7280]">오늘 남긴 기록</p>
+          <p className="mt-2 text-lg font-black">{moment}</p>
+          <p className="mt-1 font-semibold leading-7 text-[#6B7280]">{memory}</p>
         </div>
       </SectionCard>
 
-      <SectionCard title="최근 응답 여부">
+      <SectionCard title="최근 기록 흐름">
         <div className="grid gap-3">
-          <StatusLine label="오늘 08:42" value="안부 응답 완료" />
-          <StatusLine label="어제 09:10" value="응답 완료" />
-          <StatusLine label="2일 전" value="특이 신호 없음" />
+          <StatusLine label="오늘 08:42" value="오늘의 한 순간 기록" />
+          <StatusLine label="어제 09:10" value="커피 한 잔 기록" />
+          <StatusLine label="2일 전" value="산책 기록" />
         </div>
       </SectionCard>
     </div>
@@ -544,7 +567,7 @@ function ReportTab() {
         <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
           <p className="text-sm font-black text-[#2563EB]">AI 분석</p>
           <p className="mt-2 font-black leading-7 text-[#1F2937]">
-            최근 4주간 안심 점수가 완만하게 하락하고 있습니다. 활동량 감소와 미응답 증가가 함께 나타났습니다.
+            최근 4주간 안심 점수는 안정권입니다. 다만 외부 활동 관련 표현이 소폭 줄었습니다.
           </p>
         </div>
       </SectionCard>
@@ -566,7 +589,7 @@ function ReportTab() {
         </div>
       </SectionCard>
 
-      <PremiumLockCard title="최근 30일 변화 분석" description="월간 추이, 위험 시그널, 가족 알림 상세는 안심 플랜에서 확인할 수 있어요." />
+      <PremiumLockCard title="최근 30일 변화 분석" description="월간 추이, 관심사 변화, 가족 리포트 상세는 안심 플랜에서 확인할 수 있어요." />
     </div>
   );
 }
@@ -581,11 +604,11 @@ function SignalsTab() {
         <p className="text-sm font-black text-[#2563EB]">변화 감지 센터</p>
         <h2 className="mt-3 text-3xl font-black leading-tight">AI가 평소와 다른 신호를 분류합니다</h2>
         <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
-          응답 시간, 체크 빈도, 활동량, 미응답, 감정 표현을 함께 보고 위험·주의·안정으로 나눕니다.
+          기록 참여도, 하루 표현, 관심사, 활동 관련 표현을 함께 보고 안정·관찰로 나눕니다.
         </p>
       </section>
 
-      <SectionCard title="미응답 분석">
+      <SectionCard title="기록 공백 분석">
         <NoResponsePatternCard pattern={noResponsePattern} />
       </SectionCard>
 
@@ -606,16 +629,16 @@ function SignalsTab() {
       <section className="rounded-[24px] bg-[#EFF6FF] p-5">
         <p className="text-sm font-black text-[#2563EB]">AI 인사이트</p>
         <p className="mt-3 text-xl font-black leading-8">
-          최근 2주간 체크 횟수는 유지되고 있으나 응답 시간이 지속적으로 늦어지고 있습니다.
+          최근 2주간 기록은 유지되고 있으나 외부 활동을 표현하는 기록이 줄었습니다.
         </p>
         <p className="mt-3 font-semibold leading-7 text-[#4B5563]">
-          급격한 위험 신호는 아니지만 생활 리듬 변화 가능성이 있습니다.
+          급격한 변화는 아니지만 생활 리듬이 안쪽으로 좁아지는지 살펴볼 필요가 있습니다.
         </p>
       </section>
 
       <FamilyAlertCard alert={familyAlert} />
 
-      <PremiumLockCard title="위험 시그널 알림" description="반복 미응답, 점수 급락, 활동량 감소가 겹치면 가족에게 확인 권장 알림을 표시합니다." />
+      <PremiumLockCard title="생활 변화 알림" description="기록 공백, 긍정 표현 감소, 활동 표현 감소가 겹치면 가족에게 확인 권장 알림을 표시합니다." />
     </div>
   );
 }
@@ -624,7 +647,7 @@ function SignalBadge({ status }: { status: string }) {
   const className =
     status === "위험"
       ? "bg-[#FEE2E2] text-[#DC2626]"
-      : status === "주의"
+      : status === "주의" || status === "관찰"
         ? "bg-[#FEF3C7] text-[#92400E]"
         : "bg-[#DCFCE7] text-[#15803D]";
 
@@ -646,11 +669,11 @@ function PeriodReportContent({
     return (
       <div className="grid gap-3">
         <StatusLine label="오늘의 안심 상태" value={`${dailyTrend.score}점`} />
-        <StatusLine label="오늘의 응답 여부" value={dailyTrend.responded ? "응답 완료" : "미응답"} />
-        <StatusLine label="오늘의 컨디션" value={dailyTrend.condition} />
+        <StatusLine label="오늘의 기록 여부" value={dailyTrend.recorded ? "기록 완료" : "아직 기록 전"} />
+        <StatusLine label="오늘의 표현" value={dailyTrend.mood} />
         <div className="grid gap-2 pt-2">
           {dailyTrend.notes.map((note) => (
-            <MiniSummary key={note} title={note} value="오늘 상태에 반영되었습니다." />
+            <MiniSummary key={note} title={note} value="생활 패턴 분석에 반영되었습니다." />
           ))}
         </div>
       </div>
@@ -662,8 +685,8 @@ function PeriodReportContent({
     return (
       <div className="grid gap-4">
         <TrendChart points={weeklyTrend} />
-        <StatusLine label="최근 7일 응답률" value={`${latest?.responseRate ?? 0}%`} />
-        <StatusLine label="식사/약/활동 패턴" value="활동량 감소 관찰" />
+        <StatusLine label="최근 7일 기록 참여율" value={`${latest?.participationRate ?? 0}%`} />
+        <StatusLine label="활동 표현 변화" value="외부 활동 표현 소폭 감소" />
       </div>
     );
   }
@@ -671,9 +694,9 @@ function PeriodReportContent({
   return (
     <div className="grid gap-4">
       <TrendChart points={monthlyTrend} />
-      <StatusLine label="활동량 변화" value="4주간 완만한 감소" />
-      <StatusLine label="미응답 패턴" value="최근 3일 연속 미응답" />
-      <MiniSummary title="AI 종합 의견" value="안심 점수 하락과 미응답 증가가 함께 보여 가족 확인을 권장합니다." />
+      <StatusLine label="생활 활력 변화" value="안정권 유지" />
+      <StatusLine label="기록 공백 패턴" value="최근 2일 공백 후 회복" />
+      <MiniSummary title="AI 종합 의견" value="특별한 이상 신호는 없지만 외부 활동 표현 감소가 보여 가벼운 대화를 권장합니다." />
     </div>
   );
 }
@@ -708,9 +731,9 @@ function NoResponsePatternCard({
   return (
     <div className="grid gap-4">
       <div className="grid gap-3 sm:grid-cols-3">
-        <MiniSummary title="평소 응답률" value={`${pattern.baselineResponseRate}%`} />
-        <MiniSummary title="최근 7일 응답률" value={`${pattern.recentResponseRate}%`} />
-        <MiniSummary title="연속 미응답" value={`${pattern.consecutiveNoResponseDays}일`} />
+        <MiniSummary title="평소 기록 참여율" value={`${pattern.baselineParticipationRate}%`} />
+        <MiniSummary title="최근 7일 기록 참여율" value={`${pattern.recentParticipationRate}%`} />
+        <MiniSummary title="기록 공백" value={`${pattern.missedRecordDays}일`} />
       </div>
       <div className="rounded-2xl bg-[#FEF3C7] p-4">
         <p className="text-sm font-black text-[#92400E]">AI 해석</p>
@@ -774,9 +797,9 @@ function FamilyTab({ profile }: { profile: ParentProfile }) {
     <div className="grid gap-5">
       <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
         <p className="text-sm font-black text-[#2563EB]">가족 안심 네트워크</p>
-        <h2 className="mt-3 text-3xl font-black leading-tight">가족이 같은 안심 정보를 봅니다</h2>
+        <h2 className="mt-3 text-3xl font-black leading-tight">가족은 정리된 변화만 봅니다</h2>
         <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
-          부모님별 안심 상태, 최근 확인자, 가족 알림 공유 상태를 한곳에서 확인합니다.
+          원시 기록을 하나하나 보지 않고 AI가 정리한 생활 흐름과 변화 신호만 공유합니다.
         </p>
       </section>
 
@@ -797,9 +820,9 @@ function FamilyTab({ profile }: { profile: ParentProfile }) {
         </div>
       </SectionCard>
 
-      <SectionCard title="가족 공동 확인">
-        <StatusLine label="최근 확인자" value={profile.relation} />
-        <StatusLine label="가족 알림 공유" value={profile.familyShare ? "켜짐" : "나중에 설정"} />
+      <SectionCard title="가족 공동 리포트">
+        <StatusLine label="최근 리포트 확인자" value={profile.relation} />
+        <StatusLine label="가족 리포트 공유" value={profile.familyShare ? "켜짐" : "나중에 설정"} />
         <StatusLine label="초대 상태" value="장남 초대 대기" />
       </SectionCard>
 
@@ -817,7 +840,7 @@ function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: ()
 
   return (
     <div className="grid gap-5">
-      <SectionCard title="안부 방식">
+      <SectionCard title="하루 기록 방식">
         <StatusLine label="현재 방식" value={methodLabel[profile.method]} />
       </SectionCard>
 
@@ -833,7 +856,7 @@ function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: ()
               </div>
               <p className="mt-2 font-semibold leading-7 text-[#6B7280]">{reminder.message}</p>
               <p className="mt-2 text-sm font-black text-[#9CA3AF]">
-                {reminder.target === "parent" ? "부모님 알림" : "가족 알림"}
+                {reminder.target === "parent" ? "기록자 알림" : "가족 리포트 반영"}
               </p>
             </div>
           ))}
@@ -841,16 +864,16 @@ function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: ()
       </SectionCard>
 
       <SectionCard title="알림 설정">
-        <StatusLine label="미응답 감지" value="켜짐" />
-        <StatusLine label="가족 확인 권장" value="3일 연속 미응답 시" />
+        <StatusLine label="기록 공백 감지" value="켜짐" />
+        <StatusLine label="가족 확인 권장" value="생활 변화가 반복될 때" />
         <StatusLine label="주간 리포트" value="매주 월요일" />
       </SectionCard>
 
-      <PremiumLockCard title="가족 알림 자동화" description="미응답, 안심 점수 급락, 활동량 감소가 반복되면 가족에게 확인 권장 알림을 표시합니다." />
+      <PremiumLockCard title="가족 리포트 자동화" description="기록 공백, 긍정 표현 감소, 관심사 변화가 반복되면 가족에게 확인 권장 리포트를 표시합니다." />
 
       <SectionCard title="요금제">
-        <StatusLine label="무료" value="오늘 상태, 기본 안심 점수" />
-        <StatusLine label="안심 플랜" value="주간/월간 추이, AI 리포트, 가족 알림" />
+        <StatusLine label="무료" value="오늘의 한 순간, 기본 안심 점수" />
+        <StatusLine label="안심 플랜" value="주간/월간 변화 분석, AI 리포트, 가족 공유" />
       </SectionCard>
 
       <SectionCard title="개인정보">
