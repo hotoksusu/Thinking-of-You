@@ -2,54 +2,43 @@ import {
   BarChart3,
   Bell,
   ChevronDown,
-  FileText,
   HeartHandshake,
   MessageCircle,
   Sparkles,
 } from "lucide-react";
-import type { ReactNode } from "react";
 import { familyEncouragements } from "@/lib/insights";
+
+const flowSteps = [
+  { step: "1", title: "하루 기록", detail: "오늘 하루는 어땠나요?", icon: MessageCircle },
+  { step: "2", title: "가족 응원", detail: "답장 없이 읽기만 해도 OK", icon: HeartHandshake },
+  { step: "3", title: "AI 분석", detail: "기록 흐름을 장기 비교", icon: Sparkles },
+  { step: "4", title: "안심 리포트", detail: "가족에게 변화 요약", icon: BarChart3 },
+];
 
 const dailyOptions = ["😊 기분 좋았어요", "🙂 평범했어요", "☕ 여유로웠어요", "🏠 집에서 쉬었어요", "🚶 바쁘게 보냈어요"];
 
-const aiSignals = [
-  "기록 빈도",
-  "응답 시간",
-  "선택 변화",
-  "긍정 표현 변화",
-  "활동성 표현 변화",
-];
-
-const reportExample = [
-  "최근 2주간 기록 참여도는 안정적입니다.",
-  "다만 집에서 쉬었다는 응답이 이전보다 늘었습니다.",
-  "이번 주에는 짧은 통화를 권장합니다.",
-];
+const aiSignals = ["기록 빈도", "응답 시간", "선택 변화", "긍정 표현", "활동성 표현"];
 
 const guideFaqs = [
   {
     question: "부모님이 매일 답해야 하나요?",
-    answer: "아닙니다. 오늘안부는 매일 긴 답변을 요구하지 않습니다. 간단한 선택이나 짧은 기록만으로 충분합니다.",
+    answer: "아닙니다. 간단한 선택이나 짧은 기록만으로 충분합니다.",
   },
   {
     question: "답변을 하지 않으면 이상 신호로 판단하나요?",
-    answer:
-      "아닙니다. 단순히 하루 답변이 없다고 위험으로 판단하지 않습니다. AI는 개인별 평소 패턴과 장기 변화를 기준으로 분석합니다.",
+    answer: "아닙니다. 하루 응답 하나가 아니라 개인별 평소 패턴과 장기 변화를 기준으로 봅니다.",
   },
   {
     question: "가족 메시지는 왜 필요한가요?",
-    answer:
-      "오늘안부는 상태 확인보다 관심 전달을 중요하게 생각합니다. 가족의 짧은 응원은 부모님에게 따뜻한 접점이 되고, 서비스 사용을 자연스럽게 이어가게 합니다.",
+    answer: "상태 확인보다 관심 전달을 먼저 하기 위해서입니다.",
   },
   {
     question: "부모님을 감시하는 서비스인가요?",
-    answer:
-      "아닙니다. 오늘안부는 위치추적이나 감시 서비스가 아닙니다. 부모님의 하루 기록과 가족의 관심을 바탕으로 변화를 살펴보는 안심 서비스입니다.",
+    answer: "아닙니다. 위치추적이나 감시가 아니라 하루 기록과 가족 관심을 바탕으로 변화를 살펴봅니다.",
   },
   {
     question: "인터넷이 안 되면 어떻게 되나요?",
-    answer:
-      "인터넷 연결이 없으면 실시간 응답은 어려울 수 있습니다. 다만 오늘안부는 하루 응답 여부만으로 판단하지 않고, 장기적인 기록 흐름과 변화 패턴을 중심으로 분석합니다. 향후 문자 알림, 카카오 알림, 전화 안내 등 다양한 전달 방식을 단계적으로 검토합니다.",
+    answer: "실시간 응답은 어려울 수 있지만, 장기 기록 흐름을 중심으로 분석합니다. 문자·카카오·전화 안내도 단계적으로 검토합니다.",
   },
 ];
 
@@ -64,122 +53,65 @@ export default function GuidePage() {
           <a href="/" className="transition hover:text-[#2563EB]">
             서비스 소개
           </a>
-          <a href="/app" className="transition hover:text-[#2563EB]">
-            시작하기
+          <a href="/app?registered=1" className="transition hover:text-[#2563EB]">
+            리포트 체험
           </a>
         </nav>
       </header>
 
-      <section className="mx-auto w-full max-w-[1120px] px-5 pb-16 pt-10 sm:px-8 lg:pb-20">
-        <div className="max-w-[760px]">
-          <p className="text-sm font-black text-[#2563EB]">이용 가이드</p>
-          <h1 className="mt-5 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-            오늘안부는
-            <br />
-            이렇게 작동합니다.
-          </h1>
-          <p className="mt-6 max-w-[680px] text-lg font-semibold leading-8 text-[#6B7280]">
-            부모님이 하루를 남기고, 가족이 관심을 전하고, AI가 변화 흐름을 분석합니다.
-          </p>
+      <section className="mx-auto w-full max-w-[1120px] px-5 pb-10 pt-10 sm:px-8">
+        <p className="text-sm font-black text-[#2563EB]">이용 가이드</p>
+        <h1 className="mt-4 text-4xl font-black leading-tight sm:text-5xl">
+          오늘안부는
+          <br />
+          이렇게 작동합니다.
+        </h1>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1120px] px-5 py-10 sm:px-8">
+        <h2 className="text-2xl font-black">서비스 흐름</h2>
+        <div className="mt-6 grid gap-3 md:grid-cols-4">
+          {flowSteps.map((item) => {
+            const Icon = item.icon;
+            return (
+              <article key={item.step} className="rounded-[24px] bg-[#F9FAFB] p-5">
+                <span className="flex size-10 items-center justify-center rounded-2xl bg-[#EFF6FF] text-sm font-black text-[#2563EB]">
+                  {item.step}
+                </span>
+                <Icon size={22} className="mt-5 text-[#2563EB]" aria-hidden />
+                <h3 className="mt-3 text-xl font-black">{item.title}</h3>
+                <p className="mt-2 text-sm font-bold text-[#6B7280]">{item.detail}</p>
+              </article>
+            );
+          })}
         </div>
       </section>
 
-      <GuideStep
-        step="1단계"
-        icon={MessageCircle}
-        title="부모님이 하루를 남깁니다"
-        description="하루에 하나의 간단한 선택이나 짧은 기록만 남깁니다."
-      >
-        <div className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-          <p className="text-sm font-black text-[#2563EB]">오늘 하루는 어땠나요?</p>
-          <div className="mt-5 grid gap-3">
-            {dailyOptions.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className="min-h-14 rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 text-left text-lg font-black"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+      <section className="bg-[#F9FAFB]">
+        <div className="mx-auto grid w-full max-w-[1120px] gap-4 px-5 py-14 sm:px-8 lg:grid-cols-3">
+          <ExampleDaily />
+          <ExampleMessage />
+          <ExampleReport />
         </div>
-      </GuideStep>
+      </section>
 
-      <GuideStep
-        step="2단계"
-        icon={HeartHandshake}
-        title="가족이 관심을 전합니다"
-        description="가족은 부모님께 짧은 응원 메시지를 보낼 수 있습니다. 답장을 요구하지 않고, 읽기만 해도 괜찮습니다."
-        tone="muted"
-      >
-        <div className="grid gap-3">
-          {familyEncouragements.map((message) => (
-            <article key={message.id} className="rounded-[24px] bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.06)]">
-              <p className="text-sm font-black text-[#2563EB]">
-                {message.icon} {message.sender}이 보낸 응원
-              </p>
-              <p className="mt-3 text-lg font-black leading-8">{message.message}</p>
-              <p className="mt-3 text-sm font-black text-[#9CA3AF]">읽기만 해도 괜찮아요</p>
-            </article>
-          ))}
-        </div>
-      </GuideStep>
-
-      <GuideStep
-        step="3단계"
-        icon={Sparkles}
-        title="AI가 기록 흐름을 분석합니다"
-        description="AI는 하루하루의 답변 하나만 보지 않습니다. 개인별 평소 흐름과 장기 변화를 함께 비교합니다."
-      >
-        <div className="grid gap-3 sm:grid-cols-2">
+      <section className="mx-auto w-full max-w-[1120px] px-5 py-14 sm:px-8">
+        <h2 className="text-2xl font-black">AI는 무엇을 보나요?</h2>
+        <div className="mt-6 flex flex-wrap gap-2">
           {aiSignals.map((signal) => (
-            <article key={signal} className="rounded-[22px] border border-[#DBEAFE] bg-[#EFF6FF] p-5">
-              <Bell size={20} className="text-[#2563EB]" aria-hidden />
-              <h3 className="mt-4 text-xl font-black">{signal}</h3>
-            </article>
+            <span key={signal} className="rounded-full bg-[#EFF6FF] px-4 py-2 text-sm font-black text-[#2563EB]">
+              {signal}
+            </span>
           ))}
         </div>
-      </GuideStep>
+      </section>
 
-      <GuideStep
-        step="4단계"
-        icon={FileText}
-        title="가족에게 안심 리포트를 제공합니다"
-        description="가족은 원시 기록보다 AI가 정리한 변화 요약을 확인합니다."
-        tone="muted"
-      >
-        <article className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-          <div className="flex items-center gap-3">
-            <span className="flex size-11 items-center justify-center rounded-2xl bg-[#EFF6FF] text-[#2563EB]">
-              <BarChart3 size={22} aria-hidden />
-            </span>
-            <div>
-              <p className="text-sm font-black text-[#2563EB]">AI 안심 리포트 예시</p>
-              <h3 className="text-2xl font-black">생활 흐름 안정</h3>
-            </div>
-          </div>
-          <div className="mt-5 grid gap-3">
-            {reportExample.map((item) => (
-              <p key={item} className="rounded-2xl bg-[#F9FAFB] p-4 font-black leading-7">
-                {item}
-              </p>
-            ))}
-          </div>
-        </article>
-      </GuideStep>
-
-      <section className="bg-white">
-        <div className="mx-auto w-full max-w-[1120px] px-5 py-20 sm:px-8">
-          <div className="mb-10 max-w-[700px]">
-            <p className="text-sm font-black text-[#2563EB]">FAQ</p>
-            <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal sm:text-4xl">
-              자주 묻는 질문
-            </h2>
-          </div>
-          <div className="grid gap-3">
+      <section className="bg-[#F9FAFB]">
+        <div className="mx-auto w-full max-w-[1120px] px-5 py-14 sm:px-8">
+          <h2 className="text-2xl font-black">FAQ</h2>
+          <div className="mt-6 grid gap-3">
             {guideFaqs.map((faq) => (
-              <details key={faq.question} className="group rounded-[24px] bg-[#F9FAFB] p-5">
+              <details key={faq.question} className="group rounded-[22px] bg-white p-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-black">
                   {faq.question}
                   <ChevronDown size={20} className="shrink-0 transition group-open:rotate-180" aria-hidden />
@@ -188,40 +120,69 @@ export default function GuidePage() {
               </details>
             ))}
           </div>
+          <div className="mt-8">
+            <a
+              href="/app?registered=1"
+              className="inline-flex min-h-13 items-center justify-center rounded-2xl bg-[#2563EB] px-6 font-black text-white"
+            >
+              안심 리포트 체험하기
+            </a>
+          </div>
         </div>
       </section>
     </main>
   );
 }
 
-function GuideStep({
-  step,
-  icon: Icon,
-  title,
-  description,
-  children,
-  tone = "plain",
-}: {
-  step: string;
-  icon: typeof MessageCircle;
-  title: string;
-  description: string;
-  children: ReactNode;
-  tone?: "plain" | "muted";
-}) {
+function ExampleDaily() {
   return (
-    <section className={tone === "muted" ? "bg-[#F9FAFB]" : "bg-white"}>
-      <div className="mx-auto grid w-full max-w-[1120px] gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
-        <div className="max-w-[560px]">
-          <span className="inline-flex items-center gap-2 rounded-full bg-[#EFF6FF] px-3 py-1.5 text-sm font-black text-[#2563EB]">
-            <Icon size={18} aria-hidden />
-            {step}
-          </span>
-          <h2 className="mt-5 text-3xl font-black leading-tight tracking-normal sm:text-4xl">{title}</h2>
-          <p className="mt-5 text-lg font-semibold leading-8 text-[#6B7280]">{description}</p>
-        </div>
-        {children}
+    <article className="rounded-[26px] bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.06)]">
+      <p className="text-sm font-black text-[#2563EB]">부모님 화면</p>
+      <h3 className="mt-3 text-xl font-black">오늘 하루는 어땠나요?</h3>
+      <div className="mt-4 grid gap-2">
+        {dailyOptions.slice(0, 4).map((item) => (
+          <button key={item} type="button" className="min-h-12 rounded-2xl bg-[#F9FAFB] px-4 text-left font-black">
+            {item}
+          </button>
+        ))}
       </div>
-    </section>
+    </article>
+  );
+}
+
+function ExampleMessage() {
+  const message = familyEncouragements[0];
+
+  return (
+    <article className="rounded-[26px] bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.06)]">
+      <p className="text-sm font-black text-[#2563EB]">가족 응원</p>
+      <h3 className="mt-3 text-xl font-black">
+        {message.icon} {message.sender}이 보낸 응원
+      </h3>
+      <p className="mt-4 font-black leading-7">{message.message}</p>
+      <p className="mt-4 text-sm font-black text-[#9CA3AF]">읽기만 해도 괜찮아요</p>
+    </article>
+  );
+}
+
+function ExampleReport() {
+  return (
+    <article className="rounded-[26px] bg-[#111827] p-5 text-white shadow-[0_14px_34px_rgba(15,23,42,0.16)]">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-black text-[#93C5FD]">AI 안심 리포트</p>
+          <h3 className="mt-3 text-2xl font-black">엄마</h3>
+        </div>
+        <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">안정</span>
+      </div>
+      <p className="mt-6 text-5xl font-black">89</p>
+      <div className="mt-5 grid gap-2">
+        {["기록 참여도 유지", "생활 패턴 안정", "특이 변화 없음"].map((item) => (
+          <p key={item} className="rounded-2xl bg-white/10 px-4 py-3 font-black">
+            {item}
+          </p>
+        ))}
+      </div>
+    </article>
   );
 }

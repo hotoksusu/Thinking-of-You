@@ -1,224 +1,187 @@
 import {
   ArrowRight,
+  BarChart3,
   Brain,
   CheckCircle2,
   Heart,
   HeartHandshake,
   MessageCircle,
-  ShieldCheck,
 } from "lucide-react";
-import { familyEncouragements } from "@/lib/insights";
 
-const empathyCards = [
-  "매일 전화하기는 어렵습니다.",
-  "괜찮다고 하셔도 가족은 늘 궁금합니다.",
-  "상태를 계속 묻는 일은 조심스럽습니다.",
-];
+const heroPills = ["부모님의 하루 기록", "가족의 따뜻한 관심", "AI의 변화 분석"];
 
-const differenceItems = [
-  "위치를 추적하지 않습니다.",
-  "건강을 검사하지 않습니다.",
-  "긴 기록을 요구하지 않습니다.",
+const flowSteps = [
+  { step: "1", title: "하루 기록", description: "한 번만 선택", icon: MessageCircle },
+  { step: "2", title: "가족 응원", description: "읽기만 해도 OK", icon: HeartHandshake },
+  { step: "3", title: "AI 분석", description: "변화 흐름 감지", icon: Brain },
+  { step: "4", title: "안심 리포트", description: "가족에게 요약", icon: BarChart3 },
 ];
 
 const valueCards = [
-  {
-    title: "부모님에게는",
-    description: "내 하루를 남기는 작은 일기",
-    icon: Heart,
-  },
-  {
-    title: "가족에게는",
-    description: "멀리서도 마음을 전하는 방법",
-    icon: HeartHandshake,
-  },
-  {
-    title: "AI에게는",
-    description: "변화를 발견하는 기록의 흐름",
-    icon: Brain,
-  },
+  { title: "부모님", description: "하루를 남깁니다", icon: Heart },
+  { title: "가족", description: "관심을 전합니다", icon: HeartHandshake },
+  { title: "AI", description: "변화를 분석합니다", icon: Brain },
 ];
+
+const notCards = ["위치 추적 아님", "건강 검사 아님", "긴 기록 없음"];
 
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-white text-[#1F2937]">
-      <header className="mx-auto flex w-full max-w-[1180px] items-center justify-between px-5 py-5 sm:px-8">
+      <header className="mx-auto flex w-full max-w-[1120px] items-center justify-between px-5 py-5 sm:px-8">
         <a href="/" className="text-lg font-black text-[#2563EB]">
           오늘안부
         </a>
         <nav className="flex items-center gap-4 text-sm font-bold text-[#6B7280]">
-          <a href="/" className="hidden transition hover:text-[#2563EB] sm:inline">
-            서비스 소개
-          </a>
           <a href="/guide" className="transition hover:text-[#2563EB]">
             이용 가이드
           </a>
           <a href="/app?registered=1" className="hidden transition hover:text-[#2563EB] sm:inline">
-            안심 리포트 체험
+            리포트 체험
           </a>
         </nav>
       </header>
 
-      <section className="mx-auto grid w-full max-w-[1180px] gap-14 px-5 pb-20 pt-12 sm:px-8 lg:grid-cols-[0.98fr_1.02fr] lg:items-center lg:pb-28 lg:pt-18">
-        <div className="max-w-[700px]">
-          <p className="text-sm font-black text-[#2563EB]">가족의 관심이 기록되고 AI가 변화를 살펴보는 서비스</p>
-          <h1 className="mt-8 text-[3rem] font-black leading-[1.12] tracking-[-0.01em] sm:text-[4.4rem]">
+      <section className="mx-auto grid w-full max-w-[1120px] gap-10 px-5 pb-16 pt-10 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:pb-24">
+        <div>
+          <p className="text-sm font-black text-[#2563EB]">AI 안심 리포트 서비스</p>
+          <h1 className="mt-5 text-[3rem] font-black leading-[1.12] tracking-[-0.01em] sm:text-[4.5rem]">
             관심이 쌓이면,
             <br />
             <span className="text-[#2563EB]">안심</span>이 됩니다.
           </h1>
-          <p className="mt-8 max-w-[610px] text-xl font-semibold leading-9 text-[#4B5563]">
-            멀리 있어도 부모님의 하루를 따뜻하게 살필 수 있도록 오늘안부가 작은 기록과 가족의 관심을 연결합니다.
-          </p>
-          <p className="mt-5 max-w-[590px] text-lg font-semibold leading-8 text-[#6B7280]">
-            AI는 기록 속 변화를 분석해 가족에게 안심 리포트를 제공합니다.
-          </p>
-          <div className="mt-10 grid max-w-[520px] gap-3 sm:grid-cols-2">
+          <div className="mt-6 flex flex-wrap gap-2">
+            {heroPills.map((pill) => (
+              <span key={pill} className="rounded-full bg-[#EFF6FF] px-4 py-2 text-sm font-black text-[#2563EB]">
+                {pill}
+              </span>
+            ))}
+          </div>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
               href="/app?registered=1"
-              className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-6 text-base font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.24)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-7 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
             >
               안심 리포트 체험하기
               <ArrowRight size={18} aria-hidden />
             </a>
             <a
               href="/guide"
-              className="flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-6 text-base font-black text-[#1F2937] transition hover:-translate-y-0.5 hover:border-[#2563EB] hover:text-[#2563EB]"
+              className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-7 font-black text-[#4B5563]"
             >
-              사용 흐름 보기
+              이용 방법 보기
             </a>
           </div>
         </div>
 
-        <div className="grid gap-4">
-          <article className="rounded-[30px] bg-[#111827] p-6 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
-            <p className="text-sm font-black text-[#93C5FD]">오늘안부가 전하는 것</p>
-            <h2 className="mt-4 text-3xl font-black leading-tight">
-              확인보다 먼저,
-              <br />
-              관심을 전합니다.
-            </h2>
-            <div className="mt-6 grid gap-3">
-              {familyEncouragements.slice(0, 2).map((message) => (
-                <div key={message.id} className="rounded-2xl bg-white/10 p-4">
-                  <p className="text-sm font-black text-[#BFDBFE]">
-                    {message.icon} {message.sender}의 응원
-                  </p>
-                  <p className="mt-2 font-black leading-7">{message.message}</p>
-                </div>
-              ))}
-            </div>
-          </article>
-          <article className="rounded-[28px] border border-[#DBEAFE] bg-[#EFF6FF] p-6">
-            <div className="flex items-center gap-3">
-              <ShieldCheck size={24} className="text-[#2563EB]" aria-hidden />
-              <h2 className="text-xl font-black">감시가 아니라 관심입니다.</h2>
-            </div>
-            <p className="mt-4 font-semibold leading-7 text-[#4B5563]">
-              부모님은 읽기만 해도 괜찮고, 하루를 가볍게 남기기만 해도 충분합니다.
-            </p>
-          </article>
+        <ReportPreview />
+      </section>
+
+      <section className="border-y border-[#E5E7EB] bg-[#F9FAFB]">
+        <div className="mx-auto w-full max-w-[1120px] px-5 py-14 sm:px-8">
+          <h2 className="text-2xl font-black sm:text-3xl">하루 기록 → 관심 전달 → AI 분석</h2>
+          <div className="mt-8 grid gap-3 md:grid-cols-4">
+            {flowSteps.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article key={item.step} className="rounded-[24px] bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.05)]">
+                  <span className="flex size-10 items-center justify-center rounded-2xl bg-[#EFF6FF] text-sm font-black text-[#2563EB]">
+                    {item.step}
+                  </span>
+                  <Icon size={22} className="mt-5 text-[#2563EB]" aria-hidden />
+                  <h3 className="mt-3 text-xl font-black">{item.title}</h3>
+                  <p className="mt-2 text-sm font-bold text-[#6B7280]">{item.description}</p>
+                </article>
+              );
+            })}
+          </div>
+          <PrimaryLink />
         </div>
       </section>
 
-      <section className="bg-[#F9FAFB]">
-        <div className="mx-auto grid w-full max-w-[1180px] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+      <section className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
+        <div className="grid gap-4 md:grid-cols-3">
+          {valueCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <article key={card.title} className="rounded-[26px] border border-[#E5E7EB] bg-white p-6">
+                <Icon size={24} className="text-[#2563EB]" aria-hidden />
+                <p className="mt-5 text-sm font-black text-[#2563EB]">{card.title}</p>
+                <h2 className="mt-2 text-2xl font-black leading-8">{card.description}</h2>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="bg-[#FFF7ED]">
+        <div className="mx-auto grid w-full max-w-[1120px] gap-6 px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
           <div>
-            <p className="text-sm font-black text-[#2563EB]">문제 공감</p>
-            <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-              부모님은 괜찮다고 하시지만,
+            <p className="text-sm font-black text-[#2563EB]">확인이 아니라 관심</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+              부모님은 괜찮다고 하셔도,
               <br />
               가족은 늘 궁금합니다.
             </h2>
-            <p className="mt-6 max-w-[620px] text-lg font-semibold leading-8 text-[#6B7280]">
-              매일 전화하기는 어렵고, 부모님께 매번 상태를 묻는 것도 조심스럽습니다. 오늘안부는 확인이 아니라 관심으로 시작합니다.
-            </p>
           </div>
-          <div className="grid gap-4">
-            {empathyCards.map((item) => (
-              <article key={item} className="rounded-[24px] bg-white p-6 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
-                <MessageCircle size={22} className="text-[#2563EB]" aria-hidden />
-                <h3 className="mt-4 text-xl font-black leading-8">{item}</h3>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {notCards.map((item) => (
+              <article key={item} className="rounded-[22px] bg-white p-5">
+                <CheckCircle2 size={20} className="text-[#2563EB]" aria-hidden />
+                <h3 className="mt-4 text-lg font-black">{item}</h3>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1180px] px-5 py-24 sm:px-8">
-        <div className="max-w-[760px]">
-          <p className="text-sm font-black text-[#2563EB]">다른 점</p>
-          <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-            오늘안부는 누군가를
-            <br />
-            관리하는 서비스가 아닙니다.
-          </h2>
-          <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
-            부모님은 하루를 가볍게 남기고, 가족은 따뜻한 메시지를 전합니다. AI는 그 흐름 속 변화를 조용히 살펴봅니다.
-          </p>
-        </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {differenceItems.map((item) => (
-            <article key={item} className="rounded-[24px] border border-[#E5E7EB] bg-white p-6">
-              <CheckCircle2 size={22} className="text-[#2563EB]" aria-hidden />
-              <h3 className="mt-5 text-xl font-black leading-8">{item}</h3>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-[#FFF7ED]">
-        <div className="mx-auto w-full max-w-[1180px] px-5 py-24 sm:px-8">
-          <div className="max-w-[740px]">
-            <p className="text-sm font-black text-[#2563EB]">가치</p>
-            <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-              같은 기록도
-              <br />
-              보는 사람에 따라 가치가 달라집니다.
-            </h2>
-          </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {valueCards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <article key={card.title} className="rounded-[28px] bg-white p-7 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-                  <span className="flex size-12 items-center justify-center rounded-2xl bg-[#EFF6FF] text-[#2563EB]">
-                    <Icon size={24} aria-hidden />
-                  </span>
-                  <p className="mt-6 text-sm font-black text-[#2563EB]">{card.title}</p>
-                  <h3 className="mt-3 text-2xl font-black leading-9">{card.description}</h3>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-[1180px] px-5 py-24 text-center sm:px-8">
-        <p className="text-sm font-black text-[#2563EB]">시작하기</p>
-        <h2 className="mx-auto mt-4 max-w-[760px] text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+      <section className="mx-auto w-full max-w-[1120px] px-5 py-16 text-center sm:px-8">
+        <h2 className="text-3xl font-black leading-tight sm:text-4xl">
           오늘부터 부모님의 하루를
           <br />
-          조금 더 따뜻하게 살펴보세요.
+          따뜻하게 살펴보세요.
         </h2>
-        <p className="mx-auto mt-6 max-w-[620px] text-lg font-semibold leading-8 text-[#6B7280]">
-          관심이 쌓이면 안심이 됩니다. 오늘안부는 그 관심을 부담 없는 기록과 리포트로 이어줍니다.
-        </p>
-        <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-          <a
-            href="/app"
-            className="inline-flex min-h-14 items-center justify-center rounded-2xl bg-[#2563EB] px-7 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.20)]"
-          >
-            시작하기
-          </a>
-          <a
-            href="/guide"
-            className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-7 font-black text-[#4B5563]"
-          >
-            이용 가이드 보기
-          </a>
-        </div>
+        <PrimaryLink centered />
       </section>
     </main>
+  );
+}
+
+function ReportPreview() {
+  return (
+    <article className="rounded-[30px] bg-[#111827] p-6 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-black text-[#93C5FD]">AI 안심 리포트 예시</p>
+          <h2 className="mt-3 text-3xl font-black">엄마</h2>
+        </div>
+        <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
+          안정
+        </span>
+      </div>
+      <p className="mt-7 text-6xl font-black leading-none">89</p>
+      <p className="mt-2 text-sm font-black text-white/55">안심점수</p>
+      <div className="mt-6 grid gap-3">
+        {["최근 기록 참여도 유지", "생활 패턴 안정", "특이 변화 없음"].map((item) => (
+          <p key={item} className="rounded-2xl bg-white/10 px-4 py-3 font-black">
+            {item}
+          </p>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function PrimaryLink({ centered = false }: { centered?: boolean }) {
+  return (
+    <div className={centered ? "mt-8 flex justify-center" : "mt-8"}>
+      <a
+        href="/app?registered=1"
+        className="inline-flex min-h-13 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-6 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.18)]"
+      >
+        안심 리포트 체험하기
+        <ArrowRight size={17} aria-hidden />
+      </a>
+    </div>
   );
 }
