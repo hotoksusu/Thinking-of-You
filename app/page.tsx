@@ -65,21 +65,21 @@ export default function LandingPage() {
         </a>
       </header>
 
-      <section className="mx-auto grid w-full max-w-[1120px] gap-14 px-5 pb-24 pt-14 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:pb-32 lg:pt-24">
-        <div className="fade-in">
+      <section className="mx-auto grid w-full max-w-[1120px] gap-12 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[0.84fr_1.16fr] lg:items-center lg:gap-16 lg:pb-28 lg:pt-16">
+        <div className="fade-in max-w-[680px]">
           <p className="text-sm font-black text-[#2563EB]">AI 기반 부모님 안심 상태 분석 서비스</p>
-          <h1 className="mt-5 text-[2.82rem] font-black leading-[1.12] tracking-normal sm:text-[4.7rem]">
+          <h1 className="mt-5 max-w-[680px] text-4xl font-black leading-[1.13] tracking-[-0.04em] sm:text-5xl lg:text-6xl">
             부모님께 매일 전화하지 않아도,
             <br />
             AI가 생활 패턴 변화를 분석해
             <br />
             <span className="text-[#2563EB]">자녀에게 안심 상태를 알려드립니다.</span>
           </h1>
-          <p className="mt-7 max-w-[620px] text-xl font-semibold leading-9 text-[#4B5563]">
+          <p className="mt-6 max-w-[600px] text-lg font-semibold leading-8 text-[#4B5563]">
             오늘안부는 부모님의 간단한 안부 입력과 생활 패턴 변화를 바탕으로 안심 점수,
             변화 감지, AI 안심 리포트를 제공하는 가족 안심 서비스입니다.
           </p>
-          <div className="mt-10 grid max-w-[460px] gap-3 sm:grid-cols-2">
+          <div className="mt-9 grid max-w-[440px] gap-3 sm:grid-cols-2">
             <a
               href="/app"
               className="flex min-h-14 items-center justify-center rounded-2xl bg-[#2563EB] px-5 text-base font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.24)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
@@ -95,7 +95,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="fade-in grid gap-5">
+        <div className="fade-in grid gap-5 lg:pl-2">
           <ParentStatusCard />
           <AiReportCard />
           <ChangeSignalCard />
