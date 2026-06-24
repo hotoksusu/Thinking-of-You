@@ -21,7 +21,7 @@ const changeSignals = [
   "컨디션 표현이 바뀜",
 ];
 
-const heroProofs = ["안심 점수", "변화 감지", "AI 안심 리포트", "권장 행동"];
+const heroProofs = ["AI 안심 리포트", "변화 감지 센터", "가족 안심 네트워크", "위험 신호 알림"];
 
 const trendCards = [
   { title: "일간", description: "오늘의 안심 상태 확인" },
@@ -85,25 +85,33 @@ export default function LandingPage() {
       <section className="mx-auto grid w-full max-w-[1180px] gap-14 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[0.96fr_1.04fr] lg:items-center lg:gap-14 lg:pb-28 lg:pt-16">
         <div className="fade-in max-w-[680px]">
           <p className="text-sm font-black text-[#2563EB]">AI 기반 안심 상태 분석 서비스</p>
-          <h1 className="mt-8 max-w-[680px] text-[2.85rem] font-black leading-[1.22] tracking-[0.005em] sm:text-[4.2rem] lg:text-[5.15rem]">
-            <span className="block">중요한 건</span>
-            <span className="mt-5 block">안부가 아니라</span>
+          <h1 className="mt-8 max-w-[680px] text-[2.7rem] font-black leading-[1.2] tracking-[-0.01em] sm:text-[4rem] lg:text-[4.85rem]">
+            <span className="block">중요한 것은</span>
+            <span className="mt-5 block">오늘의 안부가 아닙니다.</span>
             <span className="mt-6 block">
-              <span className="text-[#2563EB]">변화</span>입니다
+              평소와 달라진 <span className="text-[#2563EB]">작은 변화</span>입니다.
             </span>
           </h1>
           <p className="mt-10 max-w-[580px] text-lg font-semibold leading-8 text-[#4B5563]">
-            AI가 평소와 다른 생활 신호를 감지해 가족에게 안심 상태를 알려드립니다.
+            AI는 매일의 기록 속에서 변화를 발견하고, 가족이 놓칠 수 있는 신호를 먼저 알려줍니다.
           </p>
           <p className="mt-5 max-w-[540px] text-base font-semibold leading-7 text-[#6B7280]">
-            오늘안부는 작은 생활 신호를 안심 점수와 AI 리포트로 정리해, 가족이 확인할 변화를 더 빠르게 살펴보게 돕습니다.
+            오늘안부는 단순 안부 기록이 아니라 안심 점수, 변화 감지, AI 리포트로 부모님의 상태를 해석하는 AI 안심 서비스입니다.
           </p>
-          <a
-            href="/app"
-            className="mt-9 flex min-h-14 w-full max-w-[360px] items-center justify-center rounded-2xl bg-[#2563EB] px-6 text-base font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.24)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
-          >
-            오늘안부 시작하기
-          </a>
+          <div className="mt-9 grid max-w-[520px] gap-3 sm:grid-cols-2">
+            <a
+              href="/app"
+              className="flex min-h-14 items-center justify-center rounded-2xl bg-[#2563EB] px-6 text-base font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.24)] transition hover:-translate-y-0.5 hover:bg-[#1D4ED8]"
+            >
+              부모님 안심 상태 체험하기
+            </a>
+            <a
+              href="/app?registered=1"
+              className="flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-6 text-base font-black text-[#1F2937] transition hover:-translate-y-0.5 hover:border-[#2563EB] hover:text-[#2563EB]"
+            >
+              AI 안심 리포트 보기
+            </a>
+          </div>
           <div className="mt-6 flex max-w-[520px] flex-wrap gap-2">
             {heroProofs.map((proof) => (
               <span

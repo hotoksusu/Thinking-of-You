@@ -14,6 +14,7 @@ import {
   Settings,
   ShieldCheck,
   UserRound,
+  Users,
 } from "lucide-react";
 import {
   analyzeNoResponsePattern,
@@ -28,7 +29,7 @@ import {
 const registrationKey = "oneul-anbu-parent-registered";
 const profileKey = "oneul-anbu-parent-profile";
 
-type Tab = "home" | "parent" | "report" | "signals" | "settings";
+type Tab = "home" | "report" | "signals" | "family" | "settings";
 type ReportPeriod = "daily" | "weekly" | "monthly";
 
 type ParentProfile = {
@@ -61,10 +62,18 @@ const reportHistory = [
 ];
 
 const changeSignals = [
-  { title: "응답 시간 변화", value: "09:05 → 10:40", status: "확인 권장" },
-  { title: "활동량 변화", value: "평소보다 12% 감소", status: "주의 관찰" },
-  { title: "컨디션 변화", value: "특이 응답 없음", status: "안정" },
-  { title: "위험 신호", value: "감지되지 않음", status: "안심" },
+  { title: "응답 시간 변화", value: "최근 5일간 평균보다 2시간 늦어짐", status: "주의" },
+  { title: "체크 빈도 감소", value: "최근 7일 체크 40% 감소", status: "주의" },
+  { title: "식사 체크 감소", value: "이번 주 2회 누락", status: "주의" },
+  { title: "활동 체크 감소", value: "평소보다 12% 감소", status: "주의" },
+  { title: "수면 패턴 변화", value: "새벽 응답 2회", status: "안정" },
+  { title: "연속 미응답", value: "3일 연속 미응답", status: "위험" },
+  { title: "감정 상태 변화", value: "별로예요 응답 2회", status: "주의" },
+];
+
+const familyNetwork = [
+  { name: "엄마", score: 91, status: "안정", checkedBy: "딸" },
+  { name: "아빠", score: 74, status: "주의", checkedBy: "아들" },
 ];
 
 const conditionOptions = ["😀 좋아요", "😐 보통이에요", "😞 별로예요"];
@@ -78,9 +87,9 @@ const reportPeriods = [
 
 const navItems = [
   { id: "home", label: "홈", icon: Home },
-  { id: "parent", label: "부모님", icon: UserRound },
   { id: "report", label: "리포트", icon: FileText },
   { id: "signals", label: "변화감지", icon: ShieldCheck },
+  { id: "family", label: "가족", icon: Users },
   { id: "settings", label: "설정", icon: Settings },
 ] satisfies Array<{ id: Tab; label: string; icon: typeof Home }>;
 
@@ -139,9 +148,9 @@ export function UserMode({ initialRegistered }: { initialRegistered: boolean }) 
         </header>
 
         {activeTab === "home" ? <HomeTab profile={profile} /> : null}
-        {activeTab === "parent" ? <ParentTab profile={profile} /> : null}
         {activeTab === "report" ? <ReportTab /> : null}
         {activeTab === "signals" ? <SignalsTab /> : null}
+        {activeTab === "family" ? <FamilyTab profile={profile} /> : null}
         {activeTab === "settings" ? <SettingsTab profile={profile} onReset={resetService} /> : null}
       </div>
       <BottomNavigation activeTab={activeTab} onChange={setActiveTab} />
@@ -222,17 +231,17 @@ function WelcomeStep() {
     <div>
       <p className="text-sm font-black text-[#2563EB]">시작 안내</p>
       <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal">
-        부모님의 안심 상태를
+        부모님의 변화를
         <br />
-        한 화면에서 확인합니다
+        AI가 먼저 분석합니다
       </h1>
       <p className="mt-5 text-lg font-semibold leading-8 text-[#6B7280]">
-        몇 가지 기본 정보만 설정하면 안심 점수, 변화 감지, AI 리포트를 바로 볼 수 있습니다.
+        부모님 등록 후 평소 생활 패턴을 기준으로 샘플 AI 안심 리포트를 바로 보여드립니다.
       </p>
       <div className="mt-7 grid gap-3">
-        <MiniSummary title="입력은 최소화" value="필수 정보만 먼저 설정" />
-        <MiniSummary title="홈은 단순하게" value="부모님이 괜찮은지만 확인" />
-        <MiniSummary title="세부 기능은 분리" value="리포트, 가족, 설정에서 관리" />
+        <MiniSummary title="부모님 등록" value="호칭과 확인 방식을 먼저 정합니다." />
+        <MiniSummary title="평소 패턴 생성" value="응답 시간, 활동량, 미응답 기준을 샘플로 만듭니다." />
+        <MiniSummary title="AI 분석 제공" value="가입 직후 안심 점수와 변화 감지 리포트를 확인합니다." />
       </div>
     </div>
   );
@@ -349,14 +358,15 @@ function CompleteStep({ profile }: { profile: ParentProfile }) {
     <div>
       <p className="text-sm font-black text-[#2563EB]">설정 완료</p>
       <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal">
-        이제 {profile.parentName}의
+        {profile.parentName}의
         <br />
-        안심 상태를 볼 수 있어요
+        샘플 AI 분석이 준비됐어요
       </h1>
       <div className="mt-7 rounded-[24px] bg-[#F9FAFB] p-5">
         <StatusLine label="안부 방식" value={methodLabel[profile.method]} />
         <StatusLine label="가족 공유" value={profile.familyShare ? "사용" : "나중에 설정"} />
-        <StatusLine label="첫 화면" value="안심 상태 중심 홈" />
+        <StatusLine label="첫 화면" value="AI 안심 리포트" />
+        <StatusLine label="샘플 분석" value="응답 시간 42분 지연 감지" />
       </div>
     </div>
   );
@@ -365,6 +375,37 @@ function CompleteStep({ profile }: { profile: ParentProfile }) {
 function HomeTab({ profile }: { profile: ParentProfile }) {
   return (
     <div className="grid gap-5">
+      <section className="rounded-[30px] bg-[#111827] p-6 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-sm font-black text-[#93C5FD]">AI 안심 리포트</p>
+            <h2 className="mt-3 text-4xl font-black tracking-normal">안심점수 86점</h2>
+          </div>
+          <span className="rounded-full bg-[#FEF3C7] px-3 py-1 text-sm font-black text-[#92400E]">
+            주의
+          </span>
+        </div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl bg-white/10 p-4">
+            <p className="text-sm font-black text-white/60">최근 7일 변화</p>
+            <p className="mt-2 font-black">응답 패턴 안정적</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-4">
+            <p className="text-sm font-black text-white/60">최근 30일 변화</p>
+            <p className="mt-2 font-black">응답 시간 평균 42분 지연</p>
+          </div>
+        </div>
+        <div className="mt-5 rounded-2xl bg-white p-4 text-[#1F2937]">
+          <p className="text-sm font-black text-[#2563EB]">AI 요약 분석</p>
+          <p className="mt-2 font-black leading-7">
+            최근 7일간 응답 패턴은 안정적입니다. 다만 평소보다 응답 시간이 평균 42분 늦어졌습니다.
+          </p>
+          <p className="mt-3 font-semibold leading-7 text-[#6B7280]">
+            AI는 생활 리듬 변화 가능성을 감지했습니다. 이번 주에는 짧은 통화를 권장합니다.
+          </p>
+        </div>
+      </section>
+
       <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -536,31 +577,58 @@ function SignalsTab() {
 
   return (
     <div className="grid gap-5">
+      <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+        <p className="text-sm font-black text-[#2563EB]">변화 감지 센터</p>
+        <h2 className="mt-3 text-3xl font-black leading-tight">AI가 평소와 다른 신호를 분류합니다</h2>
+        <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
+          응답 시간, 체크 빈도, 활동량, 미응답, 감정 표현을 함께 보고 위험·주의·안정으로 나눕니다.
+        </p>
+      </section>
+
       <SectionCard title="미응답 분석">
         <NoResponsePatternCard pattern={noResponsePattern} />
       </SectionCard>
 
-      <SectionCard title="활동량 변화">
-        <div className="grid gap-3">
-          <StatusLine label="최근 활동량" value="평소보다 12% 감소" />
-          <StatusLine label="응답 시간" value="09:05 → 10:40" />
-          <StatusLine label="컨디션 표현" value="특이 응답 없음" />
-        </div>
-      </SectionCard>
-
-      <SectionCard title="위험 시그널">
-        <div className="grid gap-3">
+      <SectionCard title="감지 항목">
+        <div className="grid gap-3 sm:grid-cols-2">
           {changeSignals.map((signal) => (
-            <StatusLine key={signal.title} label={signal.title} value={`${signal.value} · ${signal.status}`} />
+            <div key={signal.title} className="rounded-2xl bg-[#F9FAFB] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-black">{signal.title}</p>
+                <SignalBadge status={signal.status} />
+              </div>
+              <p className="mt-3 font-semibold leading-7 text-[#6B7280]">{signal.value}</p>
+            </div>
           ))}
         </div>
       </SectionCard>
+
+      <section className="rounded-[24px] bg-[#EFF6FF] p-5">
+        <p className="text-sm font-black text-[#2563EB]">AI 인사이트</p>
+        <p className="mt-3 text-xl font-black leading-8">
+          최근 2주간 체크 횟수는 유지되고 있으나 응답 시간이 지속적으로 늦어지고 있습니다.
+        </p>
+        <p className="mt-3 font-semibold leading-7 text-[#4B5563]">
+          급격한 위험 신호는 아니지만 생활 리듬 변화 가능성이 있습니다.
+        </p>
+      </section>
 
       <FamilyAlertCard alert={familyAlert} />
 
       <PremiumLockCard title="위험 시그널 알림" description="반복 미응답, 점수 급락, 활동량 감소가 겹치면 가족에게 확인 권장 알림을 표시합니다." />
     </div>
   );
+}
+
+function SignalBadge({ status }: { status: string }) {
+  const className =
+    status === "위험"
+      ? "bg-[#FEE2E2] text-[#DC2626]"
+      : status === "주의"
+        ? "bg-[#FEF3C7] text-[#92400E]"
+        : "bg-[#DCFCE7] text-[#15803D]";
+
+  return <span className={`rounded-full px-3 py-1 text-sm font-black ${className}`}>{status}</span>;
 }
 
 function PeriodReportContent({
@@ -698,6 +766,49 @@ function PremiumLockCard({ title, description }: { title: string; description: s
         </div>
       </div>
     </section>
+  );
+}
+
+function FamilyTab({ profile }: { profile: ParentProfile }) {
+  return (
+    <div className="grid gap-5">
+      <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+        <p className="text-sm font-black text-[#2563EB]">가족 안심 네트워크</p>
+        <h2 className="mt-3 text-3xl font-black leading-tight">가족이 같은 안심 정보를 봅니다</h2>
+        <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
+          부모님별 안심 상태, 최근 확인자, 가족 알림 공유 상태를 한곳에서 확인합니다.
+        </p>
+      </section>
+
+      <SectionCard title="부모님별 안심 상태">
+        <div className="grid gap-3">
+          {familyNetwork.map((member) => (
+            <div key={member.name} className="rounded-2xl bg-[#F9FAFB] p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xl font-black">{member.name}</p>
+                  <p className="mt-2 font-semibold text-[#6B7280]">최근 확인 : {member.checkedBy}</p>
+                </div>
+                <SignalBadge status={member.status} />
+              </div>
+              <p className="mt-4 text-4xl font-black">{member.score}점</p>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+
+      <SectionCard title="가족 공동 확인">
+        <StatusLine label="최근 확인자" value={profile.relation} />
+        <StatusLine label="가족 알림 공유" value={profile.familyShare ? "켜짐" : "나중에 설정"} />
+        <StatusLine label="초대 상태" value="장남 초대 대기" />
+      </SectionCard>
+
+      <SectionCard title="가족 초대">
+        <button className="min-h-12 rounded-2xl bg-[#2563EB] px-5 font-black text-white" type="button">
+          가족 초대하기
+        </button>
+      </SectionCard>
+    </div>
   );
 }
 
