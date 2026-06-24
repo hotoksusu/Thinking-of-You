@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  Activity,
   Bell,
   Brain,
   CheckCircle2,
@@ -12,12 +11,9 @@ import {
   Home,
   LockKeyhole,
   MessageCircle,
-  Pill,
   Settings,
   ShieldCheck,
-  Utensils,
   UserRound,
-  Users,
 } from "lucide-react";
 import {
   analyzeNoResponsePattern,
@@ -32,7 +28,7 @@ import {
 const registrationKey = "oneul-anbu-parent-registered";
 const profileKey = "oneul-anbu-parent-profile";
 
-type Tab = "home" | "parent" | "report" | "family" | "settings";
+type Tab = "home" | "parent" | "report" | "signals" | "settings";
 type ReportPeriod = "daily" | "weekly" | "monthly";
 
 type ParentProfile = {
@@ -84,7 +80,7 @@ const navItems = [
   { id: "home", label: "홈", icon: Home },
   { id: "parent", label: "부모님", icon: UserRound },
   { id: "report", label: "리포트", icon: FileText },
-  { id: "family", label: "가족", icon: Users },
+  { id: "signals", label: "변화감지", icon: ShieldCheck },
   { id: "settings", label: "설정", icon: Settings },
 ] satisfies Array<{ id: Tab; label: string; icon: typeof Home }>;
 
@@ -145,7 +141,7 @@ export function UserMode({ initialRegistered }: { initialRegistered: boolean }) 
         {activeTab === "home" ? <HomeTab profile={profile} /> : null}
         {activeTab === "parent" ? <ParentTab profile={profile} /> : null}
         {activeTab === "report" ? <ReportTab /> : null}
-        {activeTab === "family" ? <FamilyTab profile={profile} /> : null}
+        {activeTab === "signals" ? <SignalsTab /> : null}
         {activeTab === "settings" ? <SettingsTab profile={profile} onReset={resetService} /> : null}
       </div>
       <BottomNavigation activeTab={activeTab} onChange={setActiveTab} />
@@ -480,8 +476,6 @@ function ReportTab() {
   const dailyTrend = useMemo(() => getDailyTrend(), []);
   const weeklyTrend = useMemo(() => getWeeklyTrend(), []);
   const monthlyTrend = useMemo(() => getMonthlyTrend(), []);
-  const noResponsePattern = useMemo(() => analyzeNoResponsePattern(), []);
-  const familyAlert = useMemo(() => generateFamilyAlert(), []);
 
   return (
     <div className="grid gap-5">
@@ -514,12 +508,6 @@ function ReportTab() {
         </div>
       </SectionCard>
 
-      <SectionCard title="미응답 변화 감지">
-        <NoResponsePatternCard pattern={noResponsePattern} />
-      </SectionCard>
-
-      <FamilyAlertCard alert={familyAlert} />
-
       <SectionCard title="AI 리포트 히스토리">
         <div className="grid gap-3">
           {reportHistory.map((item, index) => (
@@ -538,6 +526,39 @@ function ReportTab() {
       </SectionCard>
 
       <PremiumLockCard title="최근 30일 변화 분석" description="월간 추이, 위험 시그널, 가족 알림 상세는 안심 플랜에서 확인할 수 있어요." />
+    </div>
+  );
+}
+
+function SignalsTab() {
+  const noResponsePattern = useMemo(() => analyzeNoResponsePattern(), []);
+  const familyAlert = useMemo(() => generateFamilyAlert(), []);
+
+  return (
+    <div className="grid gap-5">
+      <SectionCard title="미응답 분석">
+        <NoResponsePatternCard pattern={noResponsePattern} />
+      </SectionCard>
+
+      <SectionCard title="활동량 변화">
+        <div className="grid gap-3">
+          <StatusLine label="최근 활동량" value="평소보다 12% 감소" />
+          <StatusLine label="응답 시간" value="09:05 → 10:40" />
+          <StatusLine label="컨디션 표현" value="특이 응답 없음" />
+        </div>
+      </SectionCard>
+
+      <SectionCard title="위험 시그널">
+        <div className="grid gap-3">
+          {changeSignals.map((signal) => (
+            <StatusLine key={signal.title} label={signal.title} value={`${signal.value} · ${signal.status}`} />
+          ))}
+        </div>
+      </SectionCard>
+
+      <FamilyAlertCard alert={familyAlert} />
+
+      <PremiumLockCard title="위험 시그널 알림" description="반복 미응답, 점수 급락, 활동량 감소가 겹치면 가족에게 확인 권장 알림을 표시합니다." />
     </div>
   );
 }
@@ -680,33 +701,6 @@ function PremiumLockCard({ title, description }: { title: string; description: s
   );
 }
 
-function FamilyTab({ profile }: { profile: ParentProfile }) {
-  return (
-    <div className="grid gap-5">
-      <SectionCard title="가족 구성원">
-        <div className="grid gap-3 sm:grid-cols-3">
-          {["민지", "현우", "이모"].map((name) => (
-            <div key={name} className="rounded-2xl bg-[#F9FAFB] p-4">
-              <p className="font-black">{name}</p>
-              <p className="mt-2 text-sm font-semibold text-[#6B7280]">
-                {name === "민지" ? profile.relation : "가족"}
-              </p>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-      <SectionCard title="공유 상태">
-        <StatusLine label={profile.parentName} value={profile.familyShare ? "최근 상태 공유됨" : "공유 꺼짐"} />
-      </SectionCard>
-      <SectionCard title="초대">
-        <button className="min-h-12 rounded-2xl bg-[#2563EB] px-5 font-black text-white" type="button">
-          가족 초대하기
-        </button>
-      </SectionCard>
-    </div>
-  );
-}
-
 function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: () => void }) {
   const reminderSchedule = useMemo(() => generateReminderSchedule(), []);
 
@@ -845,16 +839,6 @@ function StatusLine({ label, value }: { label: string; value: string }) {
     <div className="flex items-center justify-between gap-4 border-b border-[#F3F4F6] py-3 last:border-b-0">
       <span className="font-bold text-[#6B7280]">{label}</span>
       <strong className="text-right">{value}</strong>
-    </div>
-  );
-}
-
-function SmallMetric({ icon: Icon, label, value }: { icon: typeof Utensils; label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-[#F9FAFB] p-4">
-      <Icon size={22} className="text-[#2563EB]" aria-hidden />
-      <p className="mt-4 text-sm font-black text-[#6B7280]">{label}</p>
-      <p className="mt-2 font-black">{value}</p>
     </div>
   );
 }

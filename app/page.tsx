@@ -5,7 +5,9 @@ import {
   Building2,
   CheckCircle2,
   Clock3,
+  CreditCard,
   HeartHandshake,
+  LockKeyhole,
   MessageCircle,
   ShieldCheck,
   Smile,
@@ -20,6 +22,26 @@ const changeSignals = [
 ];
 
 const heroProofs = ["안심 점수", "변화 감지", "AI 안심 리포트", "권장 행동"];
+
+const trendCards = [
+  { title: "일간", description: "오늘의 안심 상태 확인" },
+  { title: "주간", description: "최근 7일 응답률·활동 변화" },
+  { title: "월간", description: "최근 30일 안심 점수 추이" },
+];
+
+const monthlyScores = [92, 89, 87, 85, 82];
+
+const reminderCards = [
+  { time: "오전 10:00", message: "오늘 컨디션은 어떠세요?" },
+  { time: "오후 2:00", message: "아직 안부가 확인되지 않았어요" },
+  { time: "저녁 7:00", message: "가족에게 확인 권장 알림" },
+];
+
+const premiumLocks = [
+  { title: "최근 30일 변화 분석", plan: "안심 플랜" },
+  { title: "주간 AI 안심 리포트", plan: "가족 플랜" },
+  { title: "위험 시그널 알림", plan: "프리미엄 케어" },
+];
 
 const comparisonItems = [
   {
@@ -165,6 +187,136 @@ export default function LandingPage() {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="bg-[#F9FAFB]">
+        <div className="mx-auto grid w-full max-w-[1180px] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-center">
+          <div className="max-w-[620px]">
+            <p className="text-sm font-black text-[#2563EB]">추이 분석</p>
+            <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+              오늘만 보지 않고
+              <br />
+              변화를 추적으로 봅니다
+            </h2>
+            <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
+              일간·주간·월간 추이로 안심 상태가 어떻게 달라지는지 한눈에 확인합니다.
+            </p>
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {trendCards.map((card) => (
+                <article key={card.title} className="rounded-[22px] bg-white p-5 shadow-[0_14px_34px_rgba(15,23,42,0.06)]">
+                  <p className="text-sm font-black text-[#2563EB]">{card.title}</p>
+                  <h3 className="mt-3 text-lg font-black leading-7">{card.description}</h3>
+                </article>
+              ))}
+            </div>
+          </div>
+          <article className="warm-card rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+            <h3 className="text-xl font-black">최근 30일 안심 점수</h3>
+            <div className="mt-5 flex h-32 items-end gap-3 rounded-2xl bg-[#F9FAFB] p-4">
+              {monthlyScores.map((score, index) => (
+                <div key={`${score}-${index}`} className="flex flex-1 flex-col items-center gap-2">
+                  <div className="w-full rounded-t-xl bg-[#2563EB]" style={{ height: `${score}%` }} />
+                  <span className="text-xs font-black text-[#6B7280]">{score}</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-5 text-2xl font-black leading-9">92 → 89 → 87 → 85 → 82</p>
+            <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
+              <p className="text-sm font-black text-[#2563EB]">AI 분석</p>
+              <p className="mt-2 font-black leading-7">최근 4주간 안심 점수가 완만하게 하락하고 있습니다.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className="mx-auto grid w-full max-w-[1180px] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div className="max-w-[620px]">
+          <p className="text-sm font-black text-[#2563EB]">리마인드</p>
+          <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+            입력을 잊어도
+            <br />
+            부드럽게 다시 알려드립니다
+          </h2>
+          <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
+            부모님이 안부 입력을 놓쳐도 오늘안부가 정해진 시간에 다시 알려드립니다.
+          </p>
+        </div>
+        <div className="grid gap-4">
+          {reminderCards.map((card, index) => (
+            <article key={card.time} className="warm-card rounded-[24px] bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
+              <div className="flex items-center justify-between gap-4">
+                <span className="rounded-full bg-[#EFF6FF] px-3 py-1 text-sm font-black text-[#2563EB]">
+                  {index + 1}차 알림
+                </span>
+                <span className="text-sm font-black text-[#6B7280]">{card.time}</span>
+              </div>
+              <h3 className="mt-4 text-xl font-black">{card.message}</h3>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-[#F9FAFB]">
+        <div className="mx-auto grid w-full max-w-[1180px] gap-12 px-5 py-24 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div className="max-w-[620px]">
+            <p className="text-sm font-black text-[#2563EB]">미응답 분석</p>
+            <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+              미응답도
+              <br />
+              중요한 신호입니다
+            </h2>
+            <p className="mt-6 text-lg font-semibold leading-8 text-[#6B7280]">
+              단순히 응답이 없었다고 끝나지 않습니다. 평소 응답 패턴과 비교해 변화 신호로 분석합니다.
+            </p>
+          </div>
+          <article className="warm-card rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl bg-[#F9FAFB] p-5">
+                <p className="text-sm font-black text-[#6B7280]">평소 응답률</p>
+                <p className="mt-2 text-4xl font-black">95%</p>
+              </div>
+              <div className="rounded-2xl bg-[#FEF3C7] p-5">
+                <p className="text-sm font-black text-[#92400E]">최근 7일 응답률</p>
+                <p className="mt-2 text-4xl font-black text-[#92400E]">60%</p>
+              </div>
+            </div>
+            <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
+              <p className="text-sm font-black text-[#2563EB]">AI 분석</p>
+              <p className="mt-2 font-black leading-7">
+                최근 응답 빈도가 평소보다 줄었습니다. 생활 패턴 변화 가능성이 있어 가족 확인을 권장합니다.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1180px] px-5 py-24 sm:px-8">
+        <div className="max-w-[720px]">
+          <p className="text-sm font-black text-[#2563EB]">유료 가치</p>
+          <h2 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+            더 깊은 변화 분석은
+            <br />
+            필요한 순간 열립니다
+          </h2>
+        </div>
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {premiumLocks.map((item) => (
+            <article key={item.title} className="warm-card rounded-[24px] border border-[#DBEAFE] bg-[#EFF6FF] p-6">
+              <span className="flex size-11 items-center justify-center rounded-2xl bg-white text-[#2563EB]">
+                <LockKeyhole size={22} aria-hidden />
+              </span>
+              <h3 className="mt-6 text-xl font-black leading-8">{item.title}</h3>
+              <p className="mt-3 font-bold text-[#4B5563]">🔒 {item.plan}에서 확인 가능</p>
+            </article>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#2563EB] px-6 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.20)]"
+        >
+          <CreditCard size={18} aria-hidden />
+          안심 플랜 보기
+        </button>
       </section>
 
       <section className="bg-[#F9FAFB]">
