@@ -62,17 +62,17 @@ export default function LandingPage() {
         </a>
       </header>
 
-      <section className="mx-auto grid w-full max-w-[1120px] gap-14 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:gap-16 lg:pb-28 lg:pt-16">
-        <div className="fade-in max-w-[560px]">
+      <section className="mx-auto grid w-full max-w-[1180px] gap-14 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[0.96fr_1.04fr] lg:items-center lg:gap-14 lg:pb-28 lg:pt-16">
+        <div className="fade-in max-w-[680px]">
           <p className="text-sm font-black text-[#2563EB]">변화 감지 기반 가족 안심 서비스</p>
-          <h1 className="mt-5 max-w-[560px] text-4xl font-black leading-[1.08] tracking-[-0.04em] sm:text-5xl lg:text-6xl">
-            중요한 건
-            <br />
-            안부가 아니라
-            <br />
-            <span className="text-[#2563EB]">변화입니다</span>
+          <h1 className="mt-8 max-w-[680px] text-[2.85rem] font-black leading-[1.22] tracking-[-0.01em] sm:text-[4.2rem] lg:text-[5.15rem]">
+            <span className="block">중요한 건</span>
+            <span className="mt-5 block">안부가 아니라</span>
+            <span className="mt-6 block">
+              <span className="text-[#2563EB]">변화</span>입니다.
+            </span>
           </h1>
-          <p className="mt-6 max-w-[540px] text-lg font-semibold leading-8 text-[#4B5563]">
+          <p className="mt-10 max-w-[580px] text-lg font-semibold leading-8 text-[#4B5563]">
             부모님의 생활 패턴 속 작은 변화를 분석해 가족이 놓치기 쉬운 신호를 알려드립니다.
           </p>
           <p className="mt-5 max-w-[540px] text-base font-semibold leading-7 text-[#6B7280]">
