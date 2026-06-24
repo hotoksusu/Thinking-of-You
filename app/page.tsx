@@ -37,8 +37,8 @@ export default function LandingPage() {
           <a href="/guide" className="transition hover:text-[#2563EB]">
             이용 가이드
           </a>
-          <a href="/app?registered=1" className="hidden transition hover:text-[#2563EB] sm:inline">
-            리포트 체험
+          <a href="/app" className="hidden transition hover:text-[#2563EB] sm:inline">
+            앱 체험하기
           </a>
         </nav>
       </header>
@@ -60,10 +60,10 @@ export default function LandingPage() {
           </div>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
-              href="/app?registered=1"
+              href="/app"
               className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-7 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
             >
-              안심 리포트 체험하기
+              앱 체험하기
               <ArrowRight size={18} aria-hidden />
             </a>
             <a
@@ -181,10 +181,10 @@ function PrimaryLink({ centered = false }: { centered?: boolean }) {
   return (
     <div className={centered ? "mt-8 flex justify-center" : "mt-8"}>
       <a
-        href="/app?registered=1"
+        href="/app"
         className="inline-flex min-h-13 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-6 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.18)]"
       >
-        안심 리포트 체험하기
+        앱 체험하기
         <ArrowRight size={17} aria-hidden />
       </a>
     </div>

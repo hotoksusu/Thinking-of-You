@@ -16,7 +16,7 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import { InstallGuide } from "@/components/install-guide";
+import { AppInstallBanner, InstallGuide } from "@/components/install-guide";
 import {
   analyzeNoResponsePattern,
   dailyMomentOptions,
@@ -161,6 +161,8 @@ export function UserMode({ initialRegistered }: { initialRegistered: boolean }) 
           </span>
         </header>
 
+        <AppInstallBanner />
+
         {activeTab === "home" ? <HomeTab profile={profile} /> : null}
         {activeTab === "report" ? <ReportTab /> : null}
         {activeTab === "signals" ? <SignalsTab /> : null}
@@ -193,6 +195,7 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
   return (
     <main className="min-h-screen bg-[#F9FAFB] px-5 py-7 text-[#1F2937] sm:px-8">
       <section className="mx-auto grid min-h-[calc(100vh-3.5rem)] w-full max-w-[680px] content-center">
+        <AppInstallBanner />
         <div className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
           {showProgress ? (
             <div className="mb-8">
