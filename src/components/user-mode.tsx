@@ -231,13 +231,13 @@ function UserTypeStep({
   onChange: (profile: ParentProfile) => void;
 }) {
   return (
-    <StepFrame label="사용자 유형 선택" title="누가 안심 상태를 확인하나요?">
+    <StepFrame label="사용자 유형 선택" title="어떤 안심 상태를 확인할까요?">
       <ChoiceGrid
         value={profile.userType}
         options={[
-          { value: "family", title: "가족 보호자", description: "부모님의 상태를 가족이 확인합니다." },
-          { value: "self", title: "본인", description: "내 안부 상태를 가족과 공유합니다." },
-          { value: "care", title: "기관 담당자", description: "향후 기관 관리 흐름에 맞춥니다." },
+          { value: "family", title: "부모님 안심 확인", description: "부모님의 변화 신호와 안심 상태를 가족이 확인합니다." },
+          { value: "self", title: "내 안심 상태 관리", description: "내 변화 신호를 가족과 공유할 수 있습니다." },
+          { value: "care", title: "기관 안심 모니터링", description: "향후 기관 도입 흐름에 맞춥니다." },
         ]}
         onChange={(userType) => onChange({ ...profile, userType })}
       />

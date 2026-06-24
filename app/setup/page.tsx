@@ -54,7 +54,7 @@ function SetupContent() {
   );
 
   const isFamily = settings.mode === "family-care";
-  const title = isFamily ? "부모님 챙기기 설정" : "내 루틴 설정";
+  const title = isFamily ? "부모님 안심 확인 설정" : "내 안심 상태 설정";
 
   const selectedCount = useMemo(() => settings.careItems.length, [settings.careItems]);
 
@@ -84,7 +84,7 @@ function SetupContent() {
         <p className="text-sm font-bold text-brand-coral">처음 설정</p>
         <h1 className="brand-title mt-2 text-3xl">{title}</h1>
         <p className="soft-copy mt-2 text-sm text-stone-600">
-          몇 가지만 정하면 오늘의 안부 홈과 루틴이 자동으로 준비됩니다.
+          몇 가지만 정하면 안심 점수와 변화 감지 화면이 준비됩니다.
         </p>
       </header>
 
@@ -94,14 +94,14 @@ function SetupContent() {
           onClick={() => setSettings((current) => ({ ...current, mode: "family-care" }))}
         >
           <HeartHandshake size={22} aria-hidden />
-          <span className="mt-2 block text-sm font-bold">부모님 챙기기</span>
+          <span className="mt-2 block text-sm font-bold">부모님 안심 확인</span>
         </button>
         <button
           className={`rounded-xl border p-4 text-left ${!isFamily ? "border-brand-sage bg-brand-mint" : "border-brand-line bg-white"}`}
           onClick={() => setSettings((current) => ({ ...current, mode: "self-care" }))}
         >
           <UserRoundCheck size={22} aria-hidden />
-          <span className="mt-2 block text-sm font-bold">내 일상 관리</span>
+          <span className="mt-2 block text-sm font-bold">내 안심 상태 관리</span>
         </button>
       </div>
 
