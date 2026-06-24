@@ -15,9 +15,11 @@ import {
 const changeSignals = [
   "응답 시간이 늦어짐",
   "활동량이 줄어듦",
-  "식사 패턴이 달라짐",
+  "하루 흐름이 달라짐",
   "컨디션 표현이 바뀜",
 ];
+
+const heroProofs = ["안심 점수", "변화 감지", "AI 안심 리포트", "권장 행동"];
 
 const comparisonItems = [
   {
@@ -61,11 +63,11 @@ export default function LandingPage() {
       <section className="mx-auto grid w-full max-w-[1180px] gap-14 px-5 pb-20 pt-10 sm:px-8 lg:grid-cols-[0.96fr_1.04fr] lg:items-center lg:gap-14 lg:pb-28 lg:pt-16">
         <div className="fade-in max-w-[680px]">
           <p className="text-sm font-black text-[#2563EB]">AI 기반 안심 상태 분석 서비스</p>
-          <h1 className="mt-8 max-w-[680px] text-[2.85rem] font-black leading-[1.22] tracking-[-0.01em] sm:text-[4.2rem] lg:text-[5.15rem]">
+          <h1 className="mt-8 max-w-[680px] text-[2.85rem] font-black leading-[1.22] tracking-[0.005em] sm:text-[4.2rem] lg:text-[5.15rem]">
             <span className="block">중요한 건</span>
             <span className="mt-5 block">안부가 아니라</span>
             <span className="mt-6 block">
-              <span className="text-[#2563EB]">변화</span>입니다.
+              <span className="text-[#2563EB]">변화</span>입니다
             </span>
           </h1>
           <p className="mt-10 max-w-[580px] text-lg font-semibold leading-8 text-[#4B5563]">
@@ -80,6 +82,16 @@ export default function LandingPage() {
           >
             오늘안부 시작하기
           </a>
+          <div className="mt-6 flex max-w-[520px] flex-wrap gap-2">
+            {heroProofs.map((proof) => (
+              <span
+                key={proof}
+                className="rounded-full border border-[#DBEAFE] bg-[#EFF6FF] px-4 py-2 text-sm font-black text-[#2563EB]"
+              >
+                {proof}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="fade-in grid gap-6 lg:pl-2">
