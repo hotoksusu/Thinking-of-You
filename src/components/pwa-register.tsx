@@ -10,7 +10,7 @@ export function PwaRegister() {
 
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("/sw.js").catch(() => {
-        // PWA registration is progressive enhancement.
+        // Registration is progressive enhancement.
       });
     });
   }, []);

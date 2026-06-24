@@ -1,11 +1,15 @@
 import {
   ArrowRight,
   BarChart3,
+  BookOpen,
   Brain,
   CheckCircle2,
   Heart,
   HeartHandshake,
+  Link2,
   MessageCircle,
+  Smartphone,
+  UserPlus,
 } from "lucide-react";
 import { InstallGuide } from "@/components/install-guide";
 
@@ -26,6 +30,39 @@ const valueCards = [
 
 const notCards = ["위치 추적 아님", "건강 검사 아님", "긴 기록 없음"];
 
+const onboardingSteps = [
+  {
+    step: "1",
+    title: "자녀 가입",
+    description: "가족이 먼저 오늘안부를 시작하고 부모님의 안부를 확인할 계정을 만듭니다.",
+    icon: UserPlus,
+  },
+  {
+    step: "2",
+    title: "부모님 연결",
+    description: "부모님 이름과 안부 확인 방식을 정하고 전화번호 또는 초대 링크로 연결합니다.",
+    icon: Link2,
+  },
+  {
+    step: "3",
+    title: "부모님 휴대폰에 설치하기",
+    description: "부모님 휴대폰에서 링크를 열고 홈화면에 추가합니다. 앱스토어 다운로드는 필요 없어요.",
+    icon: Smartphone,
+  },
+  {
+    step: "4",
+    title: "설치 가이드",
+    description: "iPhone은 Safari 공유 버튼, Android는 Chrome 메뉴에서 홈 화면에 추가합니다.",
+    icon: BookOpen,
+  },
+  {
+    step: "5",
+    title: "오늘 안부 시작",
+    description: "부모님은 큰 버튼으로 안부를 남기고 가족은 안심 점수와 AI 안심 리포트를 확인합니다.",
+    icon: CheckCircle2,
+  },
+];
+
 export default function LandingPage() {
   return (
     <main className="min-h-screen bg-white text-[#1F2937]">
@@ -38,7 +75,7 @@ export default function LandingPage() {
             이용 가이드
           </a>
           <a href="/app" className="hidden transition hover:text-[#2563EB] sm:inline">
-            앱 체험하기
+            오늘안부 체험
           </a>
         </nav>
       </header>
@@ -63,14 +100,14 @@ export default function LandingPage() {
               href="/app"
               className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-7 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
             >
-              앱 체험하기
+              부모님 안부 시작하기
               <ArrowRight size={18} aria-hidden />
             </a>
             <a
               href="/guide"
               className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-7 font-black text-[#4B5563]"
             >
-              이용 방법 보기
+              앱처럼 설치하는 방법 보기
             </a>
           </div>
         </div>
@@ -112,6 +149,53 @@ export default function LandingPage() {
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className="bg-[#FFF7ED]">
+        <div className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
+          <p className="text-sm font-black text-[#F97316]">시작 방법</p>
+          <div className="mt-3 grid gap-4 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <h2 className="text-3xl font-black leading-tight sm:text-4xl">
+                부모님 휴대폰에
+                <br />
+                1분이면 준비돼요
+              </h2>
+              <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
+                앱스토어 설치 없이, 자녀가 먼저 연결하고 부모님 휴대폰 첫 화면에 오늘안부를 꺼내둘 수 있어요.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+              <a
+                href="/app"
+                className="inline-flex min-h-13 items-center justify-center rounded-2xl bg-[#F97316] px-6 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]"
+              >
+                부모님 안부 시작하기
+              </a>
+              <a
+                href="/guide"
+                className="inline-flex min-h-13 items-center justify-center rounded-2xl bg-white px-6 font-black text-[#C2410C]"
+              >
+                설치 방법 보기
+              </a>
+            </div>
+          </div>
+          <div className="mt-8 grid gap-3 md:grid-cols-5">
+            {onboardingSteps.map((item) => {
+              const Icon = item.icon;
+              return (
+                <article key={item.step} className="rounded-[24px] bg-white p-5 shadow-[0_14px_34px_rgba(249,115,22,0.08)]">
+                  <span className="flex size-10 items-center justify-center rounded-2xl bg-[#FFEDD5] text-sm font-black text-[#F97316]">
+                    {item.step}
+                  </span>
+                  <Icon size={22} className="mt-5 text-[#F97316]" aria-hidden />
+                  <h3 className="mt-3 text-lg font-black leading-7">{item.title}</h3>
+                  <p className="mt-2 text-sm font-bold leading-6 text-[#6B7280]">{item.description}</p>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -184,7 +268,7 @@ function PrimaryLink({ centered = false }: { centered?: boolean }) {
         href="/app"
         className="inline-flex min-h-13 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-6 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.18)]"
       >
-        앱 체험하기
+        오늘안부 체험하기
         <ArrowRight size={17} aria-hidden />
       </a>
     </div>

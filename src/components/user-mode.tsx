@@ -19,7 +19,6 @@ import {
 import { AppInstallBanner, InstallGuide } from "@/components/install-guide";
 import {
   analyzeNoResponsePattern,
-  dailyMomentOptions,
   familyEncouragements,
   generateFamilyAlert,
   generateLifePatternReport,
@@ -27,9 +26,7 @@ import {
   getDailyTrend,
   getMonthlyTrend,
   getWeeklyTrend,
-  memoryMomentOptions,
   type TrendPoint,
-  weatherMoodOptions,
 } from "@/lib/insights";
 
 const registrationKey = "oneul-anbu-parent-registered";
@@ -106,6 +103,10 @@ const navItems = [
   { id: "family", label: "가족", icon: Users },
   { id: "settings", label: "설정", icon: Settings },
 ] satisfies Array<{ id: Tab; label: string; icon: typeof Home }>;
+
+const seniorCheckinOptions = ["괜찮아요", "조금 피곤해요", "이야기하고 싶어요"];
+const seniorDayOptions = ["집에서 쉬었어요", "산책했어요", "커피 한 잔 했어요"];
+const seniorNoteOptions = ["특별한 일 없어요", "가족에게 전해주세요", "나중에 이야기할게요"];
 
 export function UserMode({ initialRegistered }: { initialRegistered: boolean }) {
   const [registered, setRegistered] = useState(initialRegistered);
@@ -432,7 +433,7 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-black text-[#6B7280]">{profile.parentName}</p>
-            <h2 className="mt-3 text-4xl font-black tracking-normal">일상 흐름 안정</h2>
+            <h2 className="mt-3 text-4xl font-black tracking-normal">오늘의 안심 상태</h2>
             <p className="mt-4 text-lg font-bold text-[#6B7280]">최근 특별한 변화는 감지되지 않았습니다</p>
           </div>
           <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
@@ -448,8 +449,8 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
       <section className="rounded-[24px] bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-black text-[#6B7280]">오늘 안부 도착 여부</p>
-            <h2 className="mt-2 text-2xl font-black">도착 완료</h2>
+            <p className="text-sm font-black text-[#6B7280]">부모님 안부가 도착했어요</p>
+            <h2 className="mt-2 text-2xl font-black">오늘 안부 도착</h2>
           </div>
           <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
             가족 확인 가능
@@ -469,7 +470,7 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
       </section>
 
       <section className="rounded-[24px] bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
-        <p className="text-sm font-black text-[#6B7280]">최근 변화 감지</p>
+        <p className="text-sm font-black text-[#6B7280]">평소와 다른 변화</p>
         <div className="mt-4 rounded-2xl bg-[#FEF3C7] px-4 py-4">
           <p className="font-black text-[#92400E]">외부 활동 관련 응답이 소폭 감소했습니다.</p>
           <p className="mt-2 font-semibold text-[#92400E]">생활 패턴 변화 여부를 확인해보는 것을 권장합니다.</p>
@@ -506,9 +507,9 @@ function EncouragementInbox() {
 }
 
 function TodayMomentCard() {
-  const [selectedMoment, setSelectedMoment] = useState(dailyMomentOptions[1]);
-  const [selectedMemory, setSelectedMemory] = useState(memoryMomentOptions[0]);
-  const [selectedMood, setSelectedMood] = useState(weatherMoodOptions[1]);
+  const [selectedMoment, setSelectedMoment] = useState(seniorCheckinOptions[0]);
+  const [selectedMemory, setSelectedMemory] = useState(seniorDayOptions[0]);
+  const [selectedMood, setSelectedMood] = useState(seniorNoteOptions[0]);
   const [isOnline, setIsOnline] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
   const [deliveryMessage, setDeliveryMessage] = useState("");
@@ -522,7 +523,7 @@ function TodayMomentCard() {
       const delivered = deliverPendingCheckins();
       setPendingCount(0);
       if (delivered > 0) {
-        setDeliveryMessage("임시 저장된 오늘 안부를 가족에게 전달했어요.");
+        setDeliveryMessage("가족에게 전달됐어요.");
       }
     }
 
@@ -537,7 +538,7 @@ function TodayMomentCard() {
     if (navigator.onLine) {
       const delivered = deliverPendingCheckins();
       if (delivered > 0) {
-        setDeliveryMessage("임시 저장된 오늘 안부를 가족에게 전달했어요.");
+        setDeliveryMessage("가족에게 전달됐어요.");
       }
     }
 
@@ -570,40 +571,40 @@ function TodayMomentCard() {
   }
 
   return (
-    <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-      <p className="text-sm font-black text-[#2563EB]">오늘의 한 순간</p>
-      <h2 className="mt-3 text-3xl font-black leading-tight">오늘 하루는 어땠나요?</h2>
+    <section id="today-moment" className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+      <p className="text-sm font-black text-[#F97316]">오늘 안부 남기기</p>
+      <h2 className="mt-3 text-3xl font-black leading-tight">오늘은 어떠세요?</h2>
       <p className="mt-3 font-semibold leading-7 text-[#6B7280]">
-        검사처럼 답하지 않아도 됩니다. 가장 가까운 느낌 하나만 남겨주세요.
+        가장 가까운 말 하나만 골라도 괜찮아요.
       </p>
-      <MomentChoiceGroup options={dailyMomentOptions} value={selectedMoment} onChange={setSelectedMoment} />
-      <p className="mt-6 text-sm font-black text-[#6B7280]">오늘 가장 기억에 남는 것은?</p>
-      <MomentChoiceGroup options={memoryMomentOptions} value={selectedMemory} onChange={setSelectedMemory} compact />
-      <p className="mt-6 text-sm font-black text-[#6B7280]">오늘 하루를 표현한다면?</p>
-      <MomentChoiceGroup options={weatherMoodOptions} value={selectedMood} onChange={setSelectedMood} compact />
-      <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
-        <p className="text-sm font-black text-[#2563EB]">저장될 하루 기록</p>
+      <MomentChoiceGroup options={seniorCheckinOptions} value={selectedMoment} onChange={setSelectedMoment} />
+      <p className="mt-6 text-sm font-black text-[#6B7280]">오늘은 어떻게 보내셨어요?</p>
+      <MomentChoiceGroup options={seniorDayOptions} value={selectedMemory} onChange={setSelectedMemory} compact />
+      <p className="mt-6 text-sm font-black text-[#6B7280]">가족에게 전할 말</p>
+      <MomentChoiceGroup options={seniorNoteOptions} value={selectedMood} onChange={setSelectedMood} compact />
+      <div className="mt-5 rounded-2xl bg-[#FFF7ED] p-4">
+        <p className="text-sm font-black text-[#F97316]">오늘 남길 안부</p>
         <p className="mt-2 font-black leading-7">
           {selectedMoment} · {selectedMemory} · {selectedMood}
         </p>
       </div>
       <div className={`mt-4 rounded-2xl p-4 ${isOnline ? "bg-[#F0FDF4]" : "bg-[#FEF3C7]"}`}>
         <p className={`text-sm font-black ${isOnline ? "text-[#15803D]" : "text-[#92400E]"}`}>
-          {isOnline ? "온라인 상태" : "오프라인 상태"}
+          {isOnline ? "바로 전달 가능" : "연결을 기다리고 있어요"}
         </p>
         <p className={`mt-2 font-bold leading-7 ${isOnline ? "text-[#166534]" : "text-[#92400E]"}`}>
-          {deliveryMessage || (isOnline ? "작성하면 바로 가족에게 전달됩니다." : "인터넷이 연결되면 자동으로 전달됩니다.")}
+          {deliveryMessage || (isOnline ? "작성하면 바로 가족에게 전달돼요." : "인터넷이 연결되면 자동으로 전달돼요.")}
         </p>
         {!isOnline || pendingCount > 0 ? (
           <p className="mt-2 text-sm font-black text-[#92400E]">
-            {pendingCount > 0 ? `임시 저장 ${pendingCount}건` : "인터넷이 연결되면 자동으로 전달됩니다."}
+            {pendingCount > 0 ? `전달을 기다리는 안부 ${pendingCount}건` : "인터넷이 연결되면 자동으로 전달돼요."}
           </p>
         ) : null}
       </div>
       <button
         type="button"
         onClick={submitMoment}
-        className="mt-4 min-h-14 w-full rounded-2xl bg-[#2563EB] px-5 font-black text-white"
+        className="mt-4 min-h-14 w-full rounded-2xl bg-[#F97316] px-5 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]"
       >
         오늘 안부 남기기
       </button>
@@ -656,7 +657,7 @@ function MomentChoiceGroup({
           type="button"
           onClick={() => onChange(option)}
           className={`min-h-14 rounded-2xl border px-4 text-left text-base font-black transition ${
-            value === option ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-[#E5E7EB] bg-[#F9FAFB]"
+            value === option ? "border-[#F97316] bg-[#FFF7ED] text-[#C2410C]" : "border-[#E5E7EB] bg-[#F9FAFB]"
           }`}
         >
           {option}
@@ -667,8 +668,8 @@ function MomentChoiceGroup({
 }
 
 function ParentTab({ profile }: { profile: ParentProfile }) {
-  const [moment, setMoment] = useState(dailyMomentOptions[1]);
-  const [memory, setMemory] = useState(memoryMomentOptions[0]);
+  const [moment, setMoment] = useState(seniorCheckinOptions[0]);
+  const [memory, setMemory] = useState(seniorDayOptions[0]);
 
   return (
     <div className="grid gap-5">
@@ -678,21 +679,21 @@ function ParentTab({ profile }: { profile: ParentProfile }) {
         <StatusLine label="기록 방식" value={methodLabel[profile.method]} />
       </SectionCard>
 
-      <SectionCard title="오늘의 한 순간">
-        <MomentChoiceGroup options={dailyMomentOptions} value={moment} onChange={setMoment} />
-        <MomentChoiceGroup options={memoryMomentOptions} value={memory} onChange={setMemory} compact />
+      <SectionCard title="오늘 안부 남기기">
+        <MomentChoiceGroup options={seniorCheckinOptions} value={moment} onChange={setMoment} />
+        <MomentChoiceGroup options={seniorDayOptions} value={memory} onChange={setMemory} compact />
         <div className="mt-5 rounded-2xl bg-[#F9FAFB] p-4">
-          <p className="text-sm font-black text-[#6B7280]">오늘 남긴 기록</p>
+          <p className="text-sm font-black text-[#6B7280]">오늘 남긴 안부</p>
           <p className="mt-2 text-lg font-black">{moment}</p>
           <p className="mt-1 font-semibold leading-7 text-[#6B7280]">{memory}</p>
         </div>
       </SectionCard>
 
-      <SectionCard title="최근 기록 흐름">
+      <SectionCard title="최근 안부 흐름">
         <div className="grid gap-3">
-          <StatusLine label="오늘 08:42" value="오늘의 한 순간 기록" />
-          <StatusLine label="어제 09:10" value="커피 한 잔 기록" />
-          <StatusLine label="2일 전" value="산책 기록" />
+          <StatusLine label="오늘 08:42" value="괜찮아요" />
+          <StatusLine label="어제 09:10" value="커피 한 잔 했어요" />
+          <StatusLine label="2일 전" value="산책했어요" />
         </div>
       </SectionCard>
     </div>

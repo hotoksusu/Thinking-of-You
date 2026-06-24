@@ -1,13 +1,13 @@
 {
   "name": "오늘안부",
   "short_name": "오늘안부",
-  "description": "하루 기록과 가족의 관심을 AI 안심 리포트로 이어주는 서비스",
+  "description": "부모님의 하루 안부를 가족이 놓치지 않도록 돕는 AI 안심 서비스",
   "display": "standalone",
   "start_url": "/app",
   "scope": "/",
   "lang": "ko",
-  "theme_color": "#2563EB",
-  "background_color": "#F9FAFB",
+  "theme_color": "#F97316",
+  "background_color": "#FFF7ED",
   "icons": [
     {
       "src": "/icons/icon-192.png",
