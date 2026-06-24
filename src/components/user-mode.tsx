@@ -19,11 +19,21 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
+import {
+  analyzeNoResponsePattern,
+  generateFamilyAlert,
+  generateReminderSchedule,
+  getDailyTrend,
+  getMonthlyTrend,
+  getWeeklyTrend,
+  type TrendPoint,
+} from "@/lib/insights";
 
 const registrationKey = "oneul-anbu-parent-registered";
 const profileKey = "oneul-anbu-parent-profile";
 
 type Tab = "home" | "parent" | "report" | "family" | "settings";
+type ReportPeriod = "daily" | "weekly" | "monthly";
 
 type ParentProfile = {
   userType: "family" | "self" | "care";
@@ -60,6 +70,15 @@ const changeSignals = [
   { title: "컨디션 변화", value: "특이 응답 없음", status: "안정" },
   { title: "위험 신호", value: "감지되지 않음", status: "안심" },
 ];
+
+const conditionOptions = ["😀 좋아요", "😐 보통이에요", "😞 별로예요"];
+const quickCheckItems = ["식사했어요", "약 먹었어요", "가벼운 활동했어요"];
+
+const reportPeriods = [
+  { id: "daily", label: "일간" },
+  { id: "weekly", label: "주간" },
+  { id: "monthly", label: "월간" },
+] satisfies Array<{ id: ReportPeriod; label: string }>;
 
 const navItems = [
   { id: "home", label: "홈", icon: Home },
@@ -386,6 +405,15 @@ function HomeTab({ profile }: { profile: ParentProfile }) {
 }
 
 function ParentTab({ profile }: { profile: ParentProfile }) {
+  const [condition, setCondition] = useState("😐 보통이에요");
+  const [checkedItems, setCheckedItems] = useState<string[]>(["식사했어요"]);
+
+  function toggleCheckedItem(item: string) {
+    setCheckedItems((current) =>
+      current.includes(item) ? current.filter((value) => value !== item) : [...current, item],
+    );
+  }
+
   return (
     <div className="grid gap-5">
       <SectionCard title="프로필">
@@ -393,17 +421,53 @@ function ParentTab({ profile }: { profile: ParentProfile }) {
         <StatusLine label="관계" value={profile.relation} />
         <StatusLine label="안부 방식" value={methodLabel[profile.method]} />
       </SectionCard>
-      <SectionCard title="안부 입력">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <SmallMetric icon={Utensils} label="식사" value="아침 확인" />
-          <SmallMetric icon={Pill} label="약 복용" value="완료" />
-          <SmallMetric icon={Activity} label="활동" value="안정" />
+
+      <SectionCard title="오늘 어떠셨어요?">
+        <div className="grid gap-3">
+          {conditionOptions.map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setCondition(option)}
+              className={`min-h-16 rounded-2xl border px-5 text-left text-xl font-black transition ${
+                condition === option ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-[#E5E7EB] bg-white"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {quickCheckItems.map((item) => {
+            const selected = checkedItems.includes(item);
+            return (
+              <button
+                key={item}
+                type="button"
+                onClick={() => toggleCheckedItem(item)}
+                className={`min-h-14 rounded-2xl border px-4 text-left font-black transition ${
+                  selected ? "border-[#22C55E] bg-[#DCFCE7] text-[#15803D]" : "border-[#E5E7EB] bg-[#F9FAFB]"
+                }`}
+              >
+                {selected ? "✓ " : ""}
+                {item}
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-5 rounded-2xl bg-[#F9FAFB] p-4">
+          <p className="text-sm font-black text-[#6B7280]">오늘 상태 기록</p>
+          <p className="mt-2 text-lg font-black">{condition}</p>
+          <p className="mt-1 font-semibold leading-7 text-[#6B7280]">
+            {checkedItems.length ? checkedItems.join(" · ") : "추가 선택 없음"}
+          </p>
         </div>
       </SectionCard>
-      <SectionCard title="최근 기록">
+
+      <SectionCard title="최근 응답 여부">
         <div className="grid gap-3">
           <StatusLine label="오늘 08:42" value="안부 응답 완료" />
-          <StatusLine label="어제 09:10" value="식사·복약 정상" />
+          <StatusLine label="어제 09:10" value="응답 완료" />
           <StatusLine label="2일 전" value="특이 신호 없음" />
         </div>
       </SectionCard>
@@ -412,35 +476,207 @@ function ParentTab({ profile }: { profile: ParentProfile }) {
 }
 
 function ReportTab() {
-  const scoreTrend = useMemo(() => [88, 91, 90, 92, 92], []);
+  const [period, setPeriod] = useState<ReportPeriod>("daily");
+  const dailyTrend = useMemo(() => getDailyTrend(), []);
+  const weeklyTrend = useMemo(() => getWeeklyTrend(), []);
+  const monthlyTrend = useMemo(() => getMonthlyTrend(), []);
+  const noResponsePattern = useMemo(() => analyzeNoResponsePattern(), []);
+  const familyAlert = useMemo(() => generateFamilyAlert(), []);
 
   return (
     <div className="grid gap-5">
-      <SectionCard title="AI 리포트">
-        <div className="grid gap-3">
-          {reportHistory.map((item) => (
-            <MiniSummary key={item.title} title={item.title} value={item.value} />
-          ))}
+      <div className="grid grid-cols-3 gap-2 rounded-[22px] bg-white p-2 shadow-[0_16px_40px_rgba(15,23,42,0.06)]">
+        {reportPeriods.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setPeriod(item.id)}
+            className={`min-h-12 rounded-2xl text-sm font-black transition ${
+              period === item.id ? "bg-[#2563EB] text-white" : "text-[#6B7280]"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <SectionCard title={period === "daily" ? "일간 리포트" : period === "weekly" ? "주간 리포트" : "월간 리포트"}>
+        <PeriodReportContent period={period} dailyTrend={dailyTrend} weeklyTrend={weeklyTrend} monthlyTrend={monthlyTrend} />
+      </SectionCard>
+
+      <SectionCard title="최근 30일 안심 점수">
+        <TrendChart points={monthlyTrend} />
+        <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
+          <p className="text-sm font-black text-[#2563EB]">AI 분석</p>
+          <p className="mt-2 font-black leading-7 text-[#1F2937]">
+            최근 4주간 안심 점수가 완만하게 하락하고 있습니다. 활동량 감소와 미응답 증가가 함께 나타났습니다.
+          </p>
         </div>
       </SectionCard>
-      <SectionCard title="안심 점수 추이">
-        <div className="flex h-32 items-end gap-3 rounded-2xl bg-[#F9FAFB] p-4">
-          {scoreTrend.map((score, index) => (
-            <div key={`${score}-${index}`} className="flex flex-1 flex-col items-center gap-2">
-              <div className="w-full rounded-t-xl bg-[#2563EB]" style={{ height: `${score}%` }} />
-              <span className="text-xs font-black text-[#6B7280]">{score}</span>
+
+      <SectionCard title="미응답 변화 감지">
+        <NoResponsePatternCard pattern={noResponsePattern} />
+      </SectionCard>
+
+      <FamilyAlertCard alert={familyAlert} />
+
+      <SectionCard title="AI 리포트 히스토리">
+        <div className="grid gap-3">
+          {reportHistory.map((item, index) => (
+            <div key={item.title} className={index > 0 ? "relative overflow-hidden rounded-2xl" : ""}>
+              <MiniSummary title={item.title} value={item.value} />
+              {index > 0 ? (
+                <div className="absolute inset-0 grid place-items-center bg-white/80 backdrop-blur-[1px]">
+                  <span className="rounded-full bg-[#111827] px-4 py-2 text-sm font-black text-white">
+                    🔒 안심 플랜에서 확인 가능
+                  </span>
+                </div>
+              ) : null}
             </div>
           ))}
         </div>
       </SectionCard>
-      <SectionCard title="변화 감지">
-        <div className="grid gap-3">
-          {changeSignals.map((signal) => (
-            <StatusLine key={signal.title} label={signal.title} value={`${signal.value} · ${signal.status}`} />
+
+      <PremiumLockCard title="최근 30일 변화 분석" description="월간 추이, 위험 시그널, 가족 알림 상세는 안심 플랜에서 확인할 수 있어요." />
+    </div>
+  );
+}
+
+function PeriodReportContent({
+  period,
+  dailyTrend,
+  weeklyTrend,
+  monthlyTrend,
+}: {
+  period: ReportPeriod;
+  dailyTrend: ReturnType<typeof getDailyTrend>;
+  weeklyTrend: TrendPoint[];
+  monthlyTrend: TrendPoint[];
+}) {
+  if (period === "daily") {
+    return (
+      <div className="grid gap-3">
+        <StatusLine label="오늘의 안심 상태" value={`${dailyTrend.score}점`} />
+        <StatusLine label="오늘의 응답 여부" value={dailyTrend.responded ? "응답 완료" : "미응답"} />
+        <StatusLine label="오늘의 컨디션" value={dailyTrend.condition} />
+        <div className="grid gap-2 pt-2">
+          {dailyTrend.notes.map((note) => (
+            <MiniSummary key={note} title={note} value="오늘 상태에 반영되었습니다." />
           ))}
         </div>
-      </SectionCard>
+      </div>
+    );
+  }
+
+  if (period === "weekly") {
+    const latest = weeklyTrend[weeklyTrend.length - 1];
+    return (
+      <div className="grid gap-4">
+        <TrendChart points={weeklyTrend} />
+        <StatusLine label="최근 7일 응답률" value={`${latest?.responseRate ?? 0}%`} />
+        <StatusLine label="식사/약/활동 패턴" value="활동량 감소 관찰" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4">
+      <TrendChart points={monthlyTrend} />
+      <StatusLine label="활동량 변화" value="4주간 완만한 감소" />
+      <StatusLine label="미응답 패턴" value="최근 3일 연속 미응답" />
+      <MiniSummary title="AI 종합 의견" value="안심 점수 하락과 미응답 증가가 함께 보여 가족 확인을 권장합니다." />
     </div>
+  );
+}
+
+function TrendChart({ points }: { points: TrendPoint[] }) {
+  return (
+    <div className="rounded-2xl bg-[#F9FAFB] p-4">
+      <div className="flex h-32 items-end gap-3">
+        {points.map((point) => (
+          <div key={point.label} className="flex flex-1 flex-col items-center gap-2">
+            <div className="w-full rounded-t-xl bg-[#2563EB]" style={{ height: `${Math.max(point.score, 18)}%` }} />
+            <span className="text-xs font-black text-[#6B7280]">{point.score}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex justify-between gap-2 text-center text-xs font-black text-[#6B7280]">
+        {points.map((point) => (
+          <span key={point.label} className="flex-1">
+            {point.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NoResponsePatternCard({
+  pattern,
+}: {
+  pattern: ReturnType<typeof analyzeNoResponsePattern>;
+}) {
+  return (
+    <div className="grid gap-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MiniSummary title="평소 응답률" value={`${pattern.baselineResponseRate}%`} />
+        <MiniSummary title="최근 7일 응답률" value={`${pattern.recentResponseRate}%`} />
+        <MiniSummary title="연속 미응답" value={`${pattern.consecutiveNoResponseDays}일`} />
+      </div>
+      <div className="rounded-2xl bg-[#FEF3C7] p-4">
+        <p className="text-sm font-black text-[#92400E]">AI 해석</p>
+        <p className="mt-2 font-black leading-7 text-[#92400E]">
+          {pattern.summary} {pattern.interpretation}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function FamilyAlertCard({ alert }: { alert: ReturnType<typeof generateFamilyAlert> }) {
+  return (
+    <section className="rounded-[24px] bg-[#111827] p-5 text-white shadow-[0_20px_60px_rgba(17,24,39,0.18)] sm:p-6">
+      <div className="flex items-start gap-4">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-[#FDE047]">
+          <Bell size={22} aria-hidden />
+        </span>
+        <div>
+          <h2 className="text-xl font-black">{alert.title}</h2>
+          <p className="mt-3 font-semibold leading-7 text-white/75">{alert.description}</p>
+          <p className="mt-3 text-lg font-black text-[#FDE047]">{alert.recommendation}</p>
+        </div>
+      </div>
+      <div className="mt-5 flex flex-wrap gap-2">
+        {alert.reasons.map((reason) => (
+          <span key={reason} className="rounded-full bg-white/10 px-3 py-1 text-sm font-black">
+            {reason}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PremiumLockCard({ title, description }: { title: string; description: string }) {
+  return (
+    <section className="rounded-[24px] border border-[#DBEAFE] bg-[#EFF6FF] p-5 sm:p-6">
+      <div className="flex items-start gap-4">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#2563EB]">
+          <LockKeyhole size={22} aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-xl font-black">🔒 {title}</h2>
+          <p className="mt-2 font-semibold leading-7 text-[#4B5563]">{description}</p>
+          <button
+            type="button"
+            className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#2563EB] px-5 font-black text-white"
+          >
+            <CreditCard size={18} aria-hidden />
+            안심 플랜 보기
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -472,18 +708,46 @@ function FamilyTab({ profile }: { profile: ParentProfile }) {
 }
 
 function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: () => void }) {
+  const reminderSchedule = useMemo(() => generateReminderSchedule(), []);
+
   return (
     <div className="grid gap-5">
       <SectionCard title="안부 방식">
         <StatusLine label="현재 방식" value={methodLabel[profile.method]} />
       </SectionCard>
-      <SectionCard title="알림">
-        <StatusLine label="미응답 알림" value="켜짐" />
+
+      <SectionCard title="리마인드 시간 설정">
+        <div className="grid gap-3">
+          {reminderSchedule.map((reminder) => (
+            <div key={reminder.step} className="rounded-2xl bg-[#F9FAFB] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-black">{reminder.step}</p>
+                <span className="rounded-full bg-white px-3 py-1 text-sm font-black text-[#2563EB]">
+                  {reminder.time}
+                </span>
+              </div>
+              <p className="mt-2 font-semibold leading-7 text-[#6B7280]">{reminder.message}</p>
+              <p className="mt-2 text-sm font-black text-[#9CA3AF]">
+                {reminder.target === "parent" ? "부모님 알림" : "가족 알림"}
+              </p>
+            </div>
+          ))}
+        </div>
+      </SectionCard>
+
+      <SectionCard title="알림 설정">
+        <StatusLine label="미응답 감지" value="켜짐" />
+        <StatusLine label="가족 확인 권장" value="3일 연속 미응답 시" />
         <StatusLine label="주간 리포트" value="매주 월요일" />
       </SectionCard>
+
+      <PremiumLockCard title="가족 알림 자동화" description="미응답, 안심 점수 급락, 활동량 감소가 반복되면 가족에게 확인 권장 알림을 표시합니다." />
+
       <SectionCard title="요금제">
-        <StatusLine label="현재 플랜" value="안심 플랜" />
+        <StatusLine label="무료" value="오늘 상태, 기본 안심 점수" />
+        <StatusLine label="안심 플랜" value="주간/월간 추이, AI 리포트, 가족 알림" />
       </SectionCard>
+
       <SectionCard title="개인정보">
         <StatusLine label="데이터 보관" value="안전한 암호화 저장" />
         <button className="mt-4 min-h-12 rounded-2xl border border-[#FCA5A5] px-5 font-black text-[#DC2626]" type="button" onClick={onReset}>
