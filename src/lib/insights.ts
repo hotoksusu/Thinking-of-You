@@ -33,7 +33,7 @@ export type FamilyEncouragement = {
 
 export const dailyMomentOptions = [
   "좋아요",
-  "보통이에요",
+  "평범했어요",
   "조금 지쳤어요",
   "집에서 쉬었어요",
   "가볍게 움직였어요",
@@ -108,7 +108,7 @@ export function getDailyTrend() {
     title: "오늘의 기록",
     score: 89,
     recorded: true,
-    mood: "보통이에요",
+    mood: "평범했어요",
     notes: ["오늘의 기록 완료", "긍정 표현 유지", "큰 변화 감지 없음"],
   };
 }

@@ -4,6 +4,7 @@ import {
   Brain,
   ChevronDown,
   HeartHandshake,
+  Link,
   MessageCircle,
   ShieldCheck,
 } from "lucide-react";
@@ -11,20 +12,20 @@ import {
 const flowSteps = [
   {
     step: "1",
-    title: "오늘의 기록",
-    description: "부모님은 긴 입력 없이 하루의 한 순간만 남깁니다.",
-    icon: MessageCircle,
+    title: "부모님께 링크 보내기",
+    description: "설치 설명 없이 카카오톡이나 문자 링크만 보냅니다.",
+    icon: Link,
   },
   {
     step: "2",
-    title: "가족의 관심",
-    description: "가족은 짧은 관심 메시지로 부담 없이 마음을 전합니다.",
-    icon: HeartHandshake,
+    title: "오늘의 기록",
+    description: "부모님은 링크를 열고 큰 버튼 하나로 하루를 남깁니다.",
+    icon: MessageCircle,
   },
   {
     step: "3",
     title: "AI 변화 감지",
-    description: "AI가 평소와 다른 생활 흐름을 조용히 살펴봅니다.",
+    description: "AI가 평소와 다른 흐름을 조용히 살펴봅니다.",
     icon: Brain,
   },
   {
@@ -37,12 +38,12 @@ const flowSteps = [
 
 const faqs = [
   {
-    question: "왜 긴 기록이 필요 없나요?",
-    answer: "오늘안부는 긴 일지를 요구하지 않습니다. 부모님은 오늘의 기록만 남기고, 가족은 안심 리포트로 결과를 확인합니다.",
+    question: "앱 설치가 꼭 필요한가요?",
+    answer: "아닙니다. 부모님은 카카오톡이나 문자로 받은 링크만 열어도 오늘의 기록을 남길 수 있습니다.",
   },
   {
-    question: "왜 가족 메시지가 중요한가요?",
-    answer: "가족의 관심은 부모님이 부담 없이 오늘의 기록을 남기게 만드는 가장 자연스러운 동기입니다.",
+    question: "왜 긴 기록이 필요 없나요?",
+    answer: "오늘안부는 긴 일지를 요구하지 않습니다. 부모님은 오늘의 기록만 남기고, 가족은 안심 리포트로 결과를 확인합니다.",
   },
   {
     question: "부모님을 감시하는 서비스인가요?",
@@ -86,16 +87,23 @@ export default function LandingPage() {
             <br />
             AI는 변화를 살펴봅니다.
           </p>
+
+          <div className="mt-7 rounded-[24px] bg-[#EFF6FF] p-5">
+            <p className="text-sm font-black text-[#2563EB]">3초 만에 시작할 수 있습니다.</p>
+            <p className="mt-2 text-xl font-black leading-8">부모님께 링크만 보내세요.</p>
+            <p className="mt-2 font-semibold leading-7 text-[#4B5563]">설치 없이도 바로 오늘의 기록을 남길 수 있습니다.</p>
+          </div>
+
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a
-              href="/app?registered=1"
+              href="/app"
               className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-7 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
             >
               안심 리포트 체험하기
               <ArrowRight size={18} aria-hidden />
             </a>
             <a
-              href="/app"
+              href="/app?registered=1"
               className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-7 font-black text-[#4B5563]"
             >
               앱 체험하기
@@ -110,9 +118,9 @@ export default function LandingPage() {
         <div className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
           <p className="text-sm font-black text-[#2563EB]">서비스 흐름</p>
           <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-            설명보다 먼저,
+            설치보다 먼저,
             <br />
-            흐름으로 이해합니다.
+            첫 기록을 경험합니다.
           </h2>
           <div className="mt-9 grid gap-3 md:grid-cols-4">
             {flowSteps.map((item) => {
@@ -136,9 +144,9 @@ export default function LandingPage() {
         <div>
           <p className="text-sm font-black text-[#2563EB]">예시 안심 리포트</p>
           <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-            가족이 보는 것은
+            첫 기록 이후,
             <br />
-            정리된 결과입니다.
+            바로 결과를 보여줍니다.
           </h2>
           <p className="mt-5 font-semibold leading-8 text-[#6B7280]">
             오늘의 기록을 그대로 나열하지 않고, 안심 점수와 변화 감지 결과로 정리합니다.
@@ -168,23 +176,17 @@ export default function LandingPage() {
       <section className="mx-auto w-full max-w-[920px] px-5 py-16 text-center sm:px-8">
         <ShieldCheck size={34} className="mx-auto text-[#2563EB]" aria-hidden />
         <h2 className="mt-5 text-3xl font-black leading-tight sm:text-4xl">
-          설명보다 먼저
+          설치 방법보다 먼저
           <br />
-          안심 리포트를 체험해보세요.
+          첫 기록을 체험해보세요.
         </h2>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-          <a
-            href="/app?registered=1"
-            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-7 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
-          >
-            안심 리포트 체험하기
-            <ArrowRight size={18} aria-hidden />
-          </a>
+        <div className="mt-8 flex justify-center">
           <a
             href="/app"
-            className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-7 font-black text-[#4B5563]"
+            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#2563EB] px-7 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
           >
-            앱 체험하기
+            바로 시작하기
+            <ArrowRight size={18} aria-hidden />
           </a>
         </div>
       </section>

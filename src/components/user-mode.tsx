@@ -3,18 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Bell,
-  CheckCircle2,
-  Clock3,
+  Copy,
   CreditCard,
   FileText,
   Home,
+  Link,
   LockKeyhole,
   MessageCircle,
   Settings,
   ShieldCheck,
-  Users,
 } from "lucide-react";
-import { AppInstallBanner, InstallGuide } from "@/components/install-guide";
+import { InstallGuide } from "@/components/install-guide";
 import {
   analyzeNoResponsePattern,
   familyEncouragements,
@@ -38,7 +37,7 @@ type ParentProfile = {
   userType: "family" | "self";
   parentName: string;
   relation: string;
-  method: "kakao" | "sms" | "call";
+  method: "kakao" | "sms" | "link";
   familyShare: boolean;
 };
 
@@ -63,7 +62,7 @@ const defaultProfile: ParentProfile = {
 const methodLabel = {
   kakao: "카카오톡",
   sms: "문자",
-  call: "전화",
+  link: "링크 복사",
 };
 
 const navItems = [
@@ -80,7 +79,7 @@ const reportPeriods = [
   { id: "monthly", label: "월간" },
 ] satisfies Array<{ id: ReportPeriod; label: string }>;
 
-const momentOptions = ["좋아요", "보통이에요", "조금 지쳤어요"];
+const momentOptions = ["😊 좋았어요", "🙂 평범했어요", "☕ 여유로웠어요", "🏠 집에서 쉬었어요", "🚶 바빴어요"];
 const activityOptions = ["식사했어요", "약 먹었어요", "가볍게 움직였어요"];
 const messageOptions = ["괜찮아요", "가족에게 전해주세요", "나중에 이야기할게요"];
 
@@ -153,12 +152,8 @@ export function UserMode({ initialRegistered }: { initialRegistered: boolean }) 
               {navItems.find((item) => item.id === activeTab)?.label}
             </h1>
           </div>
-          <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
-            안심
-          </span>
+          <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">안심</span>
         </header>
-
-        <AppInstallBanner />
 
         {activeTab === "home" ? <HomeTab profile={profile} onOpenReport={() => setActiveTab("report")} /> : null}
         {activeTab === "record" ? <RecordTab profile={profile} /> : null}
@@ -192,13 +187,12 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
   return (
     <main className="min-h-screen bg-[#F9FAFB] px-5 py-7 text-[#1F2937] sm:px-8">
       <section className="mx-auto grid min-h-[calc(100vh-3.5rem)] w-full max-w-[680px] content-center">
-        <AppInstallBanner />
         <div className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
           {showProgress ? (
             <div className="mb-8">
               <div className="flex items-center justify-between text-sm font-black text-[#6B7280]">
                 <span>{progress}/5</span>
-                <span>시작 설정</span>
+                <span>첫 기록 준비</span>
               </div>
               <div className="mt-3 h-2 rounded-full bg-[#E5E7EB]">
                 <div
@@ -212,8 +206,8 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
           {step === 0 ? <WelcomeStep /> : null}
           {step === 1 ? <UserTypeStep profile={profile} onChange={setProfile} /> : null}
           {step === 2 ? <ParentInfoStep profile={profile} onChange={setProfile} /> : null}
-          {step === 3 ? <RecordMethodStep profile={profile} onChange={setProfile} /> : null}
-          {step === 4 ? <FamilyShareStep profile={profile} onChange={setProfile} /> : null}
+          {step === 3 ? <SendLinkStep profile={profile} onChange={setProfile} /> : null}
+          {step === 4 ? <FirstRecordStep profile={profile} /> : null}
           {step === 5 ? <CompleteStep profile={profile} /> : null}
 
           <div className="mt-9 flex gap-3">
@@ -231,7 +225,7 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
               onClick={next}
               className="min-h-14 flex-[2] rounded-2xl bg-[#2563EB] px-5 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
             >
-              {step === 0 ? "시작하기" : step === 5 ? "안심 리포트 보기" : "다음"}
+              {step === 0 ? "바로 시작하기" : step === 5 ? "안심 리포트 보기" : "다음"}
             </button>
           </div>
         </div>
@@ -243,22 +237,19 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
 function WelcomeStep() {
   return (
     <div>
-      <p className="text-sm font-black text-[#2563EB]">시작 안내</p>
+      <p className="text-sm font-black text-[#2563EB]">설치 없이 시작</p>
       <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal">
-        오늘의 기록이 쌓이면
+        부모님께 링크만 보내면
         <br />
-        안심 리포트가 됩니다.
+        첫 기록이 시작됩니다.
       </h1>
       <p className="mt-5 text-lg font-semibold leading-8 text-[#6B7280]">
-        부모님은 하루를 남기고, 가족은 관심을 전하고, AI는 변화를 살펴봅니다.
+        오늘안부의 첫 경험은 설치가 아니라 첫 번째 오늘의 기록입니다.
       </p>
       <div className="mt-7 grid gap-3">
-        <MiniSummary title="오늘의 기록" value="긴 입력 없이 하루의 한 순간만 남깁니다." />
-        <MiniSummary title="AI 변화 감지" value="평소와 다른 흐름을 조용히 살펴봅니다." />
-        <MiniSummary title="안심 리포트" value="가족은 정리된 결과만 확인합니다." />
-      </div>
-      <div className="mt-6">
-        <InstallGuide compact />
+        <MiniSummary title="부모님께 링크 보내기" value="카카오톡, 문자, 링크 복사 중 편한 방법을 선택합니다." />
+        <MiniSummary title="부모님 첫 기록" value="링크를 열고 큰 버튼 하나만 누르면 끝납니다." />
+        <MiniSummary title="안심 리포트 생성" value="가족은 안심 점수와 변화 감지 결과를 확인합니다." />
       </div>
     </div>
   );
@@ -272,12 +263,12 @@ function UserTypeStep({
   onChange: (profile: ParentProfile) => void;
 }) {
   return (
-    <StepFrame label="사용자 선택" title="어떤 방식으로 시작할까요?">
+    <StepFrame label="자녀 가입" title="누구의 안심 리포트를 볼까요?">
       <ChoiceGrid
         value={profile.userType}
         options={[
-          { value: "family", title: "부모님 안심 확인", description: "가족이 안심 리포트를 확인합니다." },
-          { value: "self", title: "내 오늘의 기록", description: "내 하루를 남기고 가족과 공유합니다." },
+          { value: "family", title: "부모님 안심 확인", description: "부모님의 오늘의 기록을 가족이 안심 리포트로 확인합니다." },
+          { value: "self", title: "내 안심 공유", description: "내 오늘의 기록을 남기고 가족과 공유합니다." },
         ]}
         onChange={(userType) => onChange({ ...profile, userType })}
       />
@@ -293,7 +284,7 @@ function ParentInfoStep({
   onChange: (profile: ParentProfile) => void;
 }) {
   return (
-    <StepFrame label="대상 설정" title="누구의 오늘의 기록을 살펴볼까요?">
+    <StepFrame label="부모님 등록" title="부모님 정보를 간단히 등록합니다.">
       <div className="grid gap-4">
         <label className="grid gap-2 font-black">
           이름
@@ -316,7 +307,7 @@ function ParentInfoStep({
   );
 }
 
-function RecordMethodStep({
+function SendLinkStep({
   profile,
   onChange,
 }: {
@@ -324,47 +315,47 @@ function RecordMethodStep({
   onChange: (profile: ParentProfile) => void;
 }) {
   return (
-    <StepFrame label="오늘의 기록 방식" title="어떤 방식이 편할까요?">
+    <StepFrame label="부모님께 링크 보내기" title="설치 설명 없이 링크만 보내세요.">
       <ChoiceGrid
         value={profile.method}
         options={[
-          { value: "kakao", title: "카카오톡", description: "익숙한 대화창에서 오늘의 기록을 남깁니다." },
-          { value: "sms", title: "문자", description: "앱 설치 없이 문자 링크로 남깁니다." },
-          { value: "call", title: "전화", description: "스마트폰이 어려운 분을 위한 방식입니다." },
+          { value: "kakao", title: "카카오톡으로 보내기", description: "가장 익숙한 대화방으로 오늘의 기록 링크를 보냅니다." },
+          { value: "sms", title: "문자로 보내기", description: "카카오톡이 어려운 경우 문자 링크로 보냅니다." },
+          { value: "link", title: "링크 복사", description: "직접 전달할 수 있도록 링크를 복사합니다." },
         ]}
         onChange={(method) => onChange({ ...profile, method })}
       />
+      <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
+        <p className="text-sm font-black text-[#2563EB]">보낼 메시지 예시</p>
+        <p className="mt-2 font-black leading-7 text-[#1F2937]">
+          {profile.parentName}, 여기 눌러서 오늘 하루만 알려주세요. 설치하지 않아도 바로 됩니다.
+        </p>
+      </div>
     </StepFrame>
   );
 }
 
-function FamilyShareStep({
-  profile,
-  onChange,
-}: {
-  profile: ParentProfile;
-  onChange: (profile: ParentProfile) => void;
-}) {
+function FirstRecordStep({ profile }: { profile: ParentProfile }) {
   return (
-    <StepFrame label="가족 공유" title="가족과 함께 볼까요?">
-      <div className="grid gap-3">
-        <button
-          type="button"
-          onClick={() => onChange({ ...profile, familyShare: true })}
-          className={`rounded-2xl border p-5 text-left ${profile.familyShare ? "border-[#2563EB] bg-[#EFF6FF]" : "border-[#E5E7EB] bg-white"}`}
-        >
-          <strong className="block text-lg">가족 공유 켜기</strong>
-          <span className="mt-2 block font-semibold text-[#6B7280]">안심 리포트를 가족이 함께 확인합니다.</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onChange({ ...profile, familyShare: false })}
-          className={`rounded-2xl border p-5 text-left ${!profile.familyShare ? "border-[#2563EB] bg-[#EFF6FF]" : "border-[#E5E7EB] bg-white"}`}
-        >
-          <strong className="block text-lg">나중에 설정</strong>
-          <span className="mt-2 block font-semibold text-[#6B7280]">먼저 혼자 체험하고 나중에 초대합니다.</span>
-        </button>
-      </div>
+    <StepFrame label="부모님 첫 기록" title="부모님은 3초 안에 끝낼 수 있어요.">
+      <article className="rounded-[28px] bg-[#FFF7ED] p-5">
+        <p className="text-sm font-black text-[#F97316]">부모님 화면 예시</p>
+        <h2 className="mt-3 text-3xl font-black leading-tight">
+          안녕하세요 😊
+          <br />
+          오늘 하루는 어떠셨나요?
+        </h2>
+        <div className="mt-5 grid gap-3">
+          {momentOptions.map((option) => (
+            <button key={option} type="button" className="min-h-14 rounded-2xl bg-white px-5 text-left text-lg font-black">
+              {option}
+            </button>
+          ))}
+        </div>
+        <p className="mt-5 rounded-2xl bg-white px-4 py-3 text-sm font-black text-[#F97316]">
+          선택하면 바로 {profile.parentName}님의 오늘의 기록이 완성됩니다.
+        </p>
+      </article>
     </StepFrame>
   );
 }
@@ -372,17 +363,20 @@ function FamilyShareStep({
 function CompleteStep({ profile }: { profile: ParentProfile }) {
   return (
     <div>
-      <p className="text-sm font-black text-[#2563EB]">설정 완료</p>
+      <p className="text-sm font-black text-[#2563EB]">안심 리포트 생성</p>
       <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal">
         {profile.parentName}님의
         <br />
-        안심 리포트가 준비됐어요.
+        샘플 안심 리포트가 준비됐어요.
       </h1>
       <div className="mt-7 rounded-[24px] bg-[#F9FAFB] p-5">
-        <StatusLine label="오늘의 기록 방식" value={methodLabel[profile.method]} />
-        <StatusLine label="가족 공유" value={profile.familyShare ? "켜짐" : "나중에 설정"} />
-        <StatusLine label="첫 화면" value="안심 리포트" />
-        <StatusLine label="변화 감지" value="활동 표현 소폭 감소" />
+        <StatusLine label="부모님께 보내기" value={methodLabel[profile.method]} />
+        <StatusLine label="첫 기록" value="완료 예시 생성" />
+        <StatusLine label="안심 점수" value="89점" />
+        <StatusLine label="변화 감지" value="큰 변화 없음" />
+      </div>
+      <div className="mt-5">
+        <InstallGuide compact />
       </div>
     </div>
   );
@@ -399,9 +393,7 @@ function HomeTab({ profile, onOpenReport }: { profile: ParentProfile; onOpenRepo
             <p className="text-sm font-black text-[#93C5FD]">안심 리포트</p>
             <h2 className="mt-3 text-4xl font-black tracking-normal">안심 점수 89점</h2>
           </div>
-          <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
-            안심
-          </span>
+          <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">안심</span>
         </div>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <MiniDark title="오늘의 기록" value={lifeReport.participation} />
@@ -427,15 +419,39 @@ function HomeTab({ profile, onOpenReport }: { profile: ParentProfile; onOpenRepo
         <StatusLine label="가족의 관심" value="메시지 2건" />
       </SectionCard>
 
+      <SendLinkCard profile={profile} />
       <EncouragementInbox />
-
-      <section className="rounded-[24px] bg-[#EFF6FF] p-5">
-        <p className="text-sm font-black text-[#2563EB]">가족에게 필요한 한 줄</p>
-        <p className="mt-3 text-xl font-black leading-8">
-          오늘은 큰 변화 감지가 없습니다. 다만 활동 표현이 줄어 이번 주 짧은 통화를 권장합니다.
-        </p>
-      </section>
     </div>
+  );
+}
+
+function SendLinkCard({ profile }: { profile: ParentProfile }) {
+  return (
+    <SectionCard title="부모님께 보내기">
+      <p className="font-semibold leading-7 text-[#6B7280]">설치 안내보다 먼저 오늘의 기록 링크를 보냅니다.</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <LinkButton title="카카오톡으로 보내기" primary />
+        <LinkButton title="문자로 보내기" />
+        <LinkButton title="링크 복사" icon={<Copy size={18} aria-hidden />} />
+      </div>
+      <p className="mt-4 rounded-2xl bg-[#EFF6FF] p-4 text-sm font-black leading-6 text-[#2563EB]">
+        {profile.parentName}, 여기 눌러서 오늘 하루만 알려주세요. 설치하지 않아도 바로 됩니다.
+      </p>
+    </SectionCard>
+  );
+}
+
+function LinkButton({ title, primary = false, icon }: { title: string; primary?: boolean; icon?: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-4 font-black ${
+        primary ? "bg-[#2563EB] text-white" : "border border-[#D1D5DB] bg-white text-[#4B5563]"
+      }`}
+    >
+      {icon}
+      {title}
+    </button>
   );
 }
 
@@ -446,14 +462,14 @@ function RecordTab({ profile }: { profile: ParentProfile }) {
         <p className="text-sm font-black text-[#2563EB]">{profile.parentName}님의 공간</p>
         <h2 className="mt-3 text-3xl font-black leading-tight">오늘의 기록</h2>
         <p className="mt-3 font-semibold leading-7 text-[#6B7280]">
-          긴 문장을 쓰지 않아도 괜찮습니다. 버튼 몇 번으로 오늘을 남깁니다.
+          링크를 열고 큰 버튼을 누르면 끝납니다. 설치하지 않아도 바로 사용할 수 있습니다.
         </p>
       </section>
       <TodayRecordCard />
       <SectionCard title="최근 오늘의 기록">
         <div className="grid gap-3">
-          <StatusLine label="오늘 08:42" value="좋아요 · 식사했어요" />
-          <StatusLine label="어제 09:10" value="보통이에요 · 커피 한 잔" />
+          <StatusLine label="오늘 08:42" value="좋았어요 · 식사했어요" />
+          <StatusLine label="어제 09:10" value="평범했어요 · 커피 한 잔" />
           <StatusLine label="2일 전" value="가볍게 움직였어요" />
         </div>
       </SectionCard>
@@ -545,9 +561,13 @@ function TodayRecordCard() {
   }
 
   return (
-    <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-      <p className="text-sm font-black text-[#F97316]">오늘의 기록 남기기</p>
-      <h2 className="mt-3 text-3xl font-black leading-tight">오늘은 어떠셨어요?</h2>
+    <section id="today-record" className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+      <p className="text-sm font-black text-[#F97316]">부모님 첫 화면</p>
+      <h2 className="mt-3 text-3xl font-black leading-tight">
+        안녕하세요 😊
+        <br />
+        오늘 하루는 어떠셨나요?
+      </h2>
       <p className="mt-3 font-semibold leading-7 text-[#6B7280]">가장 가까운 버튼 하나만 골라도 충분합니다.</p>
       <MomentChoiceGroup options={momentOptions} value={selectedMoment} onChange={setSelectedMoment} />
       <p className="mt-6 text-sm font-black text-[#6B7280]">오늘 남길 내용</p>
@@ -578,7 +598,7 @@ function TodayRecordCard() {
         onClick={submitRecord}
         className="mt-4 min-h-14 w-full rounded-2xl bg-[#F97316] px-5 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]"
       >
-        오늘의 기록 남기기
+        오늘의 기록 완료
       </button>
     </section>
   );
@@ -730,16 +750,6 @@ function SignalsTab() {
         </div>
       </SectionCard>
 
-      <section className="rounded-[24px] bg-[#EFF6FF] p-5">
-        <p className="text-sm font-black text-[#2563EB]">AI가 살펴본 변화</p>
-        <p className="mt-3 text-xl font-black leading-8">
-          최근 2주간 오늘의 기록은 유지되고 있으나 외부 활동 표현이 줄었습니다.
-        </p>
-        <p className="mt-3 font-semibold leading-7 text-[#4B5563]">
-          급격한 변화 감지는 아니지만 생활 리듬을 함께 살펴볼 필요가 있습니다.
-        </p>
-      </section>
-
       <FamilyAlertCard alert={familyAlert} />
       <PremiumLockCard title="변화 감지 알림" description="오늘의 기록 공백과 활동 표현 감소가 반복되면 가족에게 확인 권장 알림을 표시합니다." />
     </div>
@@ -815,11 +825,7 @@ function TrendChart({ points }: { points: TrendPoint[] }) {
   );
 }
 
-function NoResponsePatternCard({
-  pattern,
-}: {
-  pattern: ReturnType<typeof analyzeNoResponsePattern>;
-}) {
+function NoResponsePatternCard({ pattern }: { pattern: ReturnType<typeof analyzeNoResponsePattern> }) {
   return (
     <div className="grid gap-4">
       <div className="grid gap-3 sm:grid-cols-3">
@@ -887,8 +893,9 @@ function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: ()
 
   return (
     <div className="grid gap-5">
-      <SectionCard title="오늘의 기록 방식">
-        <StatusLine label="현재 방식" value={methodLabel[profile.method]} />
+      <SectionCard title="부모님께 보내기">
+        <StatusLine label="기본 방식" value={methodLabel[profile.method]} />
+        <StatusLine label="시작 방식" value="설치 없이 링크로 시작" />
       </SectionCard>
 
       <SectionCard title="리마인드 시간">
@@ -910,12 +917,7 @@ function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: ()
         </div>
       </SectionCard>
 
-      <SectionCard title="알림 설정">
-        <StatusLine label="오늘의 기록 공백" value="켜짐" />
-        <StatusLine label="변화 감지 알림" value="반복 변화가 보일 때" />
-        <StatusLine label="주간 안심 리포트" value="매주 월요일" />
-      </SectionCard>
-
+      <InstallGuide />
       <FamilyPreview />
 
       <PremiumLockCard title="안심 리포트 자동화" description="오늘의 기록 공백, 활동 표현 감소, 반복 변화가 보이면 가족에게 안심 리포트를 표시합니다." />

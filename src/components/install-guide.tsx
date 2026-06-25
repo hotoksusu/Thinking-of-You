@@ -39,45 +39,50 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
   return (
     <section className={compact ? "rounded-[24px] bg-[#EFF6FF] p-5" : "rounded-[28px] bg-[#EFF6FF] p-6"}>
       <div className="flex items-start gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#F97316]">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#2563EB]">
           <Smartphone size={22} aria-hidden />
         </span>
         <div>
-          <p className="text-sm font-black text-[#F97316]">설치 없이 홈화면에 추가</p>
+          <p className="text-sm font-black text-[#2563EB]">더 편하게 사용하기</p>
           <h2 className={compact ? "mt-1 text-xl font-black" : "mt-2 text-2xl font-black"}>
-            앱스토어를 찾지 않아도 바로 시작할 수 있어요.
+            오늘안부를 홈화면에 추가하면 더 빠르게 열 수 있어요.
           </h2>
           <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
-            부모님 휴대폰 첫 화면에 오늘안부를 꺼내두세요. 아이콘을 누르면 오늘안부 앱처럼 바로 시작됩니다.
+            설치는 선택사항입니다. 링크만 열어도 오늘의 기록을 남길 수 있고, 익숙해진 뒤 필요할 때 추가하면 됩니다.
           </p>
         </div>
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl bg-white p-4">
-          <p className="text-sm font-black text-[#F97316]">iPhone</p>
-          <p className="mt-2 text-sm font-bold leading-6 text-[#4B5563]">Safari에서 공유 버튼 → 홈 화면에 추가</p>
+
+      <details className="mt-5 rounded-2xl bg-white p-4">
+        <summary className="cursor-pointer list-none font-black text-[#2563EB]">홈화면 추가 방법 보기</summary>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-2xl bg-[#F9FAFB] p-4">
+            <p className="text-sm font-black text-[#2563EB]">iPhone</p>
+            <p className="mt-2 text-sm font-bold leading-6 text-[#4B5563]">Safari에서 공유 버튼을 누른 뒤 홈 화면에 추가를 선택합니다.</p>
+          </div>
+          <div className="rounded-2xl bg-[#F9FAFB] p-4">
+            <p className="text-sm font-black text-[#2563EB]">Android</p>
+            <p className="mt-2 text-sm font-bold leading-6 text-[#4B5563]">Chrome 메뉴에서 홈 화면에 추가를 선택합니다.</p>
+          </div>
         </div>
-        <div className="rounded-2xl bg-white p-4">
-          <p className="text-sm font-black text-[#F97316]">Android</p>
-          <p className="mt-2 text-sm font-bold leading-6 text-[#4B5563]">Chrome 메뉴 → 홈 화면에 추가</p>
-        </div>
-      </div>
+      </details>
+
       {!compact ? (
         <div className="mt-5 flex flex-col gap-2 sm:flex-row">
           {canInstall ? (
             <button
               type="button"
               onClick={promptInstall}
-              className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#F97316] px-5 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]"
+              className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#2563EB] px-5 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
             >
               홈화면에 추가하기
             </button>
           ) : null}
           <a
             href="/app"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#F97316] px-5 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#D1D5DB] bg-white px-5 font-black text-[#4B5563]"
           >
-            오늘안부 체험하기
+            앱 체험 계속하기
             <ArrowRight size={17} aria-hidden />
           </a>
         </div>
@@ -87,60 +92,5 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
 }
 
 export function AppInstallBanner() {
-  const { canInstall, promptInstall } = useInstallPrompt();
-
-  return (
-    <section className="mb-5 rounded-[24px] border border-[#FED7AA] bg-[#FFF7ED] p-5">
-      <div className="flex items-start gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#F97316]">
-          <Smartphone size={22} aria-hidden />
-        </span>
-        <div>
-          <p className="text-sm font-black text-[#F97316]">설치 없이 홈화면에 추가</p>
-          <h2 className="mt-1 text-xl font-black leading-7 text-[#111827]">
-            오늘안부를 휴대폰 첫 화면에 꺼내두세요.
-          </h2>
-          <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
-            홈화면에 추가하면 앱처럼 바로 열 수 있어요.
-          </p>
-          <p className="mt-2 text-sm font-black text-[#F97316]">
-            아이콘을 누르면 오늘안부 앱처럼 바로 시작됩니다.
-          </p>
-        </div>
-      </div>
-      <div className={`mt-4 grid gap-2 ${canInstall ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
-        <div className="rounded-2xl bg-white px-4 py-3">
-          <p className="text-sm font-black text-[#F97316]">iPhone</p>
-          <p className="mt-1 text-sm font-bold text-[#4B5563]">Safari에서 공유 버튼 → 홈 화면에 추가</p>
-        </div>
-        <div className="rounded-2xl bg-white px-4 py-3">
-          <p className="text-sm font-black text-[#F97316]">Android</p>
-          <p className="mt-1 text-sm font-bold text-[#4B5563]">Chrome 메뉴 → 홈 화면에 추가</p>
-        </div>
-      </div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        {canInstall ? (
-          <button
-            type="button"
-            onClick={promptInstall}
-            className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#F97316] px-4 font-black text-white"
-          >
-            홈화면에 추가하기
-          </button>
-        ) : null}
-        <a
-          href="/guide"
-          className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#F97316] px-4 font-black text-white"
-        >
-          설치 방법 보기
-        </a>
-        <a
-          href="#today-moment"
-          className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-[#FED7AA] bg-white px-4 font-black text-[#C2410C]"
-        >
-          앱 체험 계속하기
-        </a>
-      </div>
-    </section>
-  );
+  return null;
 }
