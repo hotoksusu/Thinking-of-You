@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Bell,
   Copy,
   CreditCard,
   FileText,
+  Heart,
   Home,
-  Link,
   LockKeyhole,
   MessageCircle,
   Settings,
@@ -28,7 +28,8 @@ import {
 
 const registrationKey = "oneul-anbu-parent-registered";
 const profileKey = "oneul-anbu-parent-profile";
-const pendingRecordKey = "oneul-anbu-pending-records";
+const recordsKey = "oneul-anbu-records";
+const encouragementKey = "oneul-anbu-encouragements";
 
 type Tab = "home" | "record" | "report" | "signals" | "settings";
 type ReportPeriod = "daily" | "weekly" | "monthly";
@@ -41,14 +42,19 @@ type ParentProfile = {
   familyShare: boolean;
 };
 
-type PendingRecord = {
+type TodayRecord = {
   id: string;
   moment: string;
   activity: string;
   message: string;
   createdAt: string;
-  status: "pending" | "delivered";
-  deliveredAt?: string;
+};
+
+type Encouragement = {
+  id: string;
+  sender: string;
+  message: string;
+  createdAt: string;
 };
 
 const defaultProfile: ParentProfile = {
@@ -60,8 +66,8 @@ const defaultProfile: ParentProfile = {
 };
 
 const methodLabel = {
-  kakao: "카카오톡",
-  sms: "문자",
+  kakao: "카카오톡 문구 복사",
+  sms: "문자 문구 복사",
   link: "링크 복사",
 };
 
@@ -79,28 +85,31 @@ const reportPeriods = [
   { id: "monthly", label: "월간" },
 ] satisfies Array<{ id: ReportPeriod; label: string }>;
 
-const momentOptions = ["😊 좋았어요", "🙂 평범했어요", "☕ 여유로웠어요", "🏠 집에서 쉬었어요", "🚶 바빴어요"];
+const momentOptions = ["😊 좋았어요", "🙂 평범했어요", "☕ 여유로웠어요", "🏠 집에서 쉬었어요", "🚶 바쁘게 보냈어요"];
 const activityOptions = ["식사했어요", "약 먹었어요", "가볍게 움직였어요"];
 const messageOptions = ["괜찮아요", "가족에게 전해주세요", "나중에 이야기할게요"];
 
+const encouragementTemplates = [
+  "엄마 오늘도 좋은 하루 보내세요 ❤️",
+  "아버지 식사 잘 챙기시고 편안한 하루 보내세요.",
+  "오늘 날씨가 좋네요. 산책도 하시고 맛있는 것도 드세요 😊",
+  "이번 주말에 전화드릴게요.",
+  "사랑합니다. 오늘도 생각하고 있어요.",
+];
+
+const sampleWeek = ["😊", "🙂", "☕", "🏠", "🙂", "☕", "🚶"];
+
 const reportHistory = [
-  { title: "최신 안심 리포트", value: "오늘의 기록 참여는 유지되고 외부 활동 표현만 소폭 줄었습니다." },
-  { title: "주간 안심 리포트", value: "최근 7일 안심 점수는 89점 안팎으로 유지되고 있습니다." },
-  { title: "월간 안심 리포트", value: "최근 30일 변화 감지 결과, 큰 위험 신호는 없습니다." },
+  { title: "최신 안심 리포트", value: "최근 7일간 기록 참여도는 안정적입니다." },
+  { title: "주간 안심 리포트", value: "집에서 쉬었다는 응답이 조금 늘었습니다." },
+  { title: "월간 안심 리포트", value: "특별한 이상 신호는 없지만, 이번 주에는 짧은 통화를 권장합니다." },
 ];
 
 const changeSignals = [
-  { title: "오늘의 기록 참여", value: "최근 7일 참여율이 평소보다 조금 낮아졌습니다.", status: "관찰" },
+  { title: "오늘의 기록 참여", value: "최근 7일 참여율이 안정적입니다.", status: "안심" },
   { title: "응답 시간 변화", value: "오늘의 기록 시간이 평소보다 늦어진 날이 2회 있었습니다.", status: "관찰" },
-  { title: "활동 표현 변화", value: "외부 활동 관련 표현이 최근 2주간 소폭 줄었습니다.", status: "관찰" },
-  { title: "긍정 표현 변화", value: "긍정 표현은 안심권으로 유지되고 있습니다.", status: "안심" },
-  { title: "오늘의 기록 공백", value: "2일 공백 후 다시 회복했습니다.", status: "안심" },
-  { title: "감정 표현 변화", value: "조금 지쳤다는 표현이 지난주보다 1회 늘었습니다.", status: "관찰" },
-];
-
-const familyNetwork = [
-  { name: "엄마", score: 91, status: "안심", checkedBy: "딸" },
-  { name: "아빠", score: 74, status: "관찰", checkedBy: "아들" },
+  { title: "활동 표현 변화", value: "집에서 쉬었다는 응답이 조금 늘었습니다.", status: "관찰" },
+  { title: "가족의 관심", value: "최근 응원 메시지 확인 후 오늘의 기록이 남겨졌습니다.", status: "안심" },
 ];
 
 export function UserMode({ initialRegistered }: { initialRegistered: boolean }) {
@@ -133,6 +142,8 @@ export function UserMode({ initialRegistered }: { initialRegistered: boolean }) 
   function resetService() {
     window.localStorage.removeItem(registrationKey);
     window.localStorage.removeItem(profileKey);
+    window.localStorage.removeItem(recordsKey);
+    window.localStorage.removeItem(encouragementKey);
     setProfile(defaultProfile);
     setRegistered(false);
     setActiveTab("home");
@@ -195,10 +206,7 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
                 <span>첫 기록 준비</span>
               </div>
               <div className="mt-3 h-2 rounded-full bg-[#E5E7EB]">
-                <div
-                  className="h-2 rounded-full bg-[#2563EB] transition-all"
-                  style={{ width: `${(progress / 5) * 100}%` }}
-                />
+                <div className="h-2 rounded-full bg-[#2563EB] transition-all" style={{ width: `${(progress / 5) * 100}%` }} />
               </div>
             </div>
           ) : null}
@@ -244,24 +252,18 @@ function WelcomeStep() {
         첫 기록이 시작됩니다.
       </h1>
       <p className="mt-5 text-lg font-semibold leading-8 text-[#6B7280]">
-        오늘안부의 첫 경험은 설치가 아니라 첫 번째 오늘의 기록입니다.
+        오늘안부의 재방문 동기는 알림이 아니라 가족의 관심입니다.
       </p>
       <div className="mt-7 grid gap-3">
-        <MiniSummary title="부모님께 링크 보내기" value="카카오톡, 문자, 링크 복사 중 편한 방법을 선택합니다." />
-        <MiniSummary title="부모님 첫 기록" value="링크를 열고 큰 버튼 하나만 누르면 끝납니다." />
-        <MiniSummary title="안심 리포트 생성" value="가족은 안심 점수와 변화 감지 결과를 확인합니다." />
+        <MiniSummary title="가족 응원 도착" value="부모님은 먼저 가족의 짧은 응원을 봅니다." />
+        <MiniSummary title="오늘의 기록" value="읽고 난 뒤 큰 버튼 하나로 하루를 남깁니다." />
+        <MiniSummary title="안심 리포트 반영" value="가족은 변화 감지와 안심 점수를 확인합니다." />
       </div>
     </div>
   );
 }
 
-function UserTypeStep({
-  profile,
-  onChange,
-}: {
-  profile: ParentProfile;
-  onChange: (profile: ParentProfile) => void;
-}) {
+function UserTypeStep({ profile, onChange }: { profile: ParentProfile; onChange: (profile: ParentProfile) => void }) {
   return (
     <StepFrame label="자녀 가입" title="누구의 안심 리포트를 볼까요?">
       <ChoiceGrid
@@ -276,13 +278,7 @@ function UserTypeStep({
   );
 }
 
-function ParentInfoStep({
-  profile,
-  onChange,
-}: {
-  profile: ParentProfile;
-  onChange: (profile: ParentProfile) => void;
-}) {
+function ParentInfoStep({ profile, onChange }: { profile: ParentProfile; onChange: (profile: ParentProfile) => void }) {
   return (
     <StepFrame label="부모님 등록" title="부모님 정보를 간단히 등록합니다.">
       <div className="grid gap-4">
@@ -307,43 +303,33 @@ function ParentInfoStep({
   );
 }
 
-function SendLinkStep({
-  profile,
-  onChange,
-}: {
-  profile: ParentProfile;
-  onChange: (profile: ParentProfile) => void;
-}) {
+function SendLinkStep({ profile, onChange }: { profile: ParentProfile; onChange: (profile: ParentProfile) => void }) {
   return (
-    <StepFrame label="부모님께 링크 보내기" title="설치 설명 없이 링크만 보내세요.">
+    <StepFrame label="부모님께 링크 보내기" title="실제 발송 전에는 링크 복사만 제공합니다.">
       <ChoiceGrid
         value={profile.method}
         options={[
-          { value: "kakao", title: "카카오톡으로 보내기", description: "가장 익숙한 대화방으로 오늘의 기록 링크를 보냅니다." },
-          { value: "sms", title: "문자로 보내기", description: "카카오톡이 어려운 경우 문자 링크로 보냅니다." },
-          { value: "link", title: "링크 복사", description: "직접 전달할 수 있도록 링크를 복사합니다." },
+          { value: "kakao", title: "카카오톡 문구 복사", description: "카카오톡에 붙여넣을 메시지를 복사합니다." },
+          { value: "sms", title: "문자 문구 복사", description: "문자에 붙여넣을 메시지를 복사합니다." },
+          { value: "link", title: "링크 복사", description: "부모님께 보낼 링크만 복사합니다." },
         ]}
         onChange={(method) => onChange({ ...profile, method })}
       />
-      <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
-        <p className="text-sm font-black text-[#2563EB]">보낼 메시지 예시</p>
-        <p className="mt-2 font-black leading-7 text-[#1F2937]">
-          {profile.parentName}, 여기 눌러서 오늘 하루만 알려주세요. 설치하지 않아도 바로 됩니다.
-        </p>
-      </div>
+      <CopyLinkCard profile={profile} />
     </StepFrame>
   );
 }
 
 function FirstRecordStep({ profile }: { profile: ParentProfile }) {
   return (
-    <StepFrame label="부모님 첫 기록" title="부모님은 3초 안에 끝낼 수 있어요.">
-      <article className="rounded-[28px] bg-[#FFF7ED] p-5">
+    <StepFrame label="부모님 첫 기록" title="부모님은 읽고 누르기만 하면 됩니다.">
+      <TodayEncouragementCard encouragement={{ id: "demo", sender: profile.relation, message: "엄마 오늘도 좋은 하루 보내세요 ❤️", createdAt: "방금" }} />
+      <article className="mt-4 rounded-[28px] bg-[#FFF7ED] p-5">
         <p className="text-sm font-black text-[#F97316]">부모님 화면 예시</p>
         <h2 className="mt-3 text-3xl font-black leading-tight">
-          안녕하세요 😊
+          오늘 하루는
           <br />
-          오늘 하루는 어떠셨나요?
+          어떠셨나요?
         </h2>
         <div className="mt-5 grid gap-3">
           {momentOptions.map((option) => (
@@ -352,9 +338,6 @@ function FirstRecordStep({ profile }: { profile: ParentProfile }) {
             </button>
           ))}
         </div>
-        <p className="mt-5 rounded-2xl bg-white px-4 py-3 text-sm font-black text-[#F97316]">
-          선택하면 바로 {profile.parentName}님의 오늘의 기록이 완성됩니다.
-        </p>
       </article>
     </StepFrame>
   );
@@ -384,6 +367,15 @@ function CompleteStep({ profile }: { profile: ParentProfile }) {
 
 function HomeTab({ profile, onOpenReport }: { profile: ParentProfile; onOpenReport: () => void }) {
   const lifeReport = useMemo(() => generateLifePatternReport(), []);
+  const [encouragements, setEncouragements] = useState<Encouragement[]>([]);
+
+  useEffect(() => {
+    setEncouragements(readEncouragements());
+  }, []);
+
+  function handleSent(message: Encouragement) {
+    setEncouragements((current) => [message, ...current]);
+  }
 
   return (
     <div className="grid gap-5">
@@ -397,54 +389,72 @@ function HomeTab({ profile, onOpenReport }: { profile: ParentProfile; onOpenRepo
         </div>
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <MiniDark title="오늘의 기록" value={lifeReport.participation} />
-          <MiniDark title="변화 감지" value={lifeReport.activityPattern} />
+          <MiniDark title="가족의 관심" value={`${Math.max(encouragements.length, 2)}개의 응원이 기록되었습니다.`} />
         </div>
         <div className="mt-5 rounded-2xl bg-white p-4 text-[#1F2937]">
-          <p className="text-sm font-black text-[#2563EB]">AI가 살펴본 변화</p>
-          <p className="mt-2 font-black leading-7">{lifeReport.aiInsight}</p>
+          <p className="text-sm font-black text-[#2563EB]">변화 감지</p>
+          <p className="mt-2 font-black leading-7">최근 7일간 기록 참여도는 안정적입니다. 집에서 쉬었다는 응답이 조금 늘었습니다.</p>
+          <p className="mt-2 font-semibold leading-7 text-[#6B7280]">특별한 이상 신호는 없지만, 이번 주에는 짧은 통화를 권장합니다.</p>
         </div>
-        <button
-          type="button"
-          onClick={onOpenReport}
-          className="mt-5 min-h-12 rounded-2xl bg-white px-5 font-black text-[#111827]"
-        >
+        <button type="button" onClick={onOpenReport} className="mt-5 min-h-12 rounded-2xl bg-white px-5 font-black text-[#111827]">
           안심 리포트 자세히 보기
         </button>
       </section>
 
-      <SectionCard title={`${profile.parentName}님의 오늘`}>
-        <StatusLine label="안심 점수" value="92점" />
-        <StatusLine label="오늘의 기록" value="도착" />
-        <StatusLine label="변화 감지" value="큰 변화 없음" />
-        <StatusLine label="가족의 관심" value="메시지 2건" />
-      </SectionCard>
-
+      <EncouragementComposer profile={profile} onSent={handleSent} />
+      <WeeklyMemoryCard />
       <SendLinkCard profile={profile} />
-      <EncouragementInbox />
     </div>
   );
 }
 
 function SendLinkCard({ profile }: { profile: ParentProfile }) {
   return (
-    <SectionCard title="부모님께 보내기">
-      <p className="font-semibold leading-7 text-[#6B7280]">설치 안내보다 먼저 오늘의 기록 링크를 보냅니다.</p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <LinkButton title="카카오톡으로 보내기" primary />
-        <LinkButton title="문자로 보내기" />
-        <LinkButton title="링크 복사" icon={<Copy size={18} aria-hidden />} />
-      </div>
-      <p className="mt-4 rounded-2xl bg-[#EFF6FF] p-4 text-sm font-black leading-6 text-[#2563EB]">
-        {profile.parentName}, 여기 눌러서 오늘 하루만 알려주세요. 설치하지 않아도 바로 됩니다.
+    <SectionCard title="부모님께 보낼 링크">
+      <p className="font-semibold leading-7 text-[#6B7280]">
+        실제 카카오톡/문자 발송은 추후 제공됩니다. 지금은 링크나 문구를 복사해서 직접 보내주세요.
       </p>
+      <CopyLinkCard profile={profile} />
     </SectionCard>
   );
 }
 
-function LinkButton({ title, primary = false, icon }: { title: string; primary?: boolean; icon?: React.ReactNode }) {
+function CopyLinkCard({ profile }: { profile: ParentProfile }) {
+  const [copiedMessage, setCopiedMessage] = useState("");
+  const parentUrl = "https://thinking-of-you-gold.vercel.app/app?registered=1#today-record";
+  const message = `${profile.parentName}, 여기 눌러서 오늘 하루만 알려주세요. 설치하지 않아도 바로 됩니다.\n${parentUrl}`;
+
+  async function copyText(kind: "kakao" | "sms" | "link") {
+    const text = kind === "link" ? parentUrl : message;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedMessage(
+        kind === "link"
+          ? "부모님께 보낼 링크가 복사되었습니다. 카카오톡이나 문자에 붙여넣어 보내주세요."
+          : "부모님께 보낼 문구가 복사되었습니다. 카카오톡이나 문자에 붙여넣어 보내주세요.",
+      );
+    } catch {
+      setCopiedMessage(`복사가 어려우면 아래 문구를 직접 선택해서 보내주세요. ${text}`);
+    }
+  }
+
+  return (
+    <div className="mt-5">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <CopyButton title="카카오톡 문구 복사" onClick={() => copyText("kakao")} primary />
+        <CopyButton title="문자 문구 복사" onClick={() => copyText("sms")} />
+        <CopyButton title="링크 복사" onClick={() => copyText("link")} icon={<Copy size={18} aria-hidden />} />
+      </div>
+      {copiedMessage ? <p className="mt-4 rounded-2xl bg-[#EFF6FF] p-4 text-sm font-black leading-6 text-[#2563EB]">{copiedMessage}</p> : null}
+    </div>
+  );
+}
+
+function CopyButton({ title, onClick, primary = false, icon }: { title: string; onClick: () => void; primary?: boolean; icon?: ReactNode }) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-4 font-black ${
         primary ? "bg-[#2563EB] text-white" : "border border-[#D1D5DB] bg-white text-[#4B5563]"
       }`}
@@ -455,192 +465,192 @@ function LinkButton({ title, primary = false, icon }: { title: string; primary?:
   );
 }
 
+function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; onSent: (message: Encouragement) => void }) {
+  const [selected, setSelected] = useState(encouragementTemplates[0]);
+  const [sentMessage, setSentMessage] = useState("");
+
+  function sendEncouragement() {
+    const next: Encouragement = {
+      id: `encouragement-${Date.now()}`,
+      sender: profile.relation,
+      message: selected,
+      createdAt: "방금",
+    };
+    const items = [next, ...readEncouragements()];
+    window.localStorage.setItem(encouragementKey, JSON.stringify(items));
+    setSentMessage("응원이 저장되었습니다. 부모님 화면의 오늘의 응원 카드에 표시됩니다.");
+    onSent(next);
+  }
+
+  return (
+    <SectionCard title="가족의 관심">
+      <p className="font-semibold leading-7 text-[#6B7280]">부모님이 다시 찾아오게 만드는 건 기능이 아니라 가족의 관심입니다.</p>
+      <div className="mt-4 grid gap-3">
+        {encouragementTemplates.map((template) => (
+          <button
+            key={template}
+            type="button"
+            onClick={() => setSelected(template)}
+            className={`rounded-2xl border p-4 text-left font-black leading-7 ${
+              selected === template ? "border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]" : "border-[#E5E7EB] bg-[#F9FAFB]"
+            }`}
+          >
+            {template}
+          </button>
+        ))}
+      </div>
+      <button type="button" onClick={sendEncouragement} className="mt-4 min-h-12 rounded-2xl bg-[#2563EB] px-5 font-black text-white">
+        응원 보내기
+      </button>
+      {sentMessage ? <p className="mt-4 rounded-2xl bg-[#F0FDF4] p-4 text-sm font-black text-[#15803D]">{sentMessage}</p> : null}
+    </SectionCard>
+  );
+}
+
 function RecordTab({ profile }: { profile: ParentProfile }) {
+  const [records, setRecords] = useState<TodayRecord[]>([]);
+  const [encouragements, setEncouragements] = useState<Encouragement[]>([]);
+
+  useEffect(() => {
+    setRecords(readRecords());
+    setEncouragements(readEncouragements());
+  }, []);
+
+  function handleSaved(record: TodayRecord) {
+    setRecords((current) => [record, ...current]);
+  }
+
   return (
     <div className="grid gap-5">
       <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
         <p className="text-sm font-black text-[#2563EB]">{profile.parentName}님의 공간</p>
         <h2 className="mt-3 text-3xl font-black leading-tight">오늘의 기록</h2>
-        <p className="mt-3 font-semibold leading-7 text-[#6B7280]">
-          링크를 열고 큰 버튼을 누르면 끝납니다. 설치하지 않아도 바로 사용할 수 있습니다.
-        </p>
+        <p className="mt-3 font-semibold leading-7 text-[#6B7280]">가족의 응원을 읽고, 큰 버튼 하나로 하루를 남깁니다.</p>
       </section>
-      <TodayRecordCard />
-      <SectionCard title="최근 오늘의 기록">
-        <div className="grid gap-3">
-          <StatusLine label="오늘 08:42" value="좋았어요 · 식사했어요" />
-          <StatusLine label="어제 09:10" value="평범했어요 · 커피 한 잔" />
-          <StatusLine label="2일 전" value="가볍게 움직였어요" />
-        </div>
-      </SectionCard>
+      <TodayEncouragementCard encouragement={encouragements[0] ?? defaultEncouragement(profile)} />
+      <TodayRecordCard onSaved={handleSaved} />
+      <RecordCompleteCard record={records[0]} />
+      <WeeklyMemoryCard />
     </div>
   );
 }
 
-function EncouragementInbox() {
+function TodayEncouragementCard({ encouragement }: { encouragement: Encouragement }) {
   return (
     <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-      <p className="text-sm font-black text-[#2563EB]">가족의 관심</p>
-      <h2 className="mt-3 text-3xl font-black leading-tight">읽기만 해도 충분해요</h2>
-      <p className="mt-3 font-semibold leading-7 text-[#6B7280]">
-        답장을 요구하지 않는 짧은 관심 메시지입니다. 오늘의 기록과 함께 안심 리포트에 반영됩니다.
-      </p>
-      <div className="mt-5 grid gap-3">
-        {familyEncouragements.slice(0, 2).map((message) => (
-          <article key={message.id} className="rounded-2xl border border-[#E5E7EB] bg-[#FFFDF8] p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="font-black text-[#1F2937]">
-                {message.icon} {message.sender}의 관심
-              </p>
-              <span className="text-xs font-black text-[#9CA3AF]">{message.sentAt}</span>
-            </div>
-            <p className="mt-3 font-bold leading-7 text-[#4B5563]">{message.message}</p>
-            <p className="mt-3 text-xs font-black text-[#2563EB]">답장하지 않아도 괜찮아요</p>
-          </article>
-        ))}
-      </div>
+      <p className="text-sm font-black text-[#2563EB]">오늘의 응원</p>
+      <h2 className="mt-3 text-2xl font-black leading-tight">❤️ {encouragement.sender}이 보낸 응원</h2>
+      <p className="mt-4 text-xl font-black leading-8 text-[#1F2937]">{encouragement.message}</p>
+      <p className="mt-3 font-semibold leading-7 text-[#6B7280]">답장을 요구하지 않습니다. 읽기만 해도 괜찮아요.</p>
     </section>
   );
 }
 
-function TodayRecordCard() {
+function TodayRecordCard({ onSaved }: { onSaved: (record: TodayRecord) => void }) {
   const [selectedMoment, setSelectedMoment] = useState(momentOptions[0]);
   const [selectedActivity, setSelectedActivity] = useState(activityOptions[0]);
   const [selectedMessage, setSelectedMessage] = useState(messageOptions[0]);
-  const [isOnline, setIsOnline] = useState(true);
-  const [pendingCount, setPendingCount] = useState(0);
-  const [deliveryMessage, setDeliveryMessage] = useState("");
-
-  useEffect(() => {
-    setIsOnline(navigator.onLine);
-    setPendingCount(readPendingRecords().filter((item) => item.status === "pending").length);
-
-    function handleOnline() {
-      setIsOnline(true);
-      const delivered = deliverPendingRecords();
-      setPendingCount(0);
-      if (delivered > 0) {
-        setDeliveryMessage("가족에게 오늘의 기록이 전달됐어요.");
-      }
-    }
-
-    function handleOffline() {
-      setIsOnline(false);
-      setDeliveryMessage("아직 가족에게 전달 전이에요.");
-    }
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
-  }, []);
+  const [saved, setSaved] = useState(false);
 
   function submitRecord() {
-    const record: PendingRecord = {
+    const record: TodayRecord = {
       id: `record-${Date.now()}`,
       moment: selectedMoment,
       activity: selectedActivity,
       message: selectedMessage,
       createdAt: new Date().toISOString(),
-      status: isOnline ? "delivered" : "pending",
-      deliveredAt: isOnline ? new Date().toISOString() : undefined,
     };
-
-    if (!isOnline) {
-      const next = [...readPendingRecords(), record];
-      window.localStorage.setItem(pendingRecordKey, JSON.stringify(next));
-      setPendingCount(next.filter((item) => item.status === "pending").length);
-      setDeliveryMessage("연결되면 오늘의 기록이 자동 전달돼요.");
-      return;
-    }
-
-    setDeliveryMessage("오늘의 기록이 가족에게 전달됐어요.");
+    const items = [record, ...readRecords()];
+    window.localStorage.setItem(recordsKey, JSON.stringify(items));
+    setSaved(true);
+    onSaved(record);
   }
 
   return (
     <section id="today-record" className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-      <p className="text-sm font-black text-[#F97316]">부모님 첫 화면</p>
-      <h2 className="mt-3 text-3xl font-black leading-tight">
-        안녕하세요 😊
-        <br />
-        오늘 하루는 어떠셨나요?
-      </h2>
-      <p className="mt-3 font-semibold leading-7 text-[#6B7280]">가장 가까운 버튼 하나만 골라도 충분합니다.</p>
+      <p className="text-sm font-black text-[#F97316]">오늘의 기록</p>
+      <h2 className="mt-3 text-3xl font-black leading-tight">오늘 하루는 어떠셨나요?</h2>
       <MomentChoiceGroup options={momentOptions} value={selectedMoment} onChange={setSelectedMoment} />
       <p className="mt-6 text-sm font-black text-[#6B7280]">오늘 남길 내용</p>
       <MomentChoiceGroup options={activityOptions} value={selectedActivity} onChange={setSelectedActivity} compact />
       <p className="mt-6 text-sm font-black text-[#6B7280]">가족에게 전할 말</p>
       <MomentChoiceGroup options={messageOptions} value={selectedMessage} onChange={setSelectedMessage} compact />
-      <div className="mt-5 rounded-2xl bg-[#FFF7ED] p-4">
-        <p className="text-sm font-black text-[#F97316]">오늘의 기록</p>
-        <p className="mt-2 font-black leading-7">
-          {selectedMoment} · {selectedActivity} · {selectedMessage}
-        </p>
-      </div>
-      <div className={`mt-4 rounded-2xl p-4 ${isOnline ? "bg-[#F0FDF4]" : "bg-[#FEF3C7]"}`}>
-        <p className={`text-sm font-black ${isOnline ? "text-[#15803D]" : "text-[#92400E]"}`}>
-          {isOnline ? "바로 전달 가능" : "연결을 기다리고 있어요"}
-        </p>
-        <p className={`mt-2 font-bold leading-7 ${isOnline ? "text-[#166534]" : "text-[#92400E]"}`}>
-          {deliveryMessage || (isOnline ? "작성하면 바로 가족에게 전달돼요." : "인터넷이 연결되면 자동 전달돼요.")}
-        </p>
-        {!isOnline || pendingCount > 0 ? (
-          <p className="mt-2 text-sm font-black text-[#92400E]">
-            {pendingCount > 0 ? `전달을 기다리는 오늘의 기록 ${pendingCount}건` : "연결되면 자동 전달돼요."}
-          </p>
-        ) : null}
-      </div>
       <button
         type="button"
         onClick={submitRecord}
-        className="mt-4 min-h-14 w-full rounded-2xl bg-[#F97316] px-5 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]"
+        className="mt-5 min-h-14 w-full rounded-2xl bg-[#F97316] px-5 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]"
       >
-        오늘의 기록 완료
+        오늘의 기록 남기기
       </button>
+      {saved ? (
+        <div className="mt-4 rounded-2xl bg-[#F0FDF4] p-4">
+          <p className="text-lg font-black text-[#15803D]">오늘의 기록이 남겨졌습니다.</p>
+          <p className="mt-2 font-semibold text-[#166534]">가족에게 안심이 전해졌어요.</p>
+        </div>
+      ) : null}
     </section>
   );
 }
 
-function readPendingRecords(): PendingRecord[] {
+function RecordCompleteCard({ record }: { record?: TodayRecord }) {
+  if (!record) {
+    return null;
+  }
+
+  return (
+    <SectionCard title="가족에게 전해진 안심">
+      <StatusLine label="오늘의 기록" value={record.moment} />
+      <StatusLine label="가족의 관심" value="응원 확인 후 기록 완료" />
+      <StatusLine label="안심 리포트" value="반영됨" />
+    </SectionCard>
+  );
+}
+
+function WeeklyMemoryCard() {
+  return (
+    <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+      <p className="text-sm font-black text-[#2563EB]">이번 주의 하루들</p>
+      <h2 className="mt-3 text-2xl font-black leading-tight">이번 주는 평범하고 여유로운 하루가 많았어요.</h2>
+      <div className="mt-5 flex flex-wrap gap-2 text-3xl">
+        {sampleWeek.map((item, index) => (
+          <span key={`${item}-${index}`} className="rounded-2xl bg-[#F9FAFB] px-3 py-2">
+            {item}
+          </span>
+        ))}
+      </div>
+      <p className="mt-4 font-semibold leading-7 text-[#6B7280]">부모님의 이번 주 기록 흐름을 확인해보세요.</p>
+    </section>
+  );
+}
+
+function readRecords(): TodayRecord[] {
   try {
-    const raw = window.localStorage.getItem(pendingRecordKey);
-    return raw ? (JSON.parse(raw) as PendingRecord[]) : [];
+    const raw = window.localStorage.getItem(recordsKey);
+    return raw ? (JSON.parse(raw) as TodayRecord[]) : [];
   } catch {
     return [];
   }
 }
 
-function deliverPendingRecords() {
-  const items = readPendingRecords();
-  const pending = items.filter((item) => item.status === "pending");
-
-  if (pending.length === 0) {
-    return 0;
+function readEncouragements(): Encouragement[] {
+  try {
+    const raw = window.localStorage.getItem(encouragementKey);
+    return raw ? (JSON.parse(raw) as Encouragement[]) : [];
+  } catch {
+    return [];
   }
-
-  const next = items.map((item) =>
-    item.status === "pending"
-      ? { ...item, status: "delivered" as const, deliveredAt: new Date().toISOString() }
-      : item,
-  );
-  window.localStorage.setItem(pendingRecordKey, JSON.stringify(next));
-  return pending.length;
 }
 
-function MomentChoiceGroup({
-  options,
-  value,
-  onChange,
-  compact = false,
-}: {
-  options: string[];
-  value: string;
-  onChange: (value: string) => void;
-  compact?: boolean;
-}) {
+function defaultEncouragement(profile: ParentProfile): Encouragement {
+  return {
+    id: "default-encouragement",
+    sender: profile.relation,
+    message: "엄마 오늘도 좋은 하루 보내세요 ❤️",
+    createdAt: "오늘",
+  };
+}
+
+function MomentChoiceGroup({ options, value, onChange, compact = false }: { options: string[]; value: string; onChange: (value: string) => void; compact?: boolean }) {
   return (
     <div className={`mt-4 grid gap-3 ${compact ? "sm:grid-cols-3" : ""}`}>
       {options.map((option) => (
@@ -691,8 +701,9 @@ function ReportTab() {
         <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
           <p className="text-sm font-black text-[#2563EB]">변화 감지</p>
           <p className="mt-2 font-black leading-7 text-[#1F2937]">
-            최근 4주간 안심 점수는 안심권입니다. 다만 외부 활동 관련 표현이 소폭 줄었습니다.
+            최근 7일간 기록 참여도는 안정적입니다. 집에서 쉬었다는 응답이 조금 늘었습니다.
           </p>
+          <p className="mt-2 font-semibold leading-7 text-[#4B5563]">특별한 이상 신호는 없지만, 이번 주에는 짧은 통화를 권장합니다.</p>
         </div>
       </SectionCard>
 
@@ -703,9 +714,7 @@ function ReportTab() {
               <MiniSummary title={item.title} value={item.value} />
               {index > 0 ? (
                 <div className="absolute inset-0 grid place-items-center bg-white/80 backdrop-blur-[1px]">
-                  <span className="rounded-full bg-[#111827] px-4 py-2 text-sm font-black text-white">
-                    안심 플랜에서 확인 가능
-                  </span>
+                  <span className="rounded-full bg-[#111827] px-4 py-2 text-sm font-black text-white">안심 플랜에서 확인 가능</span>
                 </div>
               ) : null}
             </div>
@@ -727,9 +736,7 @@ function SignalsTab() {
       <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
         <p className="text-sm font-black text-[#2563EB]">변화 감지</p>
         <h2 className="mt-3 text-3xl font-black leading-tight">AI가 평소와 다른 신호를 살펴봅니다.</h2>
-        <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
-          오늘의 기록 참여, 응답 시간, 활동 표현, 감정 표현을 함께 보고 안심·관찰로 나눕니다.
-        </p>
+        <p className="mt-4 font-semibold leading-7 text-[#6B7280]">오늘의 기록, 가족의 관심, 응답 시간, 활동 표현을 함께 봅니다.</p>
       </section>
 
       <SectionCard title="오늘의 기록 공백">
@@ -756,23 +763,13 @@ function SignalsTab() {
   );
 }
 
-function PeriodReportContent({
-  period,
-  dailyTrend,
-  weeklyTrend,
-  monthlyTrend,
-}: {
-  period: ReportPeriod;
-  dailyTrend: ReturnType<typeof getDailyTrend>;
-  weeklyTrend: TrendPoint[];
-  monthlyTrend: TrendPoint[];
-}) {
+function PeriodReportContent({ period, dailyTrend, weeklyTrend, monthlyTrend }: { period: ReportPeriod; dailyTrend: ReturnType<typeof getDailyTrend>; weeklyTrend: TrendPoint[]; monthlyTrend: TrendPoint[] }) {
   if (period === "daily") {
     return (
       <div className="grid gap-3">
         <StatusLine label="안심 점수" value={`${dailyTrend.score}점`} />
         <StatusLine label="오늘의 기록" value={dailyTrend.recorded ? "완료" : "아직 전"} />
-        <StatusLine label="표현" value={dailyTrend.mood} />
+        <StatusLine label="가족의 관심" value="응원 확인" />
         <div className="grid gap-2 pt-2">
           {dailyTrend.notes.map((note) => (
             <MiniSummary key={note} title={note} value="안심 리포트에 반영되었습니다." />
@@ -788,7 +785,7 @@ function PeriodReportContent({
       <div className="grid gap-4">
         <TrendChart points={weeklyTrend} />
         <StatusLine label="최근 7일 오늘의 기록" value={`${latest?.participationRate ?? 0}%`} />
-        <StatusLine label="변화 감지" value="활동 표현 소폭 감소" />
+        <StatusLine label="변화 감지" value="집에서 쉼 응답 소폭 증가" />
       </div>
     );
   }
@@ -798,7 +795,7 @@ function PeriodReportContent({
       <TrendChart points={monthlyTrend} />
       <StatusLine label="안심 점수" value="안심권 유지" />
       <StatusLine label="오늘의 기록 공백" value="최근 2일 공백 후 회복" />
-      <MiniSummary title="AI가 살펴본 변화" value="큰 변화 감지는 없지만 활동 표현 감소가 보여 가벼운 대화를 권장합니다." />
+      <MiniSummary title="AI가 살펴본 변화" value="특별한 이상 신호는 없지만, 이번 주에는 짧은 통화를 권장합니다." />
     </div>
   );
 }
@@ -867,27 +864,6 @@ function FamilyAlertCard({ alert }: { alert: ReturnType<typeof generateFamilyAle
   );
 }
 
-function FamilyPreview() {
-  return (
-    <SectionCard title="가족이 함께 보는 안심 리포트">
-      <div className="grid gap-3">
-        {familyNetwork.map((member) => (
-          <div key={member.name} className="rounded-2xl bg-[#F9FAFB] p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xl font-black">{member.name}</p>
-                <p className="mt-2 font-semibold text-[#6B7280]">최근 확인 : {member.checkedBy}</p>
-              </div>
-              <SignalBadge status={member.status} />
-            </div>
-            <p className="mt-4 text-4xl font-black">{member.score}점</p>
-          </div>
-        ))}
-      </div>
-    </SectionCard>
-  );
-}
-
 function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: () => void }) {
   const reminderSchedule = useMemo(() => generateReminderSchedule(), []);
 
@@ -904,21 +880,16 @@ function SettingsTab({ profile, onReset }: { profile: ParentProfile; onReset: ()
             <div key={reminder.step} className="rounded-2xl bg-[#F9FAFB] p-4">
               <div className="flex items-center justify-between gap-3">
                 <p className="font-black">{reminder.step}</p>
-                <span className="rounded-full bg-white px-3 py-1 text-sm font-black text-[#2563EB]">
-                  {reminder.time}
-                </span>
+                <span className="rounded-full bg-white px-3 py-1 text-sm font-black text-[#2563EB]">{reminder.time}</span>
               </div>
               <p className="mt-2 font-semibold leading-7 text-[#6B7280]">{reminder.message}</p>
-              <p className="mt-2 text-sm font-black text-[#9CA3AF]">
-                {reminder.target === "parent" ? "부모님 알림" : "안심 리포트 반영"}
-              </p>
+              <p className="mt-2 text-sm font-black text-[#9CA3AF]">{reminder.target === "parent" ? "부모님 알림" : "안심 리포트 반영"}</p>
             </div>
           ))}
         </div>
       </SectionCard>
 
       <InstallGuide />
-      <FamilyPreview />
 
       <PremiumLockCard title="안심 리포트 자동화" description="오늘의 기록 공백, 활동 표현 감소, 반복 변화가 보이면 가족에게 안심 리포트를 표시합니다." />
 
@@ -947,10 +918,7 @@ function PremiumLockCard({ title, description }: { title: string; description: s
         <div className="min-w-0 flex-1">
           <h2 className="text-xl font-black">🔒 {title}</h2>
           <p className="mt-2 font-semibold leading-7 text-[#4B5563]">{description}</p>
-          <button
-            type="button"
-            className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#2563EB] px-5 font-black text-white"
-          >
+          <button type="button" className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#2563EB] px-5 font-black text-white">
             <CreditCard size={18} aria-hidden />
             안심 플랜 보기
           </button>
@@ -1006,7 +974,7 @@ function BottomNavigation({ activeTab, onChange }: { activeTab: Tab; onChange: (
   );
 }
 
-function StepFrame({ label, title, children }: { label: string; title: string; children: React.ReactNode }) {
+function StepFrame({ label, title, children }: { label: string; title: string; children: ReactNode }) {
   return (
     <div>
       <p className="text-sm font-black text-[#2563EB]">{label}</p>
@@ -1016,15 +984,7 @@ function StepFrame({ label, title, children }: { label: string; title: string; c
   );
 }
 
-function ChoiceGrid<T extends string>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T;
-  options: Array<{ value: T; title: string; description: string }>;
-  onChange: (value: T) => void;
-}) {
+function ChoiceGrid<T extends string>({ value, options, onChange }: { value: T; options: Array<{ value: T; title: string; description: string }>; onChange: (value: T) => void }) {
   return (
     <div className="grid gap-3">
       {options.map((option) => (
@@ -1032,9 +992,7 @@ function ChoiceGrid<T extends string>({
           key={option.value}
           type="button"
           onClick={() => onChange(option.value)}
-          className={`rounded-2xl border p-5 text-left ${
-            value === option.value ? "border-[#2563EB] bg-[#EFF6FF]" : "border-[#E5E7EB] bg-white"
-          }`}
+          className={`rounded-2xl border p-5 text-left ${value === option.value ? "border-[#2563EB] bg-[#EFF6FF]" : "border-[#E5E7EB] bg-white"}`}
         >
           <strong className="block text-lg">{option.title}</strong>
           <span className="mt-2 block font-semibold text-[#6B7280]">{option.description}</span>
@@ -1044,7 +1002,7 @@ function ChoiceGrid<T extends string>({
   );
 }
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+function SectionCard({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="rounded-[24px] bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.06)] sm:p-6">
       <h2 className="text-xl font-black tracking-normal">{title}</h2>

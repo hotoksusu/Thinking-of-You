@@ -12,26 +12,26 @@ import {
 const flowSteps = [
   {
     step: "1",
-    title: "부모님께 링크 보내기",
-    description: "설치 설명 없이 카카오톡이나 문자 링크만 보냅니다.",
-    icon: Link,
+    title: "가족 응원",
+    description: "가족이 짧은 응원을 보내고 부모님은 읽기만 해도 됩니다.",
+    icon: HeartHandshake,
   },
   {
     step: "2",
-    title: "오늘의 기록",
-    description: "부모님은 링크를 열고 큰 버튼 하나로 하루를 남깁니다.",
-    icon: MessageCircle,
+    title: "부모님께 링크 보내기",
+    description: "설치 설명 없이 오늘의 기록 링크를 보냅니다.",
+    icon: Link,
   },
   {
     step: "3",
-    title: "AI 변화 감지",
-    description: "AI가 평소와 다른 흐름을 조용히 살펴봅니다.",
-    icon: Brain,
+    title: "오늘의 기록",
+    description: "부모님은 큰 버튼 하나로 하루를 남깁니다.",
+    icon: MessageCircle,
   },
   {
     step: "4",
     title: "안심 리포트",
-    description: "가족은 정리된 결과와 권장 행동만 확인합니다.",
+    description: "AI가 변화 감지 결과를 가족에게 정리해줍니다.",
     icon: BarChart3,
   },
 ];
@@ -42,12 +42,12 @@ const faqs = [
     answer: "아닙니다. 부모님은 카카오톡이나 문자로 받은 링크만 열어도 오늘의 기록을 남길 수 있습니다.",
   },
   {
-    question: "왜 긴 기록이 필요 없나요?",
-    answer: "오늘안부는 긴 일지를 요구하지 않습니다. 부모님은 오늘의 기록만 남기고, 가족은 안심 리포트로 결과를 확인합니다.",
+    question: "왜 가족 메시지가 중요한가요?",
+    answer: "부모님이 다시 찾아오게 만드는 건 기능이 아니라 가족의 관심입니다. 응원을 읽고 나서 하루를 남기는 흐름을 만듭니다.",
   },
   {
     question: "부모님을 감시하는 서비스인가요?",
-    answer: "아닙니다. 위치 추적이나 감시가 아니라, 부모님이 남긴 오늘의 기록을 바탕으로 변화 감지를 돕는 서비스입니다.",
+    answer: "아닙니다. 위치 추적이나 감시가 아니라, 부모님이 남긴 오늘의 기록과 가족의 관심을 바탕으로 변화 감지를 돕는 서비스입니다.",
   },
   {
     question: "답변하지 않으면 위험 신호인가요?",
@@ -74,24 +74,27 @@ export default function LandingPage() {
 
       <section className="mx-auto grid w-full max-w-[1120px] gap-10 px-5 pb-16 pt-10 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:pb-24 lg:pt-16">
         <div>
-          <p className="text-sm font-black text-[#2563EB]">AI 안심 서비스</p>
-          <h1 className="mt-5 max-w-[660px] text-[3.05rem] font-black leading-[1.12] tracking-[-0.01em] sm:text-[4.25rem]">
+          <p className="text-sm font-black text-[#2563EB]">가족의 관심으로 다시 찾아오는 AI 안심 서비스</p>
+          <h1 className="mt-5 max-w-[680px] text-[3.05rem] font-black leading-[1.12] tracking-[-0.01em] sm:text-[4.25rem]">
             관심이 쌓이면,
             <br />
             <span className="text-[#2563EB]">안심</span>이 됩니다.
           </h1>
-          <p className="mt-7 max-w-[600px] text-xl font-black leading-9 text-[#1F2937]">
-            부모님은 하루를 남기고
+          <p className="mt-7 max-w-[620px] text-xl font-black leading-9 text-[#1F2937]">
+            부모님은 가족의 응원을 읽고
             <br />
-            가족은 관심을 전하고
+            오늘의 기록을 가볍게 남기고
             <br />
-            AI는 변화를 살펴봅니다.
+            가족은 안심 리포트를 확인합니다.
           </p>
 
           <div className="mt-7 rounded-[24px] bg-[#EFF6FF] p-5">
-            <p className="text-sm font-black text-[#2563EB]">3초 만에 시작할 수 있습니다.</p>
-            <p className="mt-2 text-xl font-black leading-8">부모님께 링크만 보내세요.</p>
-            <p className="mt-2 font-semibold leading-7 text-[#4B5563]">설치 없이도 바로 오늘의 기록을 남길 수 있습니다.</p>
+            <p className="text-sm font-black text-[#2563EB]">
+              부모님이 다시 찾아오게 만드는 건 기능이 아니라 가족의 관심입니다.
+            </p>
+            <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
+              오늘안부는 가족의 짧은 응원과 부모님의 하루 기록을 연결합니다. AI는 그 흐름 속 변화를 살펴 가족에게 안심 리포트를 제공합니다.
+            </p>
           </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -116,11 +119,11 @@ export default function LandingPage() {
 
       <section className="border-y border-[#E5E7EB] bg-[#F9FAFB]">
         <div className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
-          <p className="text-sm font-black text-[#2563EB]">서비스 흐름</p>
+          <p className="text-sm font-black text-[#2563EB]">재방문 루프</p>
           <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-            설치보다 먼저,
+            응원을 읽고,
             <br />
-            첫 기록을 경험합니다.
+            하루를 남깁니다.
           </h2>
           <div className="mt-9 grid gap-3 md:grid-cols-4">
             {flowSteps.map((item) => {
@@ -144,12 +147,12 @@ export default function LandingPage() {
         <div>
           <p className="text-sm font-black text-[#2563EB]">예시 안심 리포트</p>
           <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-            첫 기록 이후,
+            원시 데이터가 아니라
             <br />
-            바로 결과를 보여줍니다.
+            변화 요약을 봅니다.
           </h2>
           <p className="mt-5 font-semibold leading-8 text-[#6B7280]">
-            오늘의 기록을 그대로 나열하지 않고, 안심 점수와 변화 감지 결과로 정리합니다.
+            최근 7일간 기록 참여도, 가족의 관심, 변화 감지 결과를 안심 리포트로 정리합니다.
           </p>
         </div>
         <ReportPreview compact />
@@ -176,9 +179,9 @@ export default function LandingPage() {
       <section className="mx-auto w-full max-w-[920px] px-5 py-16 text-center sm:px-8">
         <ShieldCheck size={34} className="mx-auto text-[#2563EB]" aria-hidden />
         <h2 className="mt-5 text-3xl font-black leading-tight sm:text-4xl">
-          설치 방법보다 먼저
+          첫 경험은 설치가 아니라
           <br />
-          첫 기록을 체험해보세요.
+          가족의 응원입니다.
         </h2>
         <div className="mt-8 flex justify-center">
           <a
@@ -202,14 +205,12 @@ function ReportPreview({ compact = false }: { compact?: boolean }) {
           <p className="text-sm font-black text-[#93C5FD]">안심 리포트</p>
           <h2 className="mt-3 text-3xl font-black">엄마</h2>
         </div>
-        <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">
-          안심
-        </span>
+        <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">안심</span>
       </div>
       <p className="mt-7 text-6xl font-black leading-none">89</p>
       <p className="mt-2 text-sm font-black text-white/55">안심 점수</p>
       <div className="mt-6 grid gap-3">
-        {["오늘의 기록이 도착했습니다", "변화 감지 결과 큰 변화 없음", "가족의 관심 메시지 확인"].map((item) => (
+        {["오늘의 응원 확인", "오늘의 기록이 도착했습니다", "변화 감지 결과 큰 변화 없음"].map((item) => (
           <p key={item} className="rounded-2xl bg-white/10 px-4 py-3 font-black">
             {item}
           </p>
@@ -217,7 +218,7 @@ function ReportPreview({ compact = false }: { compact?: boolean }) {
       </div>
       {!compact ? (
         <p className="mt-5 rounded-2xl bg-white px-4 py-3 font-black leading-7 text-[#2563EB]">
-          AI가 평소와 다른 큰 흐름을 감지하지 않았습니다.
+          최근 7일간 기록 참여도는 안정적입니다. 이번 주에는 짧은 통화를 권장합니다.
         </p>
       ) : null}
     </article>
