@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Bell, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, Settings, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Bell, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, Settings, ShieldCheck } from "lucide-react";
 import { InstallGuide } from "@/components/install-guide";
 import {
   analyzeNoResponsePattern,
@@ -33,6 +33,7 @@ const encouragementKey = "oneul-anbu-encouragements";
 
 type Tab = "home" | "record" | "report" | "signals" | "settings";
 type ReportPeriod = "daily" | "weekly" | "monthly";
+type ExperienceRole = "parent" | "family";
 
 type ParentProfile = {
   userType: "family" | "self";
@@ -66,8 +67,8 @@ const defaultProfile: ParentProfile = {
 };
 
 const methodLabel = {
-  kakao: "카카오톡으로 보내기",
-  sms: "문자로 보내기",
+  kakao: "카카오톡으로 공유",
+  sms: "문자로 공유",
   link: "링크 복사",
 };
 
@@ -184,25 +185,30 @@ const changeSignals = [
 
 function getParentUrl() {
   if (typeof window === "undefined") {
-    return "https://thinking-of-you-gold.vercel.app/app?registered=1#today-record";
+    return "https://thinking-of-you-gold.vercel.app/app?role=parent#today-record";
   }
-  return `${window.location.origin}/app?registered=1#today-record`;
+  return `${window.location.origin}/app?role=parent#today-record`;
 }
 
 function getShareMessage(profile: ParentProfile) {
   return `${profile.parentName}, 오늘 하루를 가볍게 남겨주세요 ❤️\n가족에게 안심이 전해져요.\n\n${getParentUrl()}`;
 }
 
-export function UserMode({ initialRegistered }: { initialRegistered: boolean }) {
+export function UserMode({ initialRegistered, initialRole }: { initialRegistered: boolean; initialRole?: ExperienceRole }) {
   const [registered, setRegistered] = useState(initialRegistered);
   const [activeTab, setActiveTab] = useState<Tab>("home");
+  const [experienceRole, setExperienceRole] = useState<ExperienceRole | null>(initialRole ?? null);
   const [profile, setProfile] = useState<ParentProfile>(defaultProfile);
+  const [encouragements, setEncouragements] = useState<Encouragement[]>([]);
+  const [records, setRecords] = useState<TodayRecord[]>([]);
 
   useEffect(() => {
     const savedProfile = window.localStorage.getItem(profileKey);
     if (savedProfile) {
       setProfile(JSON.parse(savedProfile) as ParentProfile);
     }
+    setEncouragements(readEncouragements());
+    setRecords(readRecords());
 
     if (initialRegistered) {
       window.localStorage.setItem(registrationKey, "true");
@@ -211,6 +217,12 @@ export function UserMode({ initialRegistered }: { initialRegistered: boolean }) 
 
     setRegistered(window.localStorage.getItem(registrationKey) === "true");
   }, [initialRegistered]);
+
+  useEffect(() => {
+    if (initialRole) {
+      setExperienceRole(initialRole);
+    }
+  }, [initialRole]);
 
   function completeOnboarding(nextProfile: ParentProfile) {
     window.localStorage.setItem(registrationKey, "true");
@@ -228,11 +240,28 @@ export function UserMode({ initialRegistered }: { initialRegistered: boolean }) 
     setProfile(defaultProfile);
     setRegistered(false);
     setActiveTab("home");
+    setExperienceRole(null);
+    setEncouragements([]);
+    setRecords([]);
   }
 
-  if (!registered) {
-    return <OnboardingFlow onComplete={completeOnboarding} />;
+  function handleSent(message: Encouragement) {
+    setEncouragements((current) => [message, ...current]);
   }
+
+  function handleSaved(record: TodayRecord) {
+    setRecords((current) => [record, ...current]);
+  }
+
+  if (!experienceRole) {
+    return <ExperienceRoleSelect onSelect={setExperienceRole} />;
+  }
+
+  if (experienceRole === "parent") {
+    return <ParentExperience encouragements={encouragements} onSaved={handleSaved} onBack={() => setExperienceRole(null)} />;
+  }
+
+  return <FamilyExperience profile={profile} records={records} onSent={handleSent} onReset={resetService} onBack={() => setExperienceRole(null)} />;
 
   return (
     <main className="min-h-screen bg-[#F9FAFB] pb-24 text-[#1F2937]">
@@ -253,6 +282,187 @@ export function UserMode({ initialRegistered }: { initialRegistered: boolean }) 
       </div>
       <BottomNavigation activeTab={activeTab} onChange={setActiveTab} />
     </main>
+  );
+}
+
+function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) => void }) {
+  return (
+    <main className="min-h-screen bg-[#F9FAFB] px-5 py-8 text-[#1F2937] sm:px-8">
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-[880px] content-center">
+        <div>
+          <p className="text-sm font-black text-[#2563EB]">앱 체험</p>
+          <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">어떤 화면을 체험해 보시겠어요?</h1>
+          <p className="mt-5 max-w-[620px] text-lg font-semibold leading-8 text-[#6B7280]">
+            부모님은 하루를 남기고, 가족은 안심 리포트를 확인합니다. 두 화면을 분리해서 오늘안부의 실제 흐름을 볼 수 있습니다.
+          </p>
+        </div>
+        <div className="mt-10 grid gap-4 md:grid-cols-2">
+          <RoleSelectCard
+            label="부모님 화면 체험"
+            title="하루를 가볍게 남기고 가족의 응원을 확인하는 화면입니다."
+            button="부모님 화면 보기"
+            accent="warm"
+            onClick={() => onSelect("parent")}
+          />
+          <RoleSelectCard
+            label="가족 화면 체험"
+            title="부모님의 안심 리포트와 변화 감지를 확인하는 화면입니다."
+            button="가족 화면 보기"
+            accent="blue"
+            onClick={() => onSelect("family")}
+          />
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function RoleSelectCard({ label, title, button, accent, onClick }: { label: string; title: string; button: string; accent: "warm" | "blue"; onClick: () => void }) {
+  const warm = accent === "warm";
+  return (
+    <article className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+      <span className={`inline-flex rounded-full px-3 py-1 text-sm font-black ${warm ? "bg-[#FFF7ED] text-[#F97316]" : "bg-[#EFF6FF] text-[#2563EB]"}`}>{label}</span>
+      <h2 className="mt-5 text-2xl font-black leading-tight sm:text-3xl">{title}</h2>
+      <button
+        type="button"
+        onClick={onClick}
+        className={`mt-8 min-h-14 w-full rounded-2xl px-5 font-black text-white shadow-[0_16px_34px_rgba(15,23,42,0.12)] ${warm ? "bg-[#F97316]" : "bg-[#2563EB]"}`}
+      >
+        {button}
+      </button>
+    </article>
+  );
+}
+
+function ExperienceHeader({ eyebrow, title, onBack }: { eyebrow: string; title: string; onBack: () => void }) {
+  return (
+    <header className="mb-6 flex items-center justify-between gap-4">
+      <div>
+        <p className="text-sm font-black text-[#2563EB]">{eyebrow}</p>
+        <h1 className="mt-1 text-2xl font-black tracking-normal">{title}</h1>
+      </div>
+      <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm font-black text-[#4B5563]">
+        <ArrowLeft size={17} aria-hidden />
+        선택
+      </button>
+    </header>
+  );
+}
+
+function ParentExperience({ encouragements, onSaved, onBack }: { encouragements: Encouragement[]; onSaved: (record: TodayRecord) => void; onBack: () => void }) {
+  const encouragement = encouragements[0] ?? defaultEncouragement(defaultProfile);
+
+  return (
+    <main className="min-h-screen bg-[#FFF7ED] px-5 py-7 text-[#1F2937] sm:px-8">
+      <div className="mx-auto w-full max-w-[760px]">
+        <ExperienceHeader eyebrow="부모님 화면" title="오늘의 기록" onBack={onBack} />
+        <div className="grid gap-5">
+          <ParentTodayRecordCard onSaved={onSaved} />
+          <TodayEncouragementCard encouragement={encouragement} />
+          <WeeklyMemoryCard audience="parent" />
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profile: ParentProfile; records: TodayRecord[]; onSent: (message: Encouragement) => void; onReset: () => void; onBack: () => void }) {
+  return (
+    <main className="min-h-screen bg-[#F9FAFB] px-5 py-7 text-[#1F2937] sm:px-8">
+      <div className="mx-auto w-full max-w-[920px]">
+        <ExperienceHeader eyebrow="가족 화면" title="안심 리포트" onBack={onBack} />
+        <div className="grid gap-5">
+          <FamilyScoreCard profile={profile} />
+          <FamilyChangeCard />
+          <EncouragementComposer profile={profile} onSent={onSent} />
+          <FamilyReportCard records={records} />
+          <WeeklyMemoryCard audience="family" />
+          <SendLinkCard profile={profile} />
+          <SectionCard title="설정">
+            <p className="font-semibold leading-7 text-[#6B7280]">체험 데이터를 다시 보고 싶다면 초기화할 수 있습니다.</p>
+            <button className="mt-4 min-h-12 rounded-2xl border border-[#FCA5A5] px-5 font-black text-[#DC2626]" type="button" onClick={onReset}>
+              체험 초기화
+            </button>
+          </SectionCard>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function FamilyScoreCard({ profile }: { profile: ParentProfile }) {
+  return (
+    <section className="rounded-[30px] bg-[#111827] p-6 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
+      <p className="text-sm font-black text-[#93C5FD]">{profile.parentName} 안심 점수</p>
+      <div className="mt-4 flex items-end justify-between gap-4">
+        <h2 className="text-6xl font-black leading-none">89점</h2>
+        <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">안심</span>
+      </div>
+      <p className="mt-5 text-lg font-black leading-8">최근 기록 참여도와 생활 표현 흐름이 안정적으로 유지되고 있습니다.</p>
+    </section>
+  );
+}
+
+function FamilyChangeCard() {
+  return (
+    <SectionCard title="변화 감지">
+      <div className="grid gap-3">
+        <MiniSummary title="최근 7일" value="특별한 변화는 감지되지 않았습니다." />
+        <MiniSummary title="최근 2주" value="집에서 쉬었다는 응답이 조금 늘었습니다. 이번 주에는 짧은 통화를 권장합니다." />
+        <div className="rounded-2xl bg-[#EFF6FF] p-4">
+          <p className="text-sm font-black text-[#2563EB]">AI가 최근 변화를 정리했습니다.</p>
+          <p className="mt-2 font-semibold leading-7 text-[#4B5563]">기록의 흐름을 살펴보면 큰 변화는 없지만, 휴식 표현이 늘어난 흐름은 가족이 함께 살펴볼 만합니다.</p>
+        </div>
+      </div>
+    </SectionCard>
+  );
+}
+
+function FamilyReportCard({ records }: { records: TodayRecord[] }) {
+  return (
+    <SectionCard title="이번 주 안심 리포트">
+      <div className="grid gap-3">
+        <p className="font-black leading-7">최근 7일간 기록 참여도는 안정적입니다.</p>
+        <p className="font-semibold leading-7 text-[#6B7280]">집에서 쉬었다는 응답이 조금 늘었습니다. 특별한 이상 신호는 없지만, 이번 주에는 짧은 통화를 권장합니다.</p>
+        {records[0] ? <MiniSummary title="가장 최근 오늘의 기록" value={records[0].moment} /> : null}
+      </div>
+    </SectionCard>
+  );
+}
+
+function ParentTodayRecordCard({ onSaved }: { onSaved: (record: TodayRecord) => void }) {
+  const [selectedMoment, setSelectedMoment] = useState(momentOptions[0]);
+  const [saved, setSaved] = useState(false);
+
+  function submitRecord() {
+    const record: TodayRecord = {
+      id: `record-${Date.now()}`,
+      moment: selectedMoment,
+      activity: "",
+      message: "",
+      createdAt: new Date().toISOString(),
+    };
+    const items = [record, ...readRecords()];
+    window.localStorage.setItem(recordsKey, JSON.stringify(items));
+    setSaved(true);
+    onSaved(record);
+  }
+
+  return (
+    <section id="today-record" className="rounded-[30px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+      <p className="text-sm font-black text-[#F97316]">오늘의 기록</p>
+      <h2 className="mt-3 text-4xl font-black leading-tight">오늘 하루는 어떠셨나요?</h2>
+      <MomentChoiceGroup options={momentOptions} value={selectedMoment} onChange={setSelectedMoment} />
+      <button type="button" onClick={submitRecord} className="mt-5 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-lg font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+        오늘의 기록 남기기
+      </button>
+      {saved ? (
+        <div className="mt-4 rounded-2xl bg-[#F0FDF4] p-4">
+          <p className="text-lg font-black text-[#15803D]">오늘의 기록이 남겨졌습니다.</p>
+          <p className="mt-2 font-semibold text-[#166534]">가족에게 안심이 전해졌어요.</p>
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -472,7 +682,7 @@ function HomeTab({ profile, onOpenReport }: { profile: ParentProfile; onOpenRepo
 function SendLinkCard({ profile }: { profile: ParentProfile }) {
   return (
     <SectionCard title="부모님께 보내기">
-      <p className="font-semibold leading-7 text-[#6B7280]">자동 발송이 아니라 사용자가 직접 공유합니다. 부모님께 보낼 링크를 공유하세요.</p>
+      <p className="font-semibold leading-7 text-[#6B7280]">부모님께 보낼 링크를 복사해 카카오톡이나 문자에 붙여넣어 보내주세요.</p>
       <ShareLinkCard profile={profile} />
     </SectionCard>
   );
@@ -547,8 +757,8 @@ function ShareLinkCard({ profile }: { profile: ParentProfile }) {
   return (
     <div className="mt-5">
       <div className="grid gap-3 sm:grid-cols-3">
-        <ActionButton title="카카오톡으로 보내기" onClick={openKakaoShare} primary />
-        <ActionButton title="문자로 보내기" onClick={openSms} />
+        <ActionButton title="카카오톡으로 공유" onClick={openKakaoShare} primary />
+        <ActionButton title="문자로 공유" onClick={openSms} />
         <ActionButton title="링크 복사" onClick={copyLink} icon={<Copy size={18} aria-hidden />} />
       </div>
       <div className="mt-4 rounded-2xl bg-[#F9FAFB] p-4">
@@ -614,6 +824,12 @@ function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; on
     <SectionCard title="가족의 관심">
       <p className="font-semibold leading-7 text-[#6B7280]">부모님이 다시 찾아오게 만드는 건 기능이 아니라 가족의 관심입니다.</p>
       <p className="mt-2 font-semibold leading-7 text-[#6B7280]">선택한 문구를 그대로 보내거나, 가족의 말투로 살짝 바꿔보세요.</p>
+      <div className="mt-4 rounded-2xl bg-[#EFF6FF] p-4">
+        <p className="text-sm font-black text-[#2563EB]">왜 응원 메시지를 보내나요?</p>
+        <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
+          부모님을 확인하기 위해서가 아닙니다. 가족의 관심은 기록으로 남고, 그 기록은 시간이 지나며 안심과 변화의 흐름이 됩니다.
+        </p>
+      </div>
 
       <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
         {encouragementCategories.map((category) => (
@@ -784,11 +1000,13 @@ function RecordCompleteCard({ record }: { record?: TodayRecord }) {
   );
 }
 
-function WeeklyMemoryCard() {
+function WeeklyMemoryCard({ audience = "parent" }: { audience?: "parent" | "family" }) {
   return (
     <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-      <p className="text-sm font-black text-[#2563EB]">이번 주의 하루들</p>
-      <h2 className="mt-3 text-2xl font-black leading-tight">이번 주는 평범하고 여유로운 하루가 많았어요.</h2>
+      <p className="text-sm font-black text-[#2563EB]">{audience === "parent" ? "이번 주의 하루들" : "이번 주 기록 흐름"}</p>
+      <h2 className="mt-3 text-2xl font-black leading-tight">
+        {audience === "parent" ? "평범하고 여유로운 하루가 많았어요." : "평범함, 여유로움 응답이 많았습니다."}
+      </h2>
       <div className="mt-5 flex flex-wrap gap-2 text-3xl">
         {sampleWeek.map((item, index) => (
           <span key={`${item}-${index}`} className="rounded-2xl bg-[#F9FAFB] px-3 py-2">
@@ -796,7 +1014,9 @@ function WeeklyMemoryCard() {
           </span>
         ))}
       </div>
-      <p className="mt-4 font-semibold leading-7 text-[#6B7280]">부모님의 이번 주 기록 흐름을 확인해보세요.</p>
+      <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
+        {audience === "parent" ? "이번 주도 하루하루가 잘 남겨지고 있어요." : "특별한 변화는 감지되지 않았습니다."}
+      </p>
     </section>
   );
 }

@@ -42,6 +42,11 @@ const faqs = [
     answer: "아닙니다. 부모님은 카카오톡이나 문자로 받은 링크만 열어도 오늘의 기록을 남길 수 있습니다.",
   },
   {
+    question: "그냥 카카오톡이나 문자로 안부를 챙기면 안 되나요?",
+    answer:
+      "물론 카카오톡이나 전화도 중요합니다. 하지만 대부분의 부모님은 걱정시키기 싫어 “괜찮다”고 말씀하시는 경우가 많습니다. 오늘안부는 단순한 대화 대신, 하루하루의 기록과 가족의 관심이 쌓이는 흐름을 살펴봅니다. AI는 그 변화를 정리해 가족에게 안심 리포트로 전달합니다.",
+  },
+  {
     question: "가족 응원 문구는 정해진 것만 보낼 수 있나요?",
     answer: "아닙니다. 추천 문구를 선택한 뒤 가족의 말투로 수정할 수 있고, 직접 작성도 가능합니다. 계절, 날씨, 명절 등에 맞는 응원 문구도 주기적으로 업데이트됩니다.",
   },
@@ -113,12 +118,6 @@ export default function LandingPage() {
               안심 리포트 체험하기
               <ArrowRight size={18} aria-hidden />
             </a>
-            <a
-              href="/app?registered=1"
-              className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-[#D1D5DB] bg-white px-7 font-black text-[#4B5563]"
-            >
-              앱 체험하기
-            </a>
           </div>
         </div>
 
@@ -147,6 +146,48 @@ export default function LandingPage() {
                 </article>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
+        <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
+            <p className="text-sm font-black text-[#2563EB]">왜 오늘안부인가요?</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+              카카오톡은 대화를 남깁니다.
+              <br />
+              오늘안부는 변화를 남깁니다.
+            </h2>
+            <p className="mt-5 font-semibold leading-8 text-[#6B7280]">
+              카카오톡이나 전화는 부모님의 오늘을 확인하는 데 좋습니다. 하지만 부모님은 대부분 “괜찮다”고 말씀하십니다. 오늘안부는 하루의 대화보다, 시간이 지나며 쌓이는 기록의 변화를 살펴봅니다.
+            </p>
+            <p className="mt-5 rounded-[24px] bg-[#EFF6FF] p-5 text-xl font-black leading-8 text-[#2563EB]">
+              안부를 묻는 것과
+              <br />
+              변화를 살피는 것은 다릅니다.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <article className="rounded-[24px] bg-[#F9FAFB] p-6 shadow-[0_14px_34px_rgba(15,23,42,0.05)]">
+              <p className="text-sm font-black text-[#6B7280]">카카오톡</p>
+              <h3 className="mt-3 text-2xl font-black">오늘의 대화</h3>
+              <ul className="mt-5 grid gap-3 text-sm font-bold leading-6 text-[#6B7280]">
+                <li>그날의 안부 확인</li>
+                <li>흘러가는 메시지</li>
+                <li>가족이 직접 기억해야 함</li>
+              </ul>
+            </article>
+            <article className="rounded-[24px] bg-[#111827] p-6 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
+              <p className="text-sm font-black text-[#93C5FD]">오늘안부</p>
+              <h3 className="mt-3 text-2xl font-black">쌓이는 변화</h3>
+              <ul className="mt-5 grid gap-3 text-sm font-bold leading-6 text-white/70">
+                <li>오늘의 기록 축적</li>
+                <li>가족의 관심 저장</li>
+                <li>AI가 변화 흐름 분석</li>
+                <li>안심 리포트 제공</li>
+              </ul>
+            </article>
           </div>
         </div>
       </section>
