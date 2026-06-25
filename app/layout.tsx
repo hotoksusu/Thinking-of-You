@@ -5,8 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   applicationName: "오늘안부",
   title: "오늘안부",
-  description:
-    "부모님의 하루 안부를 가족이 놓치지 않도록 돕는 AI 안심 서비스",
+  description: "부모님의 오늘의 기록을 바탕으로 변화 감지와 안심 리포트를 제공하는 AI 안심 서비스",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -27,7 +26,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#F97316",
+  themeColor: "#2563EB",
 };
 
 export default function RootLayout({
