@@ -13,7 +13,7 @@ const flowSteps = [
   {
     step: "1",
     title: "가족 응원",
-    description: "가족이 짧은 응원을 보내고 부모님은 읽기만 해도 됩니다.",
+    description: "가족의 말투로 바꾼 따뜻한 응원을 보냅니다.",
     icon: HeartHandshake,
   },
   {
@@ -42,8 +42,12 @@ const faqs = [
     answer: "아닙니다. 부모님은 카카오톡이나 문자로 받은 링크만 열어도 오늘의 기록을 남길 수 있습니다.",
   },
   {
-    question: "왜 가족 메시지가 중요한가요?",
-    answer: "부모님이 다시 찾아오게 만드는 건 기능이 아니라 가족의 관심입니다. 응원을 읽고 나서 하루를 남기는 흐름을 만듭니다.",
+    question: "가족 응원 문구는 정해진 것만 보낼 수 있나요?",
+    answer: "아닙니다. 추천 문구를 선택한 뒤 가족의 말투로 수정할 수 있고, 직접 작성도 가능합니다. 계절, 날씨, 명절 등에 맞는 응원 문구도 주기적으로 업데이트됩니다.",
+  },
+  {
+    question: "같은 문구가 반복되면 어색하지 않나요?",
+    answer: "오늘안부는 최근 사용한 문구를 고려해 다양한 문구를 제안합니다. 가족이 직접 수정할 수도 있어 매번 더 자연스럽게 마음을 전할 수 있습니다.",
   },
   {
     question: "부모님을 감시하는 서비스인가요?",
@@ -90,10 +94,10 @@ export default function LandingPage() {
 
           <div className="mt-7 rounded-[24px] bg-[#EFF6FF] p-5">
             <p className="text-sm font-black text-[#2563EB]">
-              부모님이 다시 찾아오게 만드는 건 기능이 아니라 가족의 관심입니다.
+              가족의 말투로 바꿔 보낼 수 있습니다.
             </p>
             <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
-              오늘안부는 가족의 짧은 응원과 부모님의 하루 기록을 연결합니다. AI는 그 흐름 속 변화를 살펴 가족에게 안심 리포트를 제공합니다.
+              오늘안부는 정해진 문구만 보내는 서비스가 아닙니다. 가족이 선택한 응원 문구를 직접 수정하거나 새로 작성할 수 있고, 계절과 상황에 맞는 따뜻한 문구도 주기적으로 제안합니다.
             </p>
           </div>
 
@@ -179,9 +183,9 @@ export default function LandingPage() {
       <section className="mx-auto w-full max-w-[920px] px-5 py-16 text-center sm:px-8">
         <ShieldCheck size={34} className="mx-auto text-[#2563EB]" aria-hidden />
         <h2 className="mt-5 text-3xl font-black leading-tight sm:text-4xl">
-          첫 경험은 설치가 아니라
+          가족의 말투로
           <br />
-          가족의 응원입니다.
+          오늘의 안심을 전해보세요.
         </h2>
         <div className="mt-8 flex justify-center">
           <a
