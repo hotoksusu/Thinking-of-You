@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
+        <Script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js" strategy="afterInteractive" />
         <PwaRegister />
         {children}
       </body>
