@@ -125,6 +125,48 @@ const encouragementCategories = [
 
 const allEncouragementTemplates = encouragementCategories.flatMap((category) => category.templates);
 
+type ToneId = "warm" | "short" | "bright" | "plain" | "cute" | "formal";
+
+const encouragementTones = [
+  { id: "warm", label: "다정하게" },
+  { id: "short", label: "간단하게" },
+  { id: "bright", label: "밝게" },
+  { id: "plain", label: "담백하게" },
+  { id: "cute", label: "애교 있게" },
+  { id: "formal", label: "존댓말로" },
+] satisfies Array<{ id: ToneId; label: string }>;
+
+function transformEncouragementTone(message: string, tone: ToneId, profile: ParentProfile) {
+  const parentName = profile.parentName || "엄마";
+  const formalName = parentName.includes("아빠") || parentName.includes("아버") ? "아버지" : "어머니";
+
+  if (tone === "warm") {
+    return `${parentName}, 오늘도 좋은 하루 보내요. 늘 생각하고 있어요 ❤️`;
+  }
+
+  if (tone === "short") {
+    return `${parentName}, 오늘도 좋은 하루 보내세요.`;
+  }
+
+  if (tone === "bright") {
+    return `${parentName} 오늘도 웃는 일 많은 하루 보내요 😊`;
+  }
+
+  if (tone === "plain") {
+    return `${parentName}, 오늘 하루도 편안히 보내세요.`;
+  }
+
+  if (tone === "cute") {
+    return `${parentName}아 오늘도 좋은 하루 보내요 💕 생각 많이 해요!`;
+  }
+
+  if (tone === "formal") {
+    return `${formalName}, 오늘도 평안한 하루 보내세요.`;
+  }
+
+  return message;
+}
+
 const sampleWeek = ["😊", "🙂", "☕", "🏠", "🙂", "☕", "🚶"];
 
 const reportHistory = [
@@ -535,6 +577,7 @@ function ActionButton({ title, onClick, primary = false, icon }: { title: string
 
 function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; onSent: (message: Encouragement) => void }) {
   const [activeCategory, setActiveCategory] = useState(encouragementCategories[0].id);
+  const [activeTone, setActiveTone] = useState<ToneId>("warm");
   const [draft, setDraft] = useState(encouragementCategories[0].templates[0]);
   const [sentMessage, setSentMessage] = useState("");
   const [recentMessages, setRecentMessages] = useState<string[]>([]);
@@ -585,6 +628,25 @@ function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; on
         ))}
       </div>
 
+      <div className="mt-5">
+        <p className="text-sm font-black text-[#6B7280]">말투</p>
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {encouragementTones.map((tone) => (
+            <button
+              key={tone.id}
+              type="button"
+              onClick={() => {
+                setActiveTone(tone.id);
+                setDraft((current) => transformEncouragementTone(current, tone.id, profile));
+              }}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-black ${activeTone === tone.id ? "bg-[#111827] text-white" : "bg-[#F3F4F6] text-[#4B5563]"}`}
+            >
+              {tone.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="mt-4 rounded-2xl bg-[#EFF6FF] p-4">
         <p className="text-sm font-black text-[#2563EB]">랜덤 추천 문구</p>
         <button type="button" onClick={() => setDraft(recommendedTemplate)} className="mt-2 text-left font-black leading-7 text-[#1F2937]">
@@ -613,6 +675,7 @@ function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; on
 
       <label className="mt-5 grid gap-2 font-black">
         직접 작성 또는 수정
+        <span className="text-sm font-semibold leading-6 text-[#6B7280]">말투를 고른 뒤 가족의 말로 한 번 더 바꿔보세요.</span>
         <textarea
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
