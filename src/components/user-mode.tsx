@@ -291,15 +291,20 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
       <section className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-[880px] content-center">
         <div>
           <p className="text-sm font-black text-[#2563EB]">앱 체험</p>
-          <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">어떤 화면을 체험해 보시겠어요?</h1>
+          <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">부모님과 가족은 이렇게 연결됩니다</h1>
           <p className="mt-5 max-w-[620px] text-lg font-semibold leading-8 text-[#6B7280]">
-            부모님은 하루를 남기고, 가족은 안심 리포트를 확인합니다. 두 화면을 분리해서 오늘안부의 실제 흐름을 볼 수 있습니다.
+            부모님은 하루를 남기고,
+            <br />
+            가족은 안심 리포트로 변화를 확인합니다.
+            <br />
+            두 화면을 나누어 오늘안부의 실제 흐름을 체험해 보세요.
           </p>
         </div>
         <div className="mt-10 grid gap-4 md:grid-cols-2">
           <RoleSelectCard
             label="부모님 화면"
-            title="하루를 가볍게 남기고 가족의 응원을 확인합니다."
+            title="하루를 가볍게 남기고 가족의 관심을 확인합니다."
+            description="부모님은 복잡한 입력 없이 오늘의 기록을 남기고, 가족이 보낸 응원을 확인합니다."
             button="부모님 화면 보기"
             accent="warm"
             onClick={() => onSelect("parent")}
@@ -307,6 +312,7 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
           <RoleSelectCard
             label="가족 화면"
             title="안심 리포트와 변화 감지를 확인합니다."
+            description="가족은 부모님의 기록 흐름을 바탕으로 안심 점수와 변화 감지 결과를 확인합니다."
             button="가족 화면 보기"
             accent="blue"
             onClick={() => onSelect("family")}
@@ -317,12 +323,13 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
   );
 }
 
-function RoleSelectCard({ label, title, button, accent, onClick }: { label: string; title: string; button: string; accent: "warm" | "blue"; onClick: () => void }) {
+function RoleSelectCard({ label, title, description, button, accent, onClick }: { label: string; title: string; description: string; button: string; accent: "warm" | "blue"; onClick: () => void }) {
   const warm = accent === "warm";
   return (
     <article className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
       <span className={`inline-flex rounded-full px-3 py-1 text-sm font-black ${warm ? "bg-[#FFF7ED] text-[#F97316]" : "bg-[#EFF6FF] text-[#2563EB]"}`}>{label}</span>
       <h2 className="mt-5 text-2xl font-black leading-tight sm:text-3xl">{title}</h2>
+      <p className="mt-4 font-semibold leading-7 text-[#6B7280]">{description}</p>
       <button
         type="button"
         onClick={onClick}

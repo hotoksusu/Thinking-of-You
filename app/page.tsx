@@ -124,6 +124,58 @@ export default function LandingPage() {
         <ReportPreview />
       </section>
 
+      <section className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
+        <div>
+          <p className="text-sm font-black text-[#2563EB]">앱 체험</p>
+          <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+            부모님과 가족은 이렇게 연결됩니다
+          </h2>
+          <p className="mt-5 max-w-[680px] font-semibold leading-8 text-[#6B7280]">
+            부모님은 하루를 남기고,
+            <br />
+            가족은 안심 리포트로 변화를 확인합니다.
+            <br />
+            두 화면을 나누어 오늘안부의 실제 흐름을 체험해 보세요.
+          </p>
+        </div>
+        <div className="mt-9 grid gap-4 md:grid-cols-2">
+          <article className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+            <span className="inline-flex rounded-full bg-[#FFF7ED] px-3 py-1 text-sm font-black text-[#F97316]">부모님 화면</span>
+            <h3 className="mt-5 text-2xl font-black leading-tight sm:text-3xl">
+              하루를 가볍게 남기고
+              <br />
+              가족의 관심을 확인합니다.
+            </h3>
+            <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
+              부모님은 복잡한 입력 없이 오늘의 기록을 남기고, 가족이 보낸 응원을 확인합니다.
+            </p>
+            <a
+              href="/app?role=parent"
+              className="mt-8 inline-flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#F97316] px-5 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]"
+            >
+              부모님 화면 보기
+            </a>
+          </article>
+          <article className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+            <span className="inline-flex rounded-full bg-[#EFF6FF] px-3 py-1 text-sm font-black text-[#2563EB]">가족 화면</span>
+            <h3 className="mt-5 text-2xl font-black leading-tight sm:text-3xl">
+              안심 리포트와
+              <br />
+              변화 감지를 확인합니다.
+            </h3>
+            <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
+              가족은 부모님의 기록 흐름을 바탕으로 안심 점수와 변화 감지 결과를 확인합니다.
+            </p>
+            <a
+              href="/app?role=family"
+              className="mt-8 inline-flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#2563EB] px-5 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
+            >
+              가족 화면 보기
+            </a>
+          </article>
+        </div>
+      </section>
+
       <section className="border-y border-[#E5E7EB] bg-[#F9FAFB]">
         <div className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
           <p className="text-sm font-black text-[#2563EB]">재방문 루프</p>
