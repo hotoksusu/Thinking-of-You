@@ -298,15 +298,15 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
         </div>
         <div className="mt-10 grid gap-4 md:grid-cols-2">
           <RoleSelectCard
-            label="부모님 화면 체험"
-            title="하루를 가볍게 남기고 가족의 응원을 확인하는 화면입니다."
+            label="부모님 화면"
+            title="하루를 가볍게 남기고 가족의 응원을 확인합니다."
             button="부모님 화면 보기"
             accent="warm"
             onClick={() => onSelect("parent")}
           />
           <RoleSelectCard
-            label="가족 화면 체험"
-            title="부모님의 안심 리포트와 변화 감지를 확인하는 화면입니다."
+            label="가족 화면"
+            title="안심 리포트와 변화 감지를 확인합니다."
             button="가족 화면 보기"
             accent="blue"
             onClick={() => onSelect("family")}
