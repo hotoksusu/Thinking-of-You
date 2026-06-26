@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { ArrowLeft, Bell, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, Settings, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Bell, Check, ChevronDown, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, Settings, ShieldCheck } from "lucide-react";
 import { InstallGuide } from "@/components/install-guide";
 import {
   analyzeNoResponsePattern,
@@ -90,6 +90,24 @@ const momentOptions = ["😊 좋았어요", "🙂 평범했어요", "☕ 여유�
 const activityOptions = ["식사했어요", "약 먹었어요", "가볍게 움직였어요"];
 const messageOptions = ["괜찮아요", "가족에게 전해주세요", "나중에 이야기할게요"];
 
+type SeniorMood = "comfortable" | "normal" | "hard";
+type SeniorActivity = "rest_home" | "walk" | "shopping" | "hospital" | "family_contact" | "tea_rest";
+
+const seniorMoodOptions: Array<{ value: SeniorMood; emoji: string; label: string }> = [
+  { value: "comfortable", emoji: "😊", label: "편안했어요" },
+  { value: "normal", emoji: "🙂", label: "평범했어요" },
+  { value: "hard", emoji: "😔", label: "조금 힘들었어요" },
+];
+
+const seniorActivityOptions: Array<{ value: SeniorActivity; emoji: string; label: string }> = [
+  { value: "rest_home", emoji: "🏠", label: "집에서 쉬었어요" },
+  { value: "walk", emoji: "🚶", label: "산책했어요" },
+  { value: "shopping", emoji: "🛒", label: "장을 봤어요" },
+  { value: "hospital", emoji: "🏥", label: "병원에 다녀왔어요" },
+  { value: "family_contact", emoji: "👨‍👩‍👧", label: "가족과 연락했어요" },
+  { value: "tea_rest", emoji: "☕", label: "차 한잔하며 쉬었어요" },
+];
+
 const encouragementCategories = [
   {
     id: "daily",
@@ -167,8 +185,6 @@ function transformEncouragementTone(message: string, tone: ToneId, profile: Pare
 
   return message;
 }
-
-const sampleWeek = ["😊", "🙂", "☕", "🏠", "🙂", "☕", "🚶"];
 
 const reportHistory = [
   { title: "최신 안심 리포트", value: "최근 7일간 기록 참여도는 안정적입니다." },
@@ -438,15 +454,33 @@ function FamilyReportCard({ records }: { records: TodayRecord[] }) {
 }
 
 function ParentTodayRecordCard({ onSaved }: { onSaved: (record: TodayRecord) => void }) {
-  const [selectedMoment, setSelectedMoment] = useState(momentOptions[0]);
+  const [selectedMood, setSelectedMood] = useState<SeniorMood>("normal");
+  const [selectedActivities, setSelectedActivities] = useState<SeniorActivity[]>([]);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [note, setNote] = useState("");
   const [saved, setSaved] = useState(false);
 
-  function submitRecord() {
+  function toggleActivity(activity: SeniorActivity) {
+    setSelectedActivities((current) =>
+      current.includes(activity)
+        ? current.filter((item) => item !== activity)
+        : [...current, activity],
+    );
+  }
+
+  function submitRecord(quick = false) {
+    const mood = quick ? "normal" : selectedMood;
+    const activities = quick && selectedActivities.length === 0 ? ["rest_home" as SeniorActivity] : selectedActivities;
+    const moodLabel = seniorMoodOptions.find((option) => option.value === mood)?.label ?? "평범했어요";
+    const activityLabels = activities
+      .map((activity) => seniorActivityOptions.find((option) => option.value === activity)?.label)
+      .filter(Boolean)
+      .join(", ");
     const record: TodayRecord = {
       id: `record-${Date.now()}`,
-      moment: selectedMoment,
-      activity: "",
-      message: "",
+      moment: moodLabel,
+      activity: activityLabels,
+      message: note,
       createdAt: new Date().toISOString(),
     };
     const items = [record, ...readRecords()];
@@ -457,19 +491,103 @@ function ParentTodayRecordCard({ onSaved }: { onSaved: (record: TodayRecord) => 
 
   return (
     <section id="today-record" className="rounded-[30px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
-      <p className="text-sm font-black text-[#F97316]">오늘의 기록</p>
-      <h2 className="mt-3 text-4xl font-black leading-tight">오늘 하루는 어떠셨나요?</h2>
-      <MomentChoiceGroup options={momentOptions} value={selectedMoment} onChange={setSelectedMoment} />
-      <button type="button" onClick={submitRecord} className="mt-5 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-lg font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
-        오늘의 기록 남기기
+      <p className="text-sm font-black text-[#F97316]">오늘 안부 전하기</p>
+      <h2 className="mt-3 text-4xl font-black leading-tight">오늘도 잘 지내셨어요?</h2>
+      <p className="mt-4 text-lg font-semibold leading-8 text-[#6B7280]">
+        버튼 하나만 눌러도 가족에게 안부가 전해져요. 더 남기고 싶은 이야기는 천천히 골라도 괜찮아요.
+      </p>
+
+      <button type="button" onClick={() => submitRecord(true)} className="mt-6 min-h-20 w-full rounded-2xl bg-[#F97316] px-5 text-left text-lg font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+        <span className="block text-2xl">오늘도 잘 지냈어요</span>
+        <span className="mt-1 block text-sm text-white/85">이 버튼만 눌러도 안부가 전해져요</span>
       </button>
+
+      <button
+        type="button"
+        onClick={() => setDetailsOpen((open) => !open)}
+        aria-expanded={detailsOpen}
+        className="mt-3 flex min-h-14 w-full items-center justify-between rounded-2xl border border-[#FDBA74] bg-[#FFF7ED] px-4 text-left text-lg font-black text-[#C2410C]"
+      >
+        조금 더 남기기
+        <ChevronDown size={21} className={`transition ${detailsOpen ? "rotate-180" : ""}`} aria-hidden />
+      </button>
+
+      {detailsOpen ? (
+        <div className="mt-5 grid gap-6">
+          <section>
+            <h3 className="text-2xl font-black leading-tight">오늘 하루는 어떠셨나요?</h3>
+            <p className="mt-2 font-semibold leading-7 text-[#6B7280]">정답은 없어요. 오늘과 가장 가까운 문장을 골라주세요.</p>
+            <div className="mt-4 grid gap-3">
+              {seniorMoodOptions.map((option) => (
+                <SeniorChoiceButton
+                  key={option.value}
+                  selected={selectedMood === option.value}
+                  emoji={option.emoji}
+                  label={option.label}
+                  onClick={() => setSelectedMood(option.value)}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-2xl font-black leading-tight">오늘은 무엇을 하셨나요?</h3>
+            <p className="mt-2 font-semibold leading-7 text-[#6B7280]">기억나는 것만 골라도 충분해요. 여러 개를 선택할 수 있어요.</p>
+            <div className="mt-4 grid gap-3">
+              {seniorActivityOptions.map((option) => (
+                <SeniorChoiceButton
+                  key={option.value}
+                  selected={selectedActivities.includes(option.value)}
+                  emoji={option.emoji}
+                  label={option.label}
+                  onClick={() => toggleActivity(option.value)}
+                />
+              ))}
+            </div>
+          </section>
+
+          <label className="block">
+            <span className="text-lg font-black">남기고 싶은 말이 있나요? <span className="text-[#6B7280]">(선택)</span></span>
+            <textarea
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="예: 오늘은 집에서 쉬었어요."
+              className="mt-3 min-h-28 w-full resize-none rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-lg font-semibold outline-none focus:border-[#F97316] focus:ring-4 focus:ring-[#FFEDD5]"
+            />
+          </label>
+
+          <button type="button" onClick={() => submitRecord()} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-lg font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+            오늘 안부 전하기
+          </button>
+        </div>
+      ) : null}
+
       {saved ? (
         <div className="mt-4 rounded-2xl bg-[#F0FDF4] p-4">
-          <p className="text-lg font-black text-[#15803D]">오늘의 기록이 남겨졌습니다.</p>
-          <p className="mt-2 font-semibold text-[#166534]">가족에게 안심이 전해졌어요.</p>
+          <p className="text-lg font-black text-[#15803D]">오늘의 안부가 가족에게 전해졌어요.</p>
+          <p className="mt-2 font-semibold leading-7 text-[#166534]">답장을 기다리지 않아도 괜찮아요. 기록만으로도 가족은 안심할 수 있어요.</p>
         </div>
       ) : null}
     </section>
+  );
+}
+
+function SeniorChoiceButton({ selected, emoji, label, onClick }: { selected: boolean; emoji: string; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border px-4 text-left text-lg font-black transition active:scale-[0.99] ${selected ? "border-[#F97316] bg-[#FFF7ED] text-[#C2410C]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#1F2937]"}`}
+    >
+      <span className="text-2xl" aria-hidden>{emoji}</span>
+      <span className="flex-1">{label}</span>
+      {selected ? (
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#F97316] text-white">
+          <Check size={18} aria-hidden />
+        </span>
+      ) : null}
+    </button>
   );
 }
 
@@ -984,12 +1102,12 @@ function TodayRecordCard({ onSaved }: { onSaved: (record: TodayRecord) => void }
       <p className="mt-6 text-sm font-black text-[#6B7280]">가족에게 전할 말</p>
       <MomentChoiceGroup options={messageOptions} value={selectedMessage} onChange={setSelectedMessage} compact />
       <button type="button" onClick={submitRecord} className="mt-5 min-h-14 w-full rounded-2xl bg-[#F97316] px-5 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
-        오늘의 기록 남기기
+        오늘 안부 전하기
       </button>
       {saved ? (
         <div className="mt-4 rounded-2xl bg-[#F0FDF4] p-4">
-          <p className="text-lg font-black text-[#15803D]">오늘의 기록이 남겨졌습니다.</p>
-          <p className="mt-2 font-semibold text-[#166534]">가족에게 안심이 전해졌어요.</p>
+          <p className="text-lg font-black text-[#15803D]">오늘의 안부가 가족에게 전해졌어요.</p>
+          <p className="mt-2 font-semibold text-[#166534]">답장을 기다리지 않아도 괜찮아요. 기록만으로도 가족은 안심할 수 있어요.</p>
         </div>
       ) : null}
     </section>
@@ -1008,22 +1126,36 @@ function RecordCompleteCard({ record }: { record?: TodayRecord }) {
 }
 
 function WeeklyMemoryCard({ audience = "parent" }: { audience?: "parent" | "family" }) {
+  const patternRows = [
+    ["😊", "편안한 날 3일"],
+    ["🏠", "집에서 쉰 날 4일"],
+    ["🚶", "산책한 날 1일"],
+    ["☕", "휴식 기록 2회"],
+  ];
+
   return (
     <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-      <p className="text-sm font-black text-[#2563EB]">{audience === "parent" ? "이번 주의 하루들" : "이번 주 기록 흐름"}</p>
-      <h2 className="mt-3 text-2xl font-black leading-tight">
-        {audience === "parent" ? "평범하고 여유로운 하루가 많았어요." : "평범함, 여유로움 응답이 많았습니다."}
-      </h2>
-      <div className="mt-5 flex flex-wrap gap-2 text-3xl">
-        {sampleWeek.map((item, index) => (
-          <span key={`${item}-${index}`} className="rounded-2xl bg-[#F9FAFB] px-3 py-2">
-            {item}
-          </span>
+      <p className="text-sm font-black text-[#2563EB]">최근 7일 기준</p>
+      <h2 className="mt-3 text-2xl font-black leading-tight">이번 주 안심 패턴</h2>
+      <p className="mt-3 text-lg font-black leading-8 text-[#1F2937]">
+        평범하고 안정적인 하루가 많았어요.
+      </p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        {patternRows.map(([emoji, label]) => (
+          <div key={label} className="flex min-h-14 items-center gap-3 rounded-2xl bg-[#F9FAFB] px-4 text-base font-black text-[#1F2937]">
+            <span className="text-2xl" aria-hidden>{emoji}</span>
+            <span>{label}</span>
+          </div>
         ))}
       </div>
-      <p className="mt-4 font-semibold leading-7 text-[#6B7280]">
-        {audience === "parent" ? "이번 주도 하루하루가 잘 남겨지고 있어요." : "특별한 변화는 감지되지 않았습니다."}
-      </p>
+      <div className="mt-5 rounded-2xl bg-[#EFF6FF] p-4">
+        <p className="text-sm font-black text-[#2563EB]">AI 안심 인사이트</p>
+        <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
+          {audience === "parent"
+            ? "AI가 이번 주 기록 흐름을 살펴봤어요. 특별히 걱정할 변화는 보이지 않습니다."
+            : "AI가 이번 주 기록 흐름을 살펴봤어요. 특별히 걱정할 변화는 보이지 않습니다."}
+        </p>
+      </div>
     </section>
   );
 }

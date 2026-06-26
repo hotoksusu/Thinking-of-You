@@ -1,0 +1,53 @@
+<svg width="680" height="368" viewBox="0 0 680 368" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="room" x1="0" y1="0" x2="680" y2="368" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF5EC"/>
+      <stop offset="0.52" stop-color="#F7EEE4"/>
+      <stop offset="1" stop-color="#EAF4EF"/>
+    </linearGradient>
+    <linearGradient id="sofa" x1="64" y1="226" x2="468" y2="358" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DFC9B8"/>
+      <stop offset="1" stop-color="#C9B29F"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#7B5C4E" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="680" height="368" rx="42" fill="url(#room)"/>
+  <rect x="34" y="36" width="292" height="178" rx="30" fill="#FFFDF9" opacity="0.68"/>
+  <circle cx="92" cy="86" r="34" fill="#D7E9DD" opacity="0.95"/>
+  <path d="M92 44c14 23 13 45-1 66-17-17-21-39 1-66Z" fill="#4F8A73" opacity="0.72"/>
+  <path d="M58 92c21-6 40-1 57 16-24 8-42 4-57-16Z" fill="#7FB59D" opacity="0.72"/>
+  <rect x="42" y="236" width="396" height="112" rx="46" fill="url(#sofa)" filter="url(#softShadow)"/>
+  <ellipse cx="186" cy="238" rx="84" ry="16" fill="#9E7E6B" opacity="0.14"/>
+  <g filter="url(#softShadow)">
+    <path d="M86 224c0-45 33-82 74-82s74 37 74 82v42H86v-42Z" fill="#F0E1D4"/>
+    <circle cx="160" cy="124" r="46" fill="#D9A982"/>
+    <path d="M114 113c7-39 37-56 73-41 30 13 33 46 24 69-27-22-61-18-97-28Z" fill="#60554C"/>
+    <path d="M119 234c0-38 24-69 54-69s54 31 54 69v49H119v-49Z" fill="#A9C7B9"/>
+    <path d="M135 147c11 16 36 17 50 0" stroke="#8B6049" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#softShadow)">
+    <path d="M207 220c0-50 37-90 82-90s82 40 82 90v56H207v-56Z" fill="#E9D2BE"/>
+    <circle cx="289" cy="108" r="50" fill="#D6A37E"/>
+    <path d="M240 108c3-46 40-68 82-51 34 14 43 49 32 82-35-21-68-20-114-31Z" fill="#F3F1EC"/>
+    <path d="M231 233c0-43 27-78 61-78s61 35 61 78v60H231v-60Z" fill="#F4EFE8"/>
+    <path d="M262 136c13 15 39 16 54 0" stroke="#8B6049" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#softShadow)">
+    <path d="M34 230c0-44 32-80 72-80s72 36 72 80v50H34v-50Z" fill="#F2DFCF"/>
+    <circle cx="106" cy="128" r="44" fill="#D7A57F"/>
+    <path d="M63 115c9-41 45-58 82-36 23 14 25 43 18 64-29-25-57-20-100-28Z" fill="#26322E"/>
+    <path d="M59 233c0-39 24-71 54-71s54 32 54 71v56H59v-56Z" fill="#FFE5DE"/>
+    <path d="M82 147c12 13 35 14 48 0" stroke="#8B6049" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#softShadow)">
+    <rect x="198" y="188" width="94" height="122" rx="18" fill="#26322E"/>
+    <rect x="208" y="202" width="74" height="90" rx="10" fill="#FDFDFB"/>
+    <circle cx="246" cy="300" r="5" fill="#FDFDFB"/>
+    <rect x="220" y="218" width="48" height="7" rx="3.5" fill="#4F8A73"/>
+    <rect x="220" y="238" width="36" height="7" rx="3.5" fill="#F6B6A9"/>
+    <rect x="220" y="258" width="44" height="7" rx="3.5" fill="#4F8A73" opacity="0.55"/>
+  </g>
+  <rect x="360" y="0" width="320" height="368" fill="url(#room)" opacity="0.78"/>
+</svg>

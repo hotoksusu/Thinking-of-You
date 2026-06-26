@@ -8,10 +8,10 @@ const buttonBase =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold transition active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
 
 const buttonTone: Record<ButtonTone, string> = {
-  primary: "bg-brand-ink text-white shadow-soft hover:bg-[#2b423d]",
+  primary: "bg-brand-primary text-white shadow-soft hover:bg-brand-hover",
   secondary:
-    "border border-brand-line bg-white text-brand-ink shadow-sm hover:border-brand-sage",
-  ghost: "text-brand-ink hover:bg-white/70",
+    "border border-brand-line bg-white text-brand-text shadow-sm hover:border-brand-primary",
+  ghost: "text-brand-text hover:bg-white/70",
 };
 
 export function ButtonLink({
@@ -53,7 +53,7 @@ export function PageSection({
     <section className="space-y-4">
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-brand-ink">{title}</h2>
+          <h2 className="text-lg font-bold text-brand-text">{title}</h2>
           {description ? (
             <p className="mt-1 text-sm leading-6 text-stone-600">{description}</p>
           ) : null}
@@ -88,10 +88,8 @@ export function Card({
 }
 
 export function FieldLabel({ children }: { children: ReactNode }) {
-  return (
-    <label className="text-sm font-semibold text-brand-ink">{children}</label>
-  );
+  return <label className="text-sm font-semibold text-brand-text">{children}</label>;
 }
 
 export const inputClassName =
-  "min-h-12 w-full rounded-lg border border-brand-line bg-white px-3 text-base text-brand-ink outline-none transition placeholder:text-stone-400 focus:border-brand-sage focus:ring-4 focus:ring-brand-mint";
+  "min-h-12 w-full rounded-lg border border-brand-line bg-white px-3 text-base text-brand-text outline-none transition placeholder:text-stone-400 focus:border-brand-primary focus:ring-4 focus:ring-brand-mint";

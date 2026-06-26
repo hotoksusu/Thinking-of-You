@@ -6,8 +6,16 @@
 
 :root {
   color-scheme: light;
-  --background: #fffaf4;
-  --foreground: #20332f;
+  --color-primary: #2563eb;
+  --color-hover: #1d4ed8;
+  --color-secondary: #2563eb;
+  --color-accent: #fee500;
+  --color-text: #111827;
+  --color-subtext: #6b7280;
+  --color-background: #fff8f1;
+  --color-card: #ffffff;
+  --background: var(--color-background);
+  --foreground: var(--color-text);
 }
 
 * {
@@ -24,8 +32,9 @@ body {
   min-height: 100%;
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(111, 143, 123, 0.16), transparent 30rem),
-    linear-gradient(180deg, #fffaf4 0%, #f7fbf7 46%, #fffaf4 100%);
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28rem),
+    radial-gradient(circle at bottom right, rgba(255, 122, 106, 0.10), transparent 26rem),
+    linear-gradient(180deg, #fff8f1 0%, #fffdf9 48%, #fff8f1 100%);
   color: var(--foreground);
   font-family: "Pretendard Variable", Pretendard, SUIT, "Noto Sans KR",
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system,
@@ -69,7 +78,7 @@ a {
   line-height: 1.2;
   word-break: keep-all;
   text-wrap: balance;
-  color: #20332f;
+  color: #111827;
 }
 
 .soft-copy {

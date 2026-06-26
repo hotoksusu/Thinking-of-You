@@ -17,6 +17,13 @@ export const storageKeys = {
   consumerRoutine: `${baseKey}:consumer-routine`,
   consumerSchedules: `${baseKey}:consumer-schedules`,
   notificationSettings: `${baseKey}:notification-settings`,
+  kakaoSession: `${baseKey}:kakao-session`,
+  lovedOneProfile: `${baseKey}:loved-one-profile`,
+  dailyCareCheck: `${baseKey}:daily-care-check`,
+  dailyCheckIn: `${baseKey}:daily-check-in`,
+  kakaoNotificationHistory: `${baseKey}:kakao-notification-history`,
+  careRequestHistory: `${baseKey}:care-request-history`,
+  careAutomationSchedule: `${baseKey}:care-automation-schedule`,
   tasksForDate(date: string) {
     return `${baseKey}:care-tasks:${date}`;
   },
