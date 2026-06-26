@@ -51,6 +51,8 @@ type TodayRecord = {
   activityTags?: SeniorActivity[];
   moodTag?: SeniorMood;
   note?: string;
+  viewedSupportMessage?: boolean;
+  completedTodayRecord?: boolean;
   createdAt: string;
 };
 
@@ -305,7 +307,7 @@ export function UserMode({ initialRegistered, initialRole }: { initialRegistered
   }
 
   if (experienceRole === "parent") {
-    return <ParentExperience encouragements={encouragements} onSaved={handleSaved} onBack={() => setExperienceRole(null)} />;
+    return <ParentExperience encouragements={encouragements} onSaved={handleSaved} onBack={() => setExperienceRole(null)} onViewFamily={() => setExperienceRole("family")} />;
   }
 
   return <FamilyExperience profile={profile} records={records} onSent={handleSent} onReset={resetService} onBack={() => setExperienceRole(null)} />;
@@ -403,18 +405,14 @@ function ExperienceHeader({ eyebrow, title, onBack }: { eyebrow: string; title: 
   );
 }
 
-function ParentExperience({ encouragements, onSaved, onBack }: { encouragements: Encouragement[]; onSaved: (record: TodayRecord) => void; onBack: () => void }) {
+function ParentExperience({ encouragements, onSaved, onBack, onViewFamily }: { encouragements: Encouragement[]; onSaved: (record: TodayRecord) => void; onBack: () => void; onViewFamily: () => void }) {
   const encouragement = encouragements[0] ?? defaultEncouragement(defaultProfile);
 
   return (
     <main className="min-h-screen bg-[#FFF7ED] px-5 py-7 text-[#1F2937] sm:px-8">
       <div className="mx-auto w-full max-w-[760px]">
         <ExperienceHeader eyebrow="부모님 화면" title="오늘의 기록" onBack={onBack} />
-        <div className="grid gap-5">
-          <ParentTodayRecordCard onSaved={onSaved} />
-          <TodayEncouragementCard encouragement={encouragement} />
-          <WeeklyMemoryCard audience="parent" />
-        </div>
+        <ParentSteppedRecordExperience encouragement={encouragement} onSaved={onSaved} onViewFamily={onViewFamily} />
       </div>
     </main>
   );
@@ -501,6 +499,207 @@ function FamilyReportCard({ records }: { records: TodayRecord[] }) {
         {latestSummary ? <MiniSummary title="가장 최근 오늘의 기록" value={latestSummary} /> : null}
       </div>
     </SectionCard>
+  );
+}
+
+function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }: { encouragement: Encouragement; onSaved: (record: TodayRecord) => void; onViewFamily: () => void }) {
+  const [step, setStep] = useState(1);
+  const [selectedActivities, setSelectedActivities] = useState<SeniorActivity[]>([]);
+  const [selectedMood, setSelectedMood] = useState<SeniorMood | null>(null);
+  const [completed, setCompleted] = useState(false);
+
+  function toggleActivity(activity: SeniorActivity) {
+    setSelectedActivities((current) =>
+      current.includes(activity)
+        ? current.filter((item) => item !== activity)
+        : [...current, activity],
+    );
+  }
+
+  function completeRecord() {
+    const moodTag = selectedMood ?? "normal";
+    const record: TodayRecord = {
+      id: `record-${Date.now()}`,
+      moment: getSeniorMoodLabel(moodTag),
+      activity: selectedActivities.map(getSeniorActivityLabel).join(", "),
+      message: encouragement.message,
+      activityTags: selectedActivities,
+      moodTag,
+      note: "",
+      viewedSupportMessage: true,
+      completedTodayRecord: true,
+      createdAt: new Date().toISOString(),
+    };
+    const items = [record, ...readRecords()];
+    window.localStorage.setItem(recordsKey, JSON.stringify(items));
+    setCompleted(true);
+    onSaved(record);
+  }
+
+  if (completed) {
+    return (
+      <StepShell step={4}>
+        <section className="grid min-h-[62vh] content-center rounded-[30px] bg-white p-6 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#F0FDF4] text-[#15803D]">
+            <Check size={32} aria-hidden />
+          </div>
+          <h2 className="mt-6 text-[2rem] font-black leading-tight">오늘의 기록이 남겨졌습니다.</h2>
+          <p className="mt-4 text-xl font-bold leading-8 text-[#166534]">가족에게 안심이 전해졌어요.</p>
+          <div className="mt-8 grid gap-3">
+            <button type="button" onClick={onViewFamily} className="min-h-16 w-full rounded-2xl bg-[#2563EB] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]">
+              가족 화면 살펴보기
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCompleted(false);
+                setStep(1);
+                setSelectedActivities([]);
+                setSelectedMood(null);
+              }}
+              className="min-h-16 w-full rounded-2xl border border-[#E5E7EB] bg-white px-5 text-xl font-black text-[#4B5563]"
+            >
+              홈으로 돌아가기
+            </button>
+          </div>
+        </section>
+      </StepShell>
+    );
+  }
+
+  return (
+    <StepShell step={step}>
+      {step === 1 ? (
+        <StepCard
+          title="오늘은 어떤 하루였나요?"
+          description={
+            <>
+              기억나는 것만 골라도 충분해요.
+              <br />
+              여러 개를 선택할 수 있어요.
+            </>
+          }
+          footer={
+            <>
+              <button type="button" onClick={() => setStep(2)} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+                다음
+              </button>
+              <p className="mt-3 text-center text-sm font-bold text-[#9CA3AF]">생각나는 것이 없어도 괜찮아요.</p>
+            </>
+          }
+        >
+          <div className="grid gap-3">
+            {seniorActivityOptions.map((option) => (
+              <SeniorChoiceButton
+                key={option.value}
+                selected={selectedActivities.includes(option.value)}
+                emoji={option.emoji}
+                label={option.label}
+                onClick={() => toggleActivity(option.value)}
+              />
+            ))}
+          </div>
+        </StepCard>
+      ) : null}
+
+      {step === 2 ? (
+        <StepCard
+          title="오늘 하루 느낌은 어땠나요?"
+          description="가장 가까운 하나만 골라주세요."
+          footer={
+            <button
+              type="button"
+              onClick={() => setStep(3)}
+              disabled={!selectedMood}
+              className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)] disabled:bg-[#FDBA74] disabled:shadow-none"
+            >
+              다음
+            </button>
+          }
+        >
+          <div className="grid gap-3">
+            {seniorMoodOptions.map((option) => (
+              <SeniorChoiceButton
+                key={option.value}
+                selected={selectedMood === option.value}
+                emoji={option.emoji}
+                label={option.label}
+                onClick={() => setSelectedMood(option.value)}
+              />
+            ))}
+          </div>
+        </StepCard>
+      ) : null}
+
+      {step === 3 ? (
+        <StepCard
+          title="오늘의 응원이 도착했어요 ❤️"
+          description={
+            <>
+              답장하지 않아도 괜찮아요.
+              <br />
+              읽기만 해도 가족에게 마음이 전해져요.
+            </>
+          }
+          footer={
+            <button type="button" onClick={() => setStep(4)} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+              읽었어요
+            </button>
+          }
+        >
+          <div className="rounded-[26px] bg-[#FFF7ED] p-5">
+            <p className="text-lg font-black text-[#C2410C]">{encouragement.sender}이 보낸 응원</p>
+            <p className="mt-4 text-2xl font-black leading-9 text-[#1F2937]">{encouragement.message}</p>
+          </div>
+        </StepCard>
+      ) : null}
+
+      {step === 4 ? (
+        <StepCard
+          title="이번 주의 하루들"
+          description="하루하루가 잘 남겨지고 있어요."
+          footer={
+            <button type="button" onClick={completeRecord} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+              오늘의 기록 완료
+            </button>
+          }
+        >
+          <WeeklySummaryContent audience="parent" />
+        </StepCard>
+      ) : null}
+    </StepShell>
+  );
+}
+
+function StepShell({ step, children }: { step: number; children: ReactNode }) {
+  return (
+    <div>
+      <div className="mb-4 rounded-[24px] bg-white/80 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.05)]">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-base font-black text-[#F97316]">오늘의 기록 {step}단계</p>
+          <p className="text-base font-black text-[#6B7280]">{step} / 4</p>
+        </div>
+        <div className="mt-3 grid grid-cols-4 gap-2" aria-hidden>
+          {[1, 2, 3, 4].map((item) => (
+            <span key={item} className={`h-3 rounded-full ${item <= step ? "bg-[#F97316]" : "bg-[#FED7AA]"}`} />
+          ))}
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function StepCard({ title, description, children, footer }: { title: string; description: ReactNode; children: ReactNode; footer: ReactNode }) {
+  return (
+    <section className="grid min-h-[68vh] rounded-[30px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+      <div>
+        <h2 className="text-[2rem] font-black leading-tight sm:text-[2.35rem]">{title}</h2>
+        <p className="mt-4 text-lg font-semibold leading-8 text-[#6B7280]">{description}</p>
+      </div>
+      <div className="mt-7">{children}</div>
+      <div className="mt-8 self-end">{footer}</div>
+    </section>
   );
 }
 
@@ -1160,19 +1359,27 @@ function RecordCompleteCard({ record }: { record?: TodayRecord }) {
 }
 
 function WeeklyMemoryCard({ audience = "parent" }: { audience?: "parent" | "family" }) {
+  return (
+    <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+      <p className="text-sm font-black text-[#2563EB]">최근 7일 기준</p>
+      <h2 className="mt-3 text-2xl font-black leading-tight">{audience === "parent" ? "이번 주의 하루들" : "이번 주 안심 패턴"}</h2>
+      <WeeklySummaryContent audience={audience} />
+    </section>
+  );
+}
+
+function WeeklySummaryContent({ audience = "parent" }: { audience?: "parent" | "family" }) {
   const patternRows = [
     ["😊", "편안한 날 3일"],
     ["🏠", "집에서 쉰 날 4일"],
     ["🚶", "산책한 날 1일"],
-    ["☕", "휴식 기록 2회"],
+    ["☕", "여유로운 시간 2회"],
   ];
 
   return (
-    <section className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-      <p className="text-sm font-black text-[#2563EB]">최근 7일 기준</p>
-      <h2 className="mt-3 text-2xl font-black leading-tight">이번 주 안심 패턴</h2>
+    <>
       <p className="mt-3 text-lg font-black leading-8 text-[#1F2937]">
-        평범하고 안정적인 하루가 많았어요.
+        이번 주는 평범하고 편안한 하루가 많았어요.
       </p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         {patternRows.map(([emoji, label]) => (
@@ -1192,7 +1399,7 @@ function WeeklyMemoryCard({ audience = "parent" }: { audience?: "parent" | "fami
             : "AI가 이번 주 기록 흐름을 살펴봤어요. 특별히 걱정할 변화는 보이지 않습니다."}
         </p>
       </div>
-    </section>
+    </>
   );
 }
 
