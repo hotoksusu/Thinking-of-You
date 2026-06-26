@@ -546,7 +546,7 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
           <h2 className="mt-6 text-[2rem] font-black leading-tight">오늘의 기록이 남겨졌습니다.</h2>
           <p className="mt-4 text-xl font-bold leading-8 text-[#166534]">가족에게 안심이 전해졌어요.</p>
           <div className="mt-8 grid gap-3">
-            <button type="button" onClick={onViewFamily} className="min-h-16 w-full rounded-2xl bg-[#2563EB] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]">
+            <button type="button" onClick={onViewFamily} className="min-h-16 w-full rounded-2xl bg-[#2563EB] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]">
               가족 화면 살펴보기
             </button>
             <button
@@ -557,7 +557,7 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
                 setSelectedActivities([]);
                 setSelectedMood(null);
               }}
-              className="min-h-16 w-full rounded-2xl border border-[#E5E7EB] bg-white px-5 text-xl font-black text-[#4B5563]"
+              className="min-h-16 w-full rounded-2xl border border-[#E5E7EB] bg-white px-5 text-[1.375rem] font-black text-[#4B5563]"
             >
               홈으로 돌아가기
             </button>
@@ -581,7 +581,7 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
           }
           footer={
             <>
-              <button type="button" onClick={() => setStep(2)} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+              <button type="button" onClick={() => setStep(2)} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
                 다음
               </button>
               <p className="mt-3 text-center text-sm font-bold text-[#9CA3AF]">생각나는 것이 없어도 괜찮아요.</p>
@@ -611,7 +611,7 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
               type="button"
               onClick={() => setStep(3)}
               disabled={!selectedMood}
-              className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)] disabled:bg-[#FDBA74] disabled:shadow-none"
+              className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)] disabled:bg-[#FDBA74] disabled:shadow-none"
             >
               다음
             </button>
@@ -633,23 +633,33 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
 
       {step === 3 ? (
         <StepCard
-          title="오늘의 응원이 도착했어요 ❤️"
+          title={
+            <>
+              오늘의 응원이
+              <br />
+              도착했어요 ❤️
+            </>
+          }
           description={
             <>
-              답장하지 않아도 괜찮아요.
+              답장은 하지 않아도 괜찮아요.
               <br />
-              읽기만 해도 가족에게 마음이 전해져요.
+              읽기만 해도
+              <br />
+              가족에게 마음이 전해집니다.
             </>
           }
           footer={
-            <button type="button" onClick={() => setStep(4)} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+            <button type="button" onClick={() => setStep(4)} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
               읽었어요
             </button>
           }
         >
-          <div className="rounded-[26px] bg-[#FFF7ED] p-5">
-            <p className="text-lg font-black text-[#C2410C]">{encouragement.sender}이 보낸 응원</p>
-            <p className="mt-4 text-2xl font-black leading-9 text-[#1F2937]">{encouragement.message}</p>
+          <div className="rounded-[28px] bg-[#FFF7ED] p-7 sm:p-8">
+            <p className="text-[1.55rem] font-black leading-tight text-[#C2410C]">{encouragement.sender}이 보낸 응원</p>
+            <p className="mt-6 text-[1.375rem] font-black leading-9 text-[#1F2937]">
+              {formatSupportMessage(encouragement.message)}
+            </p>
           </div>
         </StepCard>
       ) : null}
@@ -659,7 +669,7 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
           title="이번 주의 하루들"
           description="하루하루가 잘 남겨지고 있어요."
           footer={
-            <button type="button" onClick={completeRecord} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-xl font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+            <button type="button" onClick={completeRecord} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
               오늘의 기록 완료
             </button>
           }
@@ -672,6 +682,13 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
 }
 
 function StepShell({ step, children }: { step: number; children: ReactNode }) {
+  const stepDescription = {
+    1: "오늘 있었던 일을 고르는 단계입니다.",
+    2: "오늘의 느낌을 고르는 단계입니다.",
+    3: "가족의 응원을 확인하는 단계입니다.",
+    4: "이번 주의 하루를 돌아보는 단계입니다.",
+  }[step];
+
   return (
     <div>
       <div className="mb-4 rounded-[24px] bg-white/80 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.05)]">
@@ -679,6 +696,7 @@ function StepShell({ step, children }: { step: number; children: ReactNode }) {
           <p className="text-base font-black text-[#F97316]">오늘의 기록 {step}단계</p>
           <p className="text-base font-black text-[#6B7280]">{step} / 4</p>
         </div>
+        <p className="mt-2 text-[1.05rem] font-bold leading-7 text-[#6B7280]">{stepDescription}</p>
         <div className="mt-3 grid grid-cols-4 gap-2" aria-hidden>
           {[1, 2, 3, 4].map((item) => (
             <span key={item} className={`h-3 rounded-full ${item <= step ? "bg-[#F97316]" : "bg-[#FED7AA]"}`} />
@@ -690,17 +708,46 @@ function StepShell({ step, children }: { step: number; children: ReactNode }) {
   );
 }
 
-function StepCard({ title, description, children, footer }: { title: string; description: ReactNode; children: ReactNode; footer: ReactNode }) {
+function StepCard({ title, description, children, footer }: { title: ReactNode; description: ReactNode; children: ReactNode; footer: ReactNode }) {
   return (
-    <section className="grid min-h-[68vh] rounded-[30px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+    <section className="grid min-h-[68vh] rounded-[30px] bg-white p-7 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
       <div>
-        <h2 className="text-[2rem] font-black leading-tight sm:text-[2.35rem]">{title}</h2>
-        <p className="mt-4 text-lg font-semibold leading-8 text-[#6B7280]">{description}</p>
+        <h2 className="text-[2.125rem] font-black leading-tight sm:text-[2.35rem]">{title}</h2>
+        <p className="mt-4 text-[1.125rem] font-semibold leading-8 text-[#6B7280]">{description}</p>
       </div>
       <div className="mt-7">{children}</div>
       <div className="mt-8 self-end">{footer}</div>
     </section>
   );
+}
+
+function formatSupportMessage(message: string) {
+  if (message.includes("엄마 오늘도 좋은 하루 보내세요")) {
+    return (
+      <>
+        엄마,
+        <br />
+        오늘도 좋은 하루
+        <br />
+        보내세요 ❤️
+      </>
+    );
+  }
+
+  const [firstWord, ...rest] = message.split(" ");
+  if (rest.length >= 3) {
+    return (
+      <>
+        {firstWord},
+        <br />
+        {rest.slice(0, 3).join(" ")}
+        <br />
+        {rest.slice(3).join(" ")}
+      </>
+    );
+  }
+
+  return message;
 }
 
 function ParentTodayRecordCard({ onSaved }: { onSaved: (record: TodayRecord) => void }) {
@@ -811,7 +858,7 @@ function SeniorChoiceButton({ selected, emoji, label, onClick }: { selected: boo
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border px-4 text-left text-lg font-black transition active:scale-[0.99] ${selected ? "border-[#F97316] bg-[#FFF7ED] text-[#C2410C]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#1F2937]"}`}
+      className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border px-4 text-left text-xl font-black transition active:scale-[0.99] ${selected ? "border-[#F97316] bg-[#FFF7ED] text-[#C2410C]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#1F2937]"}`}
     >
       <span className="text-2xl" aria-hidden>{emoji}</span>
       <span className="flex-1">{label}</span>
