@@ -66,6 +66,14 @@ const faqs = [
     question: "답변하지 않으면 위험 신호인가요?",
     answer: "한 번의 미응답을 위험으로 단정하지 않습니다. 반복되는 흐름을 평소와 비교해 안심 리포트에 반영합니다.",
   },
+  {
+    question: "부모님이 매일 기록하는 것을 귀찮아하지 않을까요?",
+    answer: "오늘안부는 긴 기록을 요구하지 않습니다. 하루에 몇 번의 선택만으로 충분하고, 매일 다른 질문과 가족의 응원으로 부담 없이 이어갈 수 있도록 설계했습니다.",
+  },
+  {
+    question: "이 기록은 어떤 의미가 있나요?",
+    answer: "하루하루의 기록은 작아 보이지만, 시간이 지나면 생활 패턴과 감정 변화, 가족과의 연결 흐름을 보여줍니다. 오늘안부는 그 변화를 안심 리포트로 정리합니다.",
+  },
 ];
 
 export default function LandingPage() {
@@ -122,6 +130,30 @@ export default function LandingPage() {
         </div>
 
         <ReportPreview />
+      </section>
+
+      <section className="border-y border-[#E5E7EB] bg-[#FFF7ED]">
+        <div className="mx-auto w-full max-w-[920px] px-5 py-16 sm:px-8 sm:py-20">
+          <p className="text-sm font-black text-[#F97316]">하루가 쌓이는 의미</p>
+          <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+            하루의 기록은 안심이 되고,
+            <br />
+            시간이 지나면 소중한 변화가 됩니다.
+          </h2>
+          <div className="mt-6 grid gap-4 text-lg font-semibold leading-8 text-[#4B5563]">
+            <p>오늘안부는 부모님께 데이터를 요구하지 않습니다.</p>
+            <p>
+              부모님은 하루를 가볍게 남기고,
+              <br />
+              가족은 그 흐름을 안심 리포트로 확인합니다.
+            </p>
+            <p>
+              시간이 지나며 쌓인 기록은
+              <br />
+              부모님의 생활 변화와 추억을 함께 보여줍니다.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">

@@ -43,15 +43,34 @@ type ParentProfile = {
   familyShare: boolean;
 };
 
-type TodayRecord = {
+type ConnectionTag = "family_contact" | "friend_meet" | "neighbor_meet" | "quiet_alone" | "support_message_viewed";
+
+type DailyQuestionCategory = "life" | "emotion" | "connection" | "memory" | "season";
+
+type DailyQuestion = {
+  id: string;
+  category: DailyQuestionCategory;
+  question: string;
+  options?: string[];
+};
+
+type DailyRecord = {
+  date: string;
+  activityTags: SeniorActivity[];
+  moodTag: SeniorMood | null;
+  connectionTags: ConnectionTag[];
+  note?: string;
+  completedAt?: string;
+  viewedSupportMessage?: boolean;
+  dailyQuestionId?: string;
+  dailyQuestionAnswer?: string;
+};
+
+type TodayRecord = DailyRecord & {
   id: string;
   moment: string;
   activity: string;
   message: string;
-  activityTags?: SeniorActivity[];
-  moodTag?: SeniorMood;
-  note?: string;
-  viewedSupportMessage?: boolean;
   completedTodayRecord?: boolean;
   createdAt: string;
 };
@@ -132,6 +151,55 @@ const seniorActivityOptions: Array<{ value: SeniorActivity; emoji: string; label
   { value: "fresh_air", emoji: "🌳", label: "바람을 쐬었어요" },
   { value: "neighbor_meet", emoji: "👥", label: "이웃을 만났어요" },
 ];
+
+const dailyQuestions: DailyQuestion[] = [
+  { id: "life-best-moment", category: "life", question: "오늘 가장 좋았던 순간은 무엇인가요?", options: ["맛있는 식사", "산책", "가족 연락", "편안한 휴식", "TV나 취미 시간"] },
+  { id: "life-tasty-food", category: "life", question: "오늘 가장 맛있었던 것은 무엇인가요?", options: ["집밥", "과일", "간식", "따뜻한 차", "외식"] },
+  { id: "emotion-smile", category: "emotion", question: "오늘 웃었던 일이 있었나요?", options: ["많이 웃었어요", "조금 웃었어요", "편안히 보냈어요"] },
+  { id: "connection-talk", category: "connection", question: "오늘 누구와 이야기하셨나요?", options: ["가족", "친구", "이웃", "혼자 편히 쉬었어요"] },
+  { id: "memory-thanks", category: "memory", question: "오늘 고마웠던 일이 있었나요?", options: ["가족의 연락", "맛있는 식사", "좋은 날씨", "편안한 휴식"] },
+  { id: "spring-nature", category: "season", question: "꽃이나 나무를 보셨나요?", options: ["꽃을 봤어요", "나무를 봤어요", "바람을 쐬었어요", "집에서 쉬었어요"] },
+  { id: "summer-rest", category: "season", question: "더운 날씨에 잘 쉬셨나요?", options: ["시원하게 쉬었어요", "찬 음식을 먹었어요", "물을 잘 마셨어요"] },
+  { id: "autumn-walk", category: "season", question: "산책하기 좋은 날씨였나요?", options: ["산책했어요", "바람을 쐬었어요", "창밖을 바라봤어요"] },
+  { id: "winter-warm", category: "season", question: "따뜻하게 보내셨나요?", options: ["따뜻한 차를 마셨어요", "따뜻한 음식을 먹었어요", "집에서 포근히 쉬었어요"] },
+];
+
+function getTodayQuestion() {
+  const today = new Date();
+  const month = today.getMonth() + 1;
+  const seasonalQuestionId = month >= 3 && month <= 5
+    ? "spring-nature"
+    : month >= 6 && month <= 8
+      ? "summer-rest"
+      : month >= 9 && month <= 11
+        ? "autumn-walk"
+        : "winter-warm";
+  const regularQuestions = dailyQuestions.filter((question) => question.category !== "season");
+  const rotation = [...regularQuestions, dailyQuestions.find((question) => question.id === seasonalQuestionId)!];
+  const dayIndex = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86_400_000);
+  return rotation[dayIndex % rotation.length];
+}
+
+function getConnectionTags(activities: SeniorActivity[], viewedSupportMessage: boolean): ConnectionTag[] {
+  const tags: ConnectionTag[] = [];
+  if (activities.includes("family_contact")) tags.push("family_contact");
+  if (activities.includes("neighbor_meet")) tags.push("neighbor_meet");
+  if (activities.length > 0 && activities.every((activity) => ["rest_home", "watch_tv", "nap", "reading", "relax_time"].includes(activity))) {
+    tags.push("quiet_alone");
+  }
+  if (viewedSupportMessage) tags.push("support_message_viewed");
+  return tags;
+}
+
+function getConnectionLabel(value: ConnectionTag) {
+  return {
+    family_contact: "가족과 연락했어요",
+    friend_meet: "친구를 만났어요",
+    neighbor_meet: "이웃을 만났어요",
+    quiet_alone: "혼자 조용히 보냈어요",
+    support_message_viewed: "가족의 응원을 읽었어요",
+  }[value];
+}
 
 function getSeniorMoodLabel(value: SeniorMood) {
   return seniorMoodOptions.find((option) => option.value === value)?.label ?? "평범했어요";
@@ -502,12 +570,16 @@ function FamilyChangeCard({ records }: { records: TodayRecord[] }) {
   const latestActivities = latest?.activityTags?.length
     ? latest.activityTags.map(getSeniorActivityLabel).join(", ")
     : latest?.activity;
+  const latestConnections = latest?.connectionTags?.length
+    ? latest.connectionTags.map(getConnectionLabel).join(", ")
+    : "가족과의 연결 기록이 쌓이면 흐름을 함께 볼 수 있습니다.";
 
   return (
     <SectionCard title="변화 감지">
       <div className="grid gap-3">
         <MiniSummary title="오늘 있었던 일" value={latestActivities || "아직 오늘 기록이 없습니다."} />
         <MiniSummary title="오늘의 느낌" value={latestMood || "기록이 쌓이면 느낌 변화를 함께 볼 수 있습니다."} />
+        <MiniSummary title="가족과의 연결" value={latestConnections} />
         <MiniSummary title="기록 참여 빈도" value="최근 기록 참여도는 안정적으로 유지되고 있습니다." />
         <div className="rounded-2xl bg-[#EFF6FF] p-4">
           <p className="text-sm font-black text-[#2563EB]">AI가 최근 변화를 정리했습니다.</p>
@@ -526,6 +598,7 @@ function FamilyReportCard({ records }: { records: TodayRecord[] }) {
     ? [
         latest.activityTags?.length ? `오늘 있었던 일: ${latest.activityTags.map(getSeniorActivityLabel).join(", ")}` : null,
         latest.moodTag ? `오늘의 느낌: ${getSeniorMoodLabel(latest.moodTag)}` : `오늘의 느낌: ${latest.moment}`,
+        latest.connectionTags?.length ? `가족과의 연결: ${latest.connectionTags.map(getConnectionLabel).join(", ")}` : null,
         latest.note ? `남긴 말: ${latest.note}` : null,
       ]
         .filter(Boolean)
@@ -536,7 +609,9 @@ function FamilyReportCard({ records }: { records: TodayRecord[] }) {
     <SectionCard title="이번 주 안심 리포트">
       <div className="grid gap-3">
         <p className="font-black leading-7">최근 7일간 기록 참여도는 안정적입니다.</p>
-        <p className="font-semibold leading-7 text-[#6B7280]">오늘 있었던 일, 오늘의 느낌, 남긴 말의 흐름을 함께 보며 하루의 변화를 정리합니다.</p>
+        <p className="font-semibold leading-7 text-[#6B7280]">오늘 있었던 일, 하루의 느낌, 가족과의 연결, 기록 참여 흐름을 함께 살펴봅니다.</p>
+        <MiniSummary title="이번 주 흐름" value="편안한 하루가 많았고 가족 연락 기록도 꾸준히 유지되었습니다." />
+        <MiniSummary title="권장 안부" value="이번 주에는 짧은 통화로 마음을 나눠보세요." />
         {latestSummary ? <MiniSummary title="가장 최근 오늘의 기록" value={latestSummary} /> : null}
       </div>
     </SectionCard>
@@ -547,7 +622,16 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
   const [step, setStep] = useState(1);
   const [selectedActivities, setSelectedActivities] = useState<SeniorActivity[]>([]);
   const [selectedMood, setSelectedMood] = useState<SeniorMood | null>(null);
+  const [dailyQuestionAnswer, setDailyQuestionAnswer] = useState("");
+  const [dailyQuestionNote, setDailyQuestionNote] = useState("");
   const [completed, setCompleted] = useState(false);
+  const dailyQuestion = useMemo(() => getTodayQuestion(), []);
+
+  const todayLine = selectedActivities.includes("family_contact")
+    ? "가족과의 연락이 하루를 더 따뜻하게 만들었어요."
+    : selectedMood === "comfortable"
+      ? "오늘도 편안한 시간이 잘 남겨졌어요."
+      : "오늘은 여유로운 하루였네요.";
 
   function toggleActivity(activity: SeniorActivity) {
     setSelectedActivities((current) =>
@@ -559,17 +643,24 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
 
   function completeRecord() {
     const moodTag = selectedMood ?? "normal";
+    const completedAt = new Date().toISOString();
+    const answer = dailyQuestionNote.trim() || dailyQuestionAnswer;
     const record: TodayRecord = {
       id: `record-${Date.now()}`,
+      date: completedAt.slice(0, 10),
       moment: getSeniorMoodLabel(moodTag),
       activity: selectedActivities.map(getSeniorActivityLabel).join(", "),
       message: encouragement.message,
       activityTags: selectedActivities,
       moodTag,
-      note: "",
+      connectionTags: getConnectionTags(selectedActivities, true),
+      note: dailyQuestionNote.trim() || undefined,
+      completedAt,
       viewedSupportMessage: true,
       completedTodayRecord: true,
-      createdAt: new Date().toISOString(),
+      dailyQuestionId: dailyQuestion.id,
+      dailyQuestionAnswer: answer || undefined,
+      createdAt: completedAt,
     };
     const items = [record, ...readRecords()];
     window.localStorage.setItem(recordsKey, JSON.stringify(items));
@@ -579,13 +670,18 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
 
   if (completed) {
     return (
-      <StepShell step={4}>
+      <StepShell step={5}>
         <section className="grid min-h-[62vh] content-center rounded-[30px] bg-white p-6 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
           <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#F0FDF4] text-[#15803D]">
             <Check size={32} aria-hidden />
           </div>
-          <h2 className="mt-6 text-[2rem] font-black leading-tight">오늘의 기록이 남겨졌습니다.</h2>
-          <p className="mt-4 text-xl font-bold leading-8 text-[#166534]">가족에게 안심이 전해졌어요.</p>
+          <h2 className="mt-6 text-[2rem] font-black leading-tight">오늘도 잘 남겨주셨어요.</h2>
+          <p className="mt-4 text-xl font-bold leading-8 text-[#166534]">가족에게 안심이 전해졌습니다.</p>
+          <div className="mt-6 rounded-[24px] bg-[#FFF7ED] p-5 text-left">
+            <p className="text-sm font-black text-[#F97316]">오늘의 한 줄</p>
+            <p className="mt-2 text-xl font-black leading-8 text-[#1F2937]">{todayLine}</p>
+            <p className="mt-2 font-semibold leading-7 text-[#6B7280]">하루가 따뜻하게 쌓였어요.</p>
+          </div>
           <div className="mt-8 grid gap-3">
             <button type="button" onClick={onViewFamily} className="min-h-16 w-full rounded-2xl bg-[#2563EB] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]">
               가족 화면 살펴보기
@@ -597,6 +693,8 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
                 setStep(1);
                 setSelectedActivities([]);
                 setSelectedMood(null);
+                setDailyQuestionAnswer("");
+                setDailyQuestionNote("");
               }}
               className="min-h-16 w-full rounded-2xl border border-[#E5E7EB] bg-white px-5 text-[1.375rem] font-black text-[#4B5563]"
             >
@@ -710,12 +808,62 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
           title="이번 주의 하루들"
           description="하루하루가 잘 남겨지고 있어요."
           footer={
-            <button type="button" onClick={completeRecord} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
-              오늘의 기록 완료
+            <button type="button" onClick={() => setStep(5)} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+              다음
             </button>
           }
         >
           <WeeklySummaryContent audience="parent" />
+        </StepCard>
+      ) : null}
+
+      {step === 5 ? (
+        <StepCard
+          title={dailyQuestion.question}
+          description={
+            <>
+              오늘의 질문
+              <br />
+              짧게 골라도 괜찮아요.
+            </>
+          }
+          footer={
+            <>
+              <button type="button" onClick={completeRecord} className="min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+                오늘의 기록 완료
+              </button>
+              <p className="mt-3 text-center text-sm font-bold text-[#9CA3AF]">고르지 않아도 괜찮아요.</p>
+            </>
+          }
+        >
+          <div className="grid gap-3">
+            {dailyQuestion.options?.map((option) => (
+              <button
+                key={option}
+                type="button"
+                aria-pressed={dailyQuestionAnswer === option}
+                onClick={() => {
+                  setDailyQuestionAnswer(option);
+                  setDailyQuestionNote("");
+                }}
+                className={`min-h-16 w-full rounded-2xl border px-5 text-left text-xl font-black transition ${dailyQuestionAnswer === option ? "border-[#F97316] bg-[#FFF7ED] text-[#C2410C]" : "border-[#E5E7EB] bg-[#F9FAFB] text-[#1F2937]"}`}
+              >
+                {option}
+              </button>
+            ))}
+            <label className="mt-2 block">
+              <span className="text-lg font-black">한 줄로 남기기 <span className="text-[#6B7280]">선택</span></span>
+              <input
+                value={dailyQuestionNote}
+                onChange={(event) => {
+                  setDailyQuestionNote(event.target.value);
+                  setDailyQuestionAnswer("");
+                }}
+                placeholder="짧게 적어도 좋아요."
+                className="mt-3 min-h-16 w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 text-lg font-semibold outline-none focus:border-[#F97316] focus:ring-4 focus:ring-[#FFEDD5]"
+              />
+            </label>
+          </div>
         </StepCard>
       ) : null}
     </StepShell>
@@ -728,6 +876,7 @@ function StepShell({ step, children }: { step: number; children: ReactNode }) {
     2: "오늘의 느낌을 고르는 단계입니다.",
     3: "가족의 응원을 확인하는 단계입니다.",
     4: "이번 주의 하루를 돌아보는 단계입니다.",
+    5: "오늘의 질문에 가볍게 답하는 단계입니다.",
   }[step];
 
   return (
@@ -735,11 +884,11 @@ function StepShell({ step, children }: { step: number; children: ReactNode }) {
       <div className="mb-4 rounded-[24px] bg-white/80 p-4 shadow-[0_10px_28px_rgba(15,23,42,0.05)]">
         <div className="flex items-center justify-between gap-4">
           <p className="text-base font-black text-[#F97316]">오늘의 기록 {step}단계</p>
-          <p className="text-base font-black text-[#6B7280]">{step} / 4</p>
+          <p className="text-base font-black text-[#6B7280]">{step} / 5</p>
         </div>
         <p className="mt-2 text-[1.05rem] font-bold leading-7 text-[#6B7280]">{stepDescription}</p>
-        <div className="mt-3 grid grid-cols-4 gap-2" aria-hidden>
-          {[1, 2, 3, 4].map((item) => (
+        <div className="mt-3 grid grid-cols-5 gap-2" aria-hidden>
+          {[1, 2, 3, 4, 5].map((item) => (
             <span key={item} className={`h-3 rounded-full ${item <= step ? "bg-[#F97316]" : "bg-[#FED7AA]"}`} />
           ))}
         </div>
@@ -811,15 +960,20 @@ function ParentTodayRecordCard({ onSaved }: { onSaved: (record: TodayRecord) => 
       .map((activity) => seniorActivityOptions.find((option) => option.value === activity)?.label)
       .filter(Boolean)
       .join(", ");
+    const completedAt = new Date().toISOString();
     const record: TodayRecord = {
       id: `record-${Date.now()}`,
+      date: completedAt.slice(0, 10),
       moment: moodLabel,
       activity: activityLabels,
       message: note.trim(),
       activityTags: selectedActivities,
       moodTag: selectedMood,
+      connectionTags: getConnectionTags(selectedActivities, false),
       note: note.trim(),
-      createdAt: new Date().toISOString(),
+      completedAt,
+      viewedSupportMessage: false,
+      createdAt: completedAt,
     };
     const items = [record, ...readRecords()];
     window.localStorage.setItem(recordsKey, JSON.stringify(items));
@@ -1400,12 +1554,19 @@ function TodayRecordCard({ onSaved }: { onSaved: (record: TodayRecord) => void }
   const [saved, setSaved] = useState(false);
 
   function submitRecord() {
+    const completedAt = new Date().toISOString();
     const record: TodayRecord = {
       id: `record-${Date.now()}`,
+      date: completedAt.slice(0, 10),
       moment: selectedMoment,
       activity: selectedActivity,
       message: selectedMessage,
-      createdAt: new Date().toISOString(),
+      activityTags: [],
+      moodTag: null,
+      connectionTags: [],
+      completedAt,
+      viewedSupportMessage: false,
+      createdAt: completedAt,
     };
     const items = [record, ...readRecords()];
     window.localStorage.setItem(recordsKey, JSON.stringify(items));
@@ -1467,7 +1628,9 @@ function WeeklySummaryContent({ audience = "parent" }: { audience?: "parent" | "
   return (
     <>
       <p className="mt-3 text-lg font-black leading-8 text-[#1F2937]">
-        이번 주는 평범하고 편안한 하루가 많았어요.
+        {audience === "parent"
+          ? "평범하고 편안한 하루가 많았어요. 산책한 날도 잘 남겨졌어요."
+          : "부모님은 이번 주에 편안한 하루가 많았습니다."}
       </p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         {patternRows.map(([emoji, label]) => (
@@ -1483,8 +1646,8 @@ function WeeklySummaryContent({ audience = "parent" }: { audience?: "parent" | "
         </p>
         <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
           {audience === "parent"
-            ? "이번 주도 하루하루가 잘 남겨지고 있어요."
-            : "AI가 이번 주 기록 흐름을 살펴봤어요. 특별히 걱정할 변화는 보이지 않습니다."}
+            ? "딸의 응원도 함께 쌓였어요. 이번 주도 하루하루가 잘 남겨지고 있어요."
+            : "가족 연락 기록이 꾸준히 유지되었습니다. 특별한 변화는 감지되지 않았습니다."}
         </p>
       </div>
     </>
