@@ -22,6 +22,16 @@
   box-sizing: border-box;
 }
 
+::selection {
+  background: rgba(255, 122, 24, 0.22);
+  color: #111827;
+}
+
+::-moz-selection {
+  background: rgba(255, 122, 24, 0.22);
+  color: #111827;
+}
+
 html {
   min-height: 100%;
   background: var(--background);
