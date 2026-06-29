@@ -26,8 +26,8 @@ const flowSteps = [
   },
   {
     step: "3",
-    title: "작물 선택",
-    description: "부모님이 키우고 싶은 제철 작물을 고릅니다.",
+    title: "AI 환영과 작물 선택",
+    description: "따뜻한 환영 인사 뒤 키우고 싶은 작물을 고릅니다.",
     icon: Sprout,
   },
   {

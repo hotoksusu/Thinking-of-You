@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { ArrowLeft, Bell, Check, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, PackageOpen, Settings, ShieldCheck, Sprout } from "lucide-react";
 import { InstallGuide } from "@/components/install-guide";
 import {
@@ -905,6 +906,8 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
   const [farmExpanded, setFarmExpanded] = useState(false);
   const [harvestMessage, setHarvestMessage] = useState("");
   const [seedPlantedCrop, setSeedPlantedCrop] = useState<CropType | null>(null);
+  const [onboardingStage, setOnboardingStage] = useState<"welcome" | "story" | "crop">("welcome");
+  const [recordStarted, setRecordStarted] = useState(false);
   const dailyQuestion = useMemo(() => getTodayQuestion(), []);
 
   useEffect(() => {
@@ -998,16 +1001,39 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
   }
 
   if (!completed && seedPlantedCrop) {
-    return <SeedPlantedWelcome crop={seedPlantedCrop} onStart={() => setSeedPlantedCrop(null)} />;
+    return <SeedPlantedWelcome crop={seedPlantedCrop} onStart={() => {
+      setSeedPlantedCrop(null);
+      setRecordStarted(true);
+    }} />;
   }
 
-  if (!completed && !farm?.currentCropId) {
+  if (!completed && !farm) {
+    if (onboardingStage === "welcome") {
+      return <FarmAiWelcome onNext={() => setOnboardingStage("story")} />;
+    }
+    if (onboardingStage === "story") {
+      return <FarmStoryIntro onNext={() => setOnboardingStage("crop")} />;
+    }
     return (
       <FarmOnboarding
         onSelectCrop={(crop) => {
           selectCrop(crop);
           setSeedPlantedCrop(crop);
         }}
+      />
+    );
+  }
+
+  if (!completed && farm && !farm.currentCropId) {
+    return <FarmOnboarding onSelectCrop={selectCrop} />;
+  }
+
+  if (!completed && farm?.currentCropId && !recordStarted) {
+    return (
+      <ParentDailyHome
+        farm={farm}
+        latestRecord={records[0]}
+        onStartRecord={() => setRecordStarted(true)}
       />
     );
   }
@@ -1124,6 +1150,7 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
                 setSavedRecord(null);
                 setFarmExpanded(false);
                 setHarvestMessage("");
+                setRecordStarted(false);
               }}
               className="min-h-16 w-full rounded-2xl border border-[#E5E7EB] bg-white px-5 text-[1.375rem] font-black text-[#4B5563]"
             >
@@ -1340,10 +1367,79 @@ function StepCard({ title, description, children, footer }: { title: ReactNode; 
   );
 }
 
+function FarmAiWelcome({ onNext }: { onNext: () => void }) {
+  return (
+    <section className="grid min-h-[68vh] content-center rounded-[30px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+      <div className="mx-auto flex size-24 items-center justify-center rounded-[28px] bg-[#EFF6FF] text-5xl" aria-hidden>👋</div>
+      <p className="mt-7 text-sm font-black text-[#2563EB]">오늘안부 AI의 환영 인사</p>
+      <h2 className="mt-3 text-[2.125rem] font-black leading-tight text-[#1F2937]">반가워요.<br />오늘부터 하루를<br />함께 기억할게요.</h2>
+      <p className="mt-5 text-lg font-semibold leading-8 text-[#4B5563]">복잡하게 쓰지 않아도 괜찮아요.<br />큰 버튼을 따라 천천히 시작해요.</p>
+      <button type="button" onClick={onNext} className="mt-9 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">다음</button>
+    </section>
+  );
+}
+
+function FarmStoryIntro({ onNext }: { onNext: () => void }) {
+  return (
+    <section className="grid min-h-[68vh] content-center rounded-[30px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+      <div className="mx-auto flex size-28 items-center justify-center rounded-[32px] bg-[#F0FDF4] text-6xl" aria-hidden>🌱</div>
+      <p className="mt-7 text-sm font-black text-[#15803D]">나의 안심농장</p>
+      <h2 className="mt-3 text-[2.125rem] font-black leading-tight text-[#1F2937]">하루를 기록하면<br />작은 씨앗도 자랍니다.</h2>
+      <p className="mt-5 text-lg font-semibold leading-8 text-[#4B5563]">오늘안부에서는 하루를 기록할 때마다<br />선택한 작물이 조금씩 자랍니다.<br /><br />작물은 꾸준한 기록과 안심이<br />차곡차곡 쌓인다는 의미를 담고 있습니다.</p>
+      <button type="button" onClick={onNext} className="mt-9 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">작물 선택하기</button>
+    </section>
+  );
+}
+
+function ParentDailyHome({ farm, latestRecord, onStartRecord }: { farm: UserFarm; latestRecord?: TodayRecord; onStartRecord: () => void }) {
+  const crop = getCropById(farm.currentCropId);
+  const stage = getCropStage(farm.growthPercent);
+  const remainingDays = crop ? Math.max(crop.requiredDays - farm.recordedDays, 0) : 0;
+  const today = new Date().toISOString().slice(0, 10);
+  const recordedToday = latestRecord?.date === today;
+
+  return (
+    <div className="grid gap-5">
+      <section className="rounded-[30px] bg-white p-7 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+        <p className="text-sm font-black text-[#F97316]">오늘의 안부</p>
+        <h2 className="mt-3 text-[2.125rem] font-black leading-tight text-[#1F2937]">오늘 하루도<br />가볍게 남겨볼까요?</h2>
+        <p className="mt-4 text-lg font-semibold leading-8 text-[#6B7280]">20초면 충분해요.<br />기억나는 것만 골라주세요.</p>
+        <button type="button" onClick={onStartRecord} className="mt-7 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+          {recordedToday ? "오늘 하루 한 번 더 돌아보기" : "오늘 안부 남기기"}
+        </button>
+      </section>
+
+      <Link href="/app/farm" className="block rounded-[28px] border border-[#BBF7D0] bg-[#F0FDF4] p-6 shadow-[0_18px_48px_rgba(21,128,61,0.08)] transition active:scale-[0.99]">
+        <div className="flex items-center gap-4">
+          <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-white text-5xl" aria-hidden>{crop?.imageStages[stage] ?? "🌱"}</div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-black text-[#15803D]">나의 안심농장</p>
+            <h3 className="mt-1 text-xl font-black text-[#1F2937]">{crop?.emoji} {crop?.name}</h3>
+            <p className="mt-1 font-bold text-[#4B5563]">수확까지 {remainingDays}일</p>
+          </div>
+        </div>
+        <div className="mt-5 h-4 overflow-hidden rounded-full bg-white" role="progressbar" aria-label="작물 성장률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(farm.growthPercent)}>
+          <div className="h-full rounded-full bg-[#22C55E]" style={{ width: `${farm.growthPercent}%` }} />
+        </div>
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="font-bold leading-7 text-[#166534]">오늘 안부 덕분에 잘 자라고 있어요.</p>
+          <span className="shrink-0 font-black text-[#15803D]">농장 보기</span>
+        </div>
+      </Link>
+
+      <section className="rounded-[28px] bg-[#EFF6FF] p-6">
+        <p className="text-sm font-black text-[#2563EB]">AI가 기억한 생활 흐름</p>
+        <h3 className="mt-3 text-xl font-black leading-8 text-[#1F2937]">{latestRecord ? "최근 하루도 편안하게 잘 남겨졌어요." : "첫 기록이 쌓이면 생활 흐름을 따뜻하게 정리해드려요."}</h3>
+        <p className="mt-2 font-semibold leading-7 text-[#4B5563]">부담 없이 남긴 하루가 나를 위한 작은 기록이 됩니다.</p>
+      </section>
+    </div>
+  );
+}
+
 function SeedPlantedWelcome({ crop, onStart }: { crop: CropType; onStart: () => void }) {
   return (
     <section className="grid min-h-[68vh] content-center rounded-[30px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
-      <div className="mx-auto flex size-28 items-center justify-center rounded-[32px] bg-[#F0FDF4] text-6xl shadow-[0_16px_36px_rgba(21,128,61,0.12)]" aria-hidden>
+      <div className="farm-seed-pop mx-auto flex size-28 items-center justify-center rounded-[32px] bg-[#F0FDF4] text-6xl shadow-[0_16px_36px_rgba(21,128,61,0.12)]" aria-hidden>
         🌱
       </div>
       <p className="mt-7 text-sm font-black text-[#15803D]">첫 씨앗을 심었어요</p>

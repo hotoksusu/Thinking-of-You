@@ -4,7 +4,7 @@ import { ArrowRight, Brain, Gift, Link as LinkIcon, MessageCircle, PackageOpen, 
 const guideSteps = [
   { number: "1", title: "자녀가 오늘안부를 시작합니다", description: "부모님 이름과 편한 연락 방식을 정하고 전용 링크를 준비합니다.", icon: UserRoundPlus, audience: "자녀" },
   { number: "2", title: "부모님과 연결합니다", description: "설치 설명 없이 카카오톡이나 문자로 부모님께 링크를 보냅니다.", icon: LinkIcon, audience: "자녀" },
-  { number: "3", title: "부모님이 첫 씨앗을 심습니다", description: "키우고 싶은 제철 작물을 고릅니다. 이 순간이 부모님의 첫 경험입니다.", icon: Sprout, audience: "부모님" },
+  { number: "3", title: "AI의 환영을 받고 첫 씨앗을 심습니다", description: "농장의 의미를 천천히 읽고 키우고 싶은 작물을 고릅니다. 이 순간이 부모님의 첫 경험입니다.", icon: Sprout, audience: "부모님" },
   { number: "4", title: "20초 동안 오늘을 남깁니다", description: "큰 버튼으로 있었던 일과 느낌을 고릅니다. 추가 질문은 건너뛰어도 됩니다.", icon: MessageCircle, audience: "부모님" },
   { number: "5", title: "AI가 하루를 따뜻하게 정리합니다", description: "오늘의 한 줄과 생활 흐름을 보여주고 가족에게 안심 신호를 전합니다.", icon: Brain, audience: "함께" },
   { number: "6", title: "안부만큼 작물이 자랍니다", description: "하루 한 번 자동으로 자랍니다. 부모님께 매일 다시 돌아올 작은 이유가 생깁니다.", icon: Sprout, audience: "부모님" },
@@ -80,7 +80,7 @@ export default function GuidePage() {
       <section className="mx-auto w-full max-w-[820px] px-5 py-16 text-center sm:px-8">
         <Sprout size={38} className="mx-auto text-[#15803D]" aria-hidden />
         <h2 className="mt-5 text-3xl font-black leading-tight sm:text-4xl">첫 씨앗부터 직접 경험해보세요.</h2>
-        <p className="mt-4 font-semibold leading-8 text-[#6B7280]">부모님 화면에서 작물을 고르면 오늘의 기록이 시작됩니다.</p>
+        <p className="mt-4 font-semibold leading-8 text-[#6B7280]">AI의 환영을 받고 첫 씨앗을 심으면 오늘의 기록이 시작됩니다.</p>
         <Link href="/app?role=parent" className="mt-8 inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#F97316] px-7 font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
           첫 씨앗 심어보기
           <ArrowRight size={18} aria-hidden />

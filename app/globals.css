@@ -144,3 +144,67 @@ a {
     transform: translateY(0);
   }
 }
+
+.farm-sky {
+  background-color: #eaf7f4;
+}
+
+.farm-ground {
+  background-color: #b8d88f;
+  border-top: 5px solid #91bf69;
+}
+
+.farm-crop {
+  position: relative;
+  z-index: 1;
+  transition: transform 180ms ease;
+}
+
+.farm-crop-react {
+  animation: farm-crop-hello 680ms ease-in-out;
+}
+
+.farm-seed-pop {
+  animation: farm-seed-pop 820ms ease-out both;
+}
+
+.farm-harvest-overlay {
+  animation: farm-overlay-in 180ms ease-out both;
+}
+
+.farm-harvest-crop {
+  animation: farm-harvest-to-basket 1.8s ease-in-out both;
+}
+
+@keyframes farm-crop-hello {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  28% { transform: rotate(-4deg) translateY(-7px); }
+  58% { transform: rotate(4deg) translateY(-3px); }
+}
+
+@keyframes farm-seed-pop {
+  0% { opacity: 0; transform: translateY(16px) scale(0.82); }
+  64% { opacity: 1; transform: translateY(-5px) scale(1.06); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes farm-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes farm-harvest-to-basket {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  35% { transform: translateY(-18px) rotate(-5deg) scale(1.08); }
+  65% { transform: translateY(-10px) rotate(5deg) scale(1.02); }
+  100% { transform: translateY(88px) rotate(0deg) scale(0.55); opacity: 0.15; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .farm-crop-react,
+  .farm-seed-pop,
+  .farm-harvest-overlay,
+  .farm-harvest-crop {
+    animation-duration: 1ms;
+  }
+}
