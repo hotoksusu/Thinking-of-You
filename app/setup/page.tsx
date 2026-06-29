@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useMemo } from "react";
-import { Check, MessageCircle, Phone, HeartHandshake, Smartphone, UserRoundCheck } from "lucide-react";
+import { Check, MessageCircle, Phone, HeartHandshake, Smartphone, Sprout, UserRoundCheck } from "lucide-react";
 import { Button, Card, FieldLabel, inputClassName } from "@/components/ui";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import {
@@ -87,6 +87,18 @@ function SetupContent() {
           몇 가지만 정하면 안심 점수와 변화 감지 화면이 준비됩니다.
         </p>
       </header>
+
+      {isFamily ? (
+        <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#BBF7D0] bg-[#F0FDF4] p-4">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#15803D]">
+            <Sprout size={23} aria-hidden />
+          </span>
+          <div>
+            <p className="text-sm font-black text-[#15803D]">부모님이 꾸준히 돌아오는 안심농장</p>
+            <p className="mt-1 text-sm font-semibold leading-6 text-stone-600">연결이 끝나면 부모님은 첫 씨앗을 고릅니다. 매일 짧은 안부가 작물을 키우고 가족의 안심 흐름도 더 또렷하게 만듭니다.</p>
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-5 grid grid-cols-2 gap-2">
         <button
@@ -284,7 +296,7 @@ function SetupContent() {
         </Card>
 
         <Button type="submit" className="w-full">
-          오늘의 안심 홈으로 가기
+          {isFamily ? "부모님 연결하고 안심농장 준비하기" : "오늘의 안심 홈으로 가기"}
         </Button>
       </form>
     </main>

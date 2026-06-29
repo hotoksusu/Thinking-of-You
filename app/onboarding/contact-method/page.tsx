@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, ChevronRight, MessageCircle, Phone, Smartphone } from "lucide-react";
+import { Check, ChevronRight, MessageCircle, Phone, Smartphone, Sprout } from "lucide-react";
 import { Button, Card } from "@/components/ui";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { methodLabel } from "@/lib/care-contact";
@@ -69,10 +69,20 @@ export default function ContactMethodPage() {
           </h1>
         </div>
         <p className="soft-copy text-sm text-brand-subtext">
-          현재는 mock 상태만 저장합니다. 이후 알림톡, Kakao Message API,
-          Naver Cloud SENS, Twilio, ARS로 연결할 수 있어요.
+          부모님이 가장 편하게 열어볼 수 있는 방식을 골라주세요.
+          연결 후에는 첫 씨앗을 심고 안부 기록을 시작합니다.
         </p>
       </header>
+
+      <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#BBF7D0] bg-[#F0FDF4] p-4">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#15803D]">
+          <Sprout size={23} aria-hidden />
+        </span>
+        <div>
+          <p className="text-sm font-extrabold text-[#15803D]">링크를 받은 부모님은 첫 작물을 고릅니다.</p>
+          <p className="soft-copy mt-1 text-sm text-brand-subtext">매일 20초 안부가 작물을 키우기 때문에 부모님께도 다시 돌아올 이유가 생깁니다.</p>
+        </div>
+      </div>
 
       <section className="mt-6 grid gap-3">
         {methods.map((method) => {
@@ -130,7 +140,7 @@ export default function ContactMethodPage() {
 
       <div className="mt-5 grid gap-3">
         <Button className="w-full bg-brand-primary hover:bg-brand-hover" onClick={submit}>
-          오늘 안심 상태 확인으로 이동
+          부모님 연결하고 첫 씨앗 준비하기
           <ChevronRight size={18} aria-hidden />
         </Button>
         <Link

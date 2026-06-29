@@ -94,7 +94,7 @@ const faqs = [
   },
   {
     question: "부모님이 매일 기록하는 것을 귀찮아하지 않을까요?",
-    answer: "오늘안부는 긴 기록을 요구하지 않습니다. 하루에 몇 번의 선택만으로 충분하고, 매일 다른 질문과 가족의 응원으로 부담 없이 이어갈 수 있도록 설계했습니다.",
+    answer: "오늘안부는 긴 기록을 요구하지 않습니다. 몇 번의 선택이면 충분하고, 첫 씨앗을 심은 뒤 매일 작물이 자라는 안심농장이 부모님이 스스로 다시 돌아올 작은 이유가 됩니다.",
   },
   {
     question: "이 기록은 어떤 의미가 있나요?",
@@ -116,21 +116,24 @@ export default function LandingPage() {
           <a href="/app" className="transition hover:text-[#2563EB]">
             앱 체험
           </a>
+          <a href="/guide" className="transition hover:text-[#2563EB]">
+            이용 가이드
+          </a>
         </nav>
       </header>
 
       <section className="mx-auto grid w-full max-w-[1120px] gap-10 px-5 pb-16 pt-10 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:pb-24 lg:pt-16">
         <div>
-          <p className="text-sm font-black text-[#2563EB]">가족의 관심으로 다시 찾아오는 AI 안심 서비스</p>
+          <p className="text-sm font-black text-[#2563EB]">AI 안심 리포트와 매일 자라는 안심농장</p>
           <h1 className="mt-5 max-w-[680px] text-[3.05rem] font-black leading-[1.12] tracking-[-0.01em] sm:text-[4.25rem]">
             관심이 쌓이면,
             <br />
             <span className="text-[#2563EB]">안심</span>이 됩니다.
           </h1>
           <p className="mt-7 max-w-[620px] text-xl font-black leading-9 text-[#1F2937]">
-            부모님은 가족의 응원을 읽고
+            부모님은 하루를 남기며 작물을 키우고
             <br />
-            오늘의 기록을 가볍게 남기고
+            AI는 그 하루를 따뜻하게 기억하고
             <br />
             가족은 안심 리포트를 확인합니다.
           </p>
@@ -156,6 +159,41 @@ export default function LandingPage() {
         </div>
 
         <ReportPreview />
+      </section>
+
+      <section className="border-y border-[#BBF7D0] bg-[#F0FDF4]">
+        <div className="mx-auto grid w-full max-w-[1120px] gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div>
+            <p className="text-sm font-black text-[#15803D]">부모님이 꾸준히 사용하는 이유</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
+              안부를 남기는 일이
+              <br />
+              기다려지는 하루가 됩니다.
+            </h2>
+            <p className="mt-5 max-w-[620px] text-lg font-semibold leading-8 text-[#4B5563]">
+              부모님께 기록을 요구하는 대신,
+              <br />
+              첫 씨앗을 심고 매일 작물이 자라는 작은 즐거움을 드립니다.
+              <br />
+              꾸준한 기록은 부모님께는 수확의 기쁨이 되고,
+              <br />
+              가족에게는 더 정확한 안심 흐름이 됩니다.
+            </p>
+          </div>
+          <div className="rounded-[28px] bg-white p-6 shadow-[0_20px_50px_rgba(21,128,61,0.10)] sm:p-8">
+            <div className="flex items-center gap-5">
+              <div className="flex size-24 shrink-0 items-center justify-center rounded-[24px] bg-[#DCFCE7] text-6xl" aria-hidden>🌱</div>
+              <div>
+                <p className="text-sm font-black text-[#15803D]">나의 안심농장</p>
+                <p className="mt-2 text-2xl font-black leading-8">오늘의 기록이<br />작물을 키워요.</p>
+              </div>
+            </div>
+            <div className="mt-6 h-4 overflow-hidden rounded-full bg-[#DCFCE7]" aria-hidden>
+              <div className="h-full w-[42%] rounded-full bg-[#22C55E]" />
+            </div>
+            <p className="mt-4 font-black leading-7 text-[#166534]">오늘 안부 덕분에 작물이 햇빛을 받았어요.</p>
+          </div>
+        </div>
       </section>
 
       <section className="border-y border-[#E5E7EB] bg-[#FFF7ED]">

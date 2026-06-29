@@ -270,6 +270,12 @@ function withObjectParticle(word: string) {
   return `${word}${hasFinalConsonant ? "을" : "를"}`;
 }
 
+function withSubjectParticle(word: string) {
+  const lastCode = word.charCodeAt(word.length - 1);
+  const hasFinalConsonant = lastCode >= 0xac00 && lastCode <= 0xd7a3 && (lastCode - 0xac00) % 28 !== 0;
+  return `${word}${hasFinalConsonant ? "이" : "가"}`;
+}
+
 function getCropGrowthMessage(crop: CropType, farm: UserFarm) {
   if (farm.harvestable) return `${withObjectParticle(crop.name)} 수확할 수 있어요.`;
   return {
@@ -898,6 +904,7 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
   const [harvestStorage, setHarvestStorage] = useState<HarvestStorageItem[]>([]);
   const [farmExpanded, setFarmExpanded] = useState(false);
   const [harvestMessage, setHarvestMessage] = useState("");
+  const [seedPlantedCrop, setSeedPlantedCrop] = useState<CropType | null>(null);
   const dailyQuestion = useMemo(() => getTodayQuestion(), []);
 
   useEffect(() => {
@@ -990,8 +997,19 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
     return <div className="min-h-[60vh] rounded-[30px] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)]" aria-label="안심농장을 불러오고 있어요" />;
   }
 
+  if (!completed && seedPlantedCrop) {
+    return <SeedPlantedWelcome crop={seedPlantedCrop} onStart={() => setSeedPlantedCrop(null)} />;
+  }
+
   if (!completed && !farm?.currentCropId) {
-    return <FarmOnboarding onSelectCrop={selectCrop} />;
+    return (
+      <FarmOnboarding
+        onSelectCrop={(crop) => {
+          selectCrop(crop);
+          setSeedPlantedCrop(crop);
+        }}
+      />
+    );
   }
 
   if (completed) {
@@ -1322,6 +1340,26 @@ function StepCard({ title, description, children, footer }: { title: ReactNode; 
   );
 }
 
+function SeedPlantedWelcome({ crop, onStart }: { crop: CropType; onStart: () => void }) {
+  return (
+    <section className="grid min-h-[68vh] content-center rounded-[30px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+      <div className="mx-auto flex size-28 items-center justify-center rounded-[32px] bg-[#F0FDF4] text-6xl shadow-[0_16px_36px_rgba(21,128,61,0.12)]" aria-hidden>
+        🌱
+      </div>
+      <p className="mt-7 text-sm font-black text-[#15803D]">첫 씨앗을 심었어요</p>
+      <h2 className="mt-3 text-[2.125rem] font-black leading-tight text-[#1F2937]">
+        {crop.emoji} {withSubjectParticle(crop.name)}<br />오늘부터 자라요
+      </h2>
+      <p className="mt-5 text-lg font-semibold leading-8 text-[#4B5563]">
+        하루를 남길 때마다<br />작물도 하루 한 번 자랍니다.
+      </p>
+      <button type="button" onClick={onStart} className="mt-9 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
+        오늘 안부 남기기
+      </button>
+    </section>
+  );
+}
+
 function FarmOnboarding({ onSelectCrop }: { onSelectCrop: (crop: CropType) => void }) {
   return (
     <section className="rounded-[30px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
@@ -1330,8 +1368,8 @@ function FarmOnboarding({ onSelectCrop }: { onSelectCrop: (crop: CropType) => vo
           <Sprout size={34} aria-hidden />
         </div>
         <div>
-          <p className="text-sm font-black text-[#15803D]">안심농장 시작하기</p>
-          <p className="mt-2 text-lg font-black leading-7 text-[#1F2937]">작물을 고른 뒤 오늘의 안부를 남겨주세요.</p>
+          <p className="text-sm font-black text-[#15803D]">첫 씨앗 심기</p>
+          <p className="mt-2 text-lg font-black leading-7 text-[#1F2937]">오늘안부의 첫 순간을 시작해볼까요?</p>
         </div>
       </div>
       <CropSelection onSelect={onSelectCrop} />
@@ -1373,7 +1411,7 @@ function FarmRewardCard({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-black text-[#15803D]">나의 안심농장</p>
           <h3 className="mt-2 text-xl font-black leading-8 text-[#1F2937]">
-            {crop ? `${crop.emoji} ${crop.name}이 자라고 있어요.` : "오늘의 안부로 작물을 키워보세요."}
+            {crop ? `${crop.emoji} ${withSubjectParticle(crop.name)} 자라고 있어요.` : "오늘의 안부로 작물을 키워보세요."}
           </h3>
           <p className="mt-1 font-semibold leading-7 text-[#4B5563]">
             {crop && farm

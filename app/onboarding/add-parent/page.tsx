@@ -2,7 +2,7 @@
 
 import { FormEvent, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, ChevronRight, HeartHandshake, Phone } from "lucide-react";
+import { Check, ChevronRight, HeartHandshake, Phone, Sprout } from "lucide-react";
 import { Button, Card, FieldLabel, inputClassName } from "@/components/ui";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { storageKeys } from "@/lib/storage-keys";
@@ -81,6 +81,16 @@ function AddParentContent() {
           카카오톡, 문자/SMS, 전화 확인 중 편한 방식을 고를 수 있어요.
         </p>
       </header>
+
+      <div className="mt-5 flex items-start gap-3 rounded-2xl border border-[#BBF7D0] bg-[#F0FDF4] p-4">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-[#15803D]">
+          <Sprout size={23} aria-hidden />
+        </span>
+        <div>
+          <p className="text-sm font-extrabold text-[#15803D]">연결 뒤에는 부모님의 첫 씨앗 심기가 시작돼요.</p>
+          <p className="soft-copy mt-1 text-sm text-brand-subtext">안심농장은 부모님이 스스로 매일 돌아와 짧은 안부를 남길 수 있도록 돕는 따뜻한 습관입니다.</p>
+        </div>
+      </div>
 
       <form onSubmit={submit} className="mt-6 space-y-4">
         <Card className="space-y-4 rounded-2xl">
@@ -224,7 +234,7 @@ function AddParentContent() {
         </Card>
 
         <Button type="submit" className="w-full bg-brand-primary hover:bg-brand-hover">
-          연락 방식 선택하기
+          부모님 연결 계속하기
           <ChevronRight size={18} aria-hidden />
         </Button>
       </form>
