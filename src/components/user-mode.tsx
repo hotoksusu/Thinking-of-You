@@ -894,6 +894,7 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
   const [missionCompleted, setMissionCompleted] = useState(false);
   const [savedRecord, setSavedRecord] = useState<TodayRecord | null>(null);
   const [farm, setFarm] = useState<UserFarm | null>(null);
+  const [farmLoaded, setFarmLoaded] = useState(false);
   const [harvestStorage, setHarvestStorage] = useState<HarvestStorageItem[]>([]);
   const [farmExpanded, setFarmExpanded] = useState(false);
   const [harvestMessage, setHarvestMessage] = useState("");
@@ -902,6 +903,7 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
   useEffect(() => {
     setFarm(readUserFarm());
     setHarvestStorage(readHarvestStorage());
+    setFarmLoaded(true);
   }, []);
 
   function toggleActivity(activity: SeniorActivity) {
@@ -982,6 +984,14 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
     saveUserFarm(nextFarm);
     setFarmExpanded(true);
     setHarvestMessage(`${crop.emoji} ${crop.name} 1개를 수확했어요.`);
+  }
+
+  if (!farmLoaded) {
+    return <div className="min-h-[60vh] rounded-[30px] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)]" aria-label="안심농장을 불러오고 있어요" />;
+  }
+
+  if (!completed && !farm?.currentCropId) {
+    return <FarmOnboarding onSelectCrop={selectCrop} />;
   }
 
   if (completed) {
@@ -1308,6 +1318,24 @@ function StepCard({ title, description, children, footer }: { title: ReactNode; 
       </div>
       <div className="mt-7">{children}</div>
       <div className="mt-8 self-end">{footer}</div>
+    </section>
+  );
+}
+
+function FarmOnboarding({ onSelectCrop }: { onSelectCrop: (crop: CropType) => void }) {
+  return (
+    <section className="rounded-[30px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+      <div className="mb-7 flex items-center gap-4 rounded-[24px] bg-[#F0FDF4] p-5">
+        <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-white text-[#15803D] shadow-[0_8px_22px_rgba(21,128,61,0.10)]">
+          <Sprout size={34} aria-hidden />
+        </div>
+        <div>
+          <p className="text-sm font-black text-[#15803D]">안심농장 시작하기</p>
+          <p className="mt-2 text-lg font-black leading-7 text-[#1F2937]">작물을 고른 뒤 오늘의 안부를 남겨주세요.</p>
+        </div>
+      </div>
+      <CropSelection onSelect={onSelectCrop} />
+      <p className="mt-6 text-center font-semibold leading-7 text-[#6B7280]">작물 선택은 처음 한 번만 하면 돼요.</p>
     </section>
   );
 }

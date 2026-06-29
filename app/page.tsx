@@ -1,38 +1,64 @@
 import {
   ArrowRight,
-  BarChart3,
   Brain,
   ChevronDown,
-  HeartHandshake,
+  Gift,
   Link,
   MessageCircle,
+  PackageOpen,
   ShieldCheck,
+  Sprout,
+  UserRoundPlus,
 } from "lucide-react";
 
 const flowSteps = [
   {
     step: "1",
-    title: "가족 응원",
-    description: "가족의 말투를 담은 따뜻한 응원을 보냅니다.",
-    icon: HeartHandshake,
+    title: "자녀 가입",
+    description: "가족이 먼저 오늘안부를 시작합니다.",
+    icon: UserRoundPlus,
   },
   {
     step: "2",
-    title: "부모님께 링크 보내기",
-    description: "설치 설명 없이 오늘의 기록 링크를 보냅니다.",
+    title: "부모님 연결",
+    description: "설치 없이 부모님께 기록 링크를 보냅니다.",
     icon: Link,
   },
   {
     step: "3",
-    title: "오늘의 기록",
-    description: "부모님은 큰 버튼 하나로 하루를 남깁니다.",
-    icon: MessageCircle,
+    title: "작물 선택",
+    description: "부모님이 키우고 싶은 제철 작물을 고릅니다.",
+    icon: Sprout,
   },
   {
     step: "4",
-    title: "안심 리포트",
-    description: "AI가 변화 감지 결과를 가족에게 정리해줍니다.",
-    icon: BarChart3,
+    title: "20초 안부 기록",
+    description: "큰 버튼으로 오늘 하루를 가볍게 남깁니다.",
+    icon: MessageCircle,
+  },
+  {
+    step: "5",
+    title: "AI 안심 분석",
+    description: "AI가 생활 흐름을 따뜻한 문장으로 정리합니다.",
+    icon: Brain,
+  },
+  {
+    step: "6",
+    title: "작물 성장",
+    description: "오늘의 안부만큼 작물이 하루 한 번 자랍니다.",
+    icon: Sprout,
+  },
+  {
+    step: "7",
+    title: "수확",
+    description: "꾸준히 쌓인 안부가 디지털 수확물이 됩니다.",
+    icon: PackageOpen,
+  },
+  {
+    step: "8",
+    title: "시즌 이벤트",
+    description: "수확물은 브랜드 협업 이벤트에 활용할 수 있습니다.",
+    icon: Gift,
   },
 ];
 
@@ -229,13 +255,13 @@ export default function LandingPage() {
 
       <section className="border-y border-[#E5E7EB] bg-[#F9FAFB]">
         <div className="mx-auto w-full max-w-[1120px] px-5 py-16 sm:px-8">
-          <p className="text-sm font-black text-[#2563EB]">재방문 루프</p>
+          <p className="text-sm font-black text-[#2563EB]">오늘안부 이용 흐름</p>
           <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">
-            응원을 읽고,
+            안부를 남기면,
             <br />
-            하루를 남깁니다.
+            안심과 작물이 함께 자랍니다.
           </h2>
-          <div className="mt-9 grid gap-3 md:grid-cols-4">
+          <div className="mt-9 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {flowSteps.map((item) => {
               const Icon = item.icon;
               return (
