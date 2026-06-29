@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, Bell, Check, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, PackageOpen, Settings, ShieldCheck, Sprout } from "lucide-react";
+import Image from "next/image";
+import { ArrowLeft, Bell, Check, ChevronRight, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, PackageOpen, Settings, ShieldCheck, Sprout } from "lucide-react";
+import { BottomTabBar } from "@/components/bottom-tab-bar";
 import { InstallGuide } from "@/components/install-guide";
 import {
   analyzeNoResponsePattern,
@@ -532,106 +534,103 @@ export function UserMode({ initialRegistered, initialRole }: { initialRegistered
 
 function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) => void }) {
   return (
-    <main className="min-h-screen bg-[#F9FAFB] px-5 py-8 text-[#1F2937] sm:px-8">
-      <section className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-[880px] content-center">
-        <div>
-          <p className="text-sm font-black text-[#2563EB]">앱 체험</p>
-          <h1 className="mt-4 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
-            부모님과 가족은
-            <br />
-            이렇게 연결됩니다
+    <main className="min-h-screen bg-[#FFF9F2] px-5 pb-28 pt-5 text-[#17223B] sm:px-8">
+      <section className="mx-auto w-full max-w-[760px]">
+        <Link href="/" className="flex size-11 items-center justify-center rounded-full bg-white shadow-[0_8px_22px_rgba(75,49,31,0.08)]" aria-label="뒤로가기">
+          <ArrowLeft size={22} aria-hidden />
+        </Link>
+        <div className="mt-7">
+          <p className="text-sm font-black text-[#F45D18]">오늘안부 시작하기</p>
+          <h1 className="mt-3 text-[2.45rem] font-black leading-[1.18] sm:text-5xl">
+            누가 먼저
+            <br />시작하시나요? <span aria-hidden>😊</span>
           </h1>
-          <p className="mt-5 max-w-[620px] text-lg font-semibold leading-8 text-[#6B7280]">
-            부모님은 하루를 남기고,
-            <br />
-            가족은 안심 리포트를 봅니다.
-            <br />
-            <br />
-            두 화면으로
-            <br />
-            오늘안부의 흐름을 체험해 보세요.
-          </p>
+          <p className="mt-4 text-lg font-semibold text-[#667085]">원하시는 역할을 선택해 주세요.</p>
         </div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
+        <div className="mt-8 grid gap-4">
           <RoleSelectCard
-            label="부모님 화면"
+            label="기록자"
             title={
               <>
-                오늘의 기록과
-                <br />
-                가족의 응원
+                오늘을
+                <br />기록할게요
               </>
             }
             description={
               <>
-                복잡한 입력 없이
-                <br />
-                오늘의 기록을 남깁니다.
-                <br />
-                <br />
-                가족이 보낸 응원도
-                <br />
-                함께 확인합니다.
+                부모님, 조부모님, 배우자 등<br />내가 직접 오늘을 기록합니다.<br />AI가 변화를 정리해드려요.
               </>
             }
-            button="부모님 화면 보기"
-            accent="warm"
+            accent="peach"
+            imagePosition="left"
             onClick={() => onSelect("parent")}
           />
           <RoleSelectCard
-            label="가족 화면"
+            label="가족"
             title={
               <>
-                안심 리포트와
-                <br />
-                변화 감지
+                가족이
+                <br />안심을 확인할게요
               </>
             }
             description={
               <>
-                부모님의 기록 흐름을
-                <br />
-                안심 점수로 봅니다.
-                <br />
-                <br />
-                변화가 있으면
-                <br />
-                리포트로 알려줍니다.
+                안심 리포트와 변화 알림을 확인하고,<br />소중한 가족을 응원해요.
               </>
             }
-            button="가족 화면 보기"
-            accent="blue"
+            accent="lavender"
+            imagePosition="center"
             onClick={() => onSelect("family")}
           />
+          <RoleSelectCard
+            label="농장"
+            title={<>함께 키우는 농장<br />둘러볼게요</>}
+            description={<>매일 기록하면 작물이 자라고,<br />수확의 즐거움도 기다립니다.</>}
+            accent="green"
+            imagePosition="right"
+            href="/farm"
+          />
         </div>
+        <p className="mt-5 flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-center text-sm font-bold text-[#6C7280]">
+          <ShieldCheck size={17} className="text-[#F45D18]" aria-hidden />
+          기록은 안전하게 보호되며 연결된 가족에게만 공유됩니다.
+        </p>
       </section>
+      <BottomTabBar active="home" />
     </main>
   );
 }
 
-function RoleSelectCard({ label, title, description, button, accent, onClick }: { label: string; title: ReactNode; description: ReactNode; button: string; accent: "warm" | "blue"; onClick: () => void }) {
-  const warm = accent === "warm";
-  return (
-    <article className="rounded-[28px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
-      <span className={`inline-flex rounded-full px-3 py-1 text-sm font-black ${warm ? "bg-[#FFF7ED] text-[#F97316]" : "bg-[#EFF6FF] text-[#2563EB]"}`}>{label}</span>
-      <h2 className="mt-5 text-[1.625rem] font-black leading-[1.28] sm:text-[2rem]">{title}</h2>
-      <p className="mt-4 text-[1.05rem] font-semibold leading-[1.6] text-[#6B7280]">{description}</p>
-      <button
-        type="button"
-        onClick={onClick}
-        className={`mt-8 min-h-14 w-full rounded-2xl px-5 text-lg font-black text-white shadow-[0_16px_34px_rgba(15,23,42,0.12)] ${warm ? "bg-[#F97316]" : "bg-[#2563EB]"}`}
-      >
-        {button}
-      </button>
-    </article>
+function RoleSelectCard({ label, title, description, accent, imagePosition, onClick, href }: { label: string; title: ReactNode; description: ReactNode; accent: "peach" | "lavender" | "green"; imagePosition: "left" | "center" | "right"; onClick?: () => void; href?: string }) {
+  const tones = {
+    peach: { card: "border-[#FFD7C3] bg-[#FFF0E7] text-[#F45D18]", badge: "border-[#FFB893] text-[#F45D18]" },
+    lavender: { card: "border-[#DED9FA] bg-[#F2F0FF] text-[#7062D8]", badge: "border-[#BFB6F2] text-[#7062D8]" },
+    green: { card: "border-[#D9E8CE] bg-[#F1F7EA] text-[#4B7F42]", badge: "border-[#AFCB9D] text-[#4B7F42]" },
+  };
+  const objectPosition = imagePosition === "left" ? "0% center" : imagePosition === "center" ? "50% center" : "100% center";
+  const content = (
+    <>
+      <div className="relative z-10 w-[58%] p-5 sm:p-7">
+        <span className={`inline-flex rounded-full border bg-white/75 px-3 py-1 text-xs font-black ${tones[accent].badge}`}>{label}</span>
+        <h2 className="mt-4 text-[1.55rem] font-black leading-[1.25] sm:text-[2rem]">{title}</h2>
+        <p className="mt-3 text-sm font-semibold leading-6 text-[#626A78] sm:text-base sm:leading-7">{description}</p>
+      </div>
+      <div className="absolute inset-y-0 right-0 w-[46%] overflow-hidden">
+        <Image src="/illustrations/role-characters.png" alt="" fill sizes="(max-width: 760px) 46vw, 330px" className="object-cover" style={{ objectPosition }} />
+      </div>
+      <span className="absolute bottom-4 right-4 z-20 flex size-11 items-center justify-center rounded-full bg-white text-[#F45D18] shadow-[0_8px_20px_rgba(63,43,31,0.12)]"><ChevronRight size={22} aria-hidden /></span>
+    </>
   );
+  const className = `relative block min-h-[238px] w-full overflow-hidden rounded-[28px] border text-left shadow-[0_16px_38px_rgba(80,52,32,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_44px_rgba(80,52,32,0.11)] active:scale-[0.99] ${tones[accent].card}`;
+
+  return href ? <Link href={href} className={className}>{content}</Link> : <button type="button" onClick={onClick} className={className}>{content}</button>;
 }
 
 function ExperienceHeader({ eyebrow, title, onBack }: { eyebrow: string; title: string; onBack: () => void }) {
   return (
     <header className="mb-6 flex items-center justify-between gap-4">
       <div>
-        <p className="text-sm font-black text-[#2563EB]">{eyebrow}</p>
+        <p className="text-sm font-black text-[#F45D18]">{eyebrow}</p>
         <h1 className="mt-1 text-2xl font-black tracking-normal">{title}</h1>
       </div>
       <button type="button" onClick={onBack} className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm font-black text-[#4B5563]">
@@ -646,18 +645,19 @@ function ParentExperience({ records, encouragements, onSaved, onBack, onViewFami
   const encouragement = encouragements[0] ?? defaultEncouragement(defaultProfile);
 
   return (
-    <main className="min-h-screen bg-[#FFF7ED] px-5 py-7 text-[#1F2937] sm:px-8">
+    <main className="min-h-screen bg-[#FFF7ED] px-5 pb-28 pt-7 text-[#1F2937] sm:px-8">
       <div className="mx-auto w-full max-w-[760px]">
         <ExperienceHeader eyebrow="부모님 화면" title="오늘의 기록" onBack={onBack} />
         <ParentSteppedRecordExperience records={records} encouragement={encouragement} onSaved={onSaved} onViewFamily={onViewFamily} />
       </div>
+      <BottomTabBar active="record" />
     </main>
   );
 }
 
 function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profile: ParentProfile; records: TodayRecord[]; onSent: (message: Encouragement) => void; onReset: () => void; onBack: () => void }) {
   return (
-    <main className="min-h-screen bg-[#F9FAFB] px-5 py-7 text-[#1F2937] sm:px-8">
+    <main className="min-h-screen bg-[#F9FAFB] px-5 pb-28 pt-7 text-[#1F2937] sm:px-8">
       <div className="mx-auto w-full max-w-[920px]">
         <ExperienceHeader eyebrow="가족 화면" title="안심 리포트" onBack={onBack} />
         <div className="grid gap-5">
@@ -675,6 +675,7 @@ function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profi
           </SectionCard>
         </div>
       </div>
+      <BottomTabBar active="family" />
     </main>
   );
 }

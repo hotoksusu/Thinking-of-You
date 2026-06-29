@@ -6,9 +6,9 @@
 
 :root {
   color-scheme: light;
-  --color-primary: #2563eb;
-  --color-hover: #1d4ed8;
-  --color-secondary: #2563eb;
+  --color-primary: #f97316;
+  --color-hover: #ea580c;
+  --color-secondary: #f97316;
   --color-accent: #fee500;
   --color-text: #111827;
   --color-subtext: #6b7280;
@@ -41,10 +41,7 @@ html {
 body {
   min-height: 100%;
   margin: 0;
-  background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28rem),
-    radial-gradient(circle at bottom right, rgba(255, 122, 106, 0.10), transparent 26rem),
-    linear-gradient(180deg, #fff8f1 0%, #fffdf9 48%, #fff8f1 100%);
+  background: #fff9f2;
   color: var(--foreground);
   font-family: "Pretendard Variable", Pretendard, SUIT, "Noto Sans KR",
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system,
