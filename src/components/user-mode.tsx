@@ -375,7 +375,7 @@ export function UserMode({ initialRegistered, initialRole }: { initialRegistered
   }
 
   if (experienceRole === "parent") {
-    return <ParentExperience encouragements={encouragements} onSaved={handleSaved} onBack={() => setExperienceRole(null)} onViewFamily={() => setExperienceRole("family")} />;
+    return <ParentExperience records={records} encouragements={encouragements} onSaved={handleSaved} onBack={() => setExperienceRole(null)} onViewFamily={() => setExperienceRole("family")} />;
   }
 
   return <FamilyExperience profile={profile} records={records} onSent={handleSent} onReset={resetService} onBack={() => setExperienceRole(null)} />;
@@ -514,14 +514,14 @@ function ExperienceHeader({ eyebrow, title, onBack }: { eyebrow: string; title: 
   );
 }
 
-function ParentExperience({ encouragements, onSaved, onBack, onViewFamily }: { encouragements: Encouragement[]; onSaved: (record: TodayRecord) => void; onBack: () => void; onViewFamily: () => void }) {
+function ParentExperience({ records, encouragements, onSaved, onBack, onViewFamily }: { records: TodayRecord[]; encouragements: Encouragement[]; onSaved: (record: TodayRecord) => void; onBack: () => void; onViewFamily: () => void }) {
   const encouragement = encouragements[0] ?? defaultEncouragement(defaultProfile);
 
   return (
     <main className="min-h-screen bg-[#FFF7ED] px-5 py-7 text-[#1F2937] sm:px-8">
       <div className="mx-auto w-full max-w-[760px]">
         <ExperienceHeader eyebrow="부모님 화면" title="오늘의 기록" onBack={onBack} />
-        <ParentSteppedRecordExperience encouragement={encouragement} onSaved={onSaved} onViewFamily={onViewFamily} />
+        <ParentSteppedRecordExperience records={records} encouragement={encouragement} onSaved={onSaved} onViewFamily={onViewFamily} />
       </div>
     </main>
   );
@@ -533,7 +533,7 @@ function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profi
       <div className="mx-auto w-full max-w-[920px]">
         <ExperienceHeader eyebrow="가족 화면" title="안심 리포트" onBack={onBack} />
         <div className="grid gap-5">
-          <FamilyScoreCard profile={profile} />
+          <FamilyScoreCard profile={profile} records={records} />
           <FamilyChangeCard records={records} />
           <EncouragementComposer profile={profile} onSent={onSent} />
           <FamilyReportCard records={records} />
@@ -551,15 +551,18 @@ function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profi
   );
 }
 
-function FamilyScoreCard({ profile }: { profile: ParentProfile }) {
+function FamilyScoreCard({ profile, records }: { profile: ParentProfile; records: TodayRecord[] }) {
+  const latest = records[0];
+  const score = latest ? getParentAiFeedback(latest).score : 89;
+
   return (
     <section className="rounded-[30px] bg-[#111827] p-6 text-white shadow-[0_24px_70px_rgba(17,24,39,0.18)]">
-      <p className="text-sm font-black text-[#93C5FD]">{profile.parentName} 안심 점수</p>
+      <p className="text-sm font-black text-[#93C5FD]">오늘 부모님의 안심 신호가 도착했어요.</p>
       <div className="mt-4 flex items-end justify-between gap-4">
-        <h2 className="text-6xl font-black leading-none">89점</h2>
+        <h2 className="text-6xl font-black leading-none">{score}점</h2>
         <span className="rounded-full bg-[#DCFCE7] px-3 py-1 text-sm font-black text-[#15803D]">안심</span>
       </div>
-      <p className="mt-5 text-lg font-black leading-8">최근 기록 참여도와 생활 표현 흐름이 안정적으로 유지되고 있습니다.</p>
+      <p className="mt-5 text-lg font-black leading-8">{profile.parentName}의 오늘은 평소와 비슷한 편안한 생활 흐름으로 보여요.</p>
     </section>
   );
 }
@@ -575,16 +578,18 @@ function FamilyChangeCard({ records }: { records: TodayRecord[] }) {
     : "가족과의 연결 기록이 쌓이면 흐름을 함께 볼 수 있습니다.";
 
   return (
-    <SectionCard title="변화 감지">
+    <SectionCard title="오늘의 안심 신호">
       <div className="grid gap-3">
         <MiniSummary title="오늘 있었던 일" value={latestActivities || "아직 오늘 기록이 없습니다."} />
         <MiniSummary title="오늘의 느낌" value={latestMood || "기록이 쌓이면 느낌 변화를 함께 볼 수 있습니다."} />
         <MiniSummary title="가족과의 연결" value={latestConnections} />
         <MiniSummary title="기록 참여 빈도" value="최근 기록 참여도는 안정적으로 유지되고 있습니다." />
         <div className="rounded-2xl bg-[#EFF6FF] p-4">
-          <p className="text-sm font-black text-[#2563EB]">AI가 최근 변화를 정리했습니다.</p>
+          <p className="text-sm font-black text-[#2563EB]">AI가 생활 흐름을 정리했어요.</p>
           <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
-            최근 2주간 “집에서 쉬었어요” 응답이 늘었습니다. 최근 7일간 “조금 피곤했어요” 응답이 이전보다 증가했는지도 함께 살펴봅니다.
+            {latest?.moodTag === "tired" || latest?.moodTag === "worried"
+              ? "오늘은 조금 천천히 쉬어간 흐름이 보여요. 내일 짧게 안부를 여쭤보면 좋아요."
+              : "오늘은 평소와 비슷한 안정적인 하루로 보여요. 특별히 걱정할 변화는 보이지 않습니다."}
           </p>
         </div>
       </div>
@@ -594,6 +599,7 @@ function FamilyChangeCard({ records }: { records: TodayRecord[] }) {
 
 function FamilyReportCard({ records }: { records: TodayRecord[] }) {
   const latest = records[0];
+  const weeklyLetter = getAiWeeklyLetter(records);
   const latestSummary = latest
     ? [
         latest.activityTags?.length ? `오늘 있었던 일: ${latest.activityTags.map(getSeniorActivityLabel).join(", ")}` : null,
@@ -612,26 +618,161 @@ function FamilyReportCard({ records }: { records: TodayRecord[] }) {
         <p className="font-semibold leading-7 text-[#6B7280]">오늘 있었던 일, 하루의 느낌, 가족과의 연결, 기록 참여 흐름을 함께 살펴봅니다.</p>
         <MiniSummary title="이번 주 흐름" value="편안한 하루가 많았고 가족 연락 기록도 꾸준히 유지되었습니다." />
         <MiniSummary title="권장 안부" value="이번 주에는 짧은 통화로 마음을 나눠보세요." />
+        {weeklyLetter ? <MiniSummary title="AI가 정리한 이번 주" value={weeklyLetter.familySummary} /> : null}
         {latestSummary ? <MiniSummary title="가장 최근 오늘의 기록" value={latestSummary} /> : null}
       </div>
     </SectionCard>
   );
 }
 
-function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }: { encouragement: Encouragement; onSaved: (record: TodayRecord) => void; onViewFamily: () => void }) {
+type ParentAiFeedback = {
+  line: string;
+  score: number;
+  praise: string;
+  suggestion: string;
+};
+
+type AiWeeklyLetter = {
+  title: string;
+  body: string;
+  familySummary: string;
+};
+
+function getUniqueRecordDates(records: TodayRecord[]) {
+  return [...new Set(records.map((record) => record.date || record.createdAt.slice(0, 10)))].sort().reverse();
+}
+
+function getRecordStreak(records: TodayRecord[]) {
+  const dates = getUniqueRecordDates(records);
+  if (dates.length === 0) return 0;
+
+  let streak = 1;
+  for (let index = 1; index < dates.length; index += 1) {
+    const previous = new Date(`${dates[index - 1]}T00:00:00`);
+    const current = new Date(`${dates[index]}T00:00:00`);
+    if ((previous.getTime() - current.getTime()) / 86_400_000 !== 1) break;
+    streak += 1;
+  }
+  return streak;
+}
+
+function getSmallMission(record: TodayRecord) {
+  const activities = record.activityTags ?? [];
+  const connections = record.connectionTags ?? [];
+  if (!activities.includes("meal_good")) return "물 한 잔 천천히 마시기";
+  if (!activities.some((activity) => ["walk", "fresh_air"].includes(activity))) return "창문 열고 바람 느끼기";
+  if (!connections.some((tag) => ["family_contact", "neighbor_meet"].includes(tag))) return "가족에게 짧게 안부 보내기";
+  return "좋아하는 음악 한 곡 듣기";
+}
+
+function getParentAiFeedback(record: TodayRecord): ParentAiFeedback {
+  const activities = record.activityTags ?? [];
+  const suggestion = getSmallMission(record);
+
+  if (record.moodTag === "tired" || record.moodTag === "worried") {
+    return {
+      line: "오늘 하루도 잘 지나왔습니다. 수고 많으셨어요.",
+      score: record.moodTag === "worried" ? 82 : 85,
+      praise: "마음이 어떤지 남겨주신 것만으로도 충분히 잘하셨어요.",
+      suggestion,
+    };
+  }
+
+  if (activities.includes("family_contact")) {
+    return {
+      line: "가족과 나눈 마음이 오늘을 더 따뜻하게 했어요.",
+      score: 93,
+      praise: "오늘도 나를 위한 소중한 기록을 잘 남기셨어요.",
+      suggestion,
+    };
+  }
+
+  if (activities.some((activity) => ["walk", "fresh_air"].includes(activity))) {
+    return {
+      line: "바깥 공기와 함께 기분 좋은 흐름이 남았어요.",
+      score: 92,
+      praise: "가볍게 움직인 오늘의 시간을 잘 기억해둘게요.",
+      suggestion,
+    };
+  }
+
+  if (activities.includes("meal_good")) {
+    return {
+      line: "잘 챙겨 드신 하루가 편안하게 남았어요.",
+      score: 91,
+      praise: "오늘의 식사까지 다정하게 챙기셨어요.",
+      suggestion,
+    };
+  }
+
+  const calmLines = [
+    "오늘도 평범하지만 소중한 하루였어요.",
+    "작은 기록이 모여 좋은 흐름을 만들고 있어요.",
+    "오늘 하루도 따뜻한 기록으로 잘 남았어요.",
+  ];
+  const recordDate = record.date || record.createdAt.slice(0, 10);
+  const lineIndex = Number(recordDate.replaceAll("-", "")) % calmLines.length;
+  return {
+    line: calmLines[lineIndex],
+    score: record.moodTag === "happy" ? 94 : 89,
+    praise: "꾸준히 하루를 들려주셔서 고마워요.",
+    suggestion,
+  };
+}
+
+function getRememberedMessage(records: TodayRecord[]) {
+  const dayCount = getUniqueRecordDates(records).length;
+  if (dayCount < 3) return "기록이 3일 이상 쌓이면 AI가 생활 흐름을 더 잘 기억할 수 있어요.";
+
+  const recent = records.slice(0, 7);
+  const familyDays = recent.filter((record) => record.connectionTags?.includes("family_contact")).length;
+  const walkDays = recent.filter((record) => record.activityTags?.some((activity) => ["walk", "fresh_air"].includes(activity))).length;
+  const mealDays = recent.filter((record) => record.activityTags?.includes("meal_good")).length;
+
+  if (familyDays >= 2) return "최근에는 가족과 이야기한 날이 자주 남아 있어요.";
+  if (walkDays >= 2) return "지난 기록에서도 바깥 공기를 느낀 날이 있었어요.";
+  if (mealDays >= 2) return "최근에는 식사를 잘 챙긴 날이 이어지고 있어요.";
+  return "최근 3일의 하루가 차곡차곡 이어지고 있어요.";
+}
+
+function getWeeklyInsight(records: TodayRecord[]) {
+  const dayCount = getUniqueRecordDates(records).length;
+  if (dayCount < 7) return "7일의 기록이 쌓이면 이번 주 생활 흐름을 따뜻하게 정리해드려요.";
+
+  const recent = records.slice(0, 7);
+  const activeDays = recent.filter((record) => record.activityTags?.some((activity) => ["walk", "shopping", "clinic", "fresh_air", "neighbor_meet"].includes(activity))).length;
+  const connectedDays = recent.filter((record) => record.connectionTags?.some((tag) => ["family_contact", "neighbor_meet"].includes(tag))).length;
+  if (connectedDays >= 3) return "이번 주는 가족이나 이웃과 마음을 나눈 날이 꾸준히 이어졌어요.";
+  if (activeDays >= 3) return "이번 주는 집 밖의 시간을 남긴 날이 여러 번 있었어요.";
+  return "이번 주도 평소와 비슷한 편안한 생활 흐름이 이어졌어요.";
+}
+
+function getAiWeeklyLetter(records: TodayRecord[]): AiWeeklyLetter | null {
+  const dayCount = getUniqueRecordDates(records).length;
+  if (dayCount < 5) return null;
+
+  const recent = records.slice(0, 7);
+  const walked = recent.some((record) => record.activityTags?.some((activity) => ["walk", "fresh_air"].includes(activity)));
+  const connected = recent.some((record) => record.connectionTags?.some((tag) => ["family_contact", "neighbor_meet"].includes(tag)));
+  const moments = [walked ? "바깥 공기를 느낀 날도 있었고" : "편안히 쉬어간 날도 있었고", connected ? "가족이나 이웃과 마음을 나눈 날도 있었어요" : "조용히 나를 돌본 시간도 있었어요"].join(", ");
+
+  return {
+    title: "이번 주 AI 편지",
+    body: `이번 주도 꾸준히 하루를 남겨주셔서 감사합니다. ${moments}. 다음 주도 지금처럼 천천히 하루를 들려주세요.`,
+    familySummary: "이번 주 기록은 전반적으로 평소와 비슷한 안심 흐름을 보여요.",
+  };
+}
+
+function ParentSteppedRecordExperience({ records, encouragement, onSaved, onViewFamily }: { records: TodayRecord[]; encouragement: Encouragement; onSaved: (record: TodayRecord) => void; onViewFamily: () => void }) {
   const [step, setStep] = useState(1);
   const [selectedActivities, setSelectedActivities] = useState<SeniorActivity[]>([]);
   const [selectedMood, setSelectedMood] = useState<SeniorMood | null>(null);
   const [dailyQuestionAnswer, setDailyQuestionAnswer] = useState("");
   const [dailyQuestionNote, setDailyQuestionNote] = useState("");
   const [completed, setCompleted] = useState(false);
+  const [missionCompleted, setMissionCompleted] = useState(false);
+  const [savedRecord, setSavedRecord] = useState<TodayRecord | null>(null);
   const dailyQuestion = useMemo(() => getTodayQuestion(), []);
-
-  const todayLine = selectedActivities.includes("family_contact")
-    ? "가족과의 연락이 하루를 더 따뜻하게 만들었어요."
-    : selectedMood === "comfortable"
-      ? "오늘도 편안한 시간이 잘 남겨졌어요."
-      : "오늘은 여유로운 하루였네요.";
 
   function toggleActivity(activity: SeniorActivity) {
     setSelectedActivities((current) =>
@@ -664,24 +805,96 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
     };
     const items = [record, ...readRecords()];
     window.localStorage.setItem(recordsKey, JSON.stringify(items));
+    setSavedRecord(record);
     setCompleted(true);
     onSaved(record);
   }
 
   if (completed) {
+    const completedRecord = savedRecord ?? records[0];
+    if (!completedRecord) return null;
+    const feedback = getParentAiFeedback(completedRecord);
+    const completedRecords = records.some((record) => record.id === completedRecord.id) ? records : [completedRecord, ...records];
+    const recordedDays = getUniqueRecordDates(completedRecords).length;
+    const streak = getRecordStreak(completedRecords);
+    const weeklyLetter = getAiWeeklyLetter(completedRecords);
+
     return (
       <StepShell step={5}>
-        <section className="grid min-h-[62vh] content-center rounded-[30px] bg-white p-6 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+        <section className="rounded-[30px] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
           <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-[#F0FDF4] text-[#15803D]">
             <Check size={32} aria-hidden />
           </div>
-          <h2 className="mt-6 text-[2rem] font-black leading-tight">오늘도 잘 남겨주셨어요.</h2>
-          <p className="mt-4 text-xl font-bold leading-8 text-[#166534]">가족에게 안심이 전해졌습니다.</p>
-          <div className="mt-6 rounded-[24px] bg-[#FFF7ED] p-5 text-left">
-            <p className="text-sm font-black text-[#F97316]">오늘의 한 줄</p>
-            <p className="mt-2 text-xl font-black leading-8 text-[#1F2937]">{todayLine}</p>
-            <p className="mt-2 font-semibold leading-7 text-[#6B7280]">하루가 따뜻하게 쌓였어요.</p>
+          <div className="text-center">
+            <h2 className="mt-6 text-[2rem] font-black leading-tight">
+              오늘도 기록해주셔서
+              <br />
+              감사합니다
+            </h2>
+            <p className="mt-3 text-lg font-bold leading-8 text-[#6B7280]">AI가 오늘 하루를 따뜻하게 정리했어요.</p>
           </div>
+
+          <div className="mt-7 rounded-[24px] bg-[#FFF7ED] p-5 sm:p-6">
+            <p className="text-sm font-black text-[#F97316]">오늘의 AI 한 줄</p>
+            <p className="mt-3 text-[1.45rem] font-black leading-9 text-[#1F2937]">{feedback.line}</p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl bg-white p-4">
+                <p className="text-sm font-black text-[#6B7280]">오늘의 안심 점수</p>
+                <p className="mt-2 text-3xl font-black text-[#15803D]">{feedback.score}점</p>
+                <p className="mt-1 font-semibold leading-7 text-[#6B7280]">
+                  {completedRecord.moodTag === "tired" || completedRecord.moodTag === "worried"
+                    ? "오늘은 천천히 쉬어간 흐름이에요."
+                    : "평소와 비슷한 편안한 흐름이에요."}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-white p-4">
+                <p className="text-sm font-black text-[#6B7280]">오늘의 작은 칭찬</p>
+                <p className="mt-2 text-lg font-black leading-7 text-[#1F2937]">{feedback.praise}</p>
+              </div>
+            </div>
+            <div className="mt-3 rounded-2xl bg-white p-4">
+              <p className="text-sm font-black text-[#6B7280]">내일을 위한 작은 제안</p>
+              <p className="mt-2 text-lg font-black leading-7 text-[#1F2937]">{feedback.suggestion}</p>
+            </div>
+            <div className="mt-4 border-t border-[#FED7AA] pt-4">
+              <p className="font-black leading-7 text-[#C2410C]">오늘 기록 완료 · 안심포인트 +5</p>
+              <p className="mt-1 font-semibold leading-7 text-[#7C2D12]">
+                {streak >= 3 ? `${streak}일 연속 안부가 이어지고 있어요.` : "오늘도 가족에게 안심을 전했어요."}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-[24px] bg-[#EFF6FF] p-5 sm:p-6">
+            <p className="text-sm font-black text-[#2563EB]">AI가 기억하고 있어요</p>
+            <p className="mt-3 text-xl font-black leading-8 text-[#1F2937]">{getRememberedMessage(completedRecords)}</p>
+            <div className="mt-5 border-t border-[#BFDBFE] pt-5">
+              <p className="text-sm font-black text-[#2563EB]">이번 주 AI 인사이트</p>
+              <p className="mt-2 font-semibold leading-7 text-[#4B5563]">{getWeeklyInsight(completedRecords)}</p>
+            </div>
+            <div className="mt-5 border-t border-[#BFDBFE] pt-5">
+              <p className="text-sm font-black text-[#2563EB]">이번 주 AI 편지</p>
+              {weeklyLetter ? (
+                <p className="mt-2 font-semibold leading-8 text-[#4B5563]">{weeklyLetter.body}</p>
+              ) : (
+                <p className="mt-2 font-semibold leading-7 text-[#4B5563]">이번 주 기록이 조금 더 쌓이면 AI가 따뜻한 편지를 써드려요. 지금 {recordedDays}일의 하루가 남아 있어요.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-[24px] border border-[#E5E7EB] bg-[#F9FAFB] p-5 sm:p-6">
+            <p className="text-sm font-black text-[#6B7280]">오늘의 작은 미션</p>
+            <p className="mt-2 text-xl font-black leading-8 text-[#1F2937]">{feedback.suggestion}</p>
+            <p className="mt-2 font-semibold leading-7 text-[#6B7280]">하고 싶을 때 가볍게 해보세요.</p>
+            <button
+              type="button"
+              onClick={() => setMissionCompleted(true)}
+              disabled={missionCompleted}
+              className={`mt-4 min-h-14 w-full rounded-2xl px-5 text-lg font-black transition ${missionCompleted ? "bg-[#DCFCE7] text-[#15803D]" : "bg-white text-[#2563EB] shadow-[0_8px_24px_rgba(15,23,42,0.08)]"}`}
+            >
+              {missionCompleted ? "좋아요. 오늘도 작은 실천을 해내셨어요." : "해봤어요"}
+            </button>
+          </div>
+
           <div className="mt-8 grid gap-3">
             <button type="button" onClick={onViewFamily} className="min-h-16 w-full rounded-2xl bg-[#2563EB] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]">
               가족 화면 살펴보기
@@ -695,6 +908,8 @@ function ParentSteppedRecordExperience({ encouragement, onSaved, onViewFamily }:
                 setSelectedMood(null);
                 setDailyQuestionAnswer("");
                 setDailyQuestionNote("");
+                setMissionCompleted(false);
+                setSavedRecord(null);
               }}
               className="min-h-16 w-full rounded-2xl border border-[#E5E7EB] bg-white px-5 text-[1.375rem] font-black text-[#4B5563]"
             >
