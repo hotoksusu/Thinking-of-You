@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gift, Home, PencilLine, UsersRound } from "lucide-react";
+import { Home, PencilLine, Sprout, UsersRound } from "lucide-react";
 
 type TabId = "home" | "record" | "family" | "farm";
 
@@ -7,7 +7,7 @@ const tabs = [
   { id: "home" as const, label: "홈", href: "/", icon: Home },
   { id: "record" as const, label: "기록하기", href: "/app?role=parent", icon: PencilLine },
   { id: "family" as const, label: "가족", href: "/guide", icon: UsersRound },
-  { id: "farm" as const, label: "농장 구경", href: "/farm", icon: Gift },
+  { id: "farm" as const, label: "안부농장", href: "/farm", icon: Sprout },
 ];
 
 export function BottomTabBar({ active }: { active: TabId }) {
@@ -36,4 +36,3 @@ export function BottomTabBar({ active }: { active: TabId }) {
     </nav>
   );
 }
-

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Bell, Check, ChevronRight, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, PackageOpen, Settings, ShieldCheck, Sprout } from "lucide-react";
+import { ArrowLeft, Bell, CalendarDays, Check, ChevronRight, Clock3, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, Moon, PackageOpen, Settings, ShieldCheck, Sprout } from "lucide-react";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
 import { InstallGuide } from "@/components/install-guide";
 import {
@@ -16,6 +16,7 @@ import {
   getWeeklyTrend,
   type TrendPoint,
 } from "@/lib/insights";
+import { DEFAULT_REMINDER_TIME, getEveningReminderMessage, type EveningRoutinePreference } from "@/lib/evening-routine";
 
 declare global {
   interface Window {
@@ -35,6 +36,7 @@ const recordsKey = "oneul-anbu-records";
 const encouragementKey = "oneul-anbu-encouragements";
 const farmKey = "oneul-anbu-farm";
 const harvestStorageKey = "oneul-anbu-harvest-storage";
+const eveningRoutineKey = "oneul-anbu-evening-routine";
 
 type Tab = "home" | "record" | "report" | "signals" | "settings";
 type ReportPeriod = "daily" | "weekly" | "monthly";
@@ -46,6 +48,8 @@ type ParentProfile = {
   relation: string;
   method: "kakao" | "sms" | "link";
   familyShare: boolean;
+  reminderTime: string;
+  reminderEnabled: boolean;
 };
 
 type ConnectionTag = "family_contact" | "friend_meet" | "neighbor_meet" | "quiet_alone" | "support_message_viewed";
@@ -135,6 +139,8 @@ const defaultProfile: ParentProfile = {
   relation: "딸",
   method: "kakao",
   familyShare: true,
+  reminderTime: DEFAULT_REMINDER_TIME,
+  reminderEnabled: true,
 };
 
 const methodLabel = {
@@ -277,6 +283,10 @@ function withSubjectParticle(word: string) {
   const lastCode = word.charCodeAt(word.length - 1);
   const hasFinalConsonant = lastCode >= 0xac00 && lastCode <= 0xd7a3 && (lastCode - 0xac00) % 28 !== 0;
   return `${word}${hasFinalConsonant ? "이" : "가"}`;
+}
+
+function getLocalDateKey(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function getCropGrowthMessage(crop: CropType, farm: UserFarm) {
@@ -436,7 +446,7 @@ function getParentUrl() {
 }
 
 function getShareMessage(profile: ParentProfile) {
-  return `${profile.parentName}, 오늘 하루를 가볍게 남겨주세요 ❤️\n가족에게 안심이 전해져요.\n\n${getParentUrl()}`;
+  return `${profile.parentName}, 매일 저녁 8시에 오늘을 가볍게 남겨주세요 ❤️\n20초의 기록이 가족에게 안심으로 전해져요.\n\n${getParentUrl()}`;
 }
 
 export function UserMode({ initialRegistered, initialRole }: { initialRegistered: boolean; initialRole?: ExperienceRole }) {
@@ -450,7 +460,7 @@ export function UserMode({ initialRegistered, initialRole }: { initialRegistered
   useEffect(() => {
     const savedProfile = window.localStorage.getItem(profileKey);
     if (savedProfile) {
-      setProfile(JSON.parse(savedProfile) as ParentProfile);
+      setProfile({ ...defaultProfile, ...(JSON.parse(savedProfile) as Partial<ParentProfile>) });
     }
     setEncouragements(readEncouragements());
     setRecords(readRecords());
@@ -484,6 +494,7 @@ export function UserMode({ initialRegistered, initialRole }: { initialRegistered
     window.localStorage.removeItem(encouragementKey);
     window.localStorage.removeItem(farmKey);
     window.localStorage.removeItem(harvestStorageKey);
+    window.localStorage.removeItem(eveningRoutineKey);
     setProfile(defaultProfile);
     setRegistered(false);
     setActiveTab("home");
@@ -549,7 +560,7 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
         </div>
         <div className="mt-8 grid gap-4">
           <RoleSelectCard
-            label="기록자"
+            label="기록하기"
             title={
               <>
                 오늘을
@@ -558,7 +569,7 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
             }
             description={
               <>
-                부모님, 조부모님, 배우자 등<br />내가 직접 오늘을 기록합니다.<br />AI가 변화를 정리해드려요.
+                매일 도착하는 링크를 눌러<br />20초만 오늘을 남깁니다.<br />AI가 변화를 정리해드려요.
               </>
             }
             accent="peach"
@@ -575,7 +586,7 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
             }
             description={
               <>
-                안심 리포트와 변화 알림을 확인하고,<br />소중한 가족을 응원해요.
+                부모님은 저녁 8시에 하루를 남기고,<br />가족은 안심 리포트로 확인해요.
               </>
             }
             accent="lavender"
@@ -583,9 +594,9 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
             onClick={() => onSelect("family")}
           />
           <RoleSelectCard
-            label="농장"
-            title={<>함께 키우는 농장<br />둘러볼게요</>}
-            description={<>매일 기록하면 작물이 자라고,<br />수확의 즐거움도 기다립니다.</>}
+            label="안부농장"
+            title={<>함께 키우는<br />안부농장</>}
+            description={<>매일 기록하면 작물이 자라고,<br />수확한 농산물이 집 앞까지 도착해요.</>}
             accent="green"
             imagePosition="right"
             href="/farm"
@@ -661,6 +672,7 @@ function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profi
       <div className="mx-auto w-full max-w-[920px]">
         <ExperienceHeader eyebrow="가족 화면" title="안심 리포트" onBack={onBack} />
         <div className="grid gap-5">
+          <FamilyEveningRoutineCard parentName={profile.parentName} />
           <FamilyScoreCard profile={profile} records={records} />
           <FamilyChangeCard records={records} />
           <EncouragementComposer profile={profile} onSent={onSent} />
@@ -677,6 +689,21 @@ function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profi
       </div>
       <BottomTabBar active="family" />
     </main>
+  );
+}
+
+function FamilyEveningRoutineCard({ parentName }: { parentName: string }) {
+  return (
+    <section className="rounded-[28px] border border-[#FFD7C3] bg-[#FFF7F0] p-6 shadow-[0_16px_38px_rgba(80,52,32,0.06)]">
+      <div className="flex items-start gap-4">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#17223B] text-[#FFB184]"><Clock3 size={24} aria-hidden /></span>
+        <div><p className="text-sm font-black text-[#F45D18]">가족의 저녁 8시 루틴</p><h2 className="mt-2 text-xl font-black leading-8">{withSubjectParticle(parentName)} 매일 저녁 8시에 하루를 남겨요.</h2></div>
+      </div>
+      <p className="mt-4 font-semibold leading-7 text-[#5D6678]">부모님은 20초만 기록하고, 가족은 안심 리포트로 오늘의 변화를 확인할 수 있습니다.</p>
+      <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black text-[#4F5868]">
+        <span className="rounded-xl bg-white p-3">20초 기록</span><span className="rounded-xl bg-white p-3">작물 성장</span><span className="rounded-xl bg-white p-3">안심 전달</span>
+      </div>
+    </section>
   );
 }
 
@@ -909,11 +936,13 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
   const [seedPlantedCrop, setSeedPlantedCrop] = useState<CropType | null>(null);
   const [onboardingStage, setOnboardingStage] = useState<"welcome" | "story" | "crop">("welcome");
   const [recordStarted, setRecordStarted] = useState(false);
+  const [routineSetupComplete, setRoutineSetupComplete] = useState(false);
   const dailyQuestion = useMemo(() => getTodayQuestion(), []);
 
   useEffect(() => {
     setFarm(readUserFarm());
     setHarvestStorage(readHarvestStorage());
+    setRoutineSetupComplete(Boolean(window.localStorage.getItem(eveningRoutineKey)));
     setFarmLoaded(true);
   }, []);
 
@@ -931,7 +960,7 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
     const answer = dailyQuestionNote.trim() || dailyQuestionAnswer;
     const record: TodayRecord = {
       id: `record-${Date.now()}`,
-      date: completedAt.slice(0, 10),
+      date: getLocalDateKey(new Date(completedAt)),
       moment: getSeniorMoodLabel(moodTag),
       activity: selectedActivities.map(getSeniorActivityLabel).join(", "),
       message: encouragement.message,
@@ -1004,7 +1033,6 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
   if (!completed && seedPlantedCrop) {
     return <SeedPlantedWelcome crop={seedPlantedCrop} onStart={() => {
       setSeedPlantedCrop(null);
-      setRecordStarted(true);
     }} />;
   }
 
@@ -1029,12 +1057,34 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
     return <FarmOnboarding onSelectCrop={selectCrop} />;
   }
 
+  if (!completed && farm?.currentCropId && !routineSetupComplete) {
+    return (
+      <EveningRoutineSetup
+        onEnable={() => {
+          const preference: EveningRoutinePreference = {
+            reminderTime: DEFAULT_REMINDER_TIME,
+            enabled: true,
+            updatedAt: new Date().toISOString(),
+          };
+          window.localStorage.setItem(eveningRoutineKey, JSON.stringify(preference));
+          setRoutineSetupComplete(true);
+        }}
+      />
+    );
+  }
+
   if (!completed && farm?.currentCropId && !recordStarted) {
     return (
       <ParentDailyHome
         farm={farm}
+        records={records}
         latestRecord={records[0]}
         onStartRecord={() => setRecordStarted(true)}
+        onViewResult={() => {
+          if (!records[0]) return;
+          setSavedRecord(records[0]);
+          setCompleted(true);
+        }}
       />
     );
   }
@@ -1056,12 +1106,13 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
           </div>
           <div className="text-center">
             <h2 className="mt-6 text-[2rem] font-black leading-tight">
-              오늘도 기록해주셔서
-              <br />
-              감사합니다
+              오늘 하루가
+              <br />잘 채워졌어요.
             </h2>
-            <p className="mt-3 text-lg font-bold leading-8 text-[#6B7280]">AI가 오늘 하루를 따뜻하게 정리했어요.</p>
+            <p className="mt-3 text-lg font-bold leading-8 text-[#6B7280]">20초의 기록이 가족에게 오늘의 안심으로 전해졌어요.</p>
           </div>
+
+          <CompletionRetentionJourney record={completedRecord} farm={farm} />
 
           <div className="mt-7 rounded-[24px] bg-[#FFF7ED] p-5 sm:p-6">
             <p className="text-sm font-black text-[#F97316]">오늘의 AI 한 줄</p>
@@ -1086,9 +1137,9 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
               <p className="mt-2 text-lg font-black leading-7 text-[#1F2937]">{feedback.suggestion}</p>
             </div>
             <div className="mt-4 border-t border-[#FED7AA] pt-4">
-              <p className="font-black leading-7 text-[#C2410C]">오늘 기록 완료 · 안심포인트 +5</p>
+              <p className="font-black leading-7 text-[#C2410C]">오늘의 도장이 인생달력에 찍혔어요.</p>
               <p className="mt-1 font-semibold leading-7 text-[#7C2D12]">
-                {streak >= 3 ? `${streak}일 연속 안부가 이어지고 있어요.` : "오늘도 가족에게 안심을 전했어요."}
+                {streak >= 3 ? `${streak}일째 하루를 잘 남기고 있어요.` : "오늘도 가족에게 안심을 전했어요."}
               </p>
             </div>
           </div>
@@ -1121,7 +1172,7 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
           />
 
           <div className="mt-4 rounded-[24px] border border-[#E5E7EB] bg-[#F9FAFB] p-5 sm:p-6">
-            <p className="text-sm font-black text-[#6B7280]">오늘의 작은 미션</p>
+            <p className="text-sm font-black text-[#6B7280]">내일을 위한 작은 제안</p>
             <p className="mt-2 text-xl font-black leading-8 text-[#1F2937]">{feedback.suggestion}</p>
             <p className="mt-2 font-semibold leading-7 text-[#6B7280]">하고 싶을 때 가볍게 해보세요.</p>
             <button
@@ -1130,7 +1181,7 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
               disabled={missionCompleted}
               className={`mt-4 min-h-14 w-full rounded-2xl px-5 text-lg font-black transition ${missionCompleted ? "bg-[#DCFCE7] text-[#15803D]" : "bg-white text-[#2563EB] shadow-[0_8px_24px_rgba(15,23,42,0.08)]"}`}
             >
-              {missionCompleted ? "좋아요. 오늘도 작은 실천을 해내셨어요." : "해봤어요"}
+              {missionCompleted ? "좋아요. 편하게 기억해둘게요." : "마음에 담아둘게요"}
             </button>
           </div>
 
@@ -1384,7 +1435,7 @@ function FarmStoryIntro({ onNext }: { onNext: () => void }) {
   return (
     <section className="grid min-h-[68vh] content-center rounded-[30px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
       <div className="mx-auto flex size-28 items-center justify-center rounded-[32px] bg-[#F0FDF4] text-6xl" aria-hidden>🌱</div>
-      <p className="mt-7 text-sm font-black text-[#15803D]">나의 안심농장</p>
+      <p className="mt-7 text-sm font-black text-[#15803D]">함께 키우는 안부농장</p>
       <h2 className="mt-3 text-[2.125rem] font-black leading-tight text-[#1F2937]">하루를 기록하면<br />작은 씨앗도 자랍니다.</h2>
       <p className="mt-5 text-lg font-semibold leading-8 text-[#4B5563]">오늘안부에서는 하루를 기록할 때마다<br />선택한 작물이 조금씩 자랍니다.<br /><br />작물은 꾸준한 기록과 안심이<br />차곡차곡 쌓인다는 의미를 담고 있습니다.</p>
       <button type="button" onClick={onNext} className="mt-9 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">작물 선택하기</button>
@@ -1392,29 +1443,74 @@ function FarmStoryIntro({ onNext }: { onNext: () => void }) {
   );
 }
 
-function ParentDailyHome({ farm, latestRecord, onStartRecord }: { farm: UserFarm; latestRecord?: TodayRecord; onStartRecord: () => void }) {
+function EveningRoutineSetup({ onEnable }: { onEnable: () => void }) {
+  const reminderMessage = useMemo(() => getEveningReminderMessage(), []);
+
+  async function enableReminder() {
+    if ("Notification" in window && Notification.permission === "default") {
+      await Notification.requestPermission().catch(() => "default");
+    }
+    onEnable();
+  }
+
+  return (
+    <section className="grid min-h-[68vh] content-center rounded-[30px] bg-[#17223B] p-7 text-center text-white shadow-[0_24px_70px_rgba(23,34,59,0.18)] sm:p-8">
+      <div className="mx-auto flex size-24 items-center justify-center rounded-[28px] bg-[#283551] text-[#FFD3B8]" aria-hidden>
+        <Moon size={48} />
+      </div>
+      <p className="mt-7 text-sm font-black text-[#FFB184]">오늘안부 저녁 루틴</p>
+      <h2 className="mt-3 text-[2.125rem] font-black leading-tight">저녁 8시는<br />오늘을 남기는 시간이에요.</h2>
+      <p className="mt-5 text-lg font-semibold leading-8 text-[#D7DCE5]">매일 저녁 8시에 알림을 드릴게요.<br />20초만 남기면 오늘의 안심이 전해지고,<br />선택한 작물도 자랍니다.</p>
+      <div className="mt-6 rounded-2xl bg-white/10 p-4 text-left">
+        <p className="text-xs font-black text-[#FFB184]">알림 미리보기 · 20:00</p>
+        <p className="mt-2 font-bold leading-7">{reminderMessage}</p>
+      </div>
+      <button type="button" onClick={enableReminder} className="mt-7 min-h-16 w-full rounded-2xl bg-[#FF681F] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(255,104,31,0.24)]">
+        8시 알림 받기
+      </button>
+      <p className="mt-3 text-sm font-bold text-[#AEB6C5]">나중에 알림 시간은 바꿀 수 있어요.</p>
+    </section>
+  );
+}
+
+function ParentDailyHome({ farm, records, latestRecord, onStartRecord, onViewResult }: { farm: UserFarm; records: TodayRecord[]; latestRecord?: TodayRecord; onStartRecord: () => void; onViewResult: () => void }) {
   const crop = getCropById(farm.currentCropId);
   const stage = getCropStage(farm.growthPercent);
   const remainingDays = crop ? Math.max(crop.requiredDays - farm.recordedDays, 0) : 0;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDateKey();
   const recordedToday = latestRecord?.date === today;
+  const beforeEight = new Date().getHours() < 20;
+  const title = recordedToday
+    ? "오늘 하루가 잘 채워졌어요."
+    : beforeEight
+      ? "저녁 8시에 다시 알려드릴게요."
+      : "오늘 하루를 남겨볼 시간이에요.";
+  const buttonLabel = recordedToday
+    ? "오늘의 결과 보기"
+    : beforeEight
+      ? "지금 미리 남기기"
+      : "20초 기록하기";
 
   return (
     <div className="grid gap-5">
-      <section className="rounded-[30px] bg-white p-7 shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
-        <p className="text-sm font-black text-[#F97316]">오늘의 안부</p>
-        <h2 className="mt-3 text-[2.125rem] font-black leading-tight text-[#1F2937]">오늘 하루도<br />가볍게 남겨볼까요?</h2>
-        <p className="mt-4 text-lg font-semibold leading-8 text-[#6B7280]">20초면 충분해요.<br />기억나는 것만 골라주세요.</p>
-        <button type="button" onClick={onStartRecord} className="mt-7 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">
-          {recordedToday ? "오늘 하루 한 번 더 돌아보기" : "오늘 안부 남기기"}
+      <section id="today-record" className="rounded-[30px] bg-[#17223B] p-7 text-white shadow-[0_24px_70px_rgba(23,34,59,0.18)] sm:p-8">
+        <div className="flex items-center gap-2 text-[#FFB184]"><Moon size={20} aria-hidden /><p className="text-sm font-black">오늘을 남기는 시간</p></div>
+        <h2 className="mt-3 text-[2.125rem] font-black leading-tight">{title}</h2>
+        <p className="mt-4 text-lg font-semibold leading-8 text-[#D5DAE3]">
+          {recordedToday ? "20초의 기록이 가족에게 오늘의 안심으로 전해졌어요." : "저녁 8시가 되면 오늘 하루를 20초만 남겨보세요."}
+        </p>
+        <button type="button" onClick={recordedToday ? onViewResult : onStartRecord} className="mt-7 min-h-16 w-full rounded-2xl bg-[#FF681F] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(255,104,31,0.24)]">
+          {buttonLabel}
         </button>
       </section>
+
+      <LifeCalendarCard records={records} />
 
       <Link href="/app/farm" className="block rounded-[28px] border border-[#BBF7D0] bg-[#F0FDF4] p-6 shadow-[0_18px_48px_rgba(21,128,61,0.08)] transition active:scale-[0.99]">
         <div className="flex items-center gap-4">
           <div className="flex size-20 shrink-0 items-center justify-center rounded-2xl bg-white text-5xl" aria-hidden>{crop?.imageStages[stage] ?? "🌱"}</div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-black text-[#15803D]">나의 안심농장</p>
+            <p className="text-sm font-black text-[#15803D]">함께 키우는 안부농장</p>
             <h3 className="mt-1 text-xl font-black text-[#1F2937]">{crop?.emoji} {crop?.name}</h3>
             <p className="mt-1 font-bold text-[#4B5563]">수확까지 {remainingDays}일</p>
           </div>
@@ -1423,8 +1519,8 @@ function ParentDailyHome({ farm, latestRecord, onStartRecord }: { farm: UserFarm
           <div className="h-full rounded-full bg-[#22C55E]" style={{ width: `${farm.growthPercent}%` }} />
         </div>
         <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="font-bold leading-7 text-[#166534]">오늘 안부 덕분에 잘 자라고 있어요.</p>
-          <span className="shrink-0 font-black text-[#15803D]">농장 보기</span>
+          <p className="font-bold leading-7 text-[#166534]">{recordedToday ? "오늘의 안부 덕분에 작물이 조금 더 자랐어요." : "오늘의 기록을 남기면 작물이 자라요."}</p>
+          <span className="shrink-0 font-black text-[#15803D]">안부농장 구경하기</span>
         </div>
       </Link>
 
@@ -1433,6 +1529,79 @@ function ParentDailyHome({ farm, latestRecord, onStartRecord }: { farm: UserFarm
         <h3 className="mt-3 text-xl font-black leading-8 text-[#1F2937]">{latestRecord ? "최근 하루도 편안하게 잘 남겨졌어요." : "첫 기록이 쌓이면 생활 흐름을 따뜻하게 정리해드려요."}</h3>
         <p className="mt-2 font-semibold leading-7 text-[#4B5563]">부담 없이 남긴 하루가 나를 위한 작은 기록이 됩니다.</p>
       </section>
+    </div>
+  );
+}
+
+function LifeCalendarCard({ records }: { records: TodayRecord[] }) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const leadingDays = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const recordByDate = new Map(records.map((record) => [record.date, record]));
+  const days = [...Array.from({ length: leadingDays }, () => null), ...Array.from({ length: daysInMonth }, (_, index) => index + 1)];
+  const streak = getRecordStreak(records);
+
+  function dateKey(day: number) {
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  }
+
+  function stampFor(record?: TodayRecord) {
+    if (!record) return "";
+    if (record.connectionTags?.includes("family_contact")) return "💌";
+    if (record.moodTag === "happy") return "🌸";
+    if (record.moodTag === "tired") return "☔";
+    return "🌱";
+  }
+
+  return (
+    <section className="rounded-[28px] bg-white p-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)] sm:p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div><p className="text-sm font-black text-[#F45D18]">인생달력</p><h3 className="mt-1 text-xl font-black">{month + 1}월의 오늘들</h3></div>
+        <span className="flex size-11 items-center justify-center rounded-2xl bg-[#FFF0E8] text-[#F45D18]"><CalendarDays size={22} aria-hidden /></span>
+      </div>
+      <p className="mt-3 font-semibold leading-7 text-[#6B7280]">하루하루가 차곡차곡 채워지고 있어요.</p>
+      <div className="mt-5 grid grid-cols-7 gap-1 text-center text-xs font-black text-[#8A909C]">
+        {["일", "월", "화", "수", "목", "금", "토"].map((day) => <span key={day}>{day}</span>)}
+        {days.map((day, index) => {
+          const record = day ? recordByDate.get(dateKey(day)) : undefined;
+          const isToday = day === now.getDate();
+          return day ? (
+            <div key={day} className={`flex aspect-square flex-col items-center justify-center rounded-xl border text-[0.7rem] ${record ? "border-[#FFD5BF] bg-[#FFF6F0] text-[#F45D18]" : isToday ? "border-[#D8DCE3] bg-[#F7F8FA] text-[#17223B]" : "border-transparent text-[#8A909C]"}`}>
+              <span>{day}</span><span className="mt-0.5 text-sm leading-none">{stampFor(record)}</span>
+            </div>
+          ) : <span key={`blank-${index}`} />;
+        })}
+      </div>
+      <div className="mt-4 rounded-2xl bg-[#FFF7ED] p-4">
+        <p className="font-black text-[#C2410C]">{streak >= 3 ? `${streak}일째 하루를 잘 남기고 있어요.` : "오늘의 도장이 기다리고 있어요."}</p>
+        <p className="mt-1 text-sm font-semibold leading-6 text-[#7C2D12]">기록이 쉬어가도 괜찮아요. 오늘부터 다시 편하게 이어가면 됩니다.</p>
+      </div>
+    </section>
+  );
+}
+
+function CompletionRetentionJourney({ record, farm }: { record: TodayRecord; farm: UserFarm | null }) {
+  const crop = getCropById(farm?.currentCropId);
+  const month = new Date().getMonth() + 1;
+  const stamp = record.moodTag === "happy" ? "🌸" : record.moodTag === "tired" ? "☔" : "🌱";
+  const steps = [
+    { label: "오늘의 도장", value: `${stamp} 오늘 하루가 잘 채워졌어요.` },
+    { label: "오늘의 따뜻한 한 줄", value: "평범한 하루도 기록하면 소중한 안심이 됩니다." },
+    { label: "안심농장 성장", value: crop ? `오늘의 기록 덕분에 ${crop.name}가 조금 더 자랐어요.` : "오늘의 기록으로 작은 씨앗이 자랐어요." },
+    { label: "인생달력 업데이트", value: `${month}월의 이야기가 한 칸 더 채워졌어요.` },
+    { label: "다음 만남", value: "내일 저녁 8시에 다시 만나요." },
+  ];
+
+  return (
+    <div className="mt-7 overflow-hidden rounded-[24px] border border-[#F0E4D8] bg-white">
+      {steps.map((step, index) => (
+        <div key={step.label} className="grid grid-cols-[36px_1fr] gap-3 border-b border-[#F2ECE6] p-4 last:border-0">
+          <span className={`flex size-9 items-center justify-center rounded-full text-sm font-black ${index === steps.length - 1 ? "bg-[#17223B] text-white" : "bg-[#FFF0E8] text-[#F45D18]"}`}>{index + 1}</span>
+          <div><p className="text-xs font-black text-[#F45D18]">{step.label}</p><p className="mt-1 font-bold leading-6 text-[#3F4756]">{step.value}</p></div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -1506,18 +1675,27 @@ function FarmRewardCard({
           <Sprout size={30} aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-black text-[#15803D]">나의 안심농장</p>
+          <p className="text-sm font-black text-[#15803D]">함께 키우는 안부농장</p>
           <h3 className="mt-2 text-xl font-black leading-8 text-[#1F2937]">
-            {crop ? `${crop.emoji} ${withSubjectParticle(crop.name)} 자라고 있어요.` : "오늘의 안부로 작물을 키워보세요."}
+            {crop ? `${crop.emoji} ${withSubjectParticle(crop.name)} 자라고 있어요.` : "저녁 8시 기록으로 작물을 키워보세요."}
           </h3>
           <p className="mt-1 font-semibold leading-7 text-[#4B5563]">
             {crop && farm
               ? farm.harvestable
-                ? "축하합니다. 작물이 잘 자랐어요."
-                : `수확까지 ${remainingDays}일 남았어요.`
-              : "오늘 하루를 기록하면 작물이 조금씩 자라요."}
+                ? "수확을 완료했어요. 배송 정보를 확인하면 농산물이 집 앞까지 도착해요."
+                : `꾸준히 남긴 하루가 곧 수확으로 이어져요. 수확까지 ${remainingDays}일 남았어요.`
+              : "오늘의 기록을 남기면 작물이 자라요."}
           </p>
         </div>
+      </div>
+
+      <div className="mt-5 grid grid-cols-5 gap-1 text-center">
+        {["작물 선택", "매일 기록", "작물 성장", "수확 완료", "집 앞 배송"].map((label, index) => (
+          <div key={label}>
+            <span className={`mx-auto flex size-8 items-center justify-center rounded-lg text-xs font-black ${index <= (farm?.harvestable ? 3 : crop ? 1 : 0) ? "bg-[#DCFCE7] text-[#15803D]" : "bg-white text-[#6B7280]"}`}>{index + 1}</span>
+            <p className="mt-1 text-[0.64rem] font-black leading-4 text-[#4B5563]">{label}</p>
+          </div>
+        ))}
       </div>
 
       {crop && farm ? (
@@ -1539,7 +1717,7 @@ function FarmRewardCard({
           </div>
           {farm.harvestable ? (
             <button type="button" onClick={onHarvest} className="mt-4 min-h-14 w-full rounded-2xl bg-[#15803D] px-5 text-lg font-black text-white shadow-[0_12px_28px_rgba(21,128,61,0.20)]">
-              수확하기
+              수확 완료하고 배송 준비하기
             </button>
           ) : null}
         </div>
@@ -1548,7 +1726,7 @@ function FarmRewardCard({
       {harvestMessage ? <p className="mt-4 rounded-2xl bg-white px-4 py-3 font-black leading-7 text-[#166534]">{harvestMessage}</p> : null}
 
       <button type="button" onClick={onToggle} className="mt-4 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 text-lg font-black text-[#15803D] shadow-[0_8px_22px_rgba(21,128,61,0.10)]">
-        {expanded ? "농장 내용 닫기" : crop ? "농장 보기" : "작물 고르기"}
+        {expanded ? "안부농장 닫기" : crop ? "안부농장 구경하기" : "작물 고르기"}
         <Sprout size={20} aria-hidden />
       </button>
 
@@ -1558,7 +1736,7 @@ function FarmRewardCard({
             <CropSelection onSelect={onSelectCrop} />
           ) : (
             <>
-              <h4 className="text-xl font-black leading-8 text-[#1F2937]">하루를 남길 때마다 자동으로 자라요.</h4>
+              <h4 className="text-xl font-black leading-8 text-[#1F2937]">매일 저녁 8시, 하루를 남길 때마다 자라요.</h4>
               <p className="mt-2 font-semibold leading-7 text-[#4B5563]">같은 날 여러 번 기록해도 성장은 하루 한 번만 이어집니다.</p>
             </>
           )}
@@ -1589,7 +1767,7 @@ function FarmRewardCard({
             <div className="mt-6 border-t border-[#BBF7D0] pt-6">
               <p className="text-sm font-black text-[#15803D]">시즌 이벤트 예고</p>
               <p className="mt-2 text-lg font-black text-[#1F2937]">{seasonEvent.title}</p>
-              <p className="mt-2 font-semibold leading-7 text-[#4B5563]">수확한 작물은 시즌 이벤트 참여에 사용할 수 있어요. 실물 수확 이벤트는 브랜드 협업 시에만 열립니다.</p>
+              <p className="mt-2 font-semibold leading-7 text-[#4B5563]">수확을 완료하고 배송 정보를 확인하면 신선한 농산물이 집 앞까지 도착해요.</p>
             </div>
           ) : null}
         </div>
@@ -1602,7 +1780,7 @@ function CropSelection({ onSelect }: { onSelect: (crop: CropType) => void }) {
   return (
     <div>
       <h4 className="text-[1.6rem] font-black leading-tight text-[#1F2937]">어떤 작물을 키워보고 싶으세요?</h4>
-      <p className="mt-3 text-lg font-semibold leading-8 text-[#4B5563]">오늘의 안부를 남기면 작물이 조금씩 자라요.</p>
+      <p className="mt-3 text-lg font-semibold leading-8 text-[#4B5563]">매일 기록하면 작물이 자라고, 수확한 농산물이 집 앞까지 도착해요.</p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         {cropTypes.map((crop) => (
           <button
@@ -1786,7 +1964,7 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
   const showProgress = step > 0;
 
   function next() {
-    if (step >= 5) {
+    if (step >= 6) {
       onComplete(profile);
       return;
     }
@@ -1804,11 +1982,11 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
           {showProgress ? (
             <div className="mb-8">
               <div className="flex items-center justify-between text-sm font-black text-[#6B7280]">
-                <span>{progress}/5</span>
+                <span>{progress}/6</span>
                 <span>첫 기록 준비</span>
               </div>
               <div className="mt-3 h-2 rounded-full bg-[#E5E7EB]">
-                <div className="h-2 rounded-full bg-[#2563EB] transition-all" style={{ width: `${(progress / 5) * 100}%` }} />
+                <div className="h-2 rounded-full bg-[#F97316] transition-all" style={{ width: `${(progress / 6) * 100}%` }} />
               </div>
             </div>
           ) : null}
@@ -1817,8 +1995,9 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
           {step === 1 ? <UserTypeStep profile={profile} onChange={setProfile} /> : null}
           {step === 2 ? <ParentInfoStep profile={profile} onChange={setProfile} /> : null}
           {step === 3 ? <SendLinkStep profile={profile} onChange={setProfile} /> : null}
-          {step === 4 ? <FirstRecordStep profile={profile} /> : null}
-          {step === 5 ? <CompleteStep profile={profile} /> : null}
+          {step === 4 ? <ReminderTimeStep profile={profile} onChange={setProfile} /> : null}
+          {step === 5 ? <FirstRecordStep profile={profile} /> : null}
+          {step === 6 ? <CompleteStep profile={profile} /> : null}
 
           <div className="mt-9 flex gap-3">
             {step > 0 ? (
@@ -1827,7 +2006,7 @@ function OnboardingFlow({ onComplete }: { onComplete: (profile: ParentProfile) =
               </button>
             ) : null}
             <button type="button" onClick={next} className="min-h-14 flex-[2] rounded-2xl bg-[#2563EB] px-5 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]">
-              {step === 0 ? "바로 시작하기" : step === 5 ? "안심 리포트 보기" : "다음"}
+              {step === 0 ? "바로 시작하기" : step === 6 ? "안심 리포트 보기" : step === 4 ? "8시 알림 받기" : "다음"}
             </button>
           </div>
         </div>
@@ -1845,7 +2024,7 @@ function WelcomeStep() {
         <br />
         첫 기록이 시작됩니다.
       </h1>
-      <p className="mt-5 text-lg font-semibold leading-8 text-[#6B7280]">오늘안부의 재방문 동기는 알림이 아니라 가족의 관심입니다.</p>
+      <p className="mt-5 text-lg font-semibold leading-8 text-[#6B7280]">매일 저녁 8시, 20초만 오늘을 남기면 가족에게 안심이 전해집니다.</p>
       <div className="mt-7 grid gap-3">
         <MiniSummary title="가족 응원 도착" value="부모님은 먼저 가족의 짧은 응원을 봅니다." />
         <MiniSummary title="오늘의 기록" value="읽고 난 뒤 큰 버튼 하나로 하루를 남깁니다." />
@@ -1900,6 +2079,25 @@ function SendLinkStep({ profile, onChange }: { profile: ParentProfile; onChange:
         onChange={(method) => onChange({ ...profile, method })}
       />
       <ShareLinkCard profile={profile} />
+    </StepFrame>
+  );
+}
+
+function ReminderTimeStep({ profile, onChange }: { profile: ParentProfile; onChange: (profile: ParentProfile) => void }) {
+  return (
+    <StepFrame label="저녁 8시 루틴" title="저녁 8시는 오늘을 남기는 시간이에요.">
+      <div className="rounded-[24px] bg-[#17223B] p-6 text-white">
+        <div className="flex size-14 items-center justify-center rounded-2xl bg-white/10 text-[#FFB184]"><Bell size={28} aria-hidden /></div>
+        <p className="mt-5 text-lg font-bold leading-8 text-[#D7DCE5]">매일 저녁 8시에 알림을 드릴게요.<br />20초만 남기면 오늘의 안심이 전해지고, 선택한 작물도 자랍니다.</p>
+        <div className="mt-5 flex items-center justify-between rounded-2xl bg-white/10 px-4 py-4">
+          <span className="font-black">기본 알림 시간</span><span className="rounded-full bg-[#FF681F] px-3 py-1 text-sm font-black">20:00 추천</span>
+        </div>
+      </div>
+      <label className="mt-4 flex items-center gap-3 rounded-2xl border border-[#F0E4D8] bg-[#FFF9F2] p-4 font-bold">
+        <input type="checkbox" checked={profile.reminderEnabled} onChange={(event) => onChange({ ...profile, reminderEnabled: event.target.checked, reminderTime: DEFAULT_REMINDER_TIME })} className="size-5 accent-[#F97316]" />
+        저녁 8시 알림을 받을게요.
+      </label>
+      <p className="mt-3 text-center text-sm font-bold text-[#8A909C]">나중에 알림 시간은 바꿀 수 있어요.</p>
     </StepFrame>
   );
 }

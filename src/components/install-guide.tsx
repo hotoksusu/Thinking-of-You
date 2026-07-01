@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowRight, Smartphone } from "lucide-react";
+import { ArrowRight, Link2, Smartphone } from "lucide-react";
 
 type InstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -37,56 +37,46 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
   const { canInstall, promptInstall } = useInstallPrompt();
 
   return (
-    <section className={compact ? "rounded-[24px] bg-[#EFF6FF] p-5" : "rounded-[28px] bg-[#EFF6FF] p-6"}>
+    <section className={compact ? "rounded-[24px] bg-[#FFF5EE] p-5" : "rounded-[28px] border border-[#FFD7C3] bg-[#FFF8F3] p-6"}>
       <div className="flex items-start gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#2563EB]">
-          <Smartphone size={22} aria-hidden />
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#F45D18]">
+          <Link2 size={22} aria-hidden />
         </span>
         <div>
-          <p className="text-sm font-black text-[#2563EB]">더 편하게 사용하기</p>
+          <p className="text-sm font-black text-[#F45D18]">가장 쉬운 시작 방법</p>
           <h2 className={compact ? "mt-1 text-xl font-black" : "mt-2 text-2xl font-black"}>
-            오늘안부를 홈화면에 추가하면 더 빠르게 열 수 있어요.
+            설치 없이도 바로 시작할 수 있어요.
           </h2>
           <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
-            설치는 선택사항입니다. 링크만 열어도 오늘의 기록을 남길 수 있고, 익숙해진 뒤 필요할 때 추가하면 됩니다.
+            부모님은 매일 도착하는 링크를 눌러 오늘 기록을 남기면 됩니다. 원하시면 휴대폰 첫 화면에 추가해 앱처럼 사용할 수도 있어요.
           </p>
         </div>
       </div>
 
-      <details className="mt-5 rounded-2xl bg-white p-4">
-        <summary className="cursor-pointer list-none font-black text-[#2563EB]">홈화면 추가 방법 보기</summary>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl bg-[#F9FAFB] p-4">
-            <p className="text-sm font-black text-[#2563EB]">iPhone</p>
-            <p className="mt-2 text-sm font-bold leading-6 text-[#4B5563]">Safari에서 공유 버튼을 누른 뒤 홈 화면에 추가를 선택합니다.</p>
-          </div>
-          <div className="rounded-2xl bg-[#F9FAFB] p-4">
-            <p className="text-sm font-black text-[#2563EB]">Android</p>
-            <p className="mt-2 text-sm font-bold leading-6 text-[#4B5563]">Chrome 메뉴에서 홈 화면에 추가를 선택합니다.</p>
-          </div>
-        </div>
-      </details>
-
-      {!compact ? (
-        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+        <a href="/app?role=parent#today-record" className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-[#FF681F] px-5 font-black text-white shadow-[0_12px_26px_rgba(255,104,31,0.2)]">
+          매일 기록 링크 받기
+          <ArrowRight size={17} aria-hidden />
+        </a>
+        {!compact ? (
+          <>
           {canInstall ? (
             <button
               type="button"
               onClick={promptInstall}
-              className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#2563EB] px-5 font-black text-white shadow-[0_16px_34px_rgba(37,99,235,0.22)]"
+              className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-5 font-black text-[#4B5563]"
             >
-              홈화면에 추가하기
+              <Smartphone size={18} aria-hidden />홈 화면에 추가하기
             </button>
-          ) : null}
-          <a
-            href="/app"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#D1D5DB] bg-white px-5 font-black text-[#4B5563]"
-          >
-            앱 체험 계속하기
-            <ArrowRight size={17} aria-hidden />
-          </a>
-        </div>
-      ) : null}
+          ) : (
+            <a href="/guide#home-shortcut" className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#E4E7EC] bg-white px-5 font-black text-[#4B5563]">
+              <Smartphone size={18} aria-hidden />홈 화면에 추가하기
+            </a>
+          )}
+          </>
+        ) : null}
+      </div>
+      {!compact ? <p id="home-shortcut" className="mt-3 text-center text-sm font-semibold leading-6 text-[#7A808C]">홈 화면 추가는 선택이에요. 매일 받는 링크만 눌러도 충분합니다.</p> : null}
     </section>
   );
 }

@@ -4,31 +4,40 @@ import {
   ArrowRight,
   BarChart3,
   CheckCircle2,
-  ClipboardEdit,
+  Clock3,
   Sparkles,
   Sprout,
 } from "lucide-react";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
 import { BrandLogo } from "@/components/brand-ui";
 
-const values = [
+const values: Array<{
+  title: string;
+  description: string;
+  icon: typeof Clock3;
+  color: string;
+  href?: string;
+  cta?: string;
+}> = [
   {
-    title: "간단한 하루 기록",
-    description: "식사, 컨디션, 활동을 쉽고 빠르게 기록해요.",
-    icon: ClipboardEdit,
+    title: "저녁 8시 루틴",
+    description: "매일 같은 시간, 오늘 하루를 편하게 남겨요.",
+    icon: Clock3,
     color: "bg-[#FFF0E8] text-[#F45D18]",
   },
   {
     title: "AI 안심 리포트",
-    description: "기록을 분석해 변화와 안심 상태를 알려드려요.",
+    description: "기록을 바탕으로 가족이 안심하도록 정리해요.",
     icon: BarChart3,
     color: "bg-[#F0EDFF] text-[#7563D9]",
   },
   {
-    title: "함께 키우는 농장",
-    description: "꾸준히 기록하면 선택한 작물이 조금씩 자라요.",
+    title: "함께 키우는 안부농장",
+    description: "매일 기록하면 작물이 자라고, 수확한 농산물이 집 앞까지 도착해요.",
     icon: Sprout,
     color: "bg-[#EDF7E7] text-[#4E8D45]",
+    href: "/farm",
+    cta: "안부농장 구경하기",
   },
 ];
 
@@ -49,18 +58,16 @@ export default function LandingPage() {
         <div className="relative z-10">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF0E8] px-3 py-1.5 text-sm font-black text-[#F45D18]">
             <Sparkles size={15} aria-hidden />
-            하루를 기록하면 안심이 쌓여요
+            매일 20초, 가족에게 전하는 오늘의 안심
           </span>
           <h1 className="mt-5 text-[2.55rem] font-black leading-[1.16] text-[#14213D] sm:text-[3.5rem]">
-            우리 가족의 오늘을
+            매일 저녁 8시,
             <br />
-            <span className="text-[#F45D18]">AI가 안심으로</span>
-            <br />
-            이어드립니다
+            <span className="text-[#F45D18]">오늘을 남겨보세요.</span>
           </h1>
           <p className="mt-5 text-[1.05rem] font-semibold leading-8 text-[#5D6678] sm:text-lg">
-            간단한 하루 기록이 AI 안심 리포트로 이어지고,
-            <br className="hidden sm:block" /> 가족 모두가 변화를 함께 확인해요.
+            20초의 간단한 기록이 가족에게 안심으로 전해지고,
+            <br className="hidden sm:block" /> 선택한 농산물은 수확 뒤 집 앞까지 도착합니다.
           </p>
           <div className="mt-7 hidden gap-3 sm:flex">
             <Link href="/app" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#FF681F] px-7 text-lg font-black text-white shadow-[0_16px_34px_rgba(255,104,31,0.24)] transition hover:bg-[#EB5712] active:scale-[0.98]">
@@ -94,6 +101,7 @@ export default function LandingPage() {
                 <div>
                   <h2 className="font-black sm:mt-4">{value.title}</h2>
                   <p className="mt-1 text-sm font-semibold leading-6 text-[#6C7280]">{value.description}</p>
+                  {value.href && value.cta ? <Link href={value.href} className="mt-3 inline-flex items-center gap-1 text-sm font-black text-[#4E8D45]">{value.cta}<ArrowRight size={15} aria-hidden /></Link> : null}
                 </div>
               </article>
             );
@@ -138,7 +146,8 @@ export default function LandingPage() {
 
       <section className="mx-auto w-full max-w-[760px] px-5 pb-10 text-center sm:px-8">
         <p className="text-sm font-black text-[#F45D18]">오늘안부의 약속</p>
-        <h2 className="mt-3 text-2xl font-black sm:text-3xl">하루를 기록하면, 안심은 쌓이고, 작물은 자랍니다.</h2>
+        <h2 className="mt-3 text-2xl font-black sm:text-3xl">매일 저녁 8시, 20초만 오늘을 남겨보세요.</h2>
+        <p className="mt-3 font-semibold leading-7 text-[#6C7280]">기록은 쉽고, 보상은 확실하게. 가족은 안심하고 농산물은 집 앞까지 이어집니다.</p>
       </section>
 
       <BottomTabBar active="home" />

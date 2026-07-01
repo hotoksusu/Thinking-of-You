@@ -6,53 +6,55 @@ import {
   Check,
   ChevronRight,
   ClipboardCheck,
-  PackageCheck,
+  Clock3,
   Smartphone,
   Sprout,
   UsersRound,
 } from "lucide-react";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
+import { InstallGuide } from "@/components/install-guide";
 
 const connectionSteps = [
   {
     number: "1",
-    title: "가족(자녀) 계정 만들기",
-    description: "이 계정으로 우리 가족을 연결하고 안심 리포트를 확인할 수 있어요.",
+    title: "가족 계정 만들기",
+    description: "우리 가족의 기록과 안심 리포트를 확인할 계정을 만듭니다.",
     action: "완료",
     complete: true,
     icon: UsersRound,
   },
   {
     number: "2",
-    title: "기록자(부모님) 연결하기",
-    description: "부모님 휴대폰에 오늘안부를 초대하고 연결을 완료해 주세요.",
-    action: "연결하기",
+    title: "소중한 가족 초대하기",
+    description: "기록할 가족에게 초대 링크를 보냅니다.",
+    action: "초대 링크 보내기",
     href: "/onboarding/add-parent",
     icon: Smartphone,
   },
   {
     number: "3",
-    title: "기록자 휴대폰에 설치하기",
-    description: "부모님 휴대폰 첫 화면에 오늘안부를 꺼내두세요.",
-    action: "설치 가이드",
-    href: "#install-guide",
-    icon: PackageCheck,
+    title: "매일 기록 링크 받기",
+    description: "정해진 시간에 오늘 기록 링크가 도착합니다.",
+    action: "링크 받기",
+    href: "/app?role=parent",
+    icon: Clock3,
   },
   {
     number: "4",
     title: "기록 시작하기",
-    description: "오늘부터 간단한 기록을 남기고 안심 리포트를 받아보세요.",
-    action: "곧 시작",
+    description: "링크를 눌러 간단히 기록하면 AI 안심 리포트가 만들어집니다.",
+    action: "기록 시작하기",
     href: "/app?role=parent",
     icon: ClipboardCheck,
   },
 ];
 
 const rewardSteps = [
-  { label: "기록하기", emoji: "📝" },
+  { label: "작물 선택", emoji: "🍅" },
+  { label: "매일 기록", emoji: "📝" },
   { label: "작물 성장", emoji: "🌱" },
   { label: "수확 완료", emoji: "🧺" },
-  { label: "집 앞 도착", emoji: "📦" },
+  { label: "집 앞 배송", emoji: "📦" },
 ];
 
 export default function GuidePage() {
@@ -70,18 +72,14 @@ export default function GuidePage() {
           이제, 우리 가족을
           <br />연결해 볼까요? <span aria-hidden>✨</span>
         </h1>
-        <p className="mt-4 text-lg font-semibold text-[#667085]">단계별로 안내해 드릴게요.</p>
+        <p className="mt-4 text-lg font-semibold leading-8 text-[#667085]">오늘안부는 매일 저녁 8시에 하루를 남기는 따뜻한 루틴입니다.</p>
       </section>
 
       <section className="mx-auto w-full max-w-[760px] px-5 sm:px-8">
         <div className="overflow-hidden rounded-[28px] border border-[#F0E4D8] bg-white px-5 shadow-[0_20px_55px_rgba(83,54,33,0.08)] sm:px-7">
           {connectionSteps.map((step, index) => {
             const Icon = step.icon;
-            const actionClass = step.complete
-              ? "bg-[#FFF0E7] text-[#F45D18]"
-              : index === 3
-                ? "bg-[#F3F4F6] text-[#697386]"
-                : "bg-[#FFF0E7] text-[#F45D18]";
+            const actionClass = step.complete ? "bg-[#FFF0E7] text-[#F45D18]" : "bg-[#FFF0E7] text-[#F45D18]";
 
             return (
               <article key={step.number} className="relative grid grid-cols-[44px_1fr] gap-3 border-b border-[#F0ECE7] py-6 last:border-0 sm:grid-cols-[48px_1fr]">
@@ -110,9 +108,18 @@ export default function GuidePage() {
       </section>
 
       <section className="mx-auto mt-6 w-full max-w-[760px] px-5 sm:px-8">
+        <div className="rounded-[28px] bg-[#17223B] p-6 text-white shadow-[0_20px_48px_rgba(23,34,59,0.16)]">
+          <div className="flex items-center gap-2 text-[#FFB184]"><Clock3 size={20} aria-hidden /><p className="text-sm font-black">가족에게 전해지는 저녁 루틴</p></div>
+          <h2 className="mt-3 text-2xl font-black leading-9">부모님이 매일 저녁 8시에 하루를 남기세요.</h2>
+          <p className="mt-3 font-semibold leading-7 text-[#D6DAE2]">부모님은 20초만 기록하고, 가족은 안심 리포트로 오늘의 변화를 확인할 수 있습니다.</p>
+          <p className="mt-4 rounded-2xl bg-white/10 p-4 text-sm font-bold leading-6 text-[#EDF0F4]">기록이 이어질수록 선택한 작물과 인생달력도 채워져 꾸준히 사용할 작은 즐거움이 됩니다.</p>
+        </div>
+      </section>
+
+      <section className="mx-auto mt-6 w-full max-w-[760px] px-5 sm:px-8">
         <div className="rounded-[28px] border border-[#E4ECD9] bg-[#F5F8EC] p-5 shadow-[0_16px_40px_rgba(80,104,55,0.07)] sm:p-7">
           <div className="flex items-center gap-2 text-[#467A3E]"><Sprout size={20} aria-hidden /><h2 className="text-lg font-black">꾸준히 기록하면 이런 선물이!</h2></div>
-          <div className="mt-6 grid grid-cols-4 gap-1">
+          <div className="mt-6 grid grid-cols-5 gap-1">
             {rewardSteps.map((step, index) => (
               <div key={step.label} className="relative text-center">
                 <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">{step.emoji}</span>
@@ -121,25 +128,14 @@ export default function GuidePage() {
               </div>
             ))}
           </div>
-          <p className="mt-5 text-center text-sm font-bold leading-6 text-[#687264]">매일의 기록이 작물을 키우고, 수확의 기쁨으로 이어져요.</p>
-          <p className="mt-1 text-center text-xs font-semibold leading-5 text-[#858D81]">수확 이벤트를 통해 실제 농산물을 만날 수 있어요.</p>
+          <p className="mt-5 text-center text-sm font-bold leading-6 text-[#687264]">매일 기록하면 작물이 자라고, 수확한 농산물이 집 앞까지 도착해요.</p>
         </div>
       </section>
 
       <section id="install-guide" className="mx-auto mt-6 w-full max-w-[760px] px-5 sm:px-8">
         <div className="overflow-hidden rounded-[28px] border border-[#F0E4D8] bg-white shadow-[0_18px_45px_rgba(83,54,33,0.08)]">
           <Image src="/illustrations/family-guide.png" alt="오늘안부를 함께 시작하는 따뜻한 가족" width={1536} height={1024} className="h-auto w-full" />
-          <div className="p-5 text-center sm:p-7">
-            <h2 className="text-2xl font-black">복잡하지 않아요!</h2>
-            <p className="mt-2 font-semibold text-[#6C7280]">어렵지 않게, 차근차근 안내해 드릴게요.</p>
-            <div className="mt-5 grid gap-3 text-left sm:grid-cols-2">
-              <div className="rounded-2xl bg-[#FFF5EE] p-4"><p className="text-sm font-black text-[#F45D18]">iPhone</p><p className="mt-1 text-sm font-bold leading-6 text-[#525B6B]">Safari 공유 버튼 → 홈 화면에 추가</p></div>
-              <div className="rounded-2xl bg-[#F4F6F8] p-4"><p className="text-sm font-black text-[#17223B]">Android</p><p className="mt-1 text-sm font-bold leading-6 text-[#525B6B]">Chrome 메뉴 → 홈 화면에 추가</p></div>
-            </div>
-            <Link href="/app" className="mt-5 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#FF681F] px-6 text-lg font-black text-white shadow-[0_14px_28px_rgba(255,104,31,0.2)]">
-              설치 가이드 보기<ArrowRight size={18} aria-hidden />
-            </Link>
-          </div>
+          <div className="p-5 sm:p-7"><InstallGuide /></div>
         </div>
       </section>
 
