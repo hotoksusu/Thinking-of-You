@@ -54,7 +54,7 @@ const rewardSteps = [
   { label: "매일 기록", emoji: "📝" },
   { label: "작물 성장", emoji: "🌱" },
   { label: "수확 완료", emoji: "🧺" },
-  { label: "집 앞 배송", emoji: "📦" },
+  { label: "가족이 선물", emoji: "📦" },
 ];
 
 export default function GuidePage() {
@@ -128,7 +128,7 @@ export default function GuidePage() {
               </div>
             ))}
           </div>
-          <p className="mt-5 text-center text-sm font-bold leading-6 text-[#687264]">매일 기록하면 작물이 자라고, 수확한 농산물이 집 앞까지 도착해요.</p>
+          <p className="mt-5 text-center text-sm font-bold leading-6 text-[#687264]">계절 작물 하나를 골라 90일 동안 키우면 가족에게 수확 알림이 가요. 가족이 배송지를 확인해 수확 선물을 보낼 수 있습니다.</p>
         </div>
       </section>
 

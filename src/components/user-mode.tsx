@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Bell, CalendarDays, Check, ChevronRight, Clock3, Copy, CreditCard, FileText, Home, LockKeyhole, MessageCircle, Moon, PackageOpen, Settings, ShieldCheck, Sprout } from "lucide-react";
+import { ArrowLeft, Bell, CalendarDays, Check, ChevronRight, Clock3, Copy, CreditCard, Droplets, FileText, Home, LockKeyhole, MessageCircle, Moon, PackageOpen, Settings, ShieldCheck, Sprout } from "lucide-react";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
 import { InstallGuide } from "@/components/install-guide";
 import {
@@ -17,6 +17,18 @@ import {
   type TrendPoint,
 } from "@/lib/insights";
 import { DEFAULT_REMINDER_TIME, getEveningReminderMessage, type EveningRoutinePreference } from "@/lib/evening-routine";
+import {
+  createFreshFarm,
+  farmCrops,
+  getCurrentFarmSeason,
+  getFarmCrop,
+  getSeasonalCrops,
+  readFarm,
+  saveFarm,
+  seasonLabels,
+  type FarmSeason,
+  type FarmState,
+} from "@/lib/reassurance-farm";
 
 declare global {
   interface Window {
@@ -73,36 +85,17 @@ type CropType = {
   requiredDays: number;
   difficulty: CropDifficulty;
   season: string;
+  seasons: FarmSeason[];
+  giftPackage: string;
   imageStages: Record<CropStage, string>;
 };
 
-type UserFarm = {
-  currentCropId: string | null;
-  recordedDays: number;
-  growthPercent: number;
-  startedAt?: string;
-  lastGrowthDate?: string;
-  harvestable: boolean;
-  totalHarvests: number;
-  familySupportEnabled: false;
-};
+type UserFarm = FarmState;
 
 type HarvestStorageItem = {
   cropId: string;
   count: number;
   harvestedAt: string;
-};
-
-type SeasonEvent = {
-  eventId: string;
-  season: string;
-  cropIds: string[];
-  title: string;
-  description: string;
-  status: "upcoming" | "open" | "closed";
-  brandPartner?: string;
-  rewardDescription?: string;
-  requiredHarvestCount: number;
 };
 
 type DailyRecord = {
@@ -217,47 +210,40 @@ const dailyQuestions: DailyQuestion[] = [
   { id: "winter-warm", category: "season", question: "따뜻하게 보내셨나요?", options: ["따뜻한 차를 마셨어요", "따뜻한 음식을 먹었어요", "집에서 포근히 쉬었어요"] },
 ];
 
-const cropTypes: CropType[] = [
-  { id: "mushroom", name: "버섯", emoji: "🍄", requiredDays: 7, difficulty: "쉬움", season: "봄·가을", imageStages: { seed: "•", sprout: "🌱", growing: "🍄", flower: "🍄", harvest: "🍄" } },
-  { id: "lettuce", name: "상추", emoji: "🥬", requiredDays: 14, difficulty: "쉬움", season: "봄·가을", imageStages: { seed: "•", sprout: "🌱", growing: "🥬", flower: "🥬", harvest: "🥬" } },
-  { id: "cherry-tomato", name: "방울토마토", emoji: "🍅", requiredDays: 30, difficulty: "보통", season: "여름", imageStages: { seed: "•", sprout: "🌱", growing: "🌿", flower: "🌼", harvest: "🍅" } },
-  { id: "strawberry", name: "딸기", emoji: "🍓", requiredDays: 45, difficulty: "보통", season: "봄", imageStages: { seed: "•", sprout: "🌱", growing: "🌿", flower: "🌼", harvest: "🍓" } },
-  { id: "corn", name: "옥수수", emoji: "🌽", requiredDays: 60, difficulty: "보통", season: "여름", imageStages: { seed: "•", sprout: "🌱", growing: "🌿", flower: "🌾", harvest: "🌽" } },
-  { id: "tangerine", name: "귤", emoji: "🍊", requiredDays: 90, difficulty: "천천히", season: "겨울", imageStages: { seed: "•", sprout: "🌱", growing: "🌳", flower: "🌼", harvest: "🍊" } },
-  { id: "apple", name: "사과", emoji: "🍎", requiredDays: 180, difficulty: "천천히", season: "가을", imageStages: { seed: "•", sprout: "🌱", growing: "🌳", flower: "🌼", harvest: "🍎" } },
-];
-
-const seasonEvents: SeasonEvent[] = [
-  { eventId: "spring-harvest", season: "봄", cropIds: ["lettuce", "strawberry"], title: "봄 수확 이벤트", description: "수확한 디지털 작물로 참여하는 계절 행사입니다.", status: "upcoming", requiredHarvestCount: 1 },
-  { eventId: "summer-harvest", season: "여름", cropIds: ["cherry-tomato", "corn"], title: "여름 제철 수확제", description: "브랜드 협업이 열리면 참여할 수 있어요.", status: "upcoming", requiredHarvestCount: 1 },
-  { eventId: "autumn-apple", season: "가을", cropIds: ["mushroom", "apple"], title: "가을 사과 수확제", description: "수확한 작물은 시즌 이벤트 참여에 사용할 수 있어요.", status: "upcoming", requiredHarvestCount: 1 },
-  { eventId: "winter-tangerine", season: "겨울", cropIds: ["tangerine"], title: "겨울 귤 수확제", description: "실물 수확 이벤트는 브랜드 협업 시 열릴 예정이에요.", status: "upcoming", requiredHarvestCount: 1 },
-];
+const cropTypes: CropType[] = farmCrops.map((crop) => ({
+  id: crop.id,
+  name: crop.name,
+  emoji: crop.emoji,
+  requiredDays: crop.requiredDays,
+  difficulty: "천천히",
+  season: crop.seasons.map((season) => seasonLabels[season]).join("·"),
+  seasons: crop.seasons,
+  giftPackage: crop.giftPackage,
+  imageStages: {
+    seed: "•",
+    sprout: "🌱",
+    growing: "🌿",
+    flower: `🌿${crop.emoji}`,
+    harvest: crop.emoji,
+  },
+}));
 
 function getCropById(cropId?: string | null) {
   return cropTypes.find((crop) => crop.id === cropId);
 }
 
-function getCropStage(growthPercent: number): CropStage {
-  if (growthPercent >= 100) return "harvest";
-  if (growthPercent >= 70) return "flower";
-  if (growthPercent >= 35) return "growing";
-  if (growthPercent > 0) return "sprout";
+function getCropStage(recordedDays: number): CropStage {
+  if (recordedDays >= 90) return "harvest";
+  if (recordedDays >= 61) return "flower";
+  if (recordedDays >= 31) return "growing";
+  if (recordedDays >= 8) return "sprout";
   return "seed";
 }
 
 function createFarm(crop: CropType, growthDate?: string): UserFarm {
-  const recordedDays = growthDate ? 1 : 0;
-  return {
-    currentCropId: crop.id,
-    recordedDays,
-    growthPercent: Math.min((recordedDays / crop.requiredDays) * 100, 100),
-    startedAt: new Date().toISOString(),
-    lastGrowthDate: growthDate,
-    harvestable: recordedDays >= crop.requiredDays,
-    totalHarvests: 0,
-    familySupportEnabled: false,
-  };
+  const farm = createFreshFarm(crop.id, 0, "parent");
+  if (!growthDate) return farm;
+  return { ...farm, recordedDays: 1, growthPercent: 1 / 90 * 100, lastGrowthDate: growthDate };
 }
 
 function growFarm(farm: UserFarm, growthDate: string) {
@@ -291,15 +277,7 @@ function getLocalDateKey(date = new Date()) {
 
 function getCropGrowthMessage(crop: CropType, farm: UserFarm) {
   if (farm.harvestable) return `${withObjectParticle(crop.name)} 수확할 수 있어요.`;
-  return {
-    mushroom: "오늘 안부 덕분에 버섯이 쑥 자랐어요.",
-    lettuce: "상추가 오늘도 싱그럽게 자라고 있어요.",
-    "cherry-tomato": "방울토마토가 따뜻한 햇빛을 받았어요.",
-    strawberry: "딸기에 작은 꽃이 피려고 해요.",
-    corn: "옥수수가 조금 더 키가 컸어요.",
-    tangerine: "귤나무가 천천히 열매를 준비하고 있어요.",
-    apple: "사과나무가 오늘도 든든하게 자라고 있어요.",
-  }[crop.id] ?? `${crop.name}이 오늘도 잘 자라고 있어요.`;
+  return `오늘도 ${crop.name}가 한 뼘 자랐어요. 내일 저녁 8시에 또 만나요.`;
 }
 
 function getTodayQuestion() {
@@ -596,7 +574,7 @@ function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) =
           <RoleSelectCard
             label="안부농장"
             title={<>함께 키우는<br />안부농장</>}
-            description={<>매일 기록하면 작물이 자라고,<br />수확한 농산물이 집 앞까지 도착해요.</>}
+            description={<>90일 동안 기록으로 키우면,<br />가족이 수확 선물을 보내드려요.</>}
             accent="green"
             imagePosition="right"
             href="/farm"
@@ -673,6 +651,7 @@ function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profi
         <ExperienceHeader eyebrow="가족 화면" title="안심 리포트" onBack={onBack} />
         <div className="grid gap-5">
           <FamilyEveningRoutineCard parentName={profile.parentName} />
+          <FamilyFarmParticipationCard profile={profile} />
           <FamilyScoreCard profile={profile} records={records} />
           <FamilyChangeCard records={records} />
           <EncouragementComposer profile={profile} onSent={onSent} />
@@ -703,6 +682,95 @@ function FamilyEveningRoutineCard({ parentName }: { parentName: string }) {
       <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black text-[#4F5868]">
         <span className="rounded-xl bg-white p-3">20초 기록</span><span className="rounded-xl bg-white p-3">작물 성장</span><span className="rounded-xl bg-white p-3">안심 전달</span>
       </div>
+    </section>
+  );
+}
+
+function FamilyFarmParticipationCard({ profile }: { profile: ParentProfile }) {
+  const [farm, setFarm] = useState<FarmState | null>(null);
+  const [loaded, setLoaded] = useState(false);
+  const season = getCurrentFarmSeason();
+  const crop = getFarmCrop(farm?.currentCropId);
+  const harvestedCrop = getFarmCrop(farm?.lastHarvestedCropId);
+  const remainingDays = crop ? Math.max(crop.requiredDays - (farm?.recordedDays ?? 0), 0) : 0;
+
+  useEffect(() => {
+    setFarm(readFarm());
+    setLoaded(true);
+  }, []);
+
+  function selectCrop(cropId: string) {
+    if (farm?.currentCropId && !farm.harvestable) return;
+    const nextFarm = createFreshFarm(cropId, farm?.totalHarvests ?? 0, "family");
+    saveFarm(nextFarm);
+    setFarm(nextFarm);
+  }
+
+  function sendFamilySupport(kind: "water" | "message") {
+    if (!farm || !crop) return;
+    const supporter = profile.relation || "가족";
+    const nextFarm: FarmState = {
+      ...farm,
+      familySupportEnabled: true,
+      familySupportBy: supporter,
+      lastWateredAt: kind === "water" ? new Date().toISOString() : farm.lastWateredAt,
+      supportMessage: kind === "message" ? `${supporter}님이 ${crop.name}가 잘 자라도록 응원을 보냈어요.` : farm.supportMessage,
+    };
+    saveFarm(nextFarm);
+    setFarm(nextFarm);
+  }
+
+  if (!loaded) return null;
+
+  return (
+    <section className="rounded-[28px] border border-[#BBF7D0] bg-[#F0FDF4] p-6 shadow-[0_16px_38px_rgba(21,128,61,0.07)]">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-black text-[#15803D]">가족이 함께 키우는 안부농장</p>
+          <h2 className="mt-2 text-xl font-black leading-8 text-[#1F2937]">
+            {crop ? `이번 ${seasonLabels[season]}은 ${crop.name}를 함께 키워요.` : `이번 ${seasonLabels[season]} 작물을 먼저 골라주세요.`}
+          </h2>
+        </div>
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl" aria-hidden>{crop?.emoji ?? "🌱"}</span>
+      </div>
+
+      {farm?.giftStatus === "ready" && harvestedCrop ? (
+        <div className="mt-5 rounded-2xl bg-white p-5">
+          <p className="font-black leading-7 text-[#166534]">{profile.parentName}님이 90일 동안 {harvestedCrop.name}를 꾸준히 키우셨어요.</p>
+          <p className="mt-2 font-semibold leading-7 text-[#4B5563]">수확 선물을 보내드릴까요?</p>
+          <Link href="/farm/gift" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#15803D] px-5 text-lg font-black text-white">
+            수확 선물 보내기
+          </Link>
+        </div>
+      ) : null}
+
+      {!crop ? (
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {getSeasonalCrops(season).map((item) => (
+            <button key={item.id} type="button" onClick={() => selectCrop(item.id)} className="min-h-28 rounded-2xl border border-[#BBF7D0] bg-white p-4 text-left transition active:scale-[0.99]">
+              <span className="text-3xl" aria-hidden>{item.emoji}</span>
+              <span className="mt-2 block text-lg font-black text-[#1F2937]">{item.name}</span>
+              <span className="mt-1 block text-sm font-bold text-[#15803D]">90일 함께 키우기</span>
+            </button>
+          ))}
+        </div>
+      ) : farm ? (
+        <div className="mt-5 rounded-2xl bg-white p-5">
+          <div className="flex items-center justify-between gap-3 text-sm font-black text-[#166534]">
+            <span>{crop.name} 성장률 {Math.round(farm.growthPercent)}%</span>
+            <span>수확까지 {remainingDays}일</span>
+          </div>
+          <div className="mt-3 h-4 overflow-hidden rounded-full bg-[#DCFCE7]" role="progressbar" aria-label={`${crop.name} 성장률`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(farm.growthPercent)}>
+            <div className="h-full rounded-full bg-[#22C55E]" style={{ width: `${farm.growthPercent}%` }} />
+          </div>
+          <p className="mt-3 font-semibold leading-7 text-[#4B5563]">부모님은 매일 저녁 8시에 기록하고, 가족은 물과 응원으로 함께해요.</p>
+          {farm.familySupportBy ? <p className="mt-3 rounded-xl bg-[#F0FDF4] px-4 py-3 font-black text-[#166534]">오늘 {farm.familySupportBy}님이 함께 돌봤어요.</p> : null}
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <button type="button" onClick={() => sendFamilySupport("water")} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#DCFCE7] px-4 font-black text-[#166534]"><Droplets size={19} aria-hidden />물 주기</button>
+            <button type="button" onClick={() => sendFamilySupport("message")} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#FFF0E8] px-4 font-black text-[#C2410C]"><MessageCircle size={19} aria-hidden />응원 보내기</button>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -988,6 +1056,10 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
   }
 
   function selectCrop(crop: CropType) {
+    if (farm?.currentCropId && !farm.harvestable) {
+      setHarvestMessage("한 번 선택한 작물은 수확 전까지 바꿀 수 없어요.");
+      return;
+    }
     const growthDate = savedRecord?.date && farm?.lastGrowthDate !== savedRecord.date ? savedRecord.date : undefined;
     const nextFarm = {
       ...createFarm(crop, growthDate),
@@ -1017,13 +1089,16 @@ function ParentSteppedRecordExperience({ records, encouragement, onSaved, onView
       lastGrowthDate: farm.lastGrowthDate,
       harvestable: false,
       totalHarvests: farm.totalHarvests + 1,
+      lastHarvestedCropId: crop.id,
+      harvestNotifiedAt: harvestedAt,
+      giftStatus: "ready",
     };
     setHarvestStorage(nextStorage);
     setFarm(nextFarm);
     saveHarvestStorage(nextStorage);
     saveUserFarm(nextFarm);
     setFarmExpanded(true);
-    setHarvestMessage(`${crop.emoji} ${crop.name} 1개를 수확했어요.`);
+    setHarvestMessage(`축하해요! 90일 동안 함께 키운 ${crop.name}가 드디어 수확되었어요. 가족에게 수확 알림을 보냈습니다.`);
   }
 
   if (!farmLoaded) {
@@ -1437,7 +1512,7 @@ function FarmStoryIntro({ onNext }: { onNext: () => void }) {
       <div className="mx-auto flex size-28 items-center justify-center rounded-[32px] bg-[#F0FDF4] text-6xl" aria-hidden>🌱</div>
       <p className="mt-7 text-sm font-black text-[#15803D]">함께 키우는 안부농장</p>
       <h2 className="mt-3 text-[2.125rem] font-black leading-tight text-[#1F2937]">하루를 기록하면<br />작은 씨앗도 자랍니다.</h2>
-      <p className="mt-5 text-lg font-semibold leading-8 text-[#4B5563]">오늘안부에서는 하루를 기록할 때마다<br />선택한 작물이 조금씩 자랍니다.<br /><br />작물은 꾸준한 기록과 안심이<br />차곡차곡 쌓인다는 의미를 담고 있습니다.</p>
+      <p className="mt-5 text-lg font-semibold leading-8 text-[#4B5563]">계절 작물 하나를 골라 90일 동안 키워요.<br />부모님은 매일 기록만 하면 됩니다.<br /><br />수확되면 가족에게 알림이 가고,<br />가족이 수확 선물을 보낼 수 있어요.</p>
       <button type="button" onClick={onNext} className="mt-9 min-h-16 w-full rounded-2xl bg-[#F97316] px-5 text-[1.375rem] font-black text-white shadow-[0_16px_34px_rgba(249,115,22,0.22)]">작물 선택하기</button>
     </section>
   );
@@ -1475,7 +1550,7 @@ function EveningRoutineSetup({ onEnable }: { onEnable: () => void }) {
 
 function ParentDailyHome({ farm, records, latestRecord, onStartRecord, onViewResult }: { farm: UserFarm; records: TodayRecord[]; latestRecord?: TodayRecord; onStartRecord: () => void; onViewResult: () => void }) {
   const crop = getCropById(farm.currentCropId);
-  const stage = getCropStage(farm.growthPercent);
+  const stage = getCropStage(farm.recordedDays);
   const remainingDays = crop ? Math.max(crop.requiredDays - farm.recordedDays, 0) : 0;
   const today = getLocalDateKey();
   const recordedToday = latestRecord?.date === today;
@@ -1519,9 +1594,10 @@ function ParentDailyHome({ farm, records, latestRecord, onStartRecord, onViewRes
           <div className="h-full rounded-full bg-[#22C55E]" style={{ width: `${farm.growthPercent}%` }} />
         </div>
         <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="font-bold leading-7 text-[#166534]">{recordedToday ? "오늘의 안부 덕분에 작물이 조금 더 자랐어요." : "오늘의 기록을 남기면 작물이 자라요."}</p>
+          <p className="font-bold leading-7 text-[#166534]">{recordedToday ? `오늘도 ${crop?.name ?? "작물"}가 한 뼘 자랐어요.` : `오늘 기록하면 ${crop?.name ?? "작물"}가 자라요.`}</p>
           <span className="shrink-0 font-black text-[#15803D]">안부농장 구경하기</span>
         </div>
+        {farm.familySupportBy ? <p className="mt-3 rounded-2xl bg-white px-4 py-3 font-black leading-7 text-[#166534]">{farm.familySupportBy}님이 오늘 {crop?.name}에 물을 주셨어요. 가족이 함께 키우고 있어요.</p> : null}
       </Link>
 
       <section className="rounded-[28px] bg-[#EFF6FF] p-6">
@@ -1662,11 +1738,8 @@ function FarmRewardCard({
   onHarvest: () => void;
 }) {
   const crop = getCropById(farm?.currentCropId);
-  const stage = getCropStage(farm?.growthPercent ?? 0);
+  const stage = getCropStage(farm?.recordedDays ?? 0);
   const remainingDays = crop && farm ? Math.max(crop.requiredDays - farm.recordedDays, 0) : 0;
-  const month = new Date().getMonth() + 1;
-  const currentSeason = month >= 3 && month <= 5 ? "봄" : month >= 6 && month <= 8 ? "여름" : month >= 9 && month <= 11 ? "가을" : "겨울";
-  const seasonEvent = seasonEvents.find((event) => event.season === currentSeason);
 
   return (
     <section className="mt-4 rounded-[24px] border border-[#BBF7D0] bg-[#F0FDF4] p-5 sm:p-6">
@@ -1682,9 +1755,9 @@ function FarmRewardCard({
           <p className="mt-1 font-semibold leading-7 text-[#4B5563]">
             {crop && farm
               ? farm.harvestable
-                ? "수확을 완료했어요. 배송 정보를 확인하면 농산물이 집 앞까지 도착해요."
+                ? `90일 동안 함께 키운 ${crop.name}가 수확되었어요. 가족에게 수확 알림을 보낼게요.`
                 : `꾸준히 남긴 하루가 곧 수확으로 이어져요. 수확까지 ${remainingDays}일 남았어요.`
-              : "오늘의 기록을 남기면 작물이 자라요."}
+              : "가족과 함께 키울 계절 작물 하나를 골라보세요."}
           </p>
         </div>
       </div>
@@ -1717,8 +1790,13 @@ function FarmRewardCard({
           </div>
           {farm.harvestable ? (
             <button type="button" onClick={onHarvest} className="mt-4 min-h-14 w-full rounded-2xl bg-[#15803D] px-5 text-lg font-black text-white shadow-[0_12px_28px_rgba(21,128,61,0.20)]">
-              수확 완료하고 배송 준비하기
+              90일 농산물 수확하기
             </button>
+          ) : null}
+          {farm.familySupportBy ? (
+            <p className="mt-4 rounded-2xl bg-white px-4 py-3 font-black leading-7 text-[#166534]">
+              {farm.familySupportBy}님이 오늘 {crop.name}에 물을 주셨어요. 가족이 함께 키우고 있어요.
+            </p>
           ) : null}
         </div>
       ) : null}
@@ -1763,13 +1841,11 @@ function FarmRewardCard({
             )}
           </div>
 
-          {seasonEvent ? (
-            <div className="mt-6 border-t border-[#BBF7D0] pt-6">
-              <p className="text-sm font-black text-[#15803D]">시즌 이벤트 예고</p>
-              <p className="mt-2 text-lg font-black text-[#1F2937]">{seasonEvent.title}</p>
-              <p className="mt-2 font-semibold leading-7 text-[#4B5563]">수확을 완료하고 배송 정보를 확인하면 신선한 농산물이 집 앞까지 도착해요.</p>
-            </div>
-          ) : null}
+          <div className="mt-6 border-t border-[#BBF7D0] pt-6">
+            <p className="text-sm font-black text-[#15803D]">수확 선물 안내</p>
+            <p className="mt-2 text-lg font-black text-[#1F2937]">부모님은 매일 기록만 하면 됩니다.</p>
+            <p className="mt-2 font-semibold leading-7 text-[#4B5563]">90일 수확이 끝나면 가족에게 알림이 가고, 가족이 배송지를 확인해 수확 선물을 보낼 수 있어요.</p>
+          </div>
         </div>
       ) : null}
     </section>
@@ -1777,12 +1853,16 @@ function FarmRewardCard({
 }
 
 function CropSelection({ onSelect }: { onSelect: (crop: CropType) => void }) {
+  const season = getCurrentFarmSeason();
+  const seasonalCropIds = new Set(getSeasonalCrops(season).map((crop) => crop.id));
+  const seasonalCrops = cropTypes.filter((crop) => seasonalCropIds.has(crop.id));
+
   return (
     <div>
-      <h4 className="text-[1.6rem] font-black leading-tight text-[#1F2937]">어떤 작물을 키워보고 싶으세요?</h4>
-      <p className="mt-3 text-lg font-semibold leading-8 text-[#4B5563]">매일 기록하면 작물이 자라고, 수확한 농산물이 집 앞까지 도착해요.</p>
+      <h4 className="text-[1.6rem] font-black leading-tight text-[#1F2937]">이번 {seasonLabels[season]}에 함께 키울 작물을 선택해 주세요.</h4>
+      <p className="mt-3 text-lg font-semibold leading-8 text-[#4B5563]">한 번 선택한 작물은 90일 수확 전까지 바꿀 수 없어요. 가족이 먼저 골라주면 더 편해요.</p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {cropTypes.map((crop) => (
+        {seasonalCrops.map((crop) => (
           <button
             key={crop.id}
             type="button"
@@ -1791,9 +1871,9 @@ function CropSelection({ onSelect }: { onSelect: (crop: CropType) => void }) {
           >
             <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-[#F0FDF4] text-4xl" aria-hidden>{crop.emoji}</span>
             <span className="min-w-0 flex-1">
-              <span className="block text-xl font-black text-[#1F2937]">{crop.name} · {crop.requiredDays}일</span>
-              <span className="mt-1 block font-bold text-[#6B7280]">{crop.difficulty} · {crop.season}</span>
-              <span className="mt-2 block font-black text-[#15803D]">이 작물 키우기</span>
+              <span className="block text-xl font-black text-[#1F2937]">{crop.name} · 90일</span>
+              <span className="mt-1 block font-bold text-[#6B7280]">수확 선물 {crop.giftPackage}</span>
+              <span className="mt-2 block font-black text-[#15803D]">이번 계절 함께 키우기</span>
             </span>
           </button>
         ))}
@@ -2566,16 +2646,11 @@ function WeeklySummaryContent({ audience = "parent" }: { audience?: "parent" | "
 }
 
 function readUserFarm(): UserFarm | null {
-  try {
-    const raw = window.localStorage.getItem(farmKey);
-    return raw ? (JSON.parse(raw) as UserFarm) : null;
-  } catch {
-    return null;
-  }
+  return readFarm();
 }
 
 function saveUserFarm(farm: UserFarm) {
-  window.localStorage.setItem(farmKey, JSON.stringify(farm));
+  saveFarm(farm);
 }
 
 function readHarvestStorage(): HarvestStorageItem[] {

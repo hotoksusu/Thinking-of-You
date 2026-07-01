@@ -352,7 +352,7 @@ export function generateMonthlyReport(profileId: string) {
   return {
     profileId,
     title: "월간 AI 안심 리포트",
-    summary: "월간 패턴을 비교해 변화 신호와 가족 공유 포인트를 정리합니다.",
+    summary: "월간 패턴을 비교해 변화 신호와 가족 공유 내용을 정리합니다.",
   };
 }
 

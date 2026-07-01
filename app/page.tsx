@@ -33,7 +33,7 @@ const values: Array<{
   },
   {
     title: "함께 키우는 안부농장",
-    description: "매일 기록하면 작물이 자라고, 수확한 농산물이 집 앞까지 도착해요.",
+    description: "90일 동안 기록으로 키우면 가족이 수확 선물을 보내드릴 수 있어요.",
     icon: Sprout,
     color: "bg-[#EDF7E7] text-[#4E8D45]",
     href: "/farm",
@@ -67,7 +67,7 @@ export default function LandingPage() {
           </h1>
           <p className="mt-5 text-[1.05rem] font-semibold leading-8 text-[#5D6678] sm:text-lg">
             20초의 간단한 기록이 가족에게 안심으로 전해지고,
-            <br className="hidden sm:block" /> 선택한 농산물은 수확 뒤 집 앞까지 도착합니다.
+            <br className="hidden sm:block" /> 선택한 작물은 가족과 함께 90일 동안 자랍니다.
           </p>
           <div className="mt-7 hidden gap-3 sm:flex">
             <Link href="/app" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#FF681F] px-7 text-lg font-black text-white shadow-[0_16px_34px_rgba(255,104,31,0.24)] transition hover:bg-[#EB5712] active:scale-[0.98]">
@@ -147,7 +147,7 @@ export default function LandingPage() {
       <section className="mx-auto w-full max-w-[760px] px-5 pb-10 text-center sm:px-8">
         <p className="text-sm font-black text-[#F45D18]">오늘안부의 약속</p>
         <h2 className="mt-3 text-2xl font-black sm:text-3xl">매일 저녁 8시, 20초만 오늘을 남겨보세요.</h2>
-        <p className="mt-3 font-semibold leading-7 text-[#6C7280]">기록은 쉽고, 보상은 확실하게. 가족은 안심하고 농산물은 집 앞까지 이어집니다.</p>
+        <p className="mt-3 font-semibold leading-7 text-[#6C7280]">부모님은 기록만 하고, 90일 수확 뒤에는 가족이 배송지를 확인해 수확 선물을 보낼 수 있어요.</p>
       </section>
 
       <BottomTabBar active="home" />

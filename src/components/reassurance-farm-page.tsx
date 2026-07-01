@@ -9,6 +9,8 @@ import {
   farmCrops,
   getFarmCrop,
   getFarmStage,
+  getCurrentFarmSeason,
+  getSeasonalCrops,
   getStageVisual,
   readFarm,
   readHarvests,
@@ -17,16 +19,15 @@ import {
   type FarmCrop,
   type FarmState,
   type HarvestItem,
+  seasonLabels,
 } from "@/lib/reassurance-farm";
 
 const stageMessages = {
-  seed: "따뜻한 흙 속에서 첫날을 기다리고 있어요.",
-  sprout: "작은 새싹이 고개를 내밀었어요.",
-  stem: "줄기가 한 뼘 더 자랐어요.",
-  flower: "꽃이 피었습니다.",
-  tiny_fruit: "작은 열매가 맺히기 시작했어요.",
-  ripe: "열매가 곱게 익어가고 있어요.",
-  harvest: "잘 자랐어요. 이제 수확할 수 있어요.",
+  seed: "씨앗 단계예요. 첫 7일을 천천히 채우고 있어요.",
+  sprout: "새싹 단계예요. 30일까지 하루하루 자라요.",
+  stem: "줄기 단계예요. 기록이 든든하게 쌓이고 있어요.",
+  fruit: "열매 단계예요. 이제 수확이 가까워졌어요.",
+  harvest: "90번의 기록을 채워 수확을 완료했어요.",
 } as const;
 
 const visitors = [
@@ -49,7 +50,7 @@ export function ReassuranceFarmPage() {
   const [loaded, setLoaded] = useState(false);
   const [reacting, setReacting] = useState(false);
   const [harvestState, setHarvestState] = useState<"idle" | "moving" | "done">("idle");
-  const [deliveryConfirmed, setDeliveryConfirmed] = useState(false);
+  const [lastHarvestedCrop, setLastHarvestedCrop] = useState<FarmCrop | null>(null);
 
   useEffect(() => {
     setFarm(readFarm());
@@ -58,9 +59,11 @@ export function ReassuranceFarmPage() {
   }, []);
 
   const crop = getFarmCrop(farm?.currentCropId);
-  const stage = getFarmStage(farm?.growthPercent ?? 0);
+  const stage = getFarmStage(farm?.recordedDays ?? 0);
   const visitor = useMemo(() => visitors[(dayNumber() + (crop?.id.length ?? 0)) % visitors.length], [crop?.id]);
   const remainingDays = crop && farm ? Math.max(crop.requiredDays - farm.recordedDays, 0) : 0;
+  const currentSeason = getCurrentFarmSeason();
+  const seasonalCrops = getSeasonalCrops(currentSeason);
 
   function reactToTouch() {
     setReacting(false);
@@ -69,11 +72,12 @@ export function ReassuranceFarmPage() {
   }
 
   function selectCrop(nextCrop: FarmCrop) {
-    const nextFarm = createFreshFarm(nextCrop, farm?.totalHarvests ?? 0);
+    if (farm?.currentCropId && !farm.harvestable) return;
+    const nextFarm = createFreshFarm(nextCrop, farm?.totalHarvests ?? 0, "parent");
     setFarm(nextFarm);
     saveFarm(nextFarm);
     setHarvestState("idle");
-    setDeliveryConfirmed(false);
+    setLastHarvestedCrop(null);
   }
 
   function harvest() {
@@ -86,6 +90,10 @@ export function ReassuranceFarmPage() {
         ? storage.map((item) => item.cropId === crop.id ? { ...item, count: item.count + 1, harvestedAt } : item)
         : [...storage, { cropId: crop.id, count: 1, harvestedAt }];
       const nextFarm: FarmState = { ...farm, currentCropId: null, recordedDays: 0, growthPercent: 0, harvestable: false, totalHarvests: farm.totalHarvests + 1 };
+      nextFarm.lastHarvestedCropId = crop.id;
+      nextFarm.harvestNotifiedAt = harvestedAt;
+      nextFarm.giftStatus = "ready";
+      setLastHarvestedCrop(crop);
       setStorage(nextStorage);
       setFarm(nextFarm);
       saveHarvests(nextStorage);
@@ -105,9 +113,9 @@ export function ReassuranceFarmPage() {
 
       <div className="mx-auto w-full max-w-[760px] px-5 pb-16">
         <section className="mb-5 rounded-[24px] bg-white p-5 shadow-[0_16px_38px_rgba(15,23,42,0.06)]">
-          <p className="text-sm font-black text-[#15803D]">수확에서 배송까지</p>
+          <p className="text-sm font-black text-[#15803D]">90일 기록에서 수확 선물까지</p>
           <div className="mt-4 grid grid-cols-5 gap-1 text-center">
-            {["작물 선택", "매일 기록", "작물 성장", "수확 완료", "집 앞 배송"].map((label, index) => <div key={label}><span className={`mx-auto flex size-9 items-center justify-center rounded-xl text-sm font-black ${index <= 1 ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>{index + 1}</span><p className="mt-2 text-[0.68rem] font-black leading-4 text-[#4B5563]">{label}</p></div>)}
+            {["작물 선택", "매일 기록", "작물 성장", "수확 완료", "가족이 선물"].map((label, index) => <div key={label}><span className={`mx-auto flex size-9 items-center justify-center rounded-xl text-sm font-black ${index <= 1 ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>{index + 1}</span><p className="mt-2 text-[0.68rem] font-black leading-4 text-[#4B5563]">{label}</p></div>)}
           </div>
         </section>
         {crop && farm ? (
@@ -115,8 +123,8 @@ export function ReassuranceFarmPage() {
             <section className="overflow-hidden rounded-[28px] border border-[#BBF7D0] bg-white shadow-[0_24px_70px_rgba(21,128,61,0.10)]">
               <div className="farm-sky relative min-h-[360px] overflow-hidden px-6 pt-7 text-center">
                 <div className="absolute right-6 top-6 rounded-full bg-white/90 px-4 py-2 text-lg shadow-sm" aria-label={visitor.text}>{visitor.icon}</div>
-                <p className="text-sm font-black text-[#166534]">이번 달 선택 작물 · {crop.name}</p>
-                <h1 className="mt-2 text-[2rem] font-black leading-tight">오늘 기록하면<br />{crop.name}가 한 단계 자라요</h1>
+                <p className="text-sm font-black text-[#166534]">이번 계절은 {crop.name}를 함께 키워요</p>
+                <h1 className="mt-2 text-[2rem] font-black leading-tight">매일 저녁 8시,<br />오늘 기록으로 자라요</h1>
                 <button type="button" onClick={reactToTouch} className={`farm-crop mt-8 inline-flex min-h-40 min-w-40 items-center justify-center rounded-full bg-white/75 px-5 text-7xl shadow-[0_18px_42px_rgba(21,128,61,0.16)] ${reacting ? "farm-crop-react" : ""}`} aria-label={`${crop.name}을 살짝 만져보기`}>
                   {getStageVisual(stage, crop)}
                 </button>
@@ -132,7 +140,9 @@ export function ReassuranceFarmPage() {
                 <div className="mt-4 h-5 overflow-hidden rounded-full bg-[#DCFCE7]" role="progressbar" aria-label="작물 성장률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(farm.growthPercent)}>
                   <div className="h-full rounded-full bg-[#22C55E] transition-all" style={{ width: `${farm.growthPercent}%` }} />
                 </div>
-                {farm.harvestable ? <button type="button" onClick={harvest} disabled={harvestState !== "idle"} className="mt-6 min-h-16 w-full rounded-2xl bg-[#15803D] px-5 text-xl font-black text-white disabled:bg-[#86B795]">{harvestState === "moving" ? "바구니에 담고 있어요..." : "잘 자란 작물 수확하기"}</button> : null}
+                <p className="mt-4 rounded-2xl bg-[#F0FDF4] p-4 font-black leading-7 text-[#166534]">오늘 기록하면 {crop.name}가 한 단계 자라요.</p>
+                {farm.familySupportBy ? <p className="mt-3 rounded-2xl bg-[#EFF6FF] p-4 font-bold leading-7 text-[#1D4ED8]">💧 {farm.familySupportBy}님이 오늘 {crop.name}에 물을 주셨어요.<br />가족이 함께 키우고 있어요.</p> : null}
+                {farm.harvestable ? <button type="button" onClick={harvest} disabled={harvestState !== "idle"} className="mt-6 min-h-16 w-full rounded-2xl bg-[#15803D] px-5 text-xl font-black text-white disabled:bg-[#86B795]">{harvestState === "moving" ? "바구니에 담고 있어요..." : "90일 농산물 수확하기"}</button> : null}
               </div>
             </section>
 
@@ -148,10 +158,11 @@ export function ReassuranceFarmPage() {
           </>
         ) : (
           <section className="rounded-[28px] bg-white p-7 shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
-            {harvestState === "done" ? <div className="mb-7 rounded-2xl bg-[#FFF7ED] p-5 text-center"><Check className="mx-auto text-[#F97316]" size={34} aria-hidden /><h1 className="mt-3 text-2xl font-black">축하해요!</h1><p className="mt-2 font-bold leading-7 text-[#7C2D12]">꾸준한 기록으로 농산물 수확을 완료했어요.<br />배송 정보를 확인하면 신선한 농산물이 집 앞까지 도착합니다.</p><button type="button" onClick={() => setDeliveryConfirmed(true)} className="mt-5 min-h-12 w-full rounded-2xl bg-[#F97316] px-5 font-black text-white">배송 정보 확인하기</button>{deliveryConfirmed ? <p className="mt-3 rounded-xl bg-white p-3 text-sm font-black text-[#15803D]">배송 정보를 확인했어요. 신선하게 준비해 알려드릴게요.</p> : null}</div> : null}
+            {harvestState === "done" ? <div className="mb-7 rounded-2xl bg-[#FFF7ED] p-5 text-center"><Check className="mx-auto text-[#F97316]" size={34} aria-hidden /><h1 className="mt-3 text-2xl font-black">축하해요!</h1><p className="mt-2 font-bold leading-7 text-[#7C2D12]">90일 동안 함께 키운 {lastHarvestedCrop?.name ?? "작물"}가 드디어 수확되었어요.<br />가족에게 수확 알림을 보냈습니다.</p></div> : null}
             <Sparkles className="text-[#15803D]" size={34} aria-hidden />
-            <h1 className="mt-4 text-3xl font-black leading-tight">다음 계절을 함께할<br />작물을 골라보세요.</h1>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">{farmCrops.map((item) => <button key={item.id} type="button" onClick={() => selectCrop(item)} className="flex min-h-24 items-center gap-4 rounded-2xl border border-[#BBF7D0] bg-[#F0FDF4] p-4 text-left"><span className="text-4xl" aria-hidden>{item.emoji}</span><span><strong className="block text-xl">{item.name}</strong><span className="mt-1 block font-bold text-[#4B5563]">{item.requiredDays}일 · {item.season}</span></span></button>)}</div>
+            <h1 className="mt-4 text-3xl font-black leading-tight">이번 {seasonLabels[currentSeason]}에 함께 키울<br />작물을 선택해 주세요.</h1>
+            <p className="mt-3 font-semibold leading-7 text-[#6B7280]">한 번 선택한 작물은 수확 전까지 바꿀 수 없어요. 가족이 먼저 골라주면 더 편해요.</p>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">{seasonalCrops.map((item) => <button key={item.id} type="button" onClick={() => selectCrop(item)} className="flex min-h-24 items-center gap-4 rounded-2xl border border-[#BBF7D0] bg-[#F0FDF4] p-4 text-left"><span className="text-4xl" aria-hidden>{item.emoji}</span><span><strong className="block text-xl">{item.name}</strong><span className="mt-1 block font-bold text-[#4B5563]">90일 · {item.giftPackage}</span></span></button>)}</div>
           </section>
         )}
 
@@ -168,12 +179,14 @@ function DiaryRow({ day, icon, text }: { day: string; icon: string; text: string
 }
 
 function Warehouse({ storage }: { storage: HarvestItem[] }) {
+  const visibleCropIds = new Set([...getSeasonalCrops().map((crop) => crop.id), ...storage.map((item) => item.cropId)]);
+  const visibleCrops = farmCrops.filter((crop) => visibleCropIds.has(crop.id));
   return (
     <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_18px_48px_rgba(15,23,42,0.06)]">
-      <div className="flex items-center gap-3 text-[#166534]"><PackageOpen size={26} aria-hidden /><h2 className="text-2xl font-black">수확·배송 창고</h2></div>
-      <p className="mt-2 font-semibold leading-7 text-[#6B7280]">수확을 완료한 농산물은 배송 정보를 확인한 뒤 집 앞까지 이어집니다.</p>
+      <div className="flex items-center gap-3 text-[#166534]"><PackageOpen size={26} aria-hidden /><h2 className="text-2xl font-black">수확 창고</h2></div>
+      <p className="mt-2 font-semibold leading-7 text-[#6B7280]">90일 수확이 끝나면 가족에게 알림이 가고, 가족이 배송지를 확인해 수확 선물을 보낼 수 있어요.</p>
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {farmCrops.map((crop) => {
+        {visibleCrops.map((crop) => {
           const item = storage.find((stored) => stored.cropId === crop.id);
           return <div key={crop.id} className={`min-h-36 rounded-2xl border p-4 text-center ${item ? "border-[#BBF7D0] bg-[#F0FDF4]" : "border-dashed border-[#D1D5DB] bg-[#F9FAFB]"}`}><span className={`text-4xl ${item ? "" : "grayscale opacity-30"}`} aria-hidden>{crop.emoji}</span><strong className="mt-2 block">{crop.name}</strong><span className="mt-1 block text-sm font-bold text-[#6B7280]">{item ? `수확 완료 · ${item.count}개` : "다음 작물을 기다리고 있어요."}</span></div>;
         })}
