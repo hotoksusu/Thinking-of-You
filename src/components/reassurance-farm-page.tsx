@@ -102,10 +102,10 @@ export function ReassuranceFarmPage() {
     }, 1900);
   }
 
-  if (!loaded) return <main className="min-h-screen bg-[#F6FBF3]" aria-label="안심농장을 불러오고 있어요" />;
+  if (!loaded) return <main className="app-frame bg-[#F6FBF3]" aria-label="안심농장을 불러오고 있어요" />;
 
   return (
-    <main className="min-h-screen bg-[#F6FBF3] pb-24 text-[#1F2937]">
+    <main className="app-frame has-bottom-nav bg-[#F6FBF3] text-[#1F2937]">
       <header className="mx-auto flex w-full max-w-[760px] items-center justify-between px-5 py-5">
         <Link href="/app?role=parent" className="flex min-h-12 items-center gap-2 font-black text-[#166534]"><ArrowLeft size={22} aria-hidden /> 부모님 홈</Link>
         <span className="font-black text-[#15803D]">함께 키우는 안부농장</span>

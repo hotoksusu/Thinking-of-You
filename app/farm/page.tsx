@@ -25,7 +25,7 @@ export default function FarmPage() {
   const crops = getSeasonalCrops(season);
 
   return (
-    <main className="min-h-screen bg-[#F9F8EE] pb-28 text-[#17223B]">
+    <main className="app-frame has-bottom-nav bg-[#F9F8EE] text-[#17223B]">
       <header className="mx-auto flex w-full max-w-[760px] items-center justify-between px-5 py-5 sm:px-8">
         <Link href="/app" className="flex size-11 items-center justify-center rounded-full bg-white shadow-sm" aria-label="뒤로가기"><ArrowLeft size={22} aria-hidden /></Link>
         <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#4B7F42] shadow-sm">안부농장</span>

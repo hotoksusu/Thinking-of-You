@@ -33,15 +33,18 @@
 }
 
 html {
+  width: 100%;
   min-height: 100%;
   background: var(--background);
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
+  width: 100%;
   min-height: 100%;
   margin: 0;
-  background: #fff9f2;
+  background: #eeeae4;
   color: var(--foreground);
   font-family: "Pretendard Variable", Pretendard, SUIT, "Noto Sans KR",
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system,
@@ -51,6 +54,14 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
 }
 
 button,
@@ -66,11 +77,62 @@ a {
 }
 
 .page-shell {
+  min-height: 100vh;
   min-height: 100svh;
+  min-height: 100dvh;
 }
 
 .safe-bottom {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.app-frame {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  margin-inline: auto;
+  overflow-x: clip;
+  box-shadow: 0 0 64px rgba(46, 39, 32, 0.11);
+}
+
+.app-frame.has-bottom-nav {
+  padding-bottom: calc(6.25rem + max(0.5rem, env(safe-area-inset-bottom))) !important;
+}
+
+.app-frame :where(h1, h2, h3, h4, p, li, a, button, label, span) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.app-frame :where(button, input, textarea, select) {
+  max-width: 100%;
+}
+
+.app-frame button {
+  min-height: 44px;
+}
+
+.app-frame :where(.grid, .flex) > * {
+  min-width: 0;
+}
+
+@media (max-width: 374px) {
+  .app-frame {
+    font-size: 15px;
+  }
+
+  .app-frame .compact-mobile-gap {
+    gap: 0.5rem;
+  }
+}
+
+@media (min-width: 481px) {
+  .app-frame {
+    border-inline: 1px solid rgba(112, 92, 75, 0.08);
+  }
 }
 
 .text-balance {

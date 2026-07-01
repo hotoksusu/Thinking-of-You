@@ -43,7 +43,7 @@ const values: Array<{
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#FFF9F2] pb-24 text-[#17223B]">
+    <main className="app-frame has-bottom-nav bg-[#FFF9F2] text-[#17223B]">
       <header className="mx-auto flex w-full max-w-[1080px] items-center justify-between px-5 py-5 sm:px-8">
         <BrandLogo />
         <Link
@@ -54,7 +54,7 @@ export default function LandingPage() {
         </Link>
       </header>
 
-      <section className="mx-auto grid w-full max-w-[1080px] gap-8 px-5 pb-12 pt-5 sm:px-8 lg:grid-cols-[0.88fr_1.12fr] lg:items-center lg:pb-16 lg:pt-10">
+      <section className="mx-auto grid w-full max-w-[1080px] gap-8 px-5 pb-12 pt-5 sm:px-8">
         <div className="relative z-10">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF0E8] px-3 py-1.5 text-sm font-black text-[#F45D18]">
             <Sparkles size={15} aria-hidden />
@@ -90,16 +90,16 @@ export default function LandingPage() {
       </section>
 
       <section id="service" className="mx-auto w-full max-w-[1080px] scroll-mt-6 px-5 sm:px-8">
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3">
           {values.map((value) => {
             const Icon = value.icon;
             return (
-              <article key={value.title} className="flex gap-4 rounded-[22px] border border-[#F1E7DC] bg-white p-5 shadow-[0_12px_28px_rgba(80,52,32,0.06)] sm:block">
+              <article key={value.title} className="flex min-w-0 gap-4 rounded-[22px] border border-[#F1E7DC] bg-white p-5 shadow-[0_12px_28px_rgba(80,52,32,0.06)]">
                 <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${value.color}`}>
                   <Icon size={24} strokeWidth={2.4} aria-hidden />
                 </span>
                 <div>
-                  <h2 className="font-black sm:mt-4">{value.title}</h2>
+                  <h2 className="font-black">{value.title}</h2>
                   <p className="mt-1 text-sm font-semibold leading-6 text-[#6C7280]">{value.description}</p>
                   {value.href && value.cta ? <Link href={value.href} className="mt-3 inline-flex items-center gap-1 text-sm font-black text-[#4E8D45]">{value.cta}<ArrowRight size={15} aria-hidden /></Link> : null}
                 </div>

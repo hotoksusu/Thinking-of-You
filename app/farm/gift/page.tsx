@@ -57,7 +57,7 @@ export default function HarvestGiftPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#FFF8F1] px-5 pb-28 pt-7 text-[#17223B] sm:px-8">
+    <main className="app-frame has-bottom-nav bg-[#FFF8F1] px-5 pt-7 text-[#17223B] sm:px-8">
       <div className="mx-auto w-full max-w-[680px]">
         <Link href="/app?role=family" className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-sm font-black shadow-sm">
           <ArrowLeft size={18} aria-hidden /> 가족 화면

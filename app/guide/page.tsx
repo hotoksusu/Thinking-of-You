@@ -59,7 +59,7 @@ const rewardSteps = [
 
 export default function GuidePage() {
   return (
-    <main className="min-h-screen bg-[#FFF9F2] pb-28 text-[#17223B]">
+    <main className="app-frame has-bottom-nav bg-[#FFF9F2] text-[#17223B]">
       <header className="mx-auto flex w-full max-w-[760px] items-center px-5 py-5 sm:px-8">
         <Link href="/app" className="flex size-11 items-center justify-center rounded-full bg-white text-[#17223B] shadow-[0_8px_22px_rgba(75,49,31,0.08)]" aria-label="뒤로가기">
           <ArrowLeft size={22} aria-hidden />

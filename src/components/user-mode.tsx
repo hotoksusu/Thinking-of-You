@@ -523,7 +523,7 @@ export function UserMode({ initialRegistered, initialRole }: { initialRegistered
 
 function ExperienceRoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) => void }) {
   return (
-    <main className="min-h-screen bg-[#FFF9F2] px-5 pb-28 pt-5 text-[#17223B] sm:px-8">
+    <main className="app-frame has-bottom-nav bg-[#FFF9F2] px-5 pt-5 text-[#17223B] sm:px-8">
       <section className="mx-auto w-full max-w-[760px]">
         <Link href="/" className="flex size-11 items-center justify-center rounded-full bg-white shadow-[0_8px_22px_rgba(75,49,31,0.08)]" aria-label="뒤로가기">
           <ArrowLeft size={22} aria-hidden />
@@ -634,7 +634,7 @@ function ParentExperience({ records, encouragements, onSaved, onBack, onViewFami
   const encouragement = encouragements[0] ?? defaultEncouragement(defaultProfile);
 
   return (
-    <main className="min-h-screen bg-[#FFF7ED] px-5 pb-28 pt-7 text-[#1F2937] sm:px-8">
+    <main className="app-frame has-bottom-nav bg-[#FFF7ED] px-5 pt-7 text-[#1F2937] sm:px-8">
       <div className="mx-auto w-full max-w-[760px]">
         <ExperienceHeader eyebrow="부모님 화면" title="오늘의 기록" onBack={onBack} />
         <ParentSteppedRecordExperience records={records} encouragement={encouragement} onSaved={onSaved} onViewFamily={onViewFamily} />
@@ -646,7 +646,7 @@ function ParentExperience({ records, encouragements, onSaved, onBack, onViewFami
 
 function FamilyExperience({ profile, records, onSent, onReset, onBack }: { profile: ParentProfile; records: TodayRecord[]; onSent: (message: Encouragement) => void; onReset: () => void; onBack: () => void }) {
   return (
-    <main className="min-h-screen bg-[#F9FAFB] px-5 pb-28 pt-7 text-[#1F2937] sm:px-8">
+    <main className="app-frame has-bottom-nav bg-[#F9FAFB] px-5 pt-7 text-[#1F2937] sm:px-8">
       <div className="mx-auto w-full max-w-[920px]">
         <ExperienceHeader eyebrow="가족 화면" title="안심 리포트" onBack={onBack} />
         <div className="grid gap-5">
@@ -2422,13 +2422,13 @@ function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; on
         </p>
       </div>
 
-      <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
+      <div className="mt-5 flex flex-wrap gap-2">
         {encouragementCategories.map((category) => (
           <button
             key={category.id}
             type="button"
             onClick={() => setActiveCategory(category.id)}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-black ${activeCategory === category.id ? "bg-[#2563EB] text-white" : "bg-[#F3F4F6] text-[#4B5563]"}`}
+            className={`min-h-11 rounded-full px-4 py-2 text-sm font-black leading-tight ${activeCategory === category.id ? "bg-[#2563EB] text-white" : "bg-[#F3F4F6] text-[#4B5563]"}`}
           >
             {category.label}
           </button>
@@ -2437,7 +2437,7 @@ function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; on
 
       <div className="mt-5">
         <p className="text-sm font-black text-[#6B7280]">말투</p>
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-3 flex flex-wrap gap-2">
           {encouragementTones.map((tone) => (
             <button
               key={tone.id}
@@ -2446,7 +2446,7 @@ function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; on
                 setActiveTone(tone.id);
                 setDraft((current) => transformEncouragementTone(current, tone.id, profile));
               }}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-black ${activeTone === tone.id ? "bg-[#111827] text-white" : "bg-[#F3F4F6] text-[#4B5563]"}`}
+              className={`min-h-11 rounded-full px-4 py-2 text-sm font-black leading-tight ${activeTone === tone.id ? "bg-[#111827] text-white" : "bg-[#F3F4F6] text-[#4B5563]"}`}
             >
               {tone.label}
             </button>
@@ -2456,7 +2456,7 @@ function EncouragementComposer({ profile, onSent }: { profile: ParentProfile; on
 
       <div className="mt-4 rounded-2xl bg-[#EFF6FF] p-4">
         <p className="text-sm font-black text-[#2563EB]">랜덤 추천 문구</p>
-        <button type="button" onClick={() => setDraft(recommendedTemplate)} className="mt-2 text-left font-black leading-7 text-[#1F2937]">
+        <button type="button" onClick={() => setDraft(recommendedTemplate)} className="mt-2 inline-flex min-h-11 items-center text-left font-black leading-7 text-[#1F2937]">
           {recommendedTemplate}
         </button>
       </div>
