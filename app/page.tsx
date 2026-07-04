@@ -1,156 +1,60 @@
-import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BarChart3,
-  CheckCircle2,
-  Clock3,
-  Sparkles,
-  Sprout,
-} from "lucide-react";
-import { BottomTabBar } from "@/components/bottom-tab-bar";
-import { BrandLogo } from "@/components/brand-ui";
+import { ArrowRight, Check, Database, Footprints, HeartHandshake, ShieldCheck, Sparkles, Sprout } from "lucide-react";
 
-const values: Array<{
-  title: string;
-  description: string;
-  icon: typeof Clock3;
-  color: string;
-  href?: string;
-  cta?: string;
-}> = [
-  {
-    title: "저녁 8시 루틴",
-    description: "매일 같은 시간, 오늘 하루를 편하게 남겨요.",
-    icon: Clock3,
-    color: "bg-[#FFF0E8] text-[#F45D18]",
-  },
-  {
-    title: "AI 안심 리포트",
-    description: "기록을 바탕으로 가족이 안심하도록 정리해요.",
-    icon: BarChart3,
-    color: "bg-[#F0EDFF] text-[#7563D9]",
-  },
-  {
-    title: "함께 키우는 안부농장",
-    description: "90일 동안 기록으로 키우면 가족이 수확 선물을 보내드릴 수 있어요.",
-    icon: Sprout,
-    color: "bg-[#EDF7E7] text-[#4E8D45]",
-    href: "/farm",
-    cta: "안부농장 구경하기",
-  },
+const signals = [
+  { icon: Footprints, label: "걸음수", value: "3,542걸음" },
+  { icon: Sparkles, label: "생활 리듬", value: "평소와 비슷" },
+  { icon: HeartHandshake, label: "통화 활동", value: "오늘 2회" },
 ];
 
 export default function LandingPage() {
   return (
-    <main className="app-frame has-bottom-nav bg-[#FFF9F2] text-[#17223B]">
-      <header className="mx-auto flex w-full max-w-[1080px] items-center justify-between px-5 py-5 sm:px-8">
-        <BrandLogo />
-        <Link
-          href="#service"
-          className="inline-flex min-h-11 items-center rounded-full border border-[#F1E6DA] bg-white px-4 text-sm font-black text-[#27344E] shadow-sm transition hover:border-[#FFB48F] hover:text-[#F45D18]"
-        >
-          서비스 소개
-        </Link>
+    <main className="min-h-screen overflow-hidden bg-[#F6F8F4] text-[#17221B]">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-6 sm:px-8">
+        <Link href="/" className="flex items-center gap-2 text-lg font-black"><span className="flex size-10 items-center justify-center rounded-2xl bg-[#2F6B46] text-white"><ShieldCheck size={20} /></span>오늘안부</Link>
+        <Link href="/app" className="rounded-full border border-[#D9E4D9] bg-white px-5 py-2.5 text-sm font-black">서비스 시작</Link>
       </header>
 
-      <section className="mx-auto grid w-full max-w-[1080px] gap-8 px-5 pb-12 pt-5 sm:px-8">
-        <div className="relative z-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF0E8] px-3 py-1.5 text-sm font-black text-[#F45D18]">
-            <Sparkles size={15} aria-hidden />
-            매일 20초, 가족에게 전하는 오늘의 안심
-          </span>
-          <h1 className="mt-5 text-[2.55rem] font-black leading-[1.16] text-[#14213D] sm:text-[3.5rem]">
-            매일 저녁 8시,
-            <br />
-            <span className="text-[#F45D18]">오늘을 남겨보세요.</span>
-          </h1>
-          <p className="mt-5 text-[1.05rem] font-semibold leading-8 text-[#5D6678] sm:text-lg">
-            20초의 간단한 기록이 가족에게 안심으로 전해지고,
-            <br className="hidden sm:block" /> 선택한 작물은 가족과 함께 90일 동안 자랍니다.
-          </p>
-          <div className="mt-7 hidden gap-3 sm:flex">
-            <Link href="/app" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#FF681F] px-7 text-lg font-black text-white shadow-[0_16px_34px_rgba(255,104,31,0.24)] transition hover:bg-[#EB5712] active:scale-[0.98]">
-              오늘안부 시작하기
-              <ArrowRight size={19} aria-hidden />
-            </Link>
+      <section className="mx-auto grid max-w-6xl items-center gap-12 px-5 pb-20 pt-12 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:pt-20">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full bg-[#E7F1E6] px-4 py-2 text-sm font-black text-[#396849]"><span className="size-2 rounded-full bg-[#58A36B]" />생활이 안부가 되는 서비스</span>
+          <h1 className="mt-7 text-5xl font-black leading-[1.08] tracking-[-.045em] sm:text-7xl">기록하지 않아도,<br /><span className="text-[#2F6B46]">오늘은 전해집니다.</span></h1>
+          <p className="mt-7 max-w-xl text-lg font-semibold leading-8 text-[#657069]">사용자가 앱을 위해 행동하지 않아도 됩니다. 평소의 걸음, 생활 리듬, 통화 활동을 AI가 살펴 가족에게 편안한 안심을 전합니다.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/app?role=family" className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[#2F6B46] px-6 text-lg font-black text-white shadow-[0_18px_45px_rgba(47,107,70,.22)]">오늘의 안심 보기 <ArrowRight size={19} /></Link>
+            <Link href="/app?role=parent" className="inline-flex min-h-14 items-center rounded-2xl border border-[#D9E4D9] bg-white px-6 font-black">부모님 화면 보기</Link>
           </div>
+          <p className="mt-5 flex items-center gap-2 text-sm font-bold text-[#79837C]"><Check size={16} className="text-[#4D8A5D]" />매일 입력할 필요가 없어요</p>
         </div>
 
-        <div className="relative overflow-hidden rounded-[32px] border border-[#F4E5D6] bg-[#FFEEDD] shadow-[0_26px_70px_rgba(125,79,38,0.14)]">
-          <Image
-            src="/illustrations/todayanbu-hero.png"
-            alt="따뜻한 방에서 오늘의 하루를 기록하는 오늘안부 캐릭터"
-            width={1536}
-            height={1152}
-            priority
-            className="h-auto w-full"
-          />
-        </div>
-      </section>
-
-      <section id="service" className="mx-auto w-full max-w-[1080px] scroll-mt-6 px-5 sm:px-8">
-        <div className="grid gap-3">
-          {values.map((value) => {
-            const Icon = value.icon;
-            return (
-              <article key={value.title} className="flex min-w-0 gap-4 rounded-[22px] border border-[#F1E7DC] bg-white p-5 shadow-[0_12px_28px_rgba(80,52,32,0.06)]">
-                <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${value.color}`}>
-                  <Icon size={24} strokeWidth={2.4} aria-hidden />
-                </span>
-                <div>
-                  <h2 className="font-black">{value.title}</h2>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-[#6C7280]">{value.description}</p>
-                  {value.href && value.cta ? <Link href={value.href} className="mt-3 inline-flex items-center gap-1 text-sm font-black text-[#4E8D45]">{value.cta}<ArrowRight size={15} aria-hidden /></Link> : null}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 sm:hidden">
-          <Link href="/app" className="flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#FF681F] px-6 text-lg font-black text-white shadow-[0_16px_34px_rgba(255,104,31,0.24)] active:scale-[0.98]">
-            오늘안부 시작하기
-            <ArrowRight size={19} aria-hidden />
-          </Link>
-          <p className="mt-4 text-center text-sm font-semibold text-[#6C7280]">
-            이미 계정이 있으신가요? <Link href="/app?role=family" className="font-black text-[#F45D18]">로그인</Link>
-          </p>
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-[1080px] px-5 py-16 sm:px-8 sm:py-20">
-        <div className="grid gap-5 rounded-[30px] bg-[#17223B] p-6 text-white shadow-[0_24px_60px_rgba(23,34,59,0.16)] sm:grid-cols-[1fr_0.9fr] sm:p-10">
-          <div>
-            <p className="text-sm font-black text-[#FFB184]">AI 안심 리포트 미리보기</p>
-            <h2 className="mt-3 text-3xl font-black leading-tight">기록은 짧게,<br />가족의 안심은 선명하게.</h2>
-            <p className="mt-4 font-semibold leading-7 text-[#CBD1DC]">하루하루의 응답보다 평소와 달라진 흐름을 먼저 정리해 드려요.</p>
-            <Link href="/app?role=family" className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-white px-5 font-black text-[#17223B]">
-              안심 리포트 체험하기
-              <ArrowRight size={18} aria-hidden />
-            </Link>
-          </div>
-          <div className="rounded-[22px] bg-white p-5 text-[#17223B]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-black text-[#6C7280]">오늘의 안심 상태</p>
-                <p className="mt-1 text-2xl font-black">안정적이에요</p>
-              </div>
-              <span className="flex size-12 items-center justify-center rounded-full bg-[#EAF7E5] text-[#43853B]"><CheckCircle2 size={26} aria-hidden /></span>
+        <div className="relative">
+          <div className="absolute -inset-12 rounded-full bg-[#DDEBDD] blur-3xl" />
+          <div className="relative rounded-[36px] border border-white/70 bg-white p-6 shadow-[0_35px_90px_rgba(43,70,50,.16)] sm:p-8">
+            <div className="flex items-center justify-between"><p className="font-black text-[#497055]">오늘의 안심</p><span className="rounded-full bg-[#EAF5EA] px-3 py-1 text-xs font-black text-[#39704A]">평소와 비슷</span></div>
+            <div className="mt-7 flex items-end gap-2"><strong className="text-7xl font-black tracking-[-.08em]">92</strong><span className="pb-2 text-xl font-black">점</span></div>
+            <p className="mt-4 text-xl font-black leading-8">오늘도 평소와 비슷한<br />생활을 하고 계십니다.</p>
+            <div className="mt-7 divide-y divide-[#EDF1ED]">
+              {signals.map(({ icon: Icon, label, value }) => <div key={label} className="flex items-center justify-between py-4"><span className="flex items-center gap-3 font-bold"><span className="flex size-10 items-center justify-center rounded-2xl bg-[#F0F5F0] text-[#3D6F4B]"><Icon size={19} /></span>{label}</span><strong>{value}</strong></div>)}
             </div>
-            <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#F0F1F3]"><div className="h-full w-[89%] rounded-full bg-[#FF681F]" /></div>
-            <p className="mt-4 text-sm font-bold leading-6 text-[#5D6678]">최근 기록 참여도와 생활 패턴이 안정적으로 유지되고 있어요.</p>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[760px] px-5 pb-10 text-center sm:px-8">
-        <p className="text-sm font-black text-[#F45D18]">오늘안부의 약속</p>
-        <h2 className="mt-3 text-2xl font-black sm:text-3xl">매일 저녁 8시, 20초만 오늘을 남겨보세요.</h2>
-        <p className="mt-3 font-semibold leading-7 text-[#6C7280]">부모님은 기록만 하고, 90일 수확 뒤에는 가족이 배송지를 확인해 수확 선물을 보낼 수 있어요.</p>
+      <section className="bg-[#203C2B] px-5 py-20 text-white sm:px-8">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-sm font-black text-[#A9D5B1]">오늘안부의 방식</p>
+          <h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">입력이 아니라 생활을 분석하고,<br />생활 자체를 보상합니다.</h2>
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            <Feature icon={<Database />} title="생활이 자동으로 기록" copy="걸음수와 생활 리듬 등 동의한 신호가 자연스럽게 쌓여요." />
+            <Feature icon={<Sparkles />} title="AI가 변화만 정리" copy="복잡한 수치 대신 안심지수와 의미 있는 변화만 보여줘요." />
+            <Feature icon={<Sprout />} title="생활이 농장을 성장" copy="평소의 하루와 가족 소식이 작물의 햇빛과 물이 됩니다." />
+          </div>
+        </div>
       </section>
-
-      <BottomTabBar active="home" />
     </main>
   );
+}
+
+function Feature({ icon, title, copy }: { icon: React.ReactNode; title: string; copy: string }) {
+  return <article className="rounded-[28px] bg-white/8 p-6"><span className="flex size-12 items-center justify-center rounded-2xl bg-white/10 text-[#B9E1C0]">{icon}</span><h3 className="mt-6 text-xl font-black">{title}</h3><p className="mt-3 font-semibold leading-7 text-white/65">{copy}</p></article>;
 }

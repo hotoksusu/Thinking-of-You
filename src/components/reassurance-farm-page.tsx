@@ -23,11 +23,11 @@ import {
 } from "@/lib/reassurance-farm";
 
 const stageMessages = {
-  seed: "씨앗 단계예요. 첫 7일을 천천히 채우고 있어요.",
-  sprout: "새싹 단계예요. 30일까지 하루하루 자라요.",
-  stem: "줄기 단계예요. 기록이 든든하게 쌓이고 있어요.",
-  fruit: "열매 단계예요. 이제 수확이 가까워졌어요.",
-  harvest: "90번의 기록을 채워 수확을 완료했어요.",
+  seed: "씨앗 단계예요. 오늘의 생활 신호를 받아 깨어나고 있어요.",
+  sprout: "새싹 단계예요. 평소의 하루를 먹고 천천히 자라요.",
+  stem: "줄기 단계예요. 생활 리듬이 든든하게 쌓이고 있어요.",
+  fruit: "열매 단계예요. 가족의 작은 흔적이 햇빛이 되었어요.",
+  harvest: "한 계절의 생활이 쌓여 수확을 완료했어요.",
 } as const;
 
 const visitors = [
@@ -113,9 +113,9 @@ export function ReassuranceFarmPage() {
 
       <div className="mx-auto w-full max-w-[760px] px-5 pb-16">
         <section className="mb-5 rounded-[24px] bg-white p-5 shadow-[0_16px_38px_rgba(15,23,42,0.06)]">
-          <p className="text-sm font-black text-[#15803D]">90일 기록에서 수확 선물까지</p>
+          <p className="text-sm font-black text-[#15803D]">생활이 쌓여 계절 수확이 되는 과정</p>
           <div className="mt-4 grid grid-cols-5 gap-1 text-center">
-            {["작물 선택", "매일 기록", "작물 성장", "수확 완료", "가족이 선물"].map((label, index) => <div key={label}><span className={`mx-auto flex size-9 items-center justify-center rounded-xl text-sm font-black ${index <= 1 ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>{index + 1}</span><p className="mt-2 text-[0.68rem] font-black leading-4 text-[#4B5563]">{label}</p></div>)}
+            {["작물 선택", "생활 감지", "자동 성장", "계절 수확", "가족 선물"].map((label, index) => <div key={label}><span className={`mx-auto flex size-9 items-center justify-center rounded-xl text-sm font-black ${index <= 1 ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>{index + 1}</span><p className="mt-2 text-[0.68rem] font-black leading-4 text-[#4B5563]">{label}</p></div>)}
           </div>
         </section>
         {crop && farm ? (
@@ -124,7 +124,7 @@ export function ReassuranceFarmPage() {
               <div className="farm-sky relative min-h-[360px] overflow-hidden px-6 pt-7 text-center">
                 <div className="absolute right-6 top-6 rounded-full bg-white/90 px-4 py-2 text-lg shadow-sm" aria-label={visitor.text}>{visitor.icon}</div>
                 <p className="text-sm font-black text-[#166534]">이번 계절은 {crop.name}를 함께 키워요</p>
-                <h1 className="mt-2 text-[2rem] font-black leading-tight">매일 저녁 8시,<br />오늘 기록으로 자라요</h1>
+                <h1 className="mt-2 text-[2rem] font-black leading-tight">평소처럼 지낸 오늘이<br />작물을 자라게 해요</h1>
                 <button type="button" onClick={reactToTouch} className={`farm-crop mt-8 inline-flex min-h-40 min-w-40 items-center justify-center rounded-full bg-white/75 px-5 text-7xl shadow-[0_18px_42px_rgba(21,128,61,0.16)] ${reacting ? "farm-crop-react" : ""}`} aria-label={`${crop.name}을 살짝 만져보기`}>
                   {getStageVisual(stage, crop)}
                 </button>
@@ -140,7 +140,7 @@ export function ReassuranceFarmPage() {
                 <div className="mt-4 h-5 overflow-hidden rounded-full bg-[#DCFCE7]" role="progressbar" aria-label="작물 성장률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(farm.growthPercent)}>
                   <div className="h-full rounded-full bg-[#22C55E] transition-all" style={{ width: `${farm.growthPercent}%` }} />
                 </div>
-                <p className="mt-4 rounded-2xl bg-[#F0FDF4] p-4 font-black leading-7 text-[#166534]">오늘 기록하면 {crop.name}가 한 단계 자라요.</p>
+                <p className="mt-4 rounded-2xl bg-[#F0FDF4] p-4 font-black leading-7 text-[#166534]">오늘 3,542걸음과 안정적인 생활 리듬으로 {crop.name}가 자랐어요.</p>
                 {farm.familySupportBy ? <p className="mt-3 rounded-2xl bg-[#EFF6FF] p-4 font-bold leading-7 text-[#1D4ED8]">💧 {farm.familySupportBy}님이 오늘 {crop.name}에 물을 주셨어요.<br />가족이 함께 키우고 있어요.</p> : null}
                 {farm.harvestable ? <button type="button" onClick={harvest} disabled={harvestState !== "idle"} className="mt-6 min-h-16 w-full rounded-2xl bg-[#15803D] px-5 text-xl font-black text-white disabled:bg-[#86B795]">{harvestState === "moving" ? "바구니에 담고 있어요..." : "90일 농산물 수확하기"}</button> : null}
               </div>
@@ -151,7 +151,7 @@ export function ReassuranceFarmPage() {
               <h2 className="mt-2 text-2xl font-black">최근 농장 소식</h2>
               <div className="mt-5 divide-y divide-[#E5E7EB]">
                 <DiaryRow day="오늘" icon={visitor.icon} text={visitor.text} />
-                <DiaryRow day="어제" icon="🌱" text={farm.recordedDays > 1 ? "안부를 먹고 새 잎이 자랐어요." : "씨앗이 포근한 흙에서 쉬었어요."} />
+                <DiaryRow day="어제" icon="🌱" text={farm.recordedDays > 1 ? "평소와 같은 생활 리듬으로 새 잎이 자랐어요." : "씨앗이 포근한 흙에서 쉬었어요."} />
                 <DiaryRow day="3일 전" icon="🌼" text={farm.growthPercent >= 50 ? "작은 꽃이 피기 시작했어요." : "햇빛을 받아 힘을 모았어요."} />
               </div>
             </section>
