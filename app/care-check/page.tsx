@@ -466,12 +466,12 @@ function AiSafetyCard({
         </span>
         <div>
           <p className="text-sm font-extrabold text-brand-primary">
-            AI 안심 인사이트 · {statusLabel}
+            최근 생활 살펴보기 · {statusLabel}
           </p>
           <p className="soft-copy mt-2 text-sm leading-6 text-brand-subtext">
             {hasEnoughData
-              ? "AI가 이번 주 기록 흐름을 살펴봤어요. 특별히 걱정할 변화는 보이지 않습니다."
-              : "아직 비교할 기록이 충분하지 않아요. 며칠 더 기록하면 변화 흐름을 알려드릴게요."}
+              ? "이번 주도 평소처럼 지내셨어요. 특별히 걱정할 변화는 없어요."
+              : "아직 살펴볼 생활이 충분하지 않아요. 며칠 더 지나면 달라진 점을 알려드릴게요."}
           </p>
         </div>
       </div>

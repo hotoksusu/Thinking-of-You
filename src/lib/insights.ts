@@ -75,8 +75,8 @@ export function analyzeNoResponsePattern() {
     baselineParticipationRate: 95,
     recentParticipationRate: 78,
     missedRecordDays: 2,
-    summary: "최근 오늘의 기록 참여가 평소보다 조금 줄었습니다.",
-    interpretation: "반복 흐름을 살펴보면 생활 리듬 변화 가능성이 있어 가볍게 확인을 권장합니다.",
+    summary: "최근 생활의 움직임이 평소보다 조금 줄었어요.",
+    interpretation: "평소와 다른 하루가 이어졌어요. 가볍게 안부를 물어보세요.",
   };
 }
 
@@ -85,19 +85,19 @@ export function generateReminderSchedule(): ReminderStep[] {
     {
       step: "1차 알림",
       time: "19:30",
-      message: "오늘의 기록을 남겨주세요.",
+      message: "오늘도 평소처럼 지내세요.",
       target: "parent",
     },
     {
       step: "2차 알림",
       time: "20:30",
-      message: "아직 오늘의 기록이 확인되지 않았어요.",
+      message: "아직 오늘의 생활이 충분히 모이지 않았어요.",
       target: "parent",
     },
     {
       step: "가족 알림",
       time: "21:30",
-      message: "오늘의 기록 공백이 안심 리포트에 반영됩니다.",
+      message: "오늘의 생활이 더 모이면 변화를 알려드릴게요.",
       target: "family",
     },
   ];
@@ -105,11 +105,11 @@ export function generateReminderSchedule(): ReminderStep[] {
 
 export function getDailyTrend() {
   return {
-    title: "오늘의 기록",
+    title: "오늘의 생활",
     score: 89,
     recorded: true,
     mood: "평범했어요",
-    notes: ["오늘의 기록 완료", "긍정 표현 유지", "큰 변화 감지 없음"],
+    notes: ["오늘도 자연스럽게 기록됐어요", "평소와 비슷하게 지냈어요", "크게 달라진 점은 없어요"],
   };
 }
 
@@ -138,20 +138,20 @@ export function getMonthlyTrend(): TrendPoint[] {
 export function generateFamilyAlert() {
   return {
     title: "변화 감지가 필요합니다.",
-    description: "엄마의 오늘의 기록 참여와 외부 활동 표현이 평소보다 줄었습니다.",
+    description: "엄마의 움직임과 외출이 평소보다 조금 줄었어요.",
     recommendation: "이번 주에는 짧은 통화를 권장합니다.",
-    reasons: ["오늘의 기록 참여 감소", "집에서 쉼 응답 증가", "활동 표현 감소"],
+    reasons: ["움직임이 조금 줄었어요", "집에서 쉬는 시간이 늘었어요", "외출이 조금 줄었어요"],
   };
 }
 
 export function generateLifePatternReport(): LifePatternReport {
   return {
     period: "최근 30일",
-    participation: "오늘의 기록을 꾸준히 남기고 있습니다.",
+    participation: "오늘도 생활이 자연스럽게 기록되고 있어요.",
     vitality: "생활 활력은 안심권으로 유지되고 있습니다.",
     activityPattern: "외부 활동 관련 표현은 최근 2주간 소폭 줄었습니다.",
     positiveTrend: "긍정 표현은 큰 변화 없이 유지되고 있습니다.",
-    interestChange: "커피, 식사, TV 관련 오늘의 기록이 반복적으로 나타납니다.",
+    interestChange: "커피, 식사, TV를 즐기는 모습이 자주 보여요.",
     aiInsight: "급격한 변화 감지는 없지만 활동 표현이 줄어 이번 주 짧은 통화를 권장합니다.",
   };
 }

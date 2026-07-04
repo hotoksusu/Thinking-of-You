@@ -48,14 +48,14 @@ export function InstallGuide({ compact = false }: { compact?: boolean }) {
             설치 없이도 바로 시작할 수 있어요.
           </h2>
           <p className="mt-2 font-semibold leading-7 text-[#4B5563]">
-            부모님은 매일 도착하는 링크를 눌러 오늘 기록을 남기면 됩니다. 원하시면 휴대폰 첫 화면에 추가해 앱처럼 사용할 수도 있어요.
+            처음 한 번만 연결해 주세요. 그다음부터는 평소처럼 지내시면 됩니다.
           </p>
         </div>
       </div>
 
       <div className="mt-5 flex flex-col gap-2 sm:flex-row">
         <a href="/app?role=parent#today-record" className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-[#FF681F] px-5 font-black text-white shadow-[0_12px_26px_rgba(255,104,31,0.2)]">
-          매일 기록 링크 받기
+          생활 연결하기
           <ArrowRight size={17} aria-hidden />
         </a>
         {!compact ? (

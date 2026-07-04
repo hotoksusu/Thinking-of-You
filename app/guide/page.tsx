@@ -33,7 +33,7 @@ const connectionSteps = [
   },
   {
     number: "3",
-    title: "매일 기록 링크 받기",
+    title: "처음 한 번 연결하기",
     description: "정해진 시간에 오늘 기록 링크가 도착합니다.",
     action: "링크 받기",
     href: "/app?role=parent",
@@ -42,7 +42,7 @@ const connectionSteps = [
   {
     number: "4",
     title: "기록 시작하기",
-    description: "링크를 눌러 간단히 기록하면 AI 안심 리포트가 만들어집니다.",
+    description: "링크를 열면 오늘의 생활을 편안하게 확인할 수 있어요.",
     action: "기록 시작하기",
     href: "/app?role=parent",
     icon: ClipboardCheck,
@@ -51,7 +51,7 @@ const connectionSteps = [
 
 const rewardSteps = [
   { label: "작물 선택", emoji: "🍅" },
-  { label: "매일 기록", emoji: "📝" },
+  { label: "평소처럼 생활", emoji: "🌿" },
   { label: "작물 성장", emoji: "🌱" },
   { label: "수확 완료", emoji: "🧺" },
   { label: "가족이 선물", emoji: "📦" },
@@ -118,7 +118,7 @@ export default function GuidePage() {
 
       <section className="mx-auto mt-6 w-full max-w-[760px] px-5 sm:px-8">
         <div className="rounded-[28px] border border-[#E4ECD9] bg-[#F5F8EC] p-5 shadow-[0_16px_40px_rgba(80,104,55,0.07)] sm:p-7">
-          <div className="flex items-center gap-2 text-[#467A3E]"><Sprout size={20} aria-hidden /><h2 className="text-lg font-black">꾸준히 기록하면 이런 선물이!</h2></div>
+          <div className="flex items-center gap-2 text-[#467A3E]"><Sprout size={20} aria-hidden /><h2 className="text-lg font-black">평소의 하루가 이런 선물이 돼요</h2></div>
           <div className="mt-6 grid grid-cols-5 gap-1">
             {rewardSteps.map((step, index) => (
               <div key={step.label} className="relative text-center">

@@ -335,7 +335,7 @@ export function generateAiInsight(): AiInsight {
   return {
     period: "최근 14일간",
     signals: ["응답 빈도 감소", "활동 감소", "통화 감소"],
-    opinion: "평소보다 생활 패턴이 위축되고 있습니다.",
+    opinion: "평소보다 움직임이 조금 줄었어요.",
     recommendation: "짧은 안부 전화가 도움이 될 수 있습니다.",
   };
 }
@@ -343,7 +343,7 @@ export function generateAiInsight(): AiInsight {
 export function generateWeeklyReport(profileId: string) {
   return {
     profileId,
-    title: "주간 AI 안심 리포트",
+    title: "이번 주 생활 변화",
     summary: "응답과 복약은 안정적이며 활동량은 소폭 감소했습니다.",
   };
 }
@@ -351,7 +351,7 @@ export function generateWeeklyReport(profileId: string) {
 export function generateMonthlyReport(profileId: string) {
   return {
     profileId,
-    title: "월간 AI 안심 리포트",
+    title: "이번 달 생활 변화",
     summary: "월간 패턴을 비교해 변화 신호와 가족 공유 내용을 정리합니다.",
   };
 }

@@ -11,13 +11,13 @@ export default function FarmPage() {
     <main className="app-frame has-bottom-nav bg-[#F5F8EE] text-[#183022]">
       <header className="flex items-center justify-between px-5 py-5">
         <Link href="/app?role=parent" className="flex size-11 items-center justify-center rounded-full bg-white shadow-sm" aria-label="오늘 화면으로"><ArrowLeft size={21} /></Link>
-        <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#3F704A]">안부농장</span>
+        <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-[#3F704A]">함께 키우는 농장</span>
       </header>
 
       <section className="px-5">
-        <p className="text-sm font-black text-[#4C7C56]">생활이 키우는 한 계절</p>
-        <h1 className="mt-2 text-4xl font-black leading-tight">오늘의 생활로<br /><span className="text-[#3E7A4D]">토마토가 자랐어요.</span></h1>
-        <p className="mt-4 font-semibold leading-7 text-[#69766C]">따로 기록하지 않아도 괜찮아요. 평소의 걸음과 생활 리듬, 가족의 작은 소식이 햇빛과 물이 됩니다.</p>
+        <p className="text-sm font-black text-[#4C7C56]">오늘도 함께 키우는 안부농장</p>
+        <h1 className="mt-2 text-4xl font-black leading-tight">오늘도 토마토가<br /><span className="text-[#3E7A4D]">한 뼘 자랐어요.</span></h1>
+        <p className="mt-4 font-semibold leading-7 text-[#69766C]">평소처럼 지내세요. 오늘의 움직임과 가족 소식이 햇빛과 물이 돼요.</p>
       </section>
 
       <section className="mx-5 mt-7 overflow-hidden rounded-[30px] bg-[#285A3A] text-white shadow-[0_24px_60px_rgba(40,90,58,.22)]">
@@ -28,18 +28,18 @@ export default function FarmPage() {
           <p className="mt-5 font-black text-[#285A3A]">오늘도 한 뼘 자랐어요</p>
         </div>
         <div className="p-6">
-          <div className="flex items-end justify-between"><div><p className="text-sm font-black text-[#BFE0C5]">자동 성장률</p><h2 className="mt-1 text-2xl font-black">수확까지 차곡차곡</h2></div><strong className="text-3xl">{growth.percent}%</strong></div>
+          <div className="flex items-end justify-between"><div><p className="text-sm font-black text-[#BFE0C5]">오늘의 성장</p><h2 className="mt-1 text-2xl font-black">수확까지 차곡차곡</h2></div><strong className="text-3xl">{growth.percent}%</strong></div>
           <div className="mt-5 h-4 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-[#B9DD86]" style={{ width: `${growth.percent}%` }} /></div>
           <p className="mt-4 text-sm font-bold leading-6 text-white/75">{growth.message}</p>
         </div>
       </section>
 
       <section className="mx-5 mt-5 rounded-[28px] bg-white p-6">
-        <p className="text-sm font-black text-[#4C7C56]">오늘 받은 성장 에너지</p>
+        <p className="text-sm font-black text-[#4C7C56]">오늘 토마토가 자란 이유</p>
         <div className="mt-4 grid gap-3">
-          <EnergyRow icon={<Footprints />} title={`${steps?.value.toLocaleString()}걸음`} copy="평소와 비슷한 활동으로 물 +8" />
-          <EnergyRow icon={<Check />} title="생활 리듬 안정" copy="일정한 하루로 영양 +8" />
-          <EnergyRow icon={<HeartHandshake />} title={`가족 소식 ${familyTraces.length}개`} copy="작은 흔적으로 햇빛 +12" />
+          <EnergyRow icon={<Footprints />} title="오늘도 몸을 움직였어요" copy="평소만큼 움직여 물을 받았어요" />
+          <EnergyRow icon={<Check />} title="평소처럼 하루를 시작했어요" copy="편안한 하루가 영양이 됐어요" />
+          <EnergyRow icon={<HeartHandshake />} title="오늘 도착한 가족 소식" copy="작은 순간이 햇빛이 됐어요" />
         </div>
       </section>
 

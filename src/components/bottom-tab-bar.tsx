@@ -6,8 +6,8 @@ type TabId = "home" | "record" | "family" | "farm";
 const tabs = [
   { id: "home" as const, label: "오늘", href: "/app?role=parent", icon: Home },
   { id: "family" as const, label: "가족", href: "/app?role=family", icon: UsersRound },
-  { id: "farm" as const, label: "안부농장", href: "/farm", icon: Sprout },
-  { id: "record" as const, label: "AI 리포트", href: "/family/report", icon: BarChart3 },
+  { id: "farm" as const, label: "농장", href: "/farm", icon: Sprout },
+  { id: "record" as const, label: "최근 변화", href: "/family/report", icon: BarChart3 },
 ];
 
 export function BottomTabBar({ active }: { active: TabId }) {

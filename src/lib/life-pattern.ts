@@ -29,6 +29,7 @@ export type FamilyTrace = {
   sender: string;
   title: string;
   emoji: string;
+  imageUrl?: string;
   createdAt: string;
 };
 
@@ -42,9 +43,9 @@ export type ReassuranceReport = {
 };
 
 export const todaySignals: LifeSignal[] = [
-  { type: "steps", source: "device", label: "걸음수", value: 3542, unit: "걸음", baseline: 3320, status: "usual", collectedAt: "2026-07-04T20:20:00+09:00" },
-  { type: "daily_rhythm", source: "device", label: "생활 리듬", value: 91, unit: "%", baseline: 88, status: "usual", collectedAt: "2026-07-04T20:20:00+09:00" },
-  { type: "call_activity", source: "device", label: "통화 활동", value: 2, unit: "회", baseline: 2, status: "usual", collectedAt: "2026-07-04T18:42:00+09:00" },
+  { type: "steps", source: "device", label: "오늘의 움직임", value: 3542, unit: "걸음", baseline: 3320, status: "usual", collectedAt: "2026-07-04T20:20:00+09:00" },
+  { type: "daily_rhythm", source: "device", label: "오늘의 하루", value: 91, unit: "%", baseline: 88, status: "usual", collectedAt: "2026-07-04T20:20:00+09:00" },
+  { type: "call_activity", source: "device", label: "오늘의 연락", value: 2, unit: "회", baseline: 2, status: "usual", collectedAt: "2026-07-04T18:42:00+09:00" },
   { type: "app_activity", source: "device", label: "앱 활동", value: 86, unit: "%", baseline: 82, status: "usual", collectedAt: "2026-07-04T20:15:00+09:00" },
   { type: "mobility", source: "device", label: "이동 패턴", value: 1.8, unit: "km", baseline: 1.6, status: "usual", collectedAt: "2026-07-04T19:05:00+09:00" },
 ];
@@ -53,7 +54,7 @@ export const todayReport: ReassuranceReport = {
   score: 92,
   level: "reassured",
   summary: "오늘도 평소와 비슷한 생활을 하고 계십니다.",
-  factors: ["걸음수 정상", "생활 리듬 정상", "통화 활동 정상"],
+  factors: ["오늘도 몸을 움직였어요", "평소처럼 하루를 시작했어요", "소중한 사람과 연락했어요"],
   trend: [86, 89, 91, 88, 93, 90, 92],
   generatedAt: "2026-07-04T20:20:00+09:00",
 };

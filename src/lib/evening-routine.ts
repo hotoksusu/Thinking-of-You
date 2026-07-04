@@ -29,7 +29,7 @@ export function getEveningReminderMessage(date = new Date()) {
 
 export function getFarmReminderMessage(cropName: string, date = new Date()) {
   const messages = [
-    `오늘 저녁 8시, ${cropName}가 오늘의 기록을 기다리고 있어요.`,
+    `오늘도 ${cropName}가 평소의 하루를 먹고 잘 자라고 있어요.`,
     "오늘도 우리 가족의 농장을 키울 시간이에요.",
     `20초만 함께하면 ${cropName}가 한 뼘 자라요.`,
   ];

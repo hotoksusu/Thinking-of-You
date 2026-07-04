@@ -8,30 +8,31 @@ export default function FamilyReportPage() {
       <div className="mx-auto max-w-[760px]">
         <Link href="/app?role=family" className="inline-flex min-h-11 items-center gap-2 font-black text-[#496152]"><ArrowLeft size={19} />엄마의 오늘</Link>
         <header className="mt-8">
-          <p className="text-sm font-black text-[#4D7858]">AI 생활 패턴 리포트</p>
-          <h1 className="mt-2 text-4xl font-black leading-tight">생활의 변화만<br />차분하게 알려드려요.</h1>
-          <p className="mt-4 font-semibold leading-7 text-[#6C766E]">하루의 작은 흔들림보다 여러 날 이어지는 변화를 살펴봅니다.</p>
+          <p className="text-sm font-black text-[#4D7858]">최근 생활 변화</p>
+          <h1 className="mt-2 text-4xl font-black leading-tight">달라진 점만<br />차분하게 알려드려요.</h1>
+          <p className="mt-4 font-semibold leading-7 text-[#6C766E]">며칠 동안 이어진 변화만 살펴봤어요.</p>
+          <p className="mt-2 text-xs font-bold text-[#8A938C]">AI가 최근 변화를 분석했어요.</p>
         </header>
 
         <section className="mt-8 rounded-[30px] bg-[#2F6B46] p-6 text-white">
-          <div className="flex items-start justify-between"><div><p className="text-sm font-black text-[#C7E4CC]">최근 4주 안심지수</p><p className="mt-3 text-5xl font-black">{todayReport.score}점</p></div><span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black">안정적</span></div>
+          <div className="flex items-start justify-between"><div><p className="text-sm font-black text-[#C7E4CC]">최근 4주도 편안해요</p><p className="mt-3 text-5xl font-black">{todayReport.score}<small className="ml-1 text-base">점</small></p></div><span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black">평소와 비슷</span></div>
           <div className="mt-7 flex h-24 items-end gap-3">{[76, 82, 78, 86, 89, 90, 92].map((value) => <div key={value} className="flex-1 rounded-t-xl bg-[#A8D4AF]" style={{ height: `${value}%` }} />)}</div>
-          <p className="mt-5 font-bold leading-7 text-white/80">생활 리듬과 통화 활동이 평소 범위 안에서 유지되고 있습니다.</p>
+          <p className="mt-5 font-bold leading-7 text-white/80">평소처럼 하루를 보내고, 소중한 사람과 연락했어요.</p>
         </section>
 
         <section className="mt-5 rounded-[28px] bg-white p-6">
-          <h2 className="text-xl font-black">AI가 살펴본 변화</h2>
+          <h2 className="text-xl font-black">최근 생활에 이런 모습이 있었어요</h2>
           <div className="mt-5 divide-y divide-[#EDF1ED]">
-            <ReportRow icon={<Footprints />} title="활동량" value="평소 범위" detail="최근 4주 평균 3,320걸음" />
-            <ReportRow icon={<Clock3 />} title="생활 리듬" value="일정함" detail="첫·마지막 활동 시간 변화 없음" />
-            <ReportRow icon={<Phone />} title="통화 활동" value="유지 중" detail="통화 내용은 수집하지 않아요" />
+            <ReportRow icon={<Footprints />} title="꾸준히 몸을 움직였어요" value="평소만큼" detail="자세히 보기에서 걸음수를 확인해요" />
+            <ReportRow icon={<Clock3 />} title="평소처럼 하루를 시작했어요" value="편안해요" detail="시작하고 쉬는 시간이 비슷해요" />
+            <ReportRow icon={<Phone />} title="소중한 사람과 연락했어요" value="잘 지냈어요" detail="통화 내용은 보지 않아요" />
           </div>
         </section>
 
         <section className="mt-5 rounded-[28px] border border-[#E3E9E3] bg-white p-6">
-          <p className="flex items-center gap-2 text-sm font-black text-[#4B7556]"><ShieldCheck size={18} />가족에게만 보이는 제안</p>
-          <h2 className="mt-3 text-xl font-black">지금은 평소처럼 지켜봐도 좋아요.</h2>
-          <p className="mt-3 font-semibold leading-7 text-[#6C766E]">장기적인 활동 감소가 이어질 때만 연락을 권하는 알림을 보내드릴게요.</p>
+          <p className="flex items-center gap-2 text-sm font-black text-[#4B7556]"><ShieldCheck size={18} />가족에게 드리는 안내</p>
+          <h2 className="mt-3 text-xl font-black">오늘은 마음 놓으셔도 괜찮아요.</h2>
+          <p className="mt-3 font-semibold leading-7 text-[#6C766E]">달라진 모습이 며칠 이어질 때만 알려드릴게요.</p>
         </section>
       </div>
     </main>
