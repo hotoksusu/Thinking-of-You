@@ -18,7 +18,9 @@ export default function LandingPage() {
       </header>
 
       <section className="relative isolate mx-auto min-h-[760px] max-w-[1440px] overflow-hidden bg-[#F3E8D6] lg:min-h-[720px]">
-        <Image src="/brand/landing-ansimi-hero.png" alt="따뜻한 집에서 가족사진 곁을 지키는 오늘안부 안심이" fill priority className="hidden origin-top-right scale-[1.22] object-cover object-right-top lg:block" sizes="100vw" />
+        <div className="absolute inset-y-0 right-0 hidden w-1/2 overflow-hidden lg:block">
+          <Image src="/brand/hero-family.png" alt="따뜻한 집에서 부모님 곁을 지키는 오늘안부 안심이" fill priority className="object-cover object-center" sizes="(min-width: 1024px) 50vw, 0px" />
+        </div>
         <div className="absolute inset-y-0 left-0 w-full bg-[#FFF9F0] lg:w-[58%]" aria-hidden />
         <div className="relative z-10 mx-auto flex min-h-[760px] w-full max-w-[1180px] items-start px-5 pb-28 pt-28 sm:px-8 lg:min-h-[720px] lg:items-center lg:pb-20 lg:pt-24">
           <div className="max-w-[620px]">
@@ -31,7 +33,7 @@ export default function LandingPage() {
             <Link href="/start" className="mt-8 inline-flex min-h-16 w-full max-w-[420px] items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-7 text-xl font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)]">오늘안부 시작하기<ArrowRight size={21} aria-hidden /></Link>
             <p className="mt-4 text-center text-sm font-bold text-[#68756F] sm:max-w-[420px]">이미 계정이 있으신가요? <Link href="/app" className="text-[#D95423] underline underline-offset-4">로그인</Link></p>
             <div className="relative mt-8 aspect-[4/3] w-full overflow-hidden rounded-[24px] shadow-[0_18px_44px_rgba(67,49,34,0.14)] lg:hidden">
-              <Image src="/brand/landing-ansimi-hero.png" alt="가족사진 곁에서 미소 짓는 안심이" fill priority className="origin-top-right scale-[1.18] object-cover object-right-top" sizes="(max-width: 1024px) 100vw, 0px" />
+              <Image src="/brand/hero-family.png" alt="부모님 곁에서 미소 짓는 안심이" fill priority className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 0px" />
             </div>
           </div>
         </div>
