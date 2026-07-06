@@ -6,9 +6,9 @@
 
 :root {
   color-scheme: light;
-  --color-primary: #f97316;
-  --color-hover: #ea580c;
-  --color-secondary: #f97316;
+  --color-primary: #6f8d72;
+  --color-hover: #52725b;
+  --color-secondary: #e9652b;
   --color-accent: #fee500;
   --color-text: #111827;
   --color-subtext: #6b7280;
@@ -44,7 +44,7 @@ body {
   width: 100%;
   min-height: 100%;
   margin: 0;
-  background: #eeeae4;
+  background: #fff9f0;
   color: var(--foreground);
   font-family: "Pretendard Variable", Pretendard, SUIT, "Noto Sans KR",
     "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system,
@@ -235,6 +235,10 @@ a {
   animation: farm-harvest-to-basket 1.8s ease-in-out both;
 }
 
+.completion-slide {
+  animation: completion-slide-in 320ms ease-out both;
+}
+
 @keyframes farm-crop-hello {
   0%, 100% { transform: rotate(0deg) translateY(0); }
   28% { transform: rotate(-4deg) translateY(-7px); }
@@ -259,11 +263,17 @@ a {
   100% { transform: translateY(88px) rotate(0deg) scale(0.55); opacity: 0.15; }
 }
 
+@keyframes completion-slide-in {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .farm-crop-react,
   .farm-seed-pop,
   .farm-harvest-overlay,
-  .farm-harvest-crop {
+  .farm-harvest-crop,
+  .completion-slide {
     animation-duration: 1ms;
   }
 }
