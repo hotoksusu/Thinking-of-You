@@ -49,7 +49,7 @@ export default function LandingPage() {
 
       <section className="bg-[#203C2B] px-5 py-16 text-white sm:px-8">
         <div className="mx-auto grid w-full max-w-[1180px] gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div><p className="text-sm font-black text-[#A9D5B1]">오늘안부의 방식</p><h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">입력이 아니라 생활을 살펴보고,<br />달라진 점만 전합니다.</h2><p className="mt-5 font-semibold leading-8 text-white/70">전화하고 산책하고 평소처럼 생활하세요. 생활의 흐름은 조용히 쌓이고, 가족에게는 필요한 안심만 전해집니다.</p></div>
+          <div><p className="text-sm font-black text-[#A9D5B1]">오늘안부의 방식</p><h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">평소처럼 지내세요.<br />달라진 점만 알려드려요.</h2><p className="mt-5 font-semibold leading-8 text-white/70">따로 기록하지 않아도 괜찮아요. 평소의 생활 흐름을 살펴 꼭 필요한 변화만 가족에게 전해요.</p></div>
           <TodayReportPreview />
         </div>
         <div className="mx-auto mt-8 grid w-full max-w-[1180px] gap-3 md:grid-cols-3"><DarkFeature icon={<Footprints />} title="평소의 생활이 쌓여요" text="따로 적지 않아도 일상의 흐름을 살펴요." /><DarkFeature icon={<Sparkles />} title="달라진 점만 알려드려요" text="AI가 꼭 필요한 변화만 쉽게 정리해요." /><DarkFeature icon={<Sprout />} title="농장도 함께 자라요" text="안부와 가족 소식이 작물의 햇빛과 물이 돼요." /></div>
