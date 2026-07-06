@@ -15,12 +15,12 @@ export default function LandingPage() {
     <main className="min-h-screen bg-[#FFF9F0] pb-24 text-[#20302C]">
       <header className="absolute inset-x-0 top-0 z-20 mx-auto flex w-full max-w-[1180px] items-center justify-between px-5 py-5 sm:px-8">
         <Link href="/" className="flex items-center gap-2 rounded-2xl bg-white/95 p-2 pr-4 text-xl font-black text-[#52725B] shadow-sm"><Image src="/brand/brand-icon.png" alt="" width={38} height={38} className="rounded-xl" />오늘안부</Link>
-        <Link href="/guide" className="inline-flex min-h-11 items-center rounded-full border border-[#D8E4D3] bg-white/90 px-5 text-sm font-black text-[#40534B]">서비스 소개</Link>
+        <Link href="/guide" className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#D8E4D3] bg-white px-5 text-sm font-black text-[#40534B] shadow-sm lg:min-w-[220px] xl:min-w-[260px] xl:translate-x-32">서비스 소개</Link>
       </header>
 
       <section className="relative isolate mx-auto min-h-[760px] max-w-[1440px] overflow-hidden bg-[#F3E8D6] lg:min-h-[720px]">
-        <Image src="/brand/hero-family.png" alt="오늘안부와 함께 편안한 하루를 보내는 부모님" fill priority className="object-cover object-[58%_center] lg:object-center" sizes="100vw" />
-        <div className="absolute inset-y-0 left-0 w-full bg-[#FFF9F0] opacity-90 lg:w-[58%]" aria-hidden />
+        <Image src="/brand/landing-ansimi-hero.png" alt="따뜻한 집에서 가족사진 곁을 지키는 오늘안부 안심이" fill priority className="hidden origin-top-right scale-[1.22] object-cover object-right-top lg:block" sizes="100vw" />
+        <div className="absolute inset-y-0 left-0 w-full bg-[#FFF9F0] lg:w-[58%]" aria-hidden />
         <div className="relative z-10 mx-auto flex min-h-[760px] w-full max-w-[1180px] items-start px-5 pb-28 pt-28 sm:px-8 lg:min-h-[720px] lg:items-center lg:pb-20 lg:pt-24">
           <div className="max-w-[620px]">
             <p className="mb-3 text-sm font-black text-[#52725B]">오늘안부 안내 친구, 안심이가 함께해요.</p>
@@ -31,6 +31,9 @@ export default function LandingPage() {
             <p className="mt-6 max-w-[540px] text-lg font-bold leading-8 text-[#52635C] sm:text-xl">기록하지 않아도 됩니다.<br />평소의 생활 흐름을 살펴<br />가족이 이해하기 쉬운 안심 리포트로 전해요.</p>
             <Link href="/start" className="mt-8 inline-flex min-h-16 w-full max-w-[420px] items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-7 text-xl font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)]">오늘안부 시작하기<ArrowRight size={21} aria-hidden /></Link>
             <p className="mt-4 text-center text-sm font-bold text-[#68756F] sm:max-w-[420px]">이미 계정이 있으신가요? <Link href="/app" className="text-[#D95423] underline underline-offset-4">로그인</Link></p>
+            <div className="relative mt-8 aspect-[4/3] w-full overflow-hidden rounded-[24px] shadow-[0_18px_44px_rgba(67,49,34,0.14)] lg:hidden">
+              <Image src="/brand/landing-ansimi-hero.png" alt="가족사진 곁에서 미소 짓는 안심이" fill priority className="origin-top-right scale-[1.18] object-cover object-right-top" sizes="(max-width: 1024px) 100vw, 0px" />
+            </div>
           </div>
         </div>
       </section>
