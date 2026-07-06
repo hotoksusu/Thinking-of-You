@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { familyTraces, getFarmGrowth, todayReport, todaySignals, type FamilyTrace } from "@/lib/life-pattern";
+import { BottomTabBar } from "@/components/bottom-tab-bar";
 
 type ExperienceRole = "parent" | "family";
 
@@ -72,45 +73,82 @@ function RoleCard({ icon, eyebrow, title, description, onClick }: { icon: React.
 
 function ParentHome({ moments, onSwitch }: { moments: FamilyTrace[]; onSwitch: () => void }) {
   const farm = getFarmGrowth(todaySignals, moments);
-  return (
-    <AppFrame active="home">
-      <TopBar label="정희님의 오늘" onSwitch={onSwitch} switchLabel="가족 화면" />
-      <section className="px-5 pb-28 pt-5">
-        <ReassuranceHero />
+  const [checkInStep, setCheckInStep] = useState<"home" | "mood" | "done">("home");
+  const [selectedMood, setSelectedMood] = useState("");
 
-        {moments.length ? (
-          <section className="mt-5">
-            <SectionTitle eyebrow="오늘 도착한 가족 소식" title="작은 순간이 도착했어요" />
-            <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
-              {moments.map((trace) => (
-                <article key={trace.id} className="w-[250px] shrink-0 rounded-[24px] bg-[#FFF8ED] p-5">
-                  {trace.imageUrl ? <img src={trace.imageUrl} alt="가족이 남긴 오늘의 순간" className="h-32 w-full rounded-2xl object-cover" /> : <span className="text-4xl">{trace.emoji}</span>}
-                  <p className="mt-5 line-clamp-2 text-lg font-black leading-7">{trace.title}</p>
-                  <p className="mt-2 text-sm font-bold text-[#8A7560]">{trace.sender} · 조금 전</p>
-                </article>
+  if (checkInStep === "mood") {
+    const moods = [
+      { emoji: "😊", label: "좋았어요" },
+      { emoji: "🙂", label: "괜찮아요" },
+      { emoji: "😴", label: "피곤해요" },
+      { emoji: "😟", label: "조금 힘들어요" },
+    ];
+    return (
+      <AppFrame active="home">
+        <TopBar label="오늘 하루 돌아보기" onSwitch={() => setCheckInStep("home")} switchLabel="돌아가기" senior />
+        <section className="px-5 pb-28 pt-8">
+          <div className="mx-auto max-w-[560px] rounded-[30px] bg-white p-7 shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
+            <p className="text-xl font-black text-[#477052]">천천히 골라도 괜찮아요.</p>
+            <h1 className="mt-3 text-[2rem] font-black leading-tight text-[#222222]">오늘 기분은<br />어떠셨어요?</h1>
+            <div className="mt-8 grid gap-4">
+              {moods.map((mood) => (
+                <button key={mood.label} type="button" onClick={() => setSelectedMood(mood.label)} className={`flex min-h-[76px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.4rem] font-black transition ${selectedMood === mood.label ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
+                  <span className="text-[2.2rem]" aria-hidden>{mood.emoji}</span>{mood.label}{selectedMood === mood.label ? <Check className="ml-auto text-[#E9652B]" size={27} aria-hidden /> : null}
+                </button>
               ))}
             </div>
+            <button type="button" disabled={!selectedMood} onClick={() => setCheckInStep("done")} className="mt-8 min-h-[68px] w-full rounded-2xl bg-[#E9652B] px-6 text-[1.4rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">가족에게 안심 전하기</button>
+          </div>
+        </section>
+      </AppFrame>
+    );
+  }
+
+  if (checkInStep === "done") {
+    return (
+      <AppFrame active="home">
+        <TopBar label="오늘의 안심" onSwitch={() => setCheckInStep("home")} switchLabel="홈으로" senior />
+        <section className="px-5 pb-28 pt-8">
+          <div className="mx-auto max-w-[560px] rounded-[30px] bg-[#FFF9F0] p-7 text-center shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
+            <img src="/brand/farm-mascot.png" alt="칭찬을 전하는 안심이" className="mx-auto size-36 rounded-[28px] object-cover" />
+            <p className="mt-7 text-[2rem] font-black leading-tight text-[#222222]">👏 오늘도<br />잘하셨어요.</p>
+            <p className="mt-5 text-[1.3rem] font-bold leading-9 text-[#37433D]">오늘 하루도 잘 남겨주셨어요.<br />가족에게 따뜻한 안심이 전해졌어요.</p>
+            <p className="mt-5 rounded-2xl bg-[#EAF3E5] p-4 text-xl font-black leading-8 text-[#315B3D]">🌱 안심이와 농장도<br />오늘 한 뼘 자랐어요.</p>
+            <button type="button" onClick={() => { setCheckInStep("home"); setSelectedMood(""); }} className="mt-8 min-h-[68px] w-full rounded-2xl bg-[#2F6B46] px-6 text-[1.4rem] font-black text-white">홈으로 돌아가기</button>
+          </div>
+        </section>
+      </AppFrame>
+    );
+  }
+
+  return (
+    <AppFrame active="home">
+      <TopBar label="정희님의 오늘" onSwitch={onSwitch} switchLabel="가족 화면" senior />
+      <section className="px-5 pb-28 pt-7">
+        <section className="rounded-[30px] bg-[#2F6B46] p-7 text-white shadow-[0_24px_65px_rgba(47,107,70,0.23)] sm:p-9">
+          <p className="text-[1.15rem] font-black text-[#D5EBD8]">😊 오늘도 평소처럼 보내고 계세요.</p>
+          <h1 className="mt-5 text-[2rem] font-black leading-tight">오늘도<br />편안한 하루예요.</h1>
+          <p className="mt-5 text-[1.25rem] font-bold leading-9 text-white">AI가 생활 변화를<br />조용히 살펴보고 있어요.</p>
+          <button type="button" onClick={() => setCheckInStep("mood")} className="mt-8 min-h-[70px] w-full rounded-2xl bg-[#FFF7ED] px-6 text-[1.45rem] font-black text-[#9A3E18] shadow-[0_12px_28px_rgba(0,0,0,0.14)]">오늘 하루 돌아보기</button>
+          <p className="mt-5 text-[1.05rem] font-bold leading-8 text-[#E8F3E9]">신경 쓰지 않아도 가족에게<br />필요한 안심을 전해드려요.</p>
+        </section>
+
+        {moments.length ? (
+          <section className="mt-8 rounded-[28px] bg-[#FFF8ED] p-7">
+            <p className="text-lg font-black text-[#7A573D]">가족이 소식을 보냈어요.</p>
+            <p className="mt-3 text-[1.35rem] font-black leading-9 text-[#222222]">{moments[0].emoji} {moments[0].title}</p>
+            <p className="mt-3 text-lg font-bold text-[#755F4D]">{moments[0].sender} · 조금 전</p>
           </section>
         ) : null}
 
-        <Link href="/farm" className="mt-5 block rounded-[28px] bg-[#234D35] p-6 text-white shadow-[0_22px_55px_rgba(35,77,53,0.2)]">
+        <Link href="/farm" className="mt-8 block rounded-[28px] bg-[#EAF3E5] p-7 text-[#24372B] shadow-[0_18px_45px_rgba(49,78,58,0.08)]">
           <div className="flex items-start justify-between">
-            <div><p className="text-sm font-black text-[#BFE0C4]">오늘도 함께 키우는 안부농장</p><h2 className="mt-2 text-2xl font-black">토마토가 한 뼘 자랐어요</h2></div>
+            <div><p className="text-lg font-black text-[#477052]">안심이의 농장 소식</p><h2 className="mt-3 text-[1.65rem] font-black leading-tight">토마토가<br />한 뼘 자랐어요.</h2></div>
             <span className="text-5xl">🍅</span>
           </div>
-          <div className="mt-6 h-3 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-[#B8DD8B]" style={{ width: `${farm.percent}%` }} /></div>
-          <div className="mt-3 flex justify-between text-sm font-bold text-white/75"><span>오늘의 생활로 물 +{farm.lifePoints}</span><span>{farm.percent}%</span></div>
-          <p className="mt-5 flex items-center justify-between font-bold">농장 둘러보기 <ChevronRight size={19} /></p>
+          <div className="mt-6 h-4 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full bg-[#78A76E]" style={{ width: `${farm.percent}%` }} /></div>
+          <p className="mt-5 flex min-h-16 items-center justify-between rounded-2xl bg-white px-5 text-xl font-black text-[#315B3D]">농장 구경하기 <ChevronRight size={24} /></p>
         </Link>
-
-        <section className="mt-5 rounded-[28px] border border-[#E1E8E1] bg-white p-6">
-          <SectionTitle eyebrow="최근 생활 변화" title="이번 주도 편안하게 지내셨어요" />
-          <div className="mt-5 grid grid-cols-7 items-end gap-2" aria-label="최근 7일 안심 흐름">
-            {todayReport.trend.map((point, index) => <div key={index} className="flex flex-col items-center gap-2"><div className="w-full rounded-full bg-[#CFE1D1]" style={{ height: `${Math.max(30, point - 38)}px` }} /><span className="text-[10px] font-bold text-[#879089]">{index + 1}일</span></div>)}
-          </div>
-          <p className="mt-5 rounded-2xl bg-[#F2F6F1] p-4 font-semibold leading-7 text-[#59645C]">평소와 비슷하게 움직이고 쉬셨어요. 특별히 달라진 점은 없어요.</p>
-          <p className="mt-3 text-xs font-bold text-[#8A938C]">최근 생활을 AI가 조용히 살펴봤어요.</p>
-        </section>
       </section>
     </AppFrame>
   );
@@ -204,14 +242,10 @@ function Brand() {
   return <Link href="/" className="inline-flex items-center gap-2 font-black"><span className="flex size-9 items-center justify-center rounded-2xl bg-[#2F6B46] text-white"><Bell size={18} /></span>오늘안부</Link>;
 }
 
-function TopBar({ label, onSwitch, switchLabel }: { label: string; onSwitch: () => void; switchLabel: string }) {
-  return <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[#E4EAE4] bg-[#F7F9F6]/95 px-5 py-4 backdrop-blur"><div><Brand /><p className="mt-2 text-xl font-black">{label}</p></div><button type="button" onClick={onSwitch} className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#506056] shadow-sm">{switchLabel}</button></header>;
+function TopBar({ label, onSwitch, switchLabel, senior = false }: { label: string; onSwitch: () => void; switchLabel: string; senior?: boolean }) {
+  return <header className={`sticky top-0 z-20 flex items-center justify-between border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 backdrop-blur ${senior ? "py-5" : "py-4"}`}><div><Brand /><p className={`mt-2 font-black text-[#222222] ${senior ? "text-[1.65rem]" : "text-xl"}`}>{label}</p></div><button type="button" onClick={onSwitch} className={`rounded-full border border-[#D7E0D6] bg-white font-black text-[#37433D] shadow-sm ${senior ? "min-h-12 px-4 text-base" : "px-3 py-2 text-xs"}`}>{switchLabel}</button></header>;
 }
 
 function AppFrame({ children, active }: { children: React.ReactNode; active: "home" | "family" }) {
-  return <main className="app-frame min-h-screen bg-[#F7F9F6] text-[#17221B]">{children}<nav className="fixed inset-x-0 bottom-0 z-30 mx-auto grid max-w-[480px] grid-cols-3 border-t border-[#E2E8E2] bg-white/95 px-3 pb-[max(.7rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur"><NavItem icon={<Home size={21} />} label="오늘" active={active === "home"} href="/app?role=parent" /><NavItem icon={<Sprout size={21} />} label="농장" href="/farm" /><NavItem icon={<UsersRound size={21} />} label="가족" active={active === "family"} href="/app?role=family" /></nav></main>;
-}
-
-function NavItem({ icon, label, href, active }: { icon: React.ReactNode; label: string; href: string; active?: boolean }) {
-  return <Link href={href} className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl text-xs font-black ${active ? "bg-[#EDF5ED] text-[#2F6B46]" : "text-[#7D867F]"}`}>{icon}{label}</Link>;
+  return <main className="app-frame min-h-screen bg-[#F7F9F6] text-[#17221B]">{children}<BottomTabBar active={active} /></main>;
 }
