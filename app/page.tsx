@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BarChart3, Check, Footprints, HeartHandshake, Leaf, PencilLine, ShieldCheck, Sparkles, Sprout } from "lucide-react";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
-import { AnsimiStory } from "@/components/ansimi-story";
 
 const values = [
   { icon: PencilLine, title: "평소처럼 생활", text: "전화하고 산책하고, 하던 대로 지내세요." },
@@ -45,8 +44,6 @@ export default function LandingPage() {
           {values.map(({icon:Icon,title,text}) => <article key={title} className="rounded-[22px] border border-[#E2E8DE] bg-white p-5 shadow-[0_14px_34px_rgba(55,72,55,0.06)]"><span className="flex size-12 items-center justify-center rounded-2xl bg-[#EDF4E9] text-[#52725B]"><Icon size={25} aria-hidden /></span><h3 className="mt-4 text-xl font-black">{title}</h3><p className="mt-2 font-semibold leading-7 text-[#67736D]">{text}</p></article>)}
         </div>
       </section>
-
-      <AnsimiStory />
 
       <section className="bg-[#203C2B] px-5 py-16 text-white sm:px-8">
         <div className="mx-auto grid w-full max-w-[1180px] gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
