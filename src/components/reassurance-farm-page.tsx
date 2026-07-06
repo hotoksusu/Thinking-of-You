@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Check, PackageOpen, Sparkles } from "lucide-react";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
@@ -108,12 +109,12 @@ export function ReassuranceFarmPage() {
     <main className="app-frame has-bottom-nav bg-[#F6FBF3] text-[#1F2937]">
       <header className="mx-auto flex w-full max-w-[760px] items-center justify-between px-5 py-5">
         <Link href="/app?role=parent" className="flex min-h-12 items-center gap-2 font-black text-[#166534]"><ArrowLeft size={22} aria-hidden /> 부모님 홈</Link>
-        <span className="font-black text-[#15803D]">함께 키우는 안부농장</span>
+        <span className="font-black text-[#15803D]">안심이의 안부농장</span>
       </header>
 
       <div className="mx-auto w-full max-w-[760px] px-5 pb-16">
         <section className="mb-5 rounded-[24px] bg-white p-5 shadow-[0_16px_38px_rgba(15,23,42,0.06)]">
-          <p className="text-sm font-black text-[#15803D]">오늘도 함께 키우는 안부농장</p>
+          <div className="flex items-center gap-3"><Image src="/brand/farm-mascot.png" alt="농장 안내 친구 안심이" width={64} height={64} className="size-16 rounded-2xl object-cover" /><div><p className="text-sm font-black text-[#15803D]">안심이가 농장 소식을 전해요</p><p className="mt-1 font-bold text-[#4B5563]">평소의 하루가 작물을 키우고 있어요.</p></div></div>
           <div className="mt-4 grid grid-cols-5 gap-1 text-center">
             {["작물 선택", "생활 감지", "자동 성장", "계절 수확", "가족 선물"].map((label, index) => <div key={label}><span className={`mx-auto flex size-9 items-center justify-center rounded-xl text-sm font-black ${index <= 1 ? "bg-[#DCFCE7] text-[#15803D]" : "bg-[#F3F4F6] text-[#6B7280]"}`}>{index + 1}</span><p className="mt-2 text-[0.68rem] font-black leading-4 text-[#4B5563]">{label}</p></div>)}
           </div>
