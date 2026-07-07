@@ -94,7 +94,7 @@ function ParentHome({ moments, onSwitch }: { moments: FamilyTrace[]; onSwitch: (
                 </button>
               ))}
             </div>
-            <button type="button" disabled={!selectedMood} onClick={() => setCheckInStep("done")} className="mt-8 min-h-[68px] w-full rounded-2xl bg-[#E9652B] px-6 text-[1.4rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">가족에게 안심 전하기</button>
+            <button type="button" disabled={!selectedMood} onClick={() => setCheckInStep("done")} className="mt-8 min-h-[68px] w-full rounded-2xl bg-[#E9652B] px-6 text-[1.4rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">오늘 기분 기록하기</button>
           </div>
         </section>
       </AppFrame>
