@@ -199,6 +199,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
             <p className="mt-3 text-[1.55rem] font-black leading-9">기분 하나만 고르면<br />오늘 기록이 끝나요.</p>
             <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[78px] w-full items-center justify-center gap-3 rounded-[22px] bg-[#FFF7ED] px-5 text-[1.5rem] font-black text-[#9A3E18] shadow-[0_12px_28px_rgba(0,0,0,0.14)]"><PencilLine size={28} />오늘 기분 남기기</Link>
           </section>
+          <EverydayDataGuide audience="parent" />
           <p className="mt-8 text-xl font-black text-[#37433D]">다른 것도 둘러보세요</p>
           <div className="mt-4 grid gap-4">
             <ParentMenuCard href="/app?role=parent&view=photos" icon={<Images size={34} />} eyebrow="가족 소식" title="가족 사진 보기" description="가족이 보낸 사진을 크게 봐요." tone="blue" />
@@ -319,6 +320,8 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           <button type="button" onClick={() => setIsWriting(true)} className="flex min-h-[86px] flex-col items-center justify-center gap-2 rounded-[24px] bg-[#EAF3E9] text-base font-black text-[#2F6B46]"><ImagePlus size={26} />사진 보내기</button>
         </section>
 
+        <EverydayDataGuide audience="family" />
+
         {isWriting ? <section className="mt-5 rounded-[28px] bg-[#FFF8ED] p-5"><MomentComposer onCancel={() => setIsWriting(false)} onSave={(moment) => { onAddMoment(moment); setIsWriting(false); }} /></section> : null}
 
         <Link href="/app?role=family&view=changes" className="mt-5 flex items-center justify-between rounded-[24px] border border-[#E1E8E1] bg-white p-5 shadow-[0_12px_34px_rgba(49,78,58,0.06)]">
@@ -369,6 +372,34 @@ function FamilyBottomNavigation({ active }: { active: FamilyView }) {
 
 function FamilyAppFrame({ children, active }: { children: React.ReactNode; active: FamilyView }) {
   return <main className="app-frame min-h-screen bg-[#F7F9F6] text-[#17221B]">{children}<FamilyBottomNavigation active={active} /></main>;
+}
+
+function EverydayDataGuide({ audience }: { audience: ExperienceRole }) {
+  const isParent = audience === "parent";
+  return (
+    <section className="mt-5 rounded-[26px] border border-[#DCE7DC] bg-white p-5 shadow-[0_12px_34px_rgba(49,78,58,0.06)]" aria-labelledby={`${audience}-data-guide-title`}>
+      <p className="text-sm font-black text-[#477052]">매일 무엇을 해야 하나요?</p>
+      <h2 id={`${audience}-data-guide-title`} className="mt-2 text-[1.3rem] font-black leading-8 text-[#17221B]">
+        {isParent ? "직접 하실 일은 기분 선택 하나예요." : "부모님이 직접 하실 일은 기분 선택 하나예요."}
+      </h2>
+      <div className="mt-5 grid gap-3">
+        <DataGuideRow icon={<PencilLine size={24} />} label="직접 하기" title="오늘 기분 고르기" detail="하루에 한 번만 선택해요." tone="manual" />
+        <DataGuideRow icon={<Footprints size={24} />} label="자동 확인" title="걷기와 움직임" detail="건강정보 권한을 연결하면 휴대폰이 확인해요." tone="automatic" />
+        <DataGuideRow icon={<Phone size={24} />} label="자동 확인" title="통화 여부와 횟수" detail="통화 내용은 보지 않아요." tone="automatic" />
+      </div>
+      <p className="mt-4 flex items-start gap-2 rounded-2xl bg-[#F3F6F3] p-4 text-sm font-bold leading-6 text-[#657069]"><ShieldCheck className="mt-0.5 shrink-0 text-[#2F6B46]" size={19} />문자 내용, 통화 내용, 정확한 위치는 확인하지 않아요. 자동 확인은 처음 한 번 권한 동의가 필요해요.</p>
+    </section>
+  );
+}
+
+function DataGuideRow({ icon, label, title, detail, tone }: { icon: React.ReactNode; label: string; title: string; detail: string; tone: "manual" | "automatic" }) {
+  const automatic = tone === "automatic";
+  return (
+    <div className={`flex items-center gap-4 rounded-[20px] border p-4 ${automatic ? "border-[#CFE0D0] bg-[#F1F7EF]" : "border-[#F3D2C1] bg-[#FFF7F1]"}`}>
+      <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white ${automatic ? "text-[#2F6B46]" : "text-[#D95423]"}`}>{icon}</span>
+      <span className="min-w-0 flex-1"><span className={`text-xs font-black ${automatic ? "text-[#477052]" : "text-[#B94A20]"}`}>{label}</span><strong className="mt-0.5 block text-lg font-black text-[#17221B]">{title}</strong><small className="mt-1 block font-bold leading-5 text-[#6C766F]">{detail}</small></span>
+    </div>
+  );
 }
 
 function MomentComposer({ onCancel, onSave }: { onCancel: () => void; onSave: (moment: FamilyTrace) => void }) {
