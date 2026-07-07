@@ -33,14 +33,14 @@ export default function LandingPage() {
           <Image src="/brand/hero-family.png" alt="부모님 곁에서 생활 변화를 살피는 오늘안부 안심이" fill priority className="object-cover" sizes="48vw" />
         </div>
         <div className="absolute inset-y-0 left-0 w-full bg-[#FFF9F0] lg:w-[58%]" aria-hidden />
-        <div className="relative z-10 mx-auto grid min-h-[680px] w-full max-w-[1180px] items-center px-5 py-14 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
+        <div className="relative z-10 mx-auto grid min-h-[680px] w-full max-w-[1200px] items-center px-5 py-14 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
           <div className="max-w-[650px]">
-            <p className="text-sm font-black text-[#E9652B]">부모님의 작은 생활 신호를 가족의 안심으로</p>
-            <h1 className="mt-5 text-[2.7rem] font-black leading-[1.12] sm:text-[4.4rem]">중요한 건<br />안부가 아니라<br /><span className="text-[#52725B]">변화입니다.</span></h1>
-            <p className="mt-6 max-w-[600px] text-lg font-bold leading-8 text-[#52635C] sm:text-xl">오늘안부는 부모님의 작은 생활 신호를 AI가 분석해 가족에게 안심 상태로 알려드립니다.</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <p className="text-lg font-black leading-8 text-[#E9652B]">부모님의 작은 생활 신호를<br className="sm:hidden" /> 가족의 안심으로</p>
+            <h1 className="mt-5 text-[3rem] font-black leading-[1.16] sm:text-[3.5rem]">중요한 건<br />안부가 아니라<br /><span className="text-[#52725B]">변화입니다.</span></h1>
+            <p className="mt-6 max-w-[600px] text-xl font-bold leading-9 text-[#43564E]">부모님의 작은 생활 신호를 살펴<br />가족에게 안심 상태로 알려드립니다.</p>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Link href="/start" className="inline-flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-7 text-xl font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.22)]">오늘안부 시작하기 <ArrowRight size={21} aria-hidden /></Link>
-              <Link href="/about" className="inline-flex min-h-16 items-center justify-center gap-2 rounded-2xl border border-[#A9BEA6] bg-white px-7 text-lg font-black text-[#40534B]">서비스 둘러보기</Link>
+              <Link href="/about" className="inline-flex min-h-16 items-center justify-center gap-2 rounded-2xl border-2 border-[#8FA98D] bg-white px-7 text-xl font-black text-[#31473D]">서비스 둘러보기</Link>
             </div>
             <div className="relative mt-9 aspect-[4/3] overflow-hidden rounded-[22px] shadow-[0_18px_44px_rgba(67,49,34,0.14)] lg:hidden">
               <Image src="/brand/hero-family.png" alt="부모님과 오늘안부 안심이" fill priority className="object-cover" sizes="100vw" />
@@ -49,46 +49,46 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1180px] px-5 py-16 sm:px-8 sm:py-20">
-        <p className="text-sm font-black text-[#E9652B]">놓치기 쉬운 변화</p>
-        <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">작은 변화는 대부분<br />뒤늦게 발견됩니다.</h2>
-        <p className="mt-4 max-w-[680px] text-lg font-semibold leading-8 text-[#68756F]">한 번의 안부보다 평소와 달라지는 흐름을 보면 가족이 조금 더 일찍 살펴볼 수 있습니다.</p>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {changes.map(({ icon: Icon, title, text }) => <article key={title} className="rounded-[22px] border border-[#E2E8DE] bg-white p-6"><span className="flex size-12 items-center justify-center rounded-2xl bg-[#FFF0E4] text-[#D95423]"><Icon size={25} aria-hidden /></span><h3 className="mt-5 text-xl font-black">{title}</h3><p className="mt-2 font-semibold leading-7 text-[#68756F]">{text}</p></article>)}
+      <section className="mx-auto w-full max-w-[1200px] px-5 py-20 sm:px-8 sm:py-24">
+        <p className="text-lg font-black text-[#E9652B]">놓치기 쉬운 변화</p>
+        <h2 className="mt-3 text-[2rem] font-black leading-[1.3] sm:text-4xl">작은 변화는 대부분<br />뒤늦게 발견됩니다.</h2>
+        <p className="mt-5 max-w-[720px] text-xl font-semibold leading-9 text-[#52635C]">한 번의 대답보다<br className="sm:hidden" /> 평소와 달라지는 흐름이 중요합니다.</p>
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {changes.map(({ icon: Icon, title, text }) => <article key={title} className="rounded-[24px] border border-[#DCE4D9] bg-white p-7"><span className="flex size-14 items-center justify-center rounded-2xl bg-[#FFF0E4] text-[#D95423]"><Icon size={28} aria-hidden /></span><h3 className="mt-6 text-2xl font-black">{title}</h3><p className="mt-3 text-lg font-semibold leading-8 text-[#596861]">{text}</p></article>)}
         </div>
       </section>
 
-      <section className="border-y border-[#DFE7DC] bg-[#F1F5EB] px-5 py-16 sm:px-8 sm:py-20">
-        <div className="mx-auto w-full max-w-[1180px]">
-          <p className="text-sm font-black text-[#52725B]">핵심 기능</p>
-          <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">필요한 안심만<br />쉽게 확인하세요.</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map(({ icon: Icon, title, text }) => <article key={title} className="rounded-[20px] bg-white p-5 shadow-[0_12px_30px_rgba(55,72,55,0.06)]"><Icon size={27} className="text-[#52725B]" aria-hidden /><h3 className="mt-4 text-xl font-black">{title}</h3><p className="mt-2 font-semibold leading-7 text-[#68756F]">{text}</p></article>)}
+      <section className="border-y border-[#DFE7DC] bg-[#F1F5EB] px-5 py-20 sm:px-8 sm:py-24">
+        <div className="mx-auto w-full max-w-[1200px]">
+          <p className="text-lg font-black text-[#52725B]">핵심 기능</p>
+          <h2 className="mt-3 text-[2rem] font-black leading-[1.3] sm:text-4xl">필요한 안심만<br />쉽게 확인하세요.</h2>
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map(({ icon: Icon, title, text }) => <Link href="/features" key={title} className="rounded-[24px] border border-transparent bg-white p-7 transition hover:-translate-y-1 hover:border-[#B8CBB4] hover:shadow-[0_14px_32px_rgba(55,72,55,0.08)]"><Icon size={30} className="text-[#52725B]" aria-hidden /><h3 className="mt-5 text-2xl font-black">{title}</h3><p className="mt-3 text-lg font-semibold leading-8 text-[#596861]">{text}</p></Link>)}
           </div>
-          <Link href="/features" className="mt-8 inline-flex min-h-14 items-center gap-2 rounded-2xl border border-[#A9BEA6] bg-white px-6 font-black text-[#40534B]">기능 자세히 보기 <ArrowRight size={18} aria-hidden /></Link>
+          <Link href="/features" className="mt-10 inline-flex min-h-[60px] items-center gap-2 rounded-2xl border-2 border-[#8FA98D] bg-white px-7 text-lg font-black text-[#31473D]">기능 자세히 보기 <ArrowRight size={20} aria-hidden /></Link>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[1180px] px-5 py-16 sm:px-8 sm:py-20">
-        <p className="text-sm font-black text-[#E9652B]">시작하는 방법</p>
-        <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">연결은 간단하고,<br />안부는 짧습니다.</h2>
-        <div className="mt-8 grid gap-4 md:grid-cols-4">
-          {steps.map(({ icon: Icon, title, text }, index) => <article key={title} className="relative rounded-[20px] border border-[#E5E7E2] bg-white p-5"><span className="text-sm font-black text-[#E9652B]">{index + 1}단계</span><Icon size={27} className="mt-5 text-[#52725B]" aria-hidden /><h3 className="mt-4 text-xl font-black">{title}</h3><p className="mt-2 font-semibold leading-7 text-[#68756F]">{text}</p></article>)}
+      <section className="mx-auto w-full max-w-[1200px] px-5 py-20 sm:px-8 sm:py-24">
+        <p className="text-lg font-black text-[#E9652B]">시작하는 방법</p>
+        <h2 className="mt-3 text-[2rem] font-black leading-[1.3] sm:text-4xl">연결은 간단하고,<br />안부는 짧습니다.</h2>
+        <div className="mt-10 grid gap-6 md:grid-cols-4">
+          {steps.map(({ icon: Icon, title, text }, index) => <Link href="/guide" key={title} className="relative rounded-[24px] border border-[#DCE4D9] bg-white p-7 transition hover:-translate-y-1 hover:border-[#AFC4AC]"><span className="text-lg font-black text-[#E9652B]">{index + 1}단계</span><Icon size={30} className="mt-6 text-[#52725B]" aria-hidden /><h3 className="mt-5 text-2xl font-black">{title}</h3><p className="mt-3 text-lg font-semibold leading-8 text-[#596861]">{text}</p></Link>)}
         </div>
-        <Link href="/guide" className="mt-8 inline-flex min-h-14 items-center gap-2 rounded-2xl border border-[#A9BEA6] bg-white px-6 font-black text-[#40534B]">이용 방법 보기 <ArrowRight size={18} aria-hidden /></Link>
+        <Link href="/guide" className="mt-10 inline-flex min-h-[60px] items-center gap-2 rounded-2xl border-2 border-[#8FA98D] bg-white px-7 text-lg font-black text-[#31473D]">이용 방법 보기 <ArrowRight size={20} aria-hidden /></Link>
       </section>
 
-      <section className="bg-[#203C2B] px-5 py-16 text-white sm:px-8 sm:py-20">
-        <div className="mx-auto grid w-full max-w-[980px] gap-6 md:grid-cols-[auto_1fr_auto] md:items-center">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-white/10 text-[#B9E1C0]"><ShieldCheck size={30} aria-hidden /></span>
-          <div><h2 className="text-3xl font-black">의료 진단이 아니라<br />가족을 위한 안심 신호입니다.</h2><p className="mt-3 max-w-[600px] font-semibold leading-8 text-white/70">질병을 판단하지 않습니다. 평소와 다른 생활 흐름을 가족이 이해하고 한 번 더 안부를 물을 수 있도록 돕습니다.</p></div>
-          <Link href="/about" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-white px-6 font-black text-[#203C2B]">서비스 자세히 보기 <ArrowRight size={18} aria-hidden /></Link>
+      <section className="bg-[#203C2B] px-5 py-20 text-white sm:px-8 sm:py-24">
+        <div className="mx-auto grid w-full max-w-[1200px] gap-7 md:grid-cols-[auto_1fr_auto] md:items-center">
+          <span className="flex size-16 items-center justify-center rounded-2xl bg-white/10 text-[#B9E1C0]"><ShieldCheck size={34} aria-hidden /></span>
+          <div><h2 className="text-[2rem] font-black leading-[1.3] sm:text-4xl">의료 진단이 아니라<br />가족을 위한 안심 신호입니다.</h2><p className="mt-4 max-w-[650px] text-lg font-semibold leading-8 text-white/80">질병을 판단하지 않습니다.<br />평소와 다른 흐름을 가족이 살펴보도록 돕습니다.</p></div>
+          <Link href="/about" className="inline-flex min-h-[60px] items-center justify-center gap-2 rounded-2xl bg-white px-7 text-lg font-black text-[#203C2B]">서비스 자세히 보기 <ArrowRight size={20} aria-hidden /></Link>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-[900px] px-5 py-20 text-center sm:px-8 sm:py-28">
-        <h2 className="text-3xl font-black leading-tight sm:text-5xl">부모님의 오늘을<br />오늘부터 함께 확인해보세요.</h2>
-        <p className="mt-5 text-lg font-bold text-[#68756F]">앱 설치 없이 바로 시작할 수 있습니다.</p>
+      <section className="mx-auto w-full max-w-[1200px] px-5 py-24 text-center sm:px-8 sm:py-28">
+        <h2 className="text-[2rem] font-black leading-[1.3] sm:text-4xl">부모님의 오늘을<br />오늘부터 함께 확인해보세요.</h2>
+        <p className="mt-6 text-xl font-bold leading-9 text-[#52635C]">앱 설치 없이<br className="sm:hidden" /> 바로 시작할 수 있습니다.</p>
         <Link href="/start" className="mt-8 inline-flex min-h-16 w-full max-w-[460px] items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-7 text-xl font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.22)]">부모님과 연결 시작하기 <ArrowRight size={21} aria-hidden /></Link>
       </section>
 
