@@ -3,10 +3,8 @@
 import Link from "next/link";
 import { useState, type ChangeEvent } from "react";
 import {
-  Activity,
   ArrowLeft,
   ArrowRight,
-  BarChart3,
   Bell,
   Check,
   ChevronRight,
@@ -17,29 +15,31 @@ import {
   ImagePlus,
   Images,
   Leaf,
-  MessageCircle,
   PencilLine,
   Phone,
+  Settings,
   ShieldCheck,
-  Sparkles,
   Sprout,
+  TrendingUp,
+  UserRound,
   UsersRound,
   X,
 } from "lucide-react";
-import { familyTraces, getFarmGrowth, todayReport, todaySignals, type FamilyTrace } from "@/lib/life-pattern";
+import { familyTraces, getFarmGrowth, todaySignals, type FamilyTrace } from "@/lib/life-pattern";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
 
 type ExperienceRole = "parent" | "family";
 type ParentView = "home" | "record" | "photos" | "farm";
+type FamilyView = "home" | "reassurance" | "changes" | "profile";
 
-export function UserMode({ initialRole, initialParentView = "home" }: { initialRegistered: boolean; initialRole?: ExperienceRole; initialParentView?: ParentView }) {
+export function UserMode({ initialRole, initialParentView = "home", initialFamilyView = "home" }: { initialRegistered: boolean; initialRole?: ExperienceRole; initialParentView?: ParentView; initialFamilyView?: FamilyView }) {
   const [role, setRole] = useState<ExperienceRole | null>(initialRole ?? null);
   const [moments, setMoments] = useState<FamilyTrace[]>(familyTraces);
 
   if (!role) return <RoleSelect onSelect={setRole} />;
   return role === "parent"
     ? <ParentHome moments={moments} initialView={initialParentView} />
-    : <FamilyHome moments={moments} onAddMoment={(moment) => setMoments((current) => [moment, ...current])} onSwitch={() => setRole("parent")} />;
+    : <FamilyHome moments={moments} initialView={initialFamilyView} onAddMoment={(moment) => setMoments((current) => [moment, ...current])} />;
 }
 
 function RoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) => void }) {
@@ -224,62 +224,138 @@ function ParentBottomNavigation({ active }: { active: ParentView }) {
   return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id; return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[70px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.9rem] font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={27} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
 }
 
-function FamilyHome({ moments, onAddMoment, onSwitch }: { moments: FamilyTrace[]; onAddMoment: (moment: FamilyTrace) => void; onSwitch: () => void }) {
+function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrace[]; initialView: FamilyView; onAddMoment: (moment: FamilyTrace) => void }) {
   const [isWriting, setIsWriting] = useState(false);
+
+  if (initialView === "reassurance") {
+    return (
+      <FamilyAppFrame active="reassurance">
+        <FamilySectionHeader title="오늘의 안심" />
+        <section className="px-5 pb-32 pt-6">
+          <div className="mx-auto max-w-[620px]">
+            <section className="rounded-[30px] bg-[#2F6B46] p-7 text-white shadow-[0_22px_58px_rgba(47,107,70,0.22)]">
+              <div className="flex items-center justify-between gap-3"><span className="rounded-full bg-white/15 px-4 py-2 text-sm font-black">오늘 오후 8:20 기준</span><ShieldCheck size={30} /></div>
+              <h1 className="mt-7 text-[2rem] font-black leading-tight">엄마는 오늘도<br />평소와 비슷해요.</h1>
+              <p className="mt-4 text-lg font-bold leading-8 text-white/80">지금 바로 확인할 변화는 없어요.</p>
+            </section>
+            <section className="mt-5 rounded-[26px] bg-white p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]">
+              <h2 className="text-xl font-black">한눈에 보는 오늘</h2>
+              <div className="mt-4 divide-y divide-[#E8EEE8]">
+                {["평소처럼 하루를 시작했어요", "오늘도 몸을 움직였어요", "가족과 연락을 나눴어요"].map((item) => <p key={item} className="flex items-center gap-3 py-4 text-base font-bold"><span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#EAF3E9] text-[#2F6B46]"><Check size={18} /></span>{item}</p>)}
+              </div>
+            </section>
+            <section className="mt-5 rounded-[26px] border border-[#F0D7C6] bg-[#FFF8F2] p-6">
+              <p className="text-sm font-black text-[#B95327]">오늘안부가 전하는 한마디</p>
+              <p className="mt-3 text-lg font-black leading-8">걱정되는 변화는 없어요.<br />평소처럼 안부를 나눠보세요.</p>
+            </section>
+          </div>
+        </section>
+      </FamilyAppFrame>
+    );
+  }
+
+  if (initialView === "changes") {
+    return (
+      <FamilyAppFrame active="changes">
+        <FamilySectionHeader title="최근 변화" />
+        <section className="px-5 pb-32 pt-6">
+          <div className="mx-auto max-w-[620px]">
+            <p className="text-lg font-bold leading-8 text-[#657069]">숫자보다 달라진 점만<br />쉽게 정리했어요.</p>
+            <div className="mt-5 grid gap-4">
+              <FamilyChangeCard icon={<Footprints />} title="생활 움직임" value="평소와 비슷해요" detail="최근 7일 동안 큰 변화가 없어요." />
+              <FamilyChangeCard icon={<Clock3 />} title="하루 리듬" value="안정적으로 이어져요" detail="기상과 활동 시간이 평소 범위예요." />
+              <FamilyChangeCard icon={<Phone />} title="가족 연락" value="꾸준히 이어졌어요" detail="이번 주에도 가족과 연락했어요." />
+            </div>
+            <Link href="/family/report" className="mt-6 flex min-h-16 items-center justify-center gap-2 rounded-2xl border-2 border-[#2F6B46] bg-white px-5 text-lg font-black text-[#2F6B46]">자세한 변화 보기 <ChevronRight size={22} /></Link>
+          </div>
+        </section>
+      </FamilyAppFrame>
+    );
+  }
+
+  if (initialView === "profile") {
+    return (
+      <FamilyAppFrame active="profile">
+        <FamilySectionHeader title="내정보" />
+        <section className="px-5 pb-32 pt-6">
+          <div className="mx-auto max-w-[620px]">
+            <section className="rounded-[26px] bg-white p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]">
+              <p className="text-sm font-black text-[#477052]">연결된 부모님</p>
+              <div className="mt-4 flex items-center gap-4"><span className="flex size-16 items-center justify-center rounded-full bg-[#FFF0E6] text-3xl">👩</span><div><h1 className="text-xl font-black">김정희님</h1><p className="mt-1 font-bold text-[#727C75]">어머니 · 연결됨</p></div><span className="ml-auto rounded-full bg-[#EAF3E9] px-3 py-2 text-sm font-black text-[#2F6B46]">안심</span></div>
+            </section>
+            <div className="mt-5 grid gap-3">
+              <FamilySettingLink href="/family/members" icon={<UsersRound />} title="가족 연결 관리" description="함께 확인할 가족을 관리해요." />
+              <FamilySettingLink href="/settings/notifications" icon={<Bell />} title="알림 설정" description="알림 받을 시간과 내용을 정해요." />
+              <FamilySettingLink href="/guide" icon={<Settings />} title="이용 방법" description="부모님 연결과 사용법을 확인해요." />
+            </div>
+          </div>
+        </section>
+      </FamilyAppFrame>
+    );
+  }
+
   return (
-    <AppFrame active="family">
-      <TopBar label="엄마의 오늘" onSwitch={onSwitch} switchLabel="부모님 화면" />
-      <section className="px-5 pb-28 pt-5">
+    <FamilyAppFrame active="home">
+      <FamilySectionHeader title="엄마의 오늘" />
+      <section className="px-5 pb-32 pt-5">
+        <div className="mx-auto max-w-[620px]">
         <ReassuranceHero />
 
-        <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_16px_45px_rgba(49,78,58,0.07)]">
-          <div className="flex items-center justify-between gap-3"><SectionTitle eyebrow="오늘의 생활" title="오늘도 생활이 자연스럽게 기록되고 있어요" /><span className="shrink-0 rounded-full bg-[#EDF6EE] px-3 py-1 text-xs font-black text-[#39704A]">잘 기록 중</span></div>
-          <div className="mt-5 divide-y divide-[#EEF1EE]">
-            {todaySignals.slice(0, 4).map((signal) => <SignalRow key={signal.type} signal={signal} />)}
-          </div>
-          <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-[#7D857F]"><ShieldCheck size={15} /> 통화 내용은 보지 않아요.</p>
+        <section className="mt-5 grid grid-cols-2 gap-3">
+          <a href="tel:010-1234-5678" className="flex min-h-[86px] flex-col items-center justify-center gap-2 rounded-[24px] bg-[#FFF0E6] text-base font-black text-[#B94A20]"><Phone size={26} />엄마께 전화하기</a>
+          <button type="button" onClick={() => setIsWriting(true)} className="flex min-h-[86px] flex-col items-center justify-center gap-2 rounded-[24px] bg-[#EAF3E9] text-base font-black text-[#2F6B46]"><ImagePlus size={26} />사진 보내기</button>
         </section>
 
-        <section className="mt-5 rounded-[28px] bg-[#FFF8ED] p-6">
-          <SectionTitle eyebrow="오늘의 순간" title="오늘 남기고 싶은 순간이 있나요?" />
-          <p className="mt-2 font-semibold leading-7 text-[#746B60]">사진 한 장도, 짧은 글도 좋아요.</p>
-          {isWriting ? <MomentComposer onCancel={() => setIsWriting(false)} onSave={(moment) => { onAddMoment(moment); setIsWriting(false); }} /> : <button type="button" onClick={() => setIsWriting(true)} className="mt-5 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#2F6B46] px-5 font-black text-white"><ImagePlus size={19} />오늘의 순간 남기기</button>}
-          {moments.length ? <div className="mt-5 border-t border-[#F0E5D5] pt-4"><p className="text-sm font-black text-[#746B60]">최근 남긴 순간</p><p className="mt-2 line-clamp-2 font-bold">{moments[0].title}</p></div> : null}
-        </section>
+        {isWriting ? <section className="mt-5 rounded-[28px] bg-[#FFF8ED] p-5"><MomentComposer onCancel={() => setIsWriting(false)} onSave={(moment) => { onAddMoment(moment); setIsWriting(false); }} /></section> : null}
 
-        <Link href="/family/report" className="mt-5 flex items-center justify-between rounded-[24px] border border-[#E1E8E1] bg-white p-5">
-          <span className="flex items-center gap-4"><span className="flex size-11 items-center justify-center rounded-2xl bg-[#EEF4EE] text-[#2F6B46]"><BarChart3 /></span><span><strong className="block">최근 생활 변화 보기</strong><small className="mt-1 block font-semibold text-[#737C75]">AI가 최근 변화를 살펴봤어요</small></span></span><ChevronRight />
+        <Link href="/app?role=family&view=changes" className="mt-5 flex items-center justify-between rounded-[24px] border border-[#E1E8E1] bg-white p-5 shadow-[0_12px_34px_rgba(49,78,58,0.06)]">
+          <span className="flex items-center gap-4"><span className="flex size-12 items-center justify-center rounded-2xl bg-[#EEF4EE] text-[#2F6B46]"><TrendingUp /></span><span><strong className="block text-lg">최근 7일도 안정적이에요</strong><small className="mt-1 block font-semibold text-[#737C75]">달라진 점이 있는지 확인해 보세요</small></span></span><ChevronRight className="shrink-0" />
         </Link>
+
+        <section className="mt-5 rounded-[24px] bg-[#FFF8ED] p-5">
+          <div className="flex items-center gap-4"><span className="flex size-12 items-center justify-center rounded-2xl bg-white text-2xl">🌱</span><div><p className="font-black">엄마의 토마토도 잘 자라고 있어요</p><p className="mt-1 text-sm font-bold text-[#786B5E]">다음 수확까지 천천히 함께해요.</p></div></div>
+        </section>
+        </div>
       </section>
-    </AppFrame>
+    </FamilyAppFrame>
   );
 }
 
 function ReassuranceHero() {
-  const reassuringMessages = ["오늘도 몸을 움직였어요", "평소처럼 하루를 시작했어요", "소중한 사람과 연락했어요"];
   return (
     <section className="overflow-hidden rounded-[30px] bg-[#2F6B46] p-6 text-white shadow-[0_24px_65px_rgba(47,107,70,0.23)]">
-      <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-black text-[#D5EBD8]"><span className="size-2 rounded-full bg-[#9DE2A8]" />오늘도 안심이에요</p><span className="text-xs font-bold text-white/65">오후 8:20 기준</span></div>
-      <p className="mt-6 text-2xl font-black leading-9">오늘도 평소처럼<br />지내고 계세요 😊</p>
-      <p className="mt-3 text-sm font-bold text-white/65">오늘의 안심 {todayReport.score}점</p>
-      <div className="mt-6 grid gap-2 sm:grid-cols-3">
-        {reassuringMessages.map((message) => <p key={message} className="flex items-center gap-2 rounded-2xl bg-white/10 px-3 py-2.5 text-sm font-bold"><Check size={16} className="shrink-0 text-[#B9E7BF]" />{message}</p>)}
-      </div>
+      <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-black text-[#D5EBD8]"><span className="size-2 rounded-full bg-[#9DE2A8]" />오늘 확인 완료</p><span className="text-xs font-bold text-white/65">오후 8:20 기준</span></div>
+      <p className="mt-6 text-[1.75rem] font-black leading-10">엄마는 오늘도<br />평소와 비슷해요.</p>
+      <p className="mt-3 text-base font-bold leading-7 text-white/75">지금 바로 확인할 변화는 없어요.</p>
+      <Link href="/app?role=family&view=reassurance" className="mt-6 flex min-h-14 items-center justify-between rounded-2xl bg-white px-5 text-base font-black text-[#2F6B46]">오늘 상태 자세히 보기 <ChevronRight size={22} /></Link>
     </section>
   );
 }
 
-function SignalRow({ signal }: { signal: (typeof todaySignals)[number] }) {
-  const icons = { steps: Footprints, daily_rhythm: Clock3, call_activity: Phone, app_activity: Activity, mobility: Activity };
-  const Icon = icons[signal.type];
-  const copy = {
-    steps: ["오늘도 몸을 움직였어요", "평소만큼 움직였어요"],
-    daily_rhythm: ["오늘도 평소처럼 하루를 시작했어요", "편안한 흐름이에요"],
-    call_activity: ["오늘도 소중한 사람과 연락했어요", "평소와 비슷해요"],
-    app_activity: ["오늘도 생활이 자연스럽게 기록되고 있어요", "잘 기록되고 있어요"],
-    mobility: ["오늘도 익숙한 곳을 다녀오셨어요", "평소와 비슷해요"],
-  }[signal.type];
-  return <div className="flex items-center gap-3 py-4"><span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-[#F0F5F0] text-[#3D6F4B]"><Icon size={19} /></span><span><strong className="block text-sm leading-6">{copy[0]}</strong><small className="font-semibold text-[#848C86]">{copy[1]}</small></span></div>;
+function FamilySectionHeader({ title }: { title: string }) {
+  return <header className="sticky top-0 z-20 border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 py-4 backdrop-blur"><div className="mx-auto flex max-w-[620px] items-center gap-3"><span className="flex size-11 items-center justify-center rounded-2xl bg-[#2F6B46] text-white"><HeartHandshake size={22} /></span><div><p className="text-xs font-black text-[#597061]">오늘안부 가족</p><h1 className="text-xl font-black text-[#17221B]">{title}</h1></div></div></header>;
+}
+
+function FamilyChangeCard({ icon, title, value, detail }: { icon: React.ReactNode; title: string; value: string; detail: string }) {
+  return <article className="rounded-[24px] bg-white p-5 shadow-[0_12px_34px_rgba(49,78,58,0.07)]"><div className="flex items-center gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF3E9] text-[#2F6B46]">{icon}</span><div><p className="text-sm font-black text-[#68736C]">{title}</p><h2 className="mt-1 text-lg font-black">{value}</h2></div></div><p className="mt-4 border-t border-[#E8EEE8] pt-4 font-bold leading-7 text-[#69746D]">{detail}</p></article>;
+}
+
+function FamilySettingLink({ href, icon, title, description }: { href: string; icon: React.ReactNode; title: string; description: string }) {
+  return <Link href={href} className="flex min-h-[88px] items-center gap-4 rounded-[22px] bg-white p-5 shadow-[0_10px_30px_rgba(49,78,58,0.06)]"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EEF4EE] text-[#2F6B46]">{icon}</span><span className="min-w-0 flex-1"><strong className="block text-lg">{title}</strong><small className="mt-1 block font-semibold leading-5 text-[#737C75]">{description}</small></span><ChevronRight className="shrink-0" /></Link>;
+}
+
+function FamilyBottomNavigation({ active }: { active: FamilyView }) {
+  const tabs = [
+    { id: "home" as const, label: "부모님", href: "/app?role=family", icon: HeartHandshake },
+    { id: "reassurance" as const, label: "안심", href: "/app?role=family&view=reassurance", icon: ShieldCheck },
+    { id: "changes" as const, label: "변화", href: "/app?role=family&view=changes", icon: TrendingUp },
+    { id: "profile" as const, label: "내정보", href: "/app?role=family&view=profile", icon: UserRound },
+  ];
+  return <nav aria-label="가족 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id; return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.95rem] font-black ${selected ? "bg-[#EAF3E9] text-[#2F6B46]" : "text-[#59655E]"}`}><Icon size={26} strokeWidth={selected ? 2.8 : 2.1} /><span>{tab.label}</span></Link>; })}</div></nav>;
+}
+
+function FamilyAppFrame({ children, active }: { children: React.ReactNode; active: FamilyView }) {
+  return <main className="app-frame min-h-screen bg-[#F7F9F6] text-[#17221B]">{children}<FamilyBottomNavigation active={active} /></main>;
 }
 
 function MomentComposer({ onCancel, onSave }: { onCancel: () => void; onSave: (moment: FamilyTrace) => void }) {
@@ -302,10 +378,6 @@ function MomentComposer({ onCancel, onSave }: { onCancel: () => void; onSave: (m
     <p className="mt-2 text-xs font-semibold text-[#948A7D]">사진만 또는 글만 남겨도 괜찮아요.</p>
     <button type="button" disabled={!canSave} onClick={() => onSave({ id: `moment-${Date.now()}`, kind: imageUrl ? "photo" : "memo", sender: "나", title: text.trim() || "사진으로 오늘의 순간을 남겼어요.", emoji: imageUrl ? "📷" : "✍️", imageUrl, createdAt: new Date().toISOString() })} className="mt-4 min-h-12 w-full rounded-2xl bg-[#2F6B46] px-5 font-black text-white disabled:bg-[#C8D2C9]">가족에게 전하기</button>
   </div>;
-}
-
-function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
-  return <div><p className="text-xs font-black text-[#5A7D63]">{eyebrow}</p><h2 className="mt-1 text-xl font-black">{title}</h2></div>;
 }
 
 function Brand() {

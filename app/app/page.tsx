@@ -14,6 +14,9 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   const parentView = params?.view === "record" || params?.view === "photos" || params?.view === "farm"
     ? params.view
     : "home";
+  const familyView = params?.view === "reassurance" || params?.view === "changes" || params?.view === "profile"
+    ? params.view
+    : "home";
 
-  return <UserMode initialRegistered={params?.registered === "1"} initialRole={role} initialParentView={parentView} />;
+  return <UserMode initialRegistered={params?.registered === "1"} initialRole={role} initialParentView={parentView} initialFamilyView={familyView} />;
 }
