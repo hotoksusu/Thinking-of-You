@@ -28,7 +28,7 @@ export default function LandingPage() {
     <main className="min-h-screen bg-[#FFF9F0] pb-28 text-[#20302C]">
       <MarketingHeader />
 
-      <section className="relative isolate overflow-hidden border-b border-[#E7E5DE] bg-[#F6EDDF]">
+      <section className="relative isolate mx-auto w-full max-w-[1440px] overflow-hidden border-b border-[#E7E5DE] bg-[#F6EDDF]">
         <div className="absolute inset-y-0 right-0 hidden w-[48%] lg:block">
           <Image src="/brand/hero-family.png" alt="부모님 곁에서 생활 변화를 살피는 오늘안부 안심이" fill priority className="object-cover" sizes="48vw" />
         </div>
