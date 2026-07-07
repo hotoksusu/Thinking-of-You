@@ -60,8 +60,8 @@ export const todayReport: ReassuranceReport = {
 };
 
 export const familyTraces: FamilyTrace[] = [
-  { id: "trace-1", kind: "photo", sender: "지은", title: "손주가 오늘 그림을 그렸어요.", emoji: "🎨", createdAt: "2026-07-04T18:10:00+09:00" },
-  { id: "trace-2", kind: "pet", sender: "민수", title: "몽이가 저녁 산책을 다녀왔어요.", emoji: "🐶", createdAt: "2026-07-03T20:32:00+09:00" },
+  { id: "trace-1", kind: "photo", sender: "지은", title: "손주가 오늘 그림을 그렸어요.", emoji: "🎨", imageUrl: "/brand/hero-family.png", createdAt: "2026-07-04T18:10:00+09:00" },
+  { id: "trace-2", kind: "photo", sender: "민수", title: "주말에 다 같이 웃으며 사진을 찍었어요.", emoji: "💛", imageUrl: "/illustrations/family-guide.png", createdAt: "2026-07-03T20:32:00+09:00" },
 ];
 
 export function getFarmGrowth(signals = todaySignals, traces = familyTraces) {

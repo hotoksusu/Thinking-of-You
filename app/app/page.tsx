@@ -4,12 +4,16 @@ type AppPageProps = {
   searchParams?: Promise<{
     registered?: string;
     role?: string;
+    view?: string;
   }>;
 };
 
 export default async function AppPage({ searchParams }: AppPageProps) {
   const params = await searchParams;
   const role = params?.role === "parent" || params?.role === "family" ? params.role : undefined;
+  const parentView = params?.view === "record" || params?.view === "photos" || params?.view === "farm"
+    ? params.view
+    : "home";
 
-  return <UserMode initialRegistered={params?.registered === "1"} initialRole={role} />;
+  return <UserMode initialRegistered={params?.registered === "1"} initialRole={role} initialParentView={parentView} />;
 }
