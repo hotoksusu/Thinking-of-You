@@ -41,32 +41,29 @@ export function UserMode({ initialRole }: { initialRegistered: boolean; initialR
 
 function RoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) => void }) {
   return (
-    <main className="min-h-screen bg-[#F4F7F3] px-5 py-8 text-[#17221B]">
-      <div className="mx-auto max-w-[860px]">
+    <main className="min-h-screen bg-[#F4F7F3] px-5 py-6 text-[#17221B] sm:py-10">
+      <div className="mx-auto max-w-[760px]">
         <Brand />
-        <section className="mt-16 max-w-[640px]">
-          <p className="text-sm font-black text-[#4F7A5A]">생활이 안부가 되는 순간</p>
-          <h1 className="mt-4 text-4xl font-black leading-[1.18] sm:text-6xl">기록하지 않아도,<br /><span className="text-[#2F6B46]">오늘은 전해집니다.</span></h1>
-          <p className="mt-6 text-lg font-semibold leading-8 text-[#657069]">평소처럼 지내세요. 최근 생활을 조용히 살펴 가족에게 안심을 전해드려요.</p>
+        <section className="mt-10 text-center sm:mt-14">
+          <h1 className="text-[2.15rem] font-black leading-tight sm:text-5xl">누가 시작하시나요?</h1>
+          <p className="mt-3 text-lg font-semibold text-[#657069]">사용할 화면을 선택해 주세요.</p>
         </section>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2">
-          <RoleCard icon={<Leaf />} eyebrow="부모님" title="평소처럼 생활하기" description="앱 설치와 권한 동의 후에는 따로 기록할 일이 없어요." onClick={() => onSelect("parent")} />
-          <RoleCard icon={<HeartHandshake />} eyebrow="가족" title="안심 확인하기" description="오늘의 생활을 확인하고, 가끔 작은 순간을 나눠요." onClick={() => onSelect("family")} />
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <RoleCard icon={<Leaf />} role="부모님" description="평소 생활로 가족에게 안부를 전해요." actionLabel="부모님으로 시작하기" onClick={() => onSelect("parent")} />
+          <RoleCard icon={<HeartHandshake />} role="가족" description="부모님의 오늘과 변화를 확인해요." actionLabel="가족으로 시작하기" onClick={() => onSelect("family")} />
         </div>
-        <p className="mt-8 text-center text-sm font-bold text-[#7B857E]">통화 내용은 보지 않아요. 동의한 정보만 안전하게 살펴봅니다.</p>
       </div>
     </main>
   );
 }
 
-function RoleCard({ icon, eyebrow, title, description, onClick }: { icon: React.ReactNode; eyebrow: string; title: string; description: string; onClick: () => void }) {
+function RoleCard({ icon, role, description, actionLabel, onClick }: { icon: React.ReactNode; role: string; description: string; actionLabel: string; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} className="group rounded-[28px] border border-[#DCE7DC] bg-white p-6 text-left shadow-[0_18px_55px_rgba(49,78,58,0.08)] transition hover:-translate-y-1 hover:border-[#83A98C]">
-      <span className="flex size-12 items-center justify-center rounded-2xl bg-[#EAF3E9] text-[#2F6B46]">{icon}</span>
-      <p className="mt-6 text-sm font-black text-[#62806A]">{eyebrow}</p>
-      <h2 className="mt-1 text-2xl font-black">{title}</h2>
-      <p className="mt-3 font-semibold leading-7 text-[#6D766F]">{description}</p>
-      <span className="mt-6 flex items-center gap-2 font-black text-[#2F6B46]">시작하기 <ArrowRight size={18} /></span>
+    <button type="button" onClick={onClick} className="group rounded-[28px] border-2 border-[#DCE7DC] bg-white p-5 text-left shadow-[0_18px_55px_rgba(49,78,58,0.08)] transition hover:-translate-y-1 hover:border-[#83A98C] sm:p-6">
+      <span className="flex size-14 items-center justify-center rounded-2xl bg-[#EAF3E9] text-[#2F6B46]">{icon}</span>
+      <h2 className="mt-5 text-[1.7rem] font-black">{role}</h2>
+      <p className="mt-2 min-h-14 text-lg font-semibold leading-7 text-[#6D766F]">{description}</p>
+      <span className="mt-5 flex min-h-16 w-full items-center justify-center gap-2 rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white shadow-[0_12px_28px_rgba(47,107,70,0.22)] transition group-hover:bg-[#285D3D]">{actionLabel} <ArrowRight size={22} /></span>
     </button>
   );
 }
