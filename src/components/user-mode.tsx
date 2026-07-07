@@ -29,7 +29,7 @@ import { familyTraces, getFarmGrowth, todaySignals, type FamilyTrace } from "@/l
 import { BottomTabBar } from "@/components/bottom-tab-bar";
 
 type ExperienceRole = "parent" | "family";
-type ParentView = "home" | "record" | "photos" | "farm";
+type ParentView = "home" | "record" | "photos" | "farm" | "profile";
 type FamilyView = "home" | "reassurance" | "changes" | "profile";
 
 export function UserMode({ initialRole, initialParentView = "home", initialFamilyView = "home" }: { initialRegistered: boolean; initialRole?: ExperienceRole; initialParentView?: ParentView; initialFamilyView?: FamilyView }) {
@@ -73,48 +73,26 @@ function RoleCard({ icon, role, description, actionLabel, onClick }: { icon: Rea
 
 function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialView: ParentView }) {
   const farm = getFarmGrowth(todaySignals, moments);
-  const [checkInStep, setCheckInStep] = useState<"home" | "mood" | "done">("home");
+  const [checkInStep, setCheckInStep] = useState<"home" | "done">("home");
   const [selectedMood, setSelectedMood] = useState("");
-
-  if (checkInStep === "mood") {
-    const moods = [
-      { emoji: "😊", label: "좋았어요" },
-      { emoji: "🙂", label: "괜찮아요" },
-      { emoji: "😴", label: "피곤해요" },
-      { emoji: "😟", label: "조금 힘들어요" },
-    ];
-    return (
-      <AppFrame active="home" parentView="record">
-        <TopBar label="오늘 하루 기록" onSwitch={() => setCheckInStep("home")} switchLabel="돌아가기" senior />
-        <section className="px-5 pb-28 pt-8">
-          <div className="mx-auto max-w-[560px] rounded-[30px] bg-white p-7 shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
-            <p className="text-xl font-black text-[#477052]">천천히 골라도 괜찮아요.</p>
-            <h1 className="mt-3 text-[2rem] font-black leading-tight text-[#222222]">오늘 기분은<br />어떠셨어요?</h1>
-            <div className="mt-8 grid gap-4">
-              {moods.map((mood) => (
-                <button key={mood.label} type="button" onClick={() => setSelectedMood(mood.label)} className={`flex min-h-[76px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.4rem] font-black transition ${selectedMood === mood.label ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
-                  <span className="text-[2.2rem]" aria-hidden>{mood.emoji}</span>{mood.label}{selectedMood === mood.label ? <Check className="ml-auto text-[#E9652B]" size={27} aria-hidden /> : null}
-                </button>
-              ))}
-            </div>
-            <button type="button" disabled={!selectedMood} onClick={() => setCheckInStep("done")} className="mt-8 min-h-[68px] w-full rounded-2xl bg-[#E9652B] px-6 text-[1.4rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">오늘 기분 기록하기</button>
-          </div>
-        </section>
-      </AppFrame>
-    );
-  }
+  const moods = [
+    { emoji: "😊", label: "좋았어요" },
+    { emoji: "🙂", label: "괜찮아요" },
+    { emoji: "😴", label: "피곤해요" },
+    { emoji: "😟", label: "조금 힘들어요" },
+  ];
 
   if (checkInStep === "done") {
     return (
       <AppFrame active="home" parentView="record">
-        <TopBar label="오늘의 안심" onSwitch={() => setCheckInStep("home")} switchLabel="홈으로" senior />
+        <ParentSectionHeader title="오늘 기록 완료" />
         <section className="px-5 pb-28 pt-8">
           <div className="mx-auto max-w-[560px] rounded-[30px] bg-[#FFF9F0] p-7 text-center shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
             <img src="/brand/farm-mascot.png" alt="칭찬을 전하는 안심이" className="mx-auto size-36 rounded-[28px] object-cover" />
             <p className="mt-7 text-[2rem] font-black leading-tight text-[#222222]">👏 오늘도<br />잘하셨어요.</p>
-            <p className="mt-5 text-[1.3rem] font-bold leading-9 text-[#37433D]">오늘 하루도 잘 남겨주셨어요.<br />가족에게 따뜻한 안심이 전해졌어요.</p>
-            <p className="mt-5 rounded-2xl bg-[#EAF3E5] p-4 text-xl font-black leading-8 text-[#315B3D]">🌱 안심이와 농장도<br />오늘 한 뼘 자랐어요.</p>
-            <button type="button" onClick={() => { setCheckInStep("home"); setSelectedMood(""); }} className="mt-8 min-h-[68px] w-full rounded-2xl bg-[#2F6B46] px-6 text-[1.4rem] font-black text-white">홈으로 돌아가기</button>
+            <p className="mt-5 text-[1.3rem] font-bold leading-9 text-[#37433D]">오늘 하루가 잘 기록됐어요.<br />이제 편하게 쉬세요.</p>
+            <p className="mt-5 rounded-2xl bg-[#EAF3E5] p-4 text-xl font-black leading-8 text-[#315B3D]">🌱 오늘 기록으로<br />토마토도 한 뼘 자랐어요.</p>
+            <Link href="/app?role=parent" className="mt-8 flex min-h-[72px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-6 text-[1.4rem] font-black text-white">처음 화면으로</Link>
           </div>
         </section>
       </AppFrame>
@@ -126,12 +104,18 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
       <AppFrame active="home" parentView="record">
         <ParentSectionHeader title="오늘 하루 기록" />
         <section className="px-5 pb-36 pt-7">
-          <div className="mx-auto max-w-[560px] rounded-[30px] bg-white p-7 text-center shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
-            <span className="mx-auto flex size-20 items-center justify-center rounded-[24px] bg-[#FFF0E6] text-[#D95423]"><PencilLine size={38} strokeWidth={2.4} /></span>
-            <p className="mt-7 text-xl font-black text-[#477052]">천천히 하셔도 괜찮아요.</p>
-            <h1 className="mt-3 text-[2rem] font-black leading-tight text-[#17221B]">오늘 하루는<br />어떠셨어요?</h1>
-            <p className="mt-5 text-xl font-bold leading-8 text-[#626D66]">기분 하나만 고르면<br />오늘 기록이 끝나요.</p>
-            <button type="button" onClick={() => setCheckInStep("mood")} className="mt-8 min-h-[76px] w-full rounded-[22px] bg-[#E9652B] px-6 text-[1.45rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)]">오늘 기록 시작하기</button>
+          <div className="mx-auto max-w-[560px] rounded-[30px] bg-white p-7 shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
+            <p className="text-xl font-black text-[#477052]">하나만 골라주세요.</p>
+            <h1 className="mt-3 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘 기분은<br />어떠셨어요?</h1>
+            <div className="mt-8 grid gap-4">
+              {moods.map((mood) => (
+                <button key={mood.label} type="button" onClick={() => setSelectedMood(mood.label)} className={`flex min-h-[82px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.45rem] font-black transition ${selectedMood === mood.label ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
+                  <span className="text-[2.35rem]" aria-hidden>{mood.emoji}</span>{mood.label}{selectedMood === mood.label ? <Check className="ml-auto text-[#E9652B]" size={29} aria-hidden /> : null}
+                </button>
+              ))}
+            </div>
+            <button type="button" disabled={!selectedMood} onClick={() => setCheckInStep("done")} className="mt-8 min-h-[76px] w-full rounded-[22px] bg-[#E9652B] px-6 text-[1.45rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">오늘 기록 마치기</button>
+            <p className="mt-4 text-center text-base font-bold text-[#77817A]">천천히 하셔도 괜찮아요.</p>
           </div>
         </section>
       </AppFrame>
@@ -182,18 +166,43 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
     );
   }
 
+  if (initialView === "profile") {
+    return (
+      <AppFrame active="home" parentView="profile">
+        <ParentSectionHeader title="내정보" />
+        <section className="px-5 pb-36 pt-7">
+          <div className="mx-auto max-w-[560px]">
+            <section className="rounded-[28px] bg-white p-6 shadow-[0_16px_42px_rgba(49,78,58,0.08)]">
+              <div className="flex items-center gap-4"><span className="flex size-20 items-center justify-center rounded-full bg-[#FFF0E6] text-[2.5rem]">👩</span><div><p className="text-[1.55rem] font-black">김정희님</p><p className="mt-2 text-lg font-bold text-[#69736D]">오늘안부를 사용 중이에요</p></div></div>
+            </section>
+            <div className="mt-5 grid gap-4">
+              <ParentSettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="저녁 8시에 알려드려요." />
+              <ParentSettingLink href="/family/members" icon={<UsersRound />} title="연결된 가족" description="지은님, 민수님과 연결됐어요." />
+              <ParentSettingLink href="/guide" icon={<Settings />} title="사용 방법" description="오늘안부 사용법을 다시 봐요." />
+            </div>
+            <p className="mt-7 text-center text-base font-bold leading-7 text-[#768079]">도움이 필요하면<br />가족에게 편하게 물어보세요.</p>
+          </div>
+        </section>
+      </AppFrame>
+    );
+  }
+
   return (
     <AppFrame active="home" parentView="home">
       <ParentSectionHeader title="정희님의 오늘안부" home />
       <section className="px-5 pb-36 pt-7">
         <div className="mx-auto max-w-[560px]">
-          <p className="text-xl font-black text-[#477052]">안녕하세요, 정희님.</p>
-          <h1 className="mt-2 text-[2.15rem] font-black leading-tight text-[#17221B]">무엇을<br />하시겠어요?</h1>
-          <p className="mt-4 text-lg font-bold leading-8 text-[#68736C]">아래에서 하나를 골라주세요.</p>
-          <div className="mt-7 grid gap-5">
-            <ParentMenuCard href="/app?role=parent&view=record" icon={<PencilLine size={34} />} eyebrow="오늘 하루" title="오늘 기록하기" description="오늘 기분을 간단히 남겨요." tone="orange" />
+          <p className="text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
+          <h1 className="mt-2 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘 하루를<br />남겨볼까요?</h1>
+          <section className="mt-7 rounded-[30px] bg-[#2F6B46] p-7 text-white shadow-[0_22px_58px_rgba(47,107,70,0.22)]">
+            <p className="text-lg font-black text-[#D5EBD8]">오늘 아직 기록 전이에요</p>
+            <p className="mt-3 text-[1.55rem] font-black leading-9">기분 하나만 고르면<br />오늘 기록이 끝나요.</p>
+            <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[78px] w-full items-center justify-center gap-3 rounded-[22px] bg-[#FFF7ED] px-5 text-[1.5rem] font-black text-[#9A3E18] shadow-[0_12px_28px_rgba(0,0,0,0.14)]"><PencilLine size={28} />오늘 기분 남기기</Link>
+          </section>
+          <p className="mt-8 text-xl font-black text-[#37433D]">다른 것도 둘러보세요</p>
+          <div className="mt-4 grid gap-4">
             <ParentMenuCard href="/app?role=parent&view=photos" icon={<Images size={34} />} eyebrow="가족 소식" title="가족 사진 보기" description="가족이 보낸 사진을 크게 봐요." tone="blue" />
-            <ParentMenuCard href="/app?role=parent&view=farm" icon={<Sprout size={34} />} eyebrow="나의 즐거움" title="내 농장 둘러보기" description="토마토가 얼마나 자랐는지 봐요." tone="green" />
+            <ParentMenuCard href="/app?role=parent&view=farm" icon={<Sprout size={34} />} eyebrow="나의 즐거움" title="내 농장 보기" description="토마토가 얼마나 자랐는지 봐요." tone="green" />
           </div>
         </div>
       </section>
@@ -216,12 +225,16 @@ function ParentMenuCard({ href, icon, eyebrow, title, description, tone }: { hre
 
 function ParentBottomNavigation({ active }: { active: ParentView }) {
   const tabs = [
-    { id: "home" as const, label: "처음", href: "/app?role=parent", icon: Home },
-    { id: "record" as const, label: "오늘 기록", href: "/app?role=parent&view=record", icon: PencilLine },
-    { id: "photos" as const, label: "가족 사진", href: "/app?role=parent&view=photos", icon: Images },
-    { id: "farm" as const, label: "내 농장", href: "/app?role=parent&view=farm", icon: Sprout },
+    { id: "home" as const, label: "오늘", href: "/app?role=parent", icon: Home },
+    { id: "photos" as const, label: "사진", href: "/app?role=parent&view=photos", icon: Images },
+    { id: "farm" as const, label: "농장", href: "/app?role=parent&view=farm", icon: Sprout },
+    { id: "profile" as const, label: "내정보", href: "/app?role=parent&view=profile", icon: UserRound },
   ];
-  return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id; return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[70px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.9rem] font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={27} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
+  return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-base font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={28} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
+}
+
+function ParentSettingLink({ href, icon, title, description }: { href: string; icon: React.ReactNode; title: string; description: string }) {
+  return <Link href={href} className="flex min-h-[104px] items-center gap-5 rounded-[24px] bg-white p-5 shadow-[0_12px_34px_rgba(49,78,58,0.07)]"><span className="flex size-16 shrink-0 items-center justify-center rounded-[20px] bg-[#EAF3E9] text-[#2F6B46]">{icon}</span><span className="min-w-0 flex-1"><strong className="block text-[1.3rem] font-black">{title}</strong><small className="mt-2 block text-base font-bold leading-6 text-[#69736D]">{description}</small></span><ChevronRight className="shrink-0" size={28} /></Link>;
 }
 
 function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrace[]; initialView: FamilyView; onAddMoment: (moment: FamilyTrace) => void }) {
@@ -382,10 +395,6 @@ function MomentComposer({ onCancel, onSave }: { onCancel: () => void; onSave: (m
 
 function Brand() {
   return <Link href="/" className="inline-flex items-center gap-2 font-black"><span className="flex size-9 items-center justify-center rounded-2xl bg-[#2F6B46] text-white"><Bell size={18} /></span>오늘안부</Link>;
-}
-
-function TopBar({ label, onSwitch, switchLabel, senior = false }: { label: string; onSwitch: () => void; switchLabel: string; senior?: boolean }) {
-  return <header className={`sticky top-0 z-20 flex items-center justify-between border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 backdrop-blur ${senior ? "py-5" : "py-4"}`}><div><Brand /><p className={`mt-2 font-black text-[#222222] ${senior ? "text-[1.65rem]" : "text-xl"}`}>{label}</p></div><button type="button" onClick={onSwitch} className={`rounded-full border border-[#D7E0D6] bg-white font-black text-[#37433D] shadow-sm ${senior ? "min-h-12 px-4 text-base" : "px-3 py-2 text-xs"}`}>{switchLabel}</button></header>;
 }
 
 function AppFrame({ children, active, parentView }: { children: React.ReactNode; active: "home" | "family"; parentView?: ParentView }) {
