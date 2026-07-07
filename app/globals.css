@@ -4,6 +4,28 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .experience-copy {
+    @apply mx-auto w-full max-w-[540px] text-center lg:text-left;
+  }
+
+  .eyebrow {
+    @apply text-lg font-black text-[#E9652B] sm:text-xl;
+  }
+
+  .experience-title {
+    @apply mt-3 text-[2.2rem] font-black leading-[1.25] sm:mt-4 sm:text-[3.5rem];
+  }
+
+  .experience-description {
+    @apply mt-4 text-lg font-bold leading-8 text-[#52635C] sm:mt-5 sm:text-[1.35rem] sm:leading-10;
+  }
+
+  .primary-cta {
+    @apply mt-6 inline-flex min-h-16 w-full items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-8 text-xl font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.22)] sm:mt-8 sm:w-auto;
+  }
+}
+
 :root {
   color-scheme: light;
   --color-primary: #6f8d72;
