@@ -1,19 +1,52 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, Gift, Link as LinkIcon, MessageCircle, ShieldCheck, Sprout } from "lucide-react";
-import { BottomTabBar } from "@/components/bottom-tab-bar";
+import { ArrowRight, Check, Clock3, Home, Link as LinkIcon, ShieldCheck, UserPlus } from "lucide-react";
 import { AnsimiStory } from "@/components/ansimi-story";
+import { MarketingHeader, MobileStartCta } from "@/components/marketing-navigation";
 
-const steps=[
- {icon:Check,title:"가족 계정 만들기",text:"이 계정으로 우리 가족을 연결하고 안심 리포트를 확인해요.",state:"완료",href:"/setup"},
- {icon:LinkIcon,title:"부모님과 연결하기",text:"카카오톡이나 문자로 전용 링크를 보내 연결해 주세요.",state:"연결하기",href:"/onboarding/add-parent"},
- {icon:MessageCircle,title:"평소처럼 생활하기",text:"별도 앱 설치나 매일 입력 없이, 평소 생활을 이어가면 돼요.",state:"방법 보기",href:"/app?role=parent"},
- {icon:ShieldCheck,title:"안심 리포트 확인하기",text:"생활 흐름이 쌓이면 가족에게 이해하기 쉬운 변화 요약을 전해요.",state:"곧 시작",href:"/app?role=family"},
+const steps = [
+  { icon: UserPlus, title: "자녀가 가입해요", text: "가족 계정을 만들고 부모님 연결을 준비합니다." },
+  { icon: LinkIcon, title: "부모님을 연결해요", text: "카카오톡이나 문자로 받은 초대 링크를 열면 됩니다." },
+  { icon: Home, title: "홈화면에 추가해요", text: "별도 앱 설치 없이 부모님 휴대폰 홈화면에 오늘안부를 둡니다." },
+  { icon: Clock3, title: "매일 20초만 남겨요", text: "정해진 시간에 오늘 하루를 몇 번의 선택으로 남깁니다." },
+  { icon: ShieldCheck, title: "가족이 안심을 확인해요", text: "AI가 정리한 생활 변화와 안심 상태를 가족이 확인합니다." },
 ];
 
-export default function GuidePage(){return <main className="min-h-screen bg-[#FFF9F0] pb-24 text-[#20302C]"><div className="mx-auto w-full max-w-[860px] px-5 py-6 sm:px-8"><Link href="/start" className="inline-flex min-h-12 items-center gap-2 font-black text-[#40534B]"><ArrowLeft size={23} aria-hidden />뒤로</Link><p className="mt-8 text-sm font-black text-[#E9652B]">가족 연결 가이드</p><h1 className="mt-3 text-[2.45rem] font-black leading-tight sm:text-5xl">이제, 우리 가족을<br />연결해 볼까요? ✨</h1><p className="mt-4 text-lg font-bold text-[#68756F]">어렵지 않게 단계별로 안내해 드릴게요.</p>
-<div className="relative left-1/2 mt-10 w-screen -translate-x-1/2"><AnsimiStory /></div>
-<section className="mt-10 rounded-[26px] bg-white p-5 shadow-[0_20px_55px_rgba(55,72,55,0.08)] sm:p-7"><div className="relative"><div className="absolute bottom-12 left-6 top-12 border-l-2 border-dashed border-[#CAD8C5]" aria-hidden />{steps.map(({icon:Icon,title,text,state,href},index)=><article key={title} className="relative grid grid-cols-[48px_1fr] gap-4 border-b border-[#E8ECE5] py-5 last:border-0"><span className={`z-10 flex size-12 items-center justify-center rounded-full text-lg font-black ${index===0?"bg-[#E9652B] text-white":"bg-[#EDF4E9] text-[#52725B]"}`}>{index+1}</span><div><div className="flex items-center gap-2"><Icon size={20} className="text-[#52725B]" aria-hidden /><h2 className="text-xl font-black">{title}</h2></div><p className="mt-2 font-semibold leading-7 text-[#68756F]">{text}</p><Link href={href} className={`mt-4 inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-black ${index===0?"bg-[#FFF0E4] text-[#D95423]":"border border-[#D4DFCF] bg-white text-[#40534B]"}`}>{state}{index>0?<ArrowRight size={16} aria-hidden />:null}</Link></div></article>)}</div></section>
-<section className="mt-5 rounded-[26px] bg-[#17223B] p-6 text-white"><p className="text-sm font-black text-[#FFB184]">가족에게 전해지는 저녁 루틴</p><h2 className="mt-3 text-2xl font-black leading-9">매일 저녁 8시,<br />오늘의 생활이 안심이 됩니다.</h2><p className="mt-3 font-semibold leading-7 text-white/70">부모님은 필요할 때 20초만 확인하고, 가족은 생활 흐름을 안심 리포트로 봅니다.</p></section>
-<section className="mt-5 rounded-[26px] bg-[#EAF3E5] p-6"><div className="flex items-center gap-4"><Image src="/brand/farm-mascot.png" alt="농장 안내 친구 안심이" width={82} height={82} className="size-20 rounded-2xl object-cover" /><div><p className="text-sm font-black text-[#52725B]">안심이의 90일 안심농장</p><h2 className="mt-1 text-2xl font-black">평소의 하루가 이런 선물이 돼요</h2></div></div><div className="mt-6 grid grid-cols-5 gap-1">{[[MessageCircle,"안부 쌓기"],[Sprout,"작물 선택"],[Sprout,"작물 성장"],[Gift,"수확 완료"],[Gift,"가족 선물"]].map(([Icon,label])=>{const C=Icon as typeof Gift;return <div key={String(label)} className="text-center"><span className="mx-auto flex size-11 items-center justify-center rounded-2xl bg-white text-[#52725B]"><C size={21} aria-hidden /></span><p className="mt-2 text-[.68rem] font-black sm:text-xs">{label as string}</p></div>})}</div><p className="mt-6 font-bold leading-7 text-[#52635C]">안심이가 작물의 변화를 알려드려요. 계절 작물을 골라 90일 동안 키우면 가족에게 수확 알림이 가고, 브랜드 협업·시즌 이벤트가 열리면 실제 농산물 경험으로 이어질 수 있어요.</p></section>
-<section className="mt-5 grid overflow-hidden rounded-[26px] bg-white shadow-[0_18px_44px_rgba(55,72,55,0.07)] sm:grid-cols-[1fr_250px]"><div className="p-6"><h2 className="text-2xl font-black">복잡하지 않아요!</h2><p className="mt-3 font-semibold leading-7 text-[#68756F]">설치할 앱도, 외워야 할 사용법도 없어요.<br />차근차근 안내해 드릴게요.</p><Link href="/start" className="mt-5 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-5 text-lg font-black text-white">오늘안부 시작하기<ArrowRight size={19} aria-hidden /></Link></div><div className="relative min-h-56"><Image src="/brand/hero-family.png" alt="함께 웃는 가족과 오늘안부" fill className="object-cover" sizes="(max-width:640px) 100vw, 250px" /></div></section></div><BottomTabBar active="family" /></main>}
+export default function GuidePage() {
+  return (
+    <main className="min-h-screen bg-[#FFF9F0] pb-28 text-[#20302C]">
+      <MarketingHeader />
+      <section className="mx-auto w-full max-w-[980px] px-5 pt-16 text-center sm:px-8 sm:pt-24">
+        <p className="text-sm font-black text-[#E9652B]">이용 방법</p>
+        <h1 className="mt-4 text-4xl font-black leading-tight sm:text-6xl">설치 없이 시작하고,<br />20초면 안부가 전해집니다.</h1>
+        <p className="mx-auto mt-6 max-w-[680px] text-lg font-bold leading-8 text-[#5E6C66] sm:text-xl">안심이가 오늘안부의 시작부터 가족에게 안심이 전해지는 순간까지 쉽게 알려드릴게요.</p>
+      </section>
+
+      <div className="mt-12"><AnsimiStory /></div>
+
+      <section className="mx-auto w-full max-w-[900px] px-5 py-16 sm:px-8 sm:py-20">
+        <p className="text-sm font-black text-[#E9652B]">5단계로 시작해요</p>
+        <h2 className="mt-3 text-3xl font-black">복잡하지 않아요.</h2>
+        <div className="mt-8 rounded-[26px] border border-[#E2E8DE] bg-white p-5 shadow-[0_20px_55px_rgba(55,72,55,0.08)] sm:p-8">
+          <div className="relative">
+            <div className="absolute bottom-12 left-7 top-12 border-l-2 border-dashed border-[#CAD8C5]" aria-hidden />
+            {steps.map(({ icon: Icon, title, text }, index) => (
+              <article key={title} className="relative grid grid-cols-[56px_1fr] gap-4 border-b border-[#E8ECE5] py-6 last:border-0">
+                <span className="z-10 flex size-14 items-center justify-center rounded-full bg-[#EDF4E9] text-[#52725B]"><Icon size={24} aria-hidden /></span>
+                <div><p className="text-sm font-black text-[#E9652B]">{index + 1}단계</p><h3 className="mt-1 text-2xl font-black">{title}</h3><p className="mt-2 font-semibold leading-7 text-[#68756F]">{text}</p></div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-10 rounded-[24px] bg-[#EEF5E9] p-6 sm:p-8">
+          <div className="flex items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#52725B]"><Check size={24} aria-hidden /></span><div><h2 className="text-2xl font-black">부모님도 쉽게 사용할 수 있어요.</h2><p className="mt-3 font-semibold leading-8 text-[#52635C]">큰 글씨와 큰 버튼으로 구성되어 있고, 몇 번만 선택하면 오늘의 안부가 가족에게 전해집니다.</p></div></div>
+        </div>
+
+        <div className="mt-10 text-center">
+          <Link href="/start" className="inline-flex min-h-16 w-full max-w-[440px] items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-7 text-xl font-black text-white">오늘안부 시작하기 <ArrowRight size={21} aria-hidden /></Link>
+        </div>
+      </section>
+      <MobileStartCta />
+    </main>
+  );
+}
