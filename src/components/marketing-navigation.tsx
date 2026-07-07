@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Menu } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const navigation = [
   { label: "서비스 소개", href: "/about" },
@@ -21,13 +24,10 @@ export function MarketingHeader() {
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="서비스 메뉴">
           {navigation.map((item) => (
-            <Link key={item.href} href={item.href} className="flex min-h-14 items-center rounded-xl px-3 text-base font-black text-[#43534C] hover:bg-white hover:text-[#20302C]">
+            <Link key={item.href} href={item.href} className="flex min-h-14 items-center rounded-xl px-4 text-lg font-black text-[#43534C] hover:bg-white hover:text-[#20302C]">
               {item.label}
             </Link>
           ))}
-          <Link href="/start" className="ml-2 inline-flex min-h-14 items-center gap-2 rounded-xl bg-[#E9652B] px-6 text-lg font-black text-white">
-            시작하기 <ArrowRight size={20} aria-hidden />
-          </Link>
         </nav>
 
         <details className="group relative lg:hidden">
@@ -40,9 +40,6 @@ export function MarketingHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link href="/start" className="mt-2 flex min-h-16 items-center justify-center gap-2 rounded-xl bg-[#E9652B] px-4 text-lg font-black text-white">
-              오늘안부 시작하기 <ArrowRight size={20} aria-hidden />
-            </Link>
           </nav>
         </details>
       </div>
@@ -51,8 +48,24 @@ export function MarketingHeader() {
 }
 
 export function MobileStartCta() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const primaryCta = document.getElementById("landing-primary-cta");
+    if (!primaryCta) {
+      setVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => setVisible(!entry.isIntersecting), {
+      threshold: 0.15,
+    });
+    observer.observe(primaryCta);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E8E1] bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
+    <div className={`fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E8E1] bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur transition duration-200 lg:hidden ${visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-full opacity-0"}`} aria-hidden={!visible}>
       <Link href="/start" className="mx-auto flex min-h-16 w-full max-w-[440px] items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-6 text-xl font-black text-white shadow-[0_10px_28px_rgba(233,101,43,0.24)]">
         오늘안부 시작하기 <ArrowRight size={22} aria-hidden />
       </Link>
