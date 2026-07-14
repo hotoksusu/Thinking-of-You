@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { familyTraces, getFarmGrowth, todaySignals, type FamilyTrace } from "@/lib/life-pattern";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
+import { storageKeys } from "@/lib/storage-keys";
 
 type ExperienceRole = "parent" | "family";
 type ParentView = "home" | "record" | "photos" | "farm" | "profile";
@@ -76,12 +77,20 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   const farm = getFarmGrowth(todaySignals, moments);
   const [checkInStep, setCheckInStep] = useState<"home" | "done">("home");
   const [selectedMood, setSelectedMood] = useState("");
+  const [permissions, setPermissions] = useState({ steps: "unknown", usage: "unknown" });
   const moods = [
     { emoji: "😊", label: "좋았어요" },
     { emoji: "🙂", label: "괜찮아요" },
     { emoji: "😴", label: "피곤해요" },
     { emoji: "😟", label: "조금 힘들어요" },
   ];
+
+  useEffect(() => {
+    setPermissions({
+      steps: window.localStorage.getItem(storageKeys.stepsPermission) ?? "unknown",
+      usage: window.localStorage.getItem(storageKeys.usagePermission) ?? "unknown",
+    });
+  }, []);
 
   if (checkInStep === "done") {
     return (
@@ -91,8 +100,8 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
           <div className="mx-auto max-w-[560px] rounded-[30px] bg-[#FFF9F0] p-7 text-center shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
             <img src="/brand/farm-mascot.png" alt="칭찬을 전하는 안심이" className="mx-auto size-36 rounded-[28px] object-cover" />
             <p className="mt-7 text-[2rem] font-black leading-tight text-[#222222]">👏 오늘도<br />잘하셨어요.</p>
-            <p className="mt-5 text-[1.3rem] font-bold leading-9 text-[#37433D]">오늘 기분이 잘 전해졌어요.<br />이제 편하게 쉬세요.</p>
-            <p className="mt-5 rounded-2xl bg-[#EAF3E5] p-4 text-xl font-black leading-8 text-[#315B3D]">🌱 오늘의 생활 덕분에<br />토마토도 한 뼘 자랐어요.</p>
+            <p className="mt-5 text-[1.3rem] font-bold leading-9 text-[#37433D]">오늘 안부를 남겼습니다.<br />가족이 안심할 수 있도록 전했어요.</p>
+            <p className="mt-5 rounded-2xl bg-[#EAF3E5] p-4 text-xl font-black leading-8 text-[#315B3D]">🌱 오늘 기록으로<br />토마토가 한 단계 자랐어요.</p>
             <Link href="/app?role=parent" className="mt-8 flex min-h-[72px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-6 text-[1.4rem] font-black text-white">처음 화면으로</Link>
           </div>
         </section>
@@ -180,6 +189,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
               <ParentSettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="저녁 8시에 알려드려요." />
               <ParentSettingLink href="/family/members" icon={<UsersRound />} title="연결된 가족" description="지은님, 민수님과 연결됐어요." />
               <ParentSettingLink href="/?replay=1" icon={<Settings />} title="사용 방법 다시 보기" description="처음 안내를 다시 천천히 볼 수 있어요." />
+              <ParentSettingLink href="/permissions" icon={<ShieldCheck />} title="생활 정보 연결" description="확인할 항목을 선택하거나 나중에 바꿀 수 있어요." />
             </div>
             <p className="mt-7 text-center text-base font-bold leading-7 text-[#768079]">도움이 필요하면<br />가족에게 편하게 물어보세요.</p>
           </div>
@@ -196,33 +206,27 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
           <p className="text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
           <h1 className="mt-2 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘도<br />평소처럼 지내세요.</h1>
 
-          <section className="mt-7 rounded-[30px] bg-[#2F6B46] p-7 text-white shadow-[0_22px_58px_rgba(47,107,70,0.22)]">
-            <div className="flex items-start gap-4">
-              <span className="flex size-16 shrink-0 items-center justify-center rounded-[22px] bg-white/15 text-[2.1rem]" aria-hidden>😊</span>
-              <div>
-                <p className="text-lg font-black text-[#D5EBD8]">부모님이 하실 일</p>
-                <p className="mt-3 text-[1.55rem] font-black leading-9">오늘은 기분만<br />알려주세요.</p>
-                <p className="mt-4 text-lg font-bold leading-8 text-white/82">나머지는 오늘안부가<br />조용히 확인하고 있어요.</p>
-              </div>
+          <section className="mt-7 rounded-[30px] border-2 border-[#F4C9B5] bg-[#FFF7F1] p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]">
+            <p className="text-lg font-black text-[#B94A20]">오늘은 기분만 알려주세요.</p>
+            <h2 className="mt-2 text-[1.9rem] font-black leading-tight">오늘 기분은 어떠셨나요?</h2>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              {moods.map((mood) => <button key={mood.label} type="button" onClick={() => { setSelectedMood(mood.label); setCheckInStep("done"); }} className="flex min-h-[88px] flex-col items-center justify-center rounded-[20px] border-2 border-[#E6C8B7] bg-white px-2 text-lg font-black text-[#222222]"><span className="text-[2rem]" aria-hidden>{mood.emoji}</span><span className="mt-1">{mood.label}</span></button>)}
             </div>
+          </section>
+
+          <section className="mt-5 rounded-[28px] bg-[#2F6B46] p-6 text-white shadow-[0_18px_46px_rgba(47,107,70,0.18)]">
+            <p className="text-lg font-black text-[#D5EBD8]">오늘의 생활 흐름</p>
+            <h2 className="mt-3 text-[1.55rem] font-black leading-9">{permissions.steps === "granted" || permissions.usage === "granted" ? "연결된 정보의 변화를 살펴보고 있어요." : "아직 연결된 생활 정보가 없어요."}</h2>
+            <p className="mt-3 text-lg font-bold leading-8 text-white/80">{permissions.steps === "granted" ? "걸음 수 확인됨" : "걸음 수 미연결"} · {permissions.usage === "granted" ? "사용 흐름 확인됨" : "사용 흐름 미연결"}</p>
+            <p className="mt-3 text-base font-bold leading-7 text-white/75">기준 패턴을 알아가는 동안에는 정상이나 이상을 판단하지 않습니다.</p>
+            <Link href="/permissions" className="mt-5 inline-flex min-h-12 items-center rounded-2xl bg-white px-5 text-base font-black text-[#2F6B46]">연결 방법 보기</Link>
           </section>
 
           <Link href="/app?role=parent&view=farm" className="mt-5 flex min-h-[150px] items-center gap-5 rounded-[30px] bg-[#EAF3E5] p-6 text-left shadow-[0_16px_42px_rgba(49,78,58,0.08)]">
             <img src="/brand/farm-mascot.png" alt="토마토를 키우는 안심이" className="size-24 shrink-0 rounded-[24px] object-cover" />
-            <span className="min-w-0 flex-1">
-              <span className="block text-lg font-black text-[#477052]">나의 안부농장</span>
-              <strong className="mt-2 block text-[1.45rem] font-black leading-8 text-[#17221B]">토마토가 오늘<br />조금 자랐어요.</strong>
-              <span className="mt-2 block text-base font-bold leading-7 text-[#526258]">수확까지 47일 남았습니다.</span>
-            </span>
+            <span className="min-w-0 flex-1"><span className="block text-lg font-black text-[#477052]">기분 입력 보상</span><strong className="mt-2 block text-[1.45rem] font-black leading-8">오늘 기분을 남기면<br />토마토가 자라요.</strong></span>
             <ChevronRight className="shrink-0 text-[#477052]" size={28} aria-hidden />
           </Link>
-
-          <section className="mt-5 rounded-[30px] border-2 border-[#F4C9B5] bg-[#FFF7F1] p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]">
-            <p className="text-lg font-black text-[#B94A20]">오늘은 이것만 해주세요.</p>
-            <h2 className="mt-3 text-[1.7rem] font-black leading-tight text-[#17221B]">오늘 기분은<br />어떠셨나요?</h2>
-            <p className="mt-3 text-lg font-bold leading-8 text-[#5E6A65]">기분 하나만 알려주세요.<br />3초면 충분합니다.</p>
-            <Link href="/app?role=parent&view=record" className="mt-5 flex min-h-[74px] w-full items-center justify-center gap-3 rounded-[22px] bg-[#E9652B] px-5 text-[1.4rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.20)]"><Smile size={28} aria-hidden />오늘 기분 선택하기</Link>
-          </section>
 
           <p className="mt-8 text-xl font-black text-[#37433D]">다른 것도 둘러보세요</p>
           <div className="mt-4 grid gap-4">
@@ -364,8 +368,8 @@ function ReassuranceHero() {
   return (
     <section className="overflow-hidden rounded-[30px] bg-[#2F6B46] p-6 text-white shadow-[0_24px_65px_rgba(47,107,70,0.23)]">
       <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-black text-[#D5EBD8]"><span className="size-2 rounded-full bg-[#9DE2A8]" />오늘 확인 완료</p><span className="text-xs font-bold text-white/65">오후 8:20 기준</span></div>
-      <p className="mt-6 text-[1.75rem] font-black leading-10">계속 이어지는 변화만<br />가족에게 알려드려요.</p>
-      <p className="mt-3 text-base font-bold leading-7 text-white/75">매일 알림을 보내지 않아요.<br />지금은 평소와 비슷합니다.</p>
+      <p className="mt-6 text-[1.75rem] font-black leading-10">생활 패턴을<br />알아가는 중이에요.</p>
+      <p className="mt-3 text-base font-bold leading-7 text-white/75">아직 확인할 수 있는 정보가 부족합니다.<br />충분한 흐름이 쌓이면 변화만 알려드려요.</p>
       <Link href="/app?role=family&view=reassurance" className="mt-6 flex min-h-14 items-center justify-between rounded-2xl bg-white px-5 text-base font-black text-[#2F6B46]">오늘 상태 자세히 보기 <ChevronRight size={22} /></Link>
     </section>
   );

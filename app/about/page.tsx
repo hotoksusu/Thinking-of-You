@@ -12,14 +12,15 @@ export default function AboutPage() {
     <main className="min-h-screen bg-[#FFF9F0] pb-28 text-[#20302C]">
       <MarketingHeader />
       <section className="mx-auto w-full max-w-[980px] px-5 py-16 sm:px-8 sm:py-24">
-        <p className="text-sm font-black text-[#E9652B]">서비스 소개</p>
-        <h1 className="mt-4 text-4xl font-black leading-tight sm:text-6xl">중요한 건 안부가 아니라<br />변화입니다.</h1>
-        <p className="mt-6 max-w-[700px] text-lg font-bold leading-8 text-[#5E6C66] sm:text-xl">오늘안부는 부모님의 작은 생활 신호를 살펴 가족이 이해하기 쉬운 안심 상태로 전하는 서비스입니다.</p>
+        <p className="inline-flex rounded-full bg-[#EAF3E5] px-4 py-2 text-sm font-black text-[#2F6B46]">생활 패턴 변화 감지 서비스</p>
+        <h1 className="mt-5 text-4xl font-black leading-tight sm:text-6xl">부모님은 기분 하나만 남기세요.<br />생활의 변화는 오늘안부가 함께 살펴봅니다.</h1>
+        <p className="mt-6 max-w-[760px] text-lg font-bold leading-8 text-[#5E6C66] sm:text-xl">동의한 걸음 수와 휴대폰 사용 흐름을 평소 생활과 비교합니다. 달라진 변화가 이어지면 가족이 확인할 수 있도록 알려드립니다.</p>
+        <div className="mt-8 flex flex-wrap gap-3"><Link href="/start" className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[#E9652B] px-6 text-lg font-black text-white">우리 가족 시작하기 <ArrowRight size={20} /></Link><Link href="/features" className="inline-flex min-h-14 items-center rounded-2xl border-2 border-[#8FA98D] bg-white px-6 text-lg font-black">어떻게 살펴보나요?</Link></div>
 
         <div className="mt-12 grid gap-4 md:grid-cols-3">
-          <InfoCard icon={Activity} title="작은 생활 신호" text="응답 시간, 활동과 연락 흐름처럼 일상에서 자연스럽게 생기는 변화를 봅니다." />
-          <InfoCard icon={ScanLine} title="변화 중심" text="하루의 한 번보다 이전과 달라진 흐름이 있는지 차분히 살펴봅니다." />
-          <InfoCard icon={HeartHandshake} title="가족의 안심" text="복잡한 수치 대신 가족이 이해하고 행동할 수 있는 말로 정리합니다." />
+          <InfoCard icon={Activity} title="기분만 선택" text="부모님은 긴 글 없이 하루에 기분 하나만 선택합니다." />
+          <InfoCard icon={ScanLine} title="동의 후 자동 확인" text="걸음 수와 휴대폰 사용량을 동의받은 범위에서만 확인합니다." />
+          <InfoCard icon={HeartHandshake} title="이어지는 변화 안내" text="하루의 작은 차이가 아니라 달라진 흐름이 이어질 때 가족에게 전합니다." />
         </div>
 
         <section className="mt-16 rounded-[24px] bg-[#203C2B] p-7 text-white sm:p-10">

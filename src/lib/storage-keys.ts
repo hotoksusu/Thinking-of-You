@@ -4,6 +4,8 @@ export const storageKeys = {
   base: baseKey,
   onboardingCompleted: `${baseKey}:onboarding-completed`,
   familyOnboardingCompleted: `${baseKey}:family-onboarding-completed`,
+  stepsPermission: `${baseKey}:permission-steps`,
+  usagePermission: `${baseKey}:permission-usage`,
   recordStreak: `${baseKey}:record-streak`,
   seenMilestones: `${baseKey}:seen-milestones`,
   pendingEntryEvent: `${baseKey}:pending-entry-event`,

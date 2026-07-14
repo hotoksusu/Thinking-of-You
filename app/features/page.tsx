@@ -3,8 +3,8 @@ import { Activity, ArrowRight, BarChart3, BellRing, CalendarRange, Clock3, FileH
 import { MarketingHeader, MobileStartCta } from "@/components/marketing-navigation";
 
 const features = [
-  { icon: ShieldCheck, title: "안심 점수", text: "최근 생활 흐름을 한눈에 이해할 수 있도록 쉬운 상태로 보여줍니다." },
-  { icon: FileHeart, title: "AI 안심 리포트", text: "가족이 알아야 할 변화와 평소 흐름을 짧고 따뜻한 문장으로 정리합니다." },
+  { icon: ShieldCheck, title: "현재 안심 상태", text: "확인된 정보와 부족한 정보를 구분해 쉬운 상태로 보여줍니다." },
+  { icon: FileHeart, title: "생활 변화 요약", text: "가족이 알아야 할 변화와 다음 행동을 짧고 이해하기 쉽게 정리합니다." },
   { icon: Activity, title: "변화 감지", text: "응답 시간, 활동, 연락 흐름이 평소와 달라지는지 비교해 살펴봅니다." },
   { icon: Clock3, title: "미응답 분석", text: "한 번의 미응답보다 반복되거나 길어지는 흐름을 중심으로 확인합니다." },
   { icon: BellRing, title: "리마인드 알림", text: "부담스럽지 않은 시간에 안부를 남길 수 있도록 부드럽게 알려드립니다." },

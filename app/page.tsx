@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { storageKeys } from "@/lib/storage-keys";
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 const FIRST_RECORD_URL = "/app?role=parent&view=record";
 
 type EntryNotice = {
@@ -30,8 +30,13 @@ const steps = [
     action: "이해했습니다",
   },
   {
+    label: "이어지는 변화만 확인해요",
+    reassurance: "휴대폰의 내용은 확인하지 않습니다",
+    action: "알겠습니다",
+  },
+  {
     label: "평소처럼 생활하세요",
-    reassurance: "변화만 조용히 살펴봅니다",
+    reassurance: "나머지는 오늘안부가 함께 살펴봅니다",
     action: "오늘 기록 시작",
   },
 ] as const;
@@ -127,6 +132,7 @@ export default function ParentOnboardingPage() {
           {step === 1 ? <StepOne /> : null}
           {step === 2 ? <StepTwo /> : null}
           {step === 3 ? <StepThree /> : null}
+          {step === 4 ? <StepFour /> : null}
         </div>
 
         <div className="shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
@@ -267,11 +273,24 @@ function StepTwo() {
         ))}
       </div>
       <p className="mx-auto mt-4 max-w-[440px] text-lg font-bold leading-7 text-[#5F6D65]">처음 한 번, 동의해주신 항목만 확인합니다.</p>
+      <details className="mx-auto mt-3 max-w-[440px] rounded-2xl bg-[#EEF4EE] p-4 text-left text-base font-bold leading-7 text-[#40534B]"><summary className="cursor-pointer font-black">어떻게 확인하나요?</summary><p className="mt-3">휴대폰이 제공하는 걸음 수와 하루 동안의 전체적인 사용 흐름만 확인합니다. 통화·문자·사진 내용은 가족에게 전달하지 않으며, 동의는 언제든 철회할 수 있습니다.</p></details>
     </div>
   );
 }
 
 function StepThree() {
+  return (
+    <div className="text-center">
+      <span className="mx-auto flex size-[96px] items-center justify-center rounded-full bg-[#EAF3E5] text-[3rem] shadow-[0_14px_36px_rgba(65,91,67,0.11)]" aria-hidden>🔒</span>
+      <h1 className="mt-7 text-[clamp(2rem,9vw,3rem)] font-black leading-[1.18] tracking-[-0.02em]">
+        평소와 다른 변화가<br />있는지만 살펴봅니다.
+      </h1>
+      <p className="mt-4 text-xl font-bold leading-8 text-[#52635C]">하루의 작은 차이만으로<br />가족에게 알리지 않습니다.</p>
+    </div>
+  );
+}
+
+function StepFour() {
   return (
     <div className="text-center">
       <span className="mx-auto flex size-[96px] items-center justify-center rounded-full bg-[#FFF0E5] text-[3rem] shadow-[0_14px_36px_rgba(233,101,43,0.11)]" aria-hidden>😊</span>
