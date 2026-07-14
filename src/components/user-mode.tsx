@@ -200,9 +200,9 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
             <div className="flex items-start gap-4">
               <span className="flex size-16 shrink-0 items-center justify-center rounded-[22px] bg-white/15 text-[2.1rem]" aria-hidden>😊</span>
               <div>
-                <p className="text-lg font-black text-[#D5EBD8]">오늘의 생활</p>
-                <p className="mt-3 text-[1.55rem] font-black leading-9">오늘도 평소처럼<br />지내고 계세요.</p>
-                <p className="mt-4 text-lg font-bold leading-8 text-white/82">AI가 오늘의 생활을<br />조용히 살펴봤어요.</p>
+                <p className="text-lg font-black text-[#D5EBD8]">부모님이 하실 일</p>
+                <p className="mt-3 text-[1.55rem] font-black leading-9">오늘은 기분만<br />알려주세요.</p>
+                <p className="mt-4 text-lg font-bold leading-8 text-white/82">나머지는 오늘안부가<br />조용히 확인하고 있어요.</p>
               </div>
             </div>
           </section>
@@ -323,7 +323,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
             <div className="mt-5 grid gap-3">
               <FamilySettingLink href="/family/members" icon={<UsersRound />} title="가족 연결 관리" description="함께 확인할 가족을 관리해요." />
               <FamilySettingLink href="/settings/notifications" icon={<Bell />} title="알림 설정" description="알림 받을 시간과 내용을 정해요." />
-              <FamilySettingLink href="/guide" icon={<Settings />} title="이용 방법" description="부모님 연결과 사용법을 확인해요." />
+              <FamilySettingLink href="/onboarding/family?replay=1" icon={<Settings />} title="사용 방법 다시 보기" description="부모님께 부담 없는 사용법을 다시 봐요." />
             </div>
           </div>
         </section>
@@ -364,8 +364,8 @@ function ReassuranceHero() {
   return (
     <section className="overflow-hidden rounded-[30px] bg-[#2F6B46] p-6 text-white shadow-[0_24px_65px_rgba(47,107,70,0.23)]">
       <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-black text-[#D5EBD8]"><span className="size-2 rounded-full bg-[#9DE2A8]" />오늘 확인 완료</p><span className="text-xs font-bold text-white/65">오후 8:20 기준</span></div>
-      <p className="mt-6 text-[1.75rem] font-black leading-10">엄마는 오늘도<br />평소와 비슷해요.</p>
-      <p className="mt-3 text-base font-bold leading-7 text-white/75">지금 바로 확인할 변화는 없어요.</p>
+      <p className="mt-6 text-[1.75rem] font-black leading-10">계속 이어지는 변화만<br />가족에게 알려드려요.</p>
+      <p className="mt-3 text-base font-bold leading-7 text-white/75">매일 알림을 보내지 않아요.<br />지금은 평소와 비슷합니다.</p>
       <Link href="/app?role=family&view=reassurance" className="mt-6 flex min-h-14 items-center justify-between rounded-2xl bg-white px-5 text-base font-black text-[#2F6B46]">오늘 상태 자세히 보기 <ChevronRight size={22} /></Link>
     </section>
   );
@@ -407,10 +407,11 @@ function EverydayDataGuide({ audience }: { audience: ExperienceRole }) {
       </h2>
       <div className="mt-5 grid gap-3">
         <DataGuideRow icon={<PencilLine size={24} />} label="직접 하기" title="오늘 기분 고르기" detail="하루에 한 번만 선택해요." tone="manual" />
-        <DataGuideRow icon={<Footprints size={24} />} label="자동 확인" title="걷기와 움직임" detail="건강정보 권한을 연결하면 휴대폰이 확인해요." tone="automatic" />
-        <DataGuideRow icon={<Phone size={24} />} label="자동 확인" title="통화 여부와 횟수" detail="통화 내용은 보지 않아요." tone="automatic" />
+        <DataGuideRow icon={<Footprints size={24} />} label="자동 확인" title="걸음 수" detail="동의한 뒤 걸음의 변화만 살펴봐요." tone="automatic" />
+        <DataGuideRow icon={<Phone size={24} />} label="자동 확인" title="휴대폰 사용량" detail="동의한 뒤 사용량의 변화만 살펴봐요." tone="automatic" />
+        <DataGuideRow icon={<Clock3 size={24} />} label="자동 확인" title="생활 패턴" detail="동의한 뒤 평소와 다른 흐름만 살펴봐요." tone="automatic" />
       </div>
-      <p className="mt-4 flex items-start gap-2 rounded-2xl bg-[#F3F6F3] p-4 text-sm font-bold leading-6 text-[#657069]"><ShieldCheck className="mt-0.5 shrink-0 text-[#2F6B46]" size={19} />문자 내용, 통화 내용, 정확한 위치는 확인하지 않아요. 자동 확인은 처음 한 번 권한 동의가 필요해요.</p>
+      <p className="mt-4 flex items-start gap-2 rounded-2xl bg-[#F3F6F3] p-4 text-sm font-bold leading-6 text-[#657069]"><ShieldCheck className="mt-0.5 shrink-0 text-[#2F6B46]" size={19} />모든 자동 확인은 사용자에게 먼저 동의를 받은 뒤 시작합니다.</p>
     </section>
   );
 }

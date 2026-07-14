@@ -20,18 +20,18 @@ type EntryNotice = {
 
 const steps = [
   {
-    label: "처음 사용하는 방법",
-    reassurance: "하루 20초면 충분해요",
+    label: "기분 하나만 알려주세요",
+    reassurance: "부모님은 기분만 누르면 됩니다",
     action: "알겠습니다",
   },
   {
-    label: "버튼으로 기록하기",
-    reassurance: "버튼만 누르면 됩니다",
+    label: "나머지는 자동으로 확인해요",
+    reassurance: "동의한 항목만 확인합니다",
     action: "이해했습니다",
   },
   {
-    label: "오늘 기록 시작하기",
-    reassurance: "가족만 볼 수 있습니다",
+    label: "평소처럼 생활하세요",
+    reassurance: "변화만 조용히 살펴봅니다",
     action: "오늘 기록 시작",
   },
 ] as const;
@@ -228,17 +228,6 @@ function markEntryNoticeSeen(notice: EntryNotice) {
 }
 
 function StepOne() {
-  return (
-    <div className="text-center">
-      <span className="mx-auto flex size-[88px] items-center justify-center rounded-[30px] bg-[#EAF3E5] text-[2.8rem] shadow-[0_14px_36px_rgba(65,91,67,0.10)]" aria-hidden>🌿</span>
-      <h1 className="mx-auto mt-7 max-w-[470px] text-[clamp(2rem,9vw,3rem)] font-black leading-[1.2] tracking-[-0.02em] text-[#17251F]">
-        오늘 하루를<br />간단히 기록하면<br />가족이 안심할 수 있어요.
-      </h1>
-    </div>
-  );
-}
-
-function StepTwo() {
   const moods = [
     { emoji: "😀", label: "좋음" },
     { emoji: "🙂", label: "보통" },
@@ -247,17 +236,37 @@ function StepTwo() {
 
   return (
     <div className="text-center">
-      <h1 className="text-[clamp(2rem,9vw,3rem)] font-black leading-[1.18] tracking-[-0.02em]">
-        걱정하지 마세요.<br />버튼만 누르면 됩니다.
+      <h1 className="mx-auto max-w-[470px] text-[clamp(2rem,9vw,3rem)] font-black leading-[1.2] tracking-[-0.02em] text-[#17251F]">
+        오늘 하루 기분만<br />알려주세요.
       </h1>
-      <div className="mx-auto mt-6 grid max-w-[460px] gap-3 rounded-[28px] bg-white p-4 shadow-[0_18px_50px_rgba(49,78,58,0.10)] sm:p-5">
-        {moods.map((mood) => (
-          <div key={mood.label} className="flex min-h-[72px] items-center gap-5 rounded-[20px] border-2 border-[#DCE5DA] bg-[#FAFCF9] px-5 text-left text-[1.35rem] font-black">
-            <span className="text-[2.25rem]" aria-hidden>{mood.emoji}</span>
-            {mood.label}
+      <div className="mx-auto mt-7 grid max-w-[460px] grid-cols-3 gap-2.5 rounded-[26px] bg-white p-4 shadow-[0_16px_44px_rgba(49,78,58,0.09)]">
+        {moods.map((mood) => <div key={mood.label} className="flex min-h-[92px] flex-col items-center justify-center rounded-[18px] border-2 border-[#DCE5DA] bg-[#FAFCF9] text-lg font-black"><span className="text-3xl" aria-hidden>{mood.emoji}</span><span className="mt-2">{mood.label}</span></div>)}
+      </div>
+    </div>
+  );
+}
+
+function StepTwo() {
+  const signals = [
+    { emoji: "👟", label: "걸음 수" },
+    { emoji: "📱", label: "휴대폰 사용량" },
+    { emoji: "☀️", label: "생활 패턴" },
+  ];
+
+  return (
+    <div className="text-center">
+      <h1 className="text-[clamp(2rem,9vw,3rem)] font-black leading-[1.18] tracking-[-0.02em]">
+        나머지는<br />자동으로 확인합니다.
+      </h1>
+      <div className="mx-auto mt-6 grid max-w-[460px] gap-2.5 rounded-[28px] bg-white p-4 shadow-[0_18px_50px_rgba(49,78,58,0.10)] sm:p-5">
+        {signals.map((signal) => (
+          <div key={signal.label} className="flex min-h-[64px] items-center gap-4 rounded-[18px] border border-[#DCE5DA] bg-[#F3F7F1] px-5 text-left text-xl font-black">
+            <span className="text-[1.8rem]" aria-hidden>{signal.emoji}</span>
+            {signal.label}
           </div>
         ))}
       </div>
+      <p className="mx-auto mt-4 max-w-[440px] text-lg font-bold leading-7 text-[#5F6D65]">처음 한 번, 동의해주신 항목만 확인합니다.</p>
     </div>
   );
 }
@@ -266,10 +275,10 @@ function StepThree() {
   return (
     <div className="text-center">
       <span className="mx-auto flex size-[96px] items-center justify-center rounded-full bg-[#FFF0E5] text-[3rem] shadow-[0_14px_36px_rgba(233,101,43,0.11)]" aria-hidden>😊</span>
-      <p className="mt-7 text-xl font-black text-[#52725B]">좋습니다.</p>
-      <h1 className="mt-3 text-[clamp(2.2rem,10vw,3.2rem)] font-black leading-[1.18] tracking-[-0.02em]">
-        그럼 오늘 하루를<br />기록해볼까요?
+      <h1 className="mt-7 text-[clamp(2.2rem,10vw,3.2rem)] font-black leading-[1.18] tracking-[-0.02em]">
+        평소처럼<br />생활하세요.
       </h1>
+      <p className="mt-4 text-xl font-bold leading-8 text-[#52635C]">오늘안부가 생활의 변화를<br />조용히 살펴봅니다.</p>
     </div>
   );
 }

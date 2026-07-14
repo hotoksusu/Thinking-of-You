@@ -14,7 +14,7 @@ const roles = [
   {
     label: "가족",
     text: "생활 변화와 안심을 확인해요.",
-    href: "/app?role=family",
+    href: "/onboarding/family",
     icon: HeartHandshake,
     tone: "bg-[#EEF4FF] border-[#BFD2F5]",
     iconTone: "bg-[#DCE8FF] text-[#315FA8]",
