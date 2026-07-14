@@ -179,7 +179,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
             <div className="mt-5 grid gap-4">
               <ParentSettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="저녁 8시에 알려드려요." />
               <ParentSettingLink href="/family/members" icon={<UsersRound />} title="연결된 가족" description="지은님, 민수님과 연결됐어요." />
-              <ParentSettingLink href="/guide" icon={<Settings />} title="사용 방법" description="오늘안부 사용법을 다시 봐요." />
+              <ParentSettingLink href="/?replay=1" icon={<Settings />} title="사용 방법 다시 보기" description="처음 안내를 다시 천천히 볼 수 있어요." />
             </div>
             <p className="mt-7 text-center text-base font-bold leading-7 text-[#768079]">도움이 필요하면<br />가족에게 편하게 물어보세요.</p>
           </div>

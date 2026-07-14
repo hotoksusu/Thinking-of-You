@@ -4,9 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { storageKeys } from "@/lib/storage-keys";
 
 const TOTAL_STEPS = 3;
 const FIRST_RECORD_URL = "/app?role=parent&view=record";
+
+type EntryNotice = {
+  id: string;
+  emoji: string;
+  eyebrow: string;
+  message: string;
+  storageKey: "milestone" | "event";
+};
 
 const steps = [
   {
@@ -27,7 +37,10 @@ const steps = [
 ] as const;
 
 export default function ParentOnboardingPage() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
+  const [isReady, setIsReady] = useState(false);
+  const [entryNotice, setEntryNotice] = useState<EntryNotice | null>(null);
 
   useEffect(() => {
     const updateViewportHeight = () => {
@@ -43,6 +56,48 @@ export default function ParentOnboardingPage() {
       window.visualViewport?.removeEventListener("resize", updateViewportHeight);
     };
   }, []);
+
+  useEffect(() => {
+    const replay = new URLSearchParams(window.location.search).get("replay") === "1";
+    const completed = window.localStorage.getItem(storageKeys.onboardingCompleted) === "true";
+
+    if (replay || !completed) {
+      setIsReady(true);
+      return;
+    }
+
+    const notice = getOneTimeEntryNotice();
+    if (notice) {
+      setEntryNotice(notice);
+      setIsReady(true);
+      return;
+    }
+
+    router.replace(FIRST_RECORD_URL);
+  }, [router]);
+
+  function completeOnboarding() {
+    window.localStorage.setItem(storageKeys.onboardingCompleted, "true");
+    router.push(FIRST_RECORD_URL);
+  }
+
+  function skipOnboarding() {
+    window.localStorage.setItem(storageKeys.onboardingCompleted, "true");
+    router.push(FIRST_RECORD_URL);
+  }
+
+  function closeEntryNotice() {
+    if (entryNotice) markEntryNoticeSeen(entryNotice);
+    router.replace(FIRST_RECORD_URL);
+  }
+
+  if (!isReady) {
+    return <main className="onboarding-page bg-[#FFF9F0]" aria-label="오늘 기록 화면을 준비하고 있습니다" />;
+  }
+
+  if (entryNotice) {
+    return <OneTimeNotice notice={entryNotice} onContinue={closeEntryNotice} />;
+  }
 
   const current = steps[step - 1];
 
@@ -62,9 +117,9 @@ export default function ParentOnboardingPage() {
             <p className="mt-0.5 text-base font-bold text-[#52635C] sm:text-lg">{current.label}</p>
           </div>
           {step < TOTAL_STEPS ? (
-            <Link href={FIRST_RECORD_URL} className="min-h-11 shrink-0 px-1 py-3 text-sm font-bold text-[#8A938E] underline decoration-[#C7CCC8] underline-offset-4">
+            <button type="button" onClick={skipOnboarding} className="min-h-11 shrink-0 px-1 py-3 text-sm font-bold text-[#8A938E] underline decoration-[#C7CCC8] underline-offset-4">
               건너뛰기
-            </Link>
+            </button>
           ) : <span className="w-14" aria-hidden />}
         </div>
 
@@ -89,9 +144,9 @@ export default function ParentOnboardingPage() {
               {current.action} <ArrowRight size={24} strokeWidth={2.8} aria-hidden />
             </button>
           ) : (
-            <Link href={FIRST_RECORD_URL} className="flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#E9652B] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.24)] focus:outline-none focus:ring-4 focus:ring-[#F5A36D]/40">
+            <button type="button" onClick={completeOnboarding} className="flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#E9652B] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.24)] focus:outline-none focus:ring-4 focus:ring-[#F5A36D]/40">
               {current.action} <ArrowRight size={25} strokeWidth={2.8} aria-hidden />
-            </Link>
+            </button>
           )}
 
           {step > 1 ? (
@@ -103,6 +158,73 @@ export default function ParentOnboardingPage() {
       </section>
     </main>
   );
+}
+
+function OneTimeNotice({ notice, onContinue }: { notice: EntryNotice; onContinue: () => void }) {
+  return (
+    <main className="onboarding-page bg-[#FFF9F0] px-5 text-[#17251F]">
+      <section className="mx-auto flex min-h-0 w-full max-w-[520px] flex-1 flex-col justify-center py-6 text-center">
+        <span className="mx-auto flex size-24 items-center justify-center rounded-[32px] bg-white text-5xl shadow-[0_16px_44px_rgba(49,78,58,0.10)]" aria-hidden>{notice.emoji}</span>
+        <p className="mt-7 text-xl font-black text-[#52725B]">{notice.eyebrow}</p>
+        <h1 className="mt-3 whitespace-pre-line text-[clamp(2.1rem,9vw,3rem)] font-black leading-[1.2] tracking-[-0.02em]">{notice.message}</h1>
+      </section>
+      <div className="mx-auto w-full max-w-[520px] shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <button type="button" onClick={onContinue} className="flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#E9652B] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.24)]">
+          오늘 기록하기 <ArrowRight size={25} aria-hidden />
+        </button>
+      </div>
+    </main>
+  );
+}
+
+function readStringArray(key: string) {
+  try {
+    const value = JSON.parse(window.localStorage.getItem(key) ?? "[]");
+    return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function getOneTimeEntryNotice(): EntryNotice | null {
+  try {
+    const event = JSON.parse(window.localStorage.getItem(storageKeys.pendingEntryEvent) ?? "null") as Partial<EntryNotice> | null;
+    const seenEvents = readStringArray(storageKeys.seenEntryEvents);
+    if (event?.id && event.message && !seenEvents.includes(event.id)) {
+      return {
+        id: event.id,
+        emoji: event.emoji ?? "🎉",
+        eyebrow: event.eyebrow ?? "오늘의 특별한 소식",
+        message: event.message,
+        storageKey: "event",
+      };
+    }
+  } catch {
+    // 잘못 저장된 이벤트는 건너뛰고 오늘 기록으로 이동합니다.
+  }
+
+  const streak = Number(window.localStorage.getItem(storageKeys.recordStreak) ?? 0);
+  const milestone = [90, 30, 7].find((day) => streak >= day);
+  const seenMilestones = readStringArray(storageKeys.seenMilestones);
+  if (milestone && !seenMilestones.includes(String(milestone))) {
+    return {
+      id: String(milestone),
+      emoji: "👏",
+      eyebrow: "오늘도 감사합니다.",
+      message: `벌써 ${milestone}일째\n기록하고 있어요.`,
+      storageKey: "milestone",
+    };
+  }
+
+  return null;
+}
+
+function markEntryNoticeSeen(notice: EntryNotice) {
+  const key = notice.storageKey === "event" ? storageKeys.seenEntryEvents : storageKeys.seenMilestones;
+  const seen = readStringArray(key);
+  if (!seen.includes(notice.id)) {
+    window.localStorage.setItem(key, JSON.stringify([...seen, notice.id]));
+  }
 }
 
 function StepOne() {

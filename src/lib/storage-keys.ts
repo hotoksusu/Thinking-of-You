@@ -2,6 +2,11 @@ const baseKey = "today-anbu";
 
 export const storageKeys = {
   base: baseKey,
+  onboardingCompleted: `${baseKey}:onboarding-completed`,
+  recordStreak: `${baseKey}:record-streak`,
+  seenMilestones: `${baseKey}:seen-milestones`,
+  pendingEntryEvent: `${baseKey}:pending-entry-event`,
+  seenEntryEvents: `${baseKey}:seen-entry-events`,
   parentProfile: `${baseKey}:parent-profile`,
   schedules: `${baseKey}:care-schedules`,
   messageHistory: `${baseKey}:family-message-history`,
