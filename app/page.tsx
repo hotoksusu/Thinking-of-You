@@ -3,26 +3,31 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Footprints,
-  Heart,
-  Leaf,
-  MessageCircleHeart,
-  PhoneCall,
-  Sun,
-} from "lucide-react";
-import { MarketingHeader } from "@/components/marketing-navigation";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 3;
+const FIRST_RECORD_URL = "/app?role=parent&view=record";
 
-export default function LandingPage() {
+const steps = [
+  {
+    label: "처음 사용하는 방법",
+    reassurance: "하루 20초면 충분해요",
+    action: "알겠습니다",
+  },
+  {
+    label: "버튼으로 기록하기",
+    reassurance: "버튼만 누르면 됩니다",
+    action: "이해했습니다",
+  },
+  {
+    label: "오늘 기록 시작하기",
+    reassurance: "가족만 볼 수 있습니다",
+    action: "오늘 기록 시작",
+  },
+] as const;
+
+export default function ParentOnboardingPage() {
   const [step, setStep] = useState(1);
-
-  const previous = () => setStep((current) => Math.max(1, current - 1));
-  const next = () => setStep((current) => Math.min(TOTAL_STEPS, current + 1));
-  const skip = () => setStep(TOTAL_STEPS);
 
   useEffect(() => {
     const updateViewportHeight = () => {
@@ -39,211 +44,110 @@ export default function LandingPage() {
     };
   }, []);
 
+  const current = steps[step - 1];
+
   return (
-    <main className="onboarding-page bg-[#FFF9F0] text-[#20302C]">
-      <MarketingHeader compact />
+    <main className="onboarding-page bg-[#FFF9F0] text-[#17251F]">
+      <header className="flex min-h-14 shrink-0 items-center justify-center border-b border-[#E4E8E0] px-4 sm:min-h-16">
+        <Link href="/" className="flex min-h-11 items-center gap-2 text-xl font-black text-[#48634F]" aria-label="오늘안부 첫 화면">
+          <Image src="/brand/brand-icon.png" alt="" width={34} height={34} className="rounded-xl" priority />
+          오늘안부
+        </Link>
+      </header>
 
-      <section className="onboarding-content mx-auto flex w-full max-w-[1280px] flex-col px-4 pt-2 sm:px-8 sm:pt-3 lg:pt-5">
-        <Progress step={step} onSkip={skip} />
-
-        <div key={step} className="completion-slide flex min-h-0 flex-1 flex-col">
-          {step === 1 && <StepOne />}
-          {step === 2 && <StepTwo />}
-          {step === 3 && <StepThree />}
-          {step === 4 && <StepFour />}
-          {step === 5 && <StepFive onPrevious={previous} />}
+      <section className="onboarding-content mx-auto flex w-full max-w-[560px] flex-col px-5 pt-3 sm:px-8 sm:pt-5">
+        <div className="flex min-h-12 shrink-0 items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-black tracking-[0.08em] text-[#E9652B]">STEP {step}</p>
+            <p className="mt-0.5 text-base font-bold text-[#52635C] sm:text-lg">{current.label}</p>
+          </div>
+          {step < TOTAL_STEPS ? (
+            <Link href={FIRST_RECORD_URL} className="min-h-11 shrink-0 px-1 py-3 text-sm font-bold text-[#8A938E] underline decoration-[#C7CCC8] underline-offset-4">
+              건너뛰기
+            </Link>
+          ) : <span className="w-14" aria-hidden />}
         </div>
 
-        {step < TOTAL_STEPS ? (
-          <nav className="onboarding-actions mx-auto mt-2 grid w-full max-w-[520px] shrink-0 grid-cols-2 gap-3" aria-label="소개 단계 이동">
-            {step > 1 ? (
-              <button
-                type="button"
-                onClick={previous}
-                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-[#A7B7AA] bg-white text-lg font-black text-[#40534B] sm:min-h-16 sm:text-xl"
-              >
-                <ArrowLeft size={22} aria-hidden /> 이전
-              </button>
-            ) : null}
+        <div key={step} className="completion-slide flex min-h-0 flex-1 flex-col justify-center py-3 sm:py-5">
+          {step === 1 ? <StepOne /> : null}
+          {step === 2 ? <StepTwo /> : null}
+          {step === 3 ? <StepThree /> : null}
+        </div>
+
+        <div className="shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <p className="mb-3 flex min-h-7 items-center justify-center gap-2 text-center text-lg font-black text-[#46644F]">
+            <span className="flex size-6 items-center justify-center rounded-full bg-[#E6F0E2]" aria-hidden><Check size={17} strokeWidth={3} /></span>
+            {current.reassurance}
+          </p>
+
+          {step < TOTAL_STEPS ? (
             <button
               type="button"
-              onClick={next}
-              className={`inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#E9652B] text-lg font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.22)] sm:min-h-16 sm:text-xl ${step === 1 ? "col-start-1 col-end-3" : ""}`}
+              onClick={() => setStep((value) => Math.min(TOTAL_STEPS, value + 1))}
+              className="flex min-h-[68px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#E9652B] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.24)] focus:outline-none focus:ring-4 focus:ring-[#F5A36D]/40"
             >
-              다음 <ArrowRight size={22} aria-hidden />
+              {current.action} <ArrowRight size={24} strokeWidth={2.8} aria-hidden />
             </button>
-          </nav>
-        ) : null}
+          ) : (
+            <Link href={FIRST_RECORD_URL} className="flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#E9652B] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.24)] focus:outline-none focus:ring-4 focus:ring-[#F5A36D]/40">
+              {current.action} <ArrowRight size={25} strokeWidth={2.8} aria-hidden />
+            </Link>
+          )}
+
+          {step > 1 ? (
+            <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="mx-auto mt-1 flex min-h-11 items-center gap-1 px-3 text-sm font-bold text-[#7B8580]">
+              <ArrowLeft size={17} aria-hidden /> 이전
+            </button>
+          ) : <div className="h-12" aria-hidden />}
+        </div>
       </section>
     </main>
   );
 }
 
-function Progress({ step, onSkip }: { step: number; onSkip: () => void }) {
-  return (
-    <div className="mx-auto flex min-h-10 w-full max-w-[520px] shrink-0 items-center justify-between gap-2" aria-label={`전체 5단계 중 ${step}단계`}>
-      <span className="shrink-0 text-left text-sm font-black text-[#52635C] sm:min-w-16 sm:text-base">{step} / 5</span>
-      <div className="flex min-w-0 items-center gap-1.5 sm:gap-2" aria-hidden>
-        {Array.from({ length: TOTAL_STEPS }).map((_, index) => (
-          <span key={index} className={`h-2.5 rounded-full transition-all ${index + 1 === step ? "w-8 bg-[#E9652B]" : index + 1 < step ? "w-2.5 bg-[#89A083]" : "w-2.5 bg-[#D9DED7]"}`} />
-        ))}
-      </div>
-      {step < TOTAL_STEPS ? (
-        <button
-          type="button"
-          onClick={onSkip}
-          className="min-h-10 shrink-0 rounded-xl px-1 text-right text-sm font-black text-[#52635C] sm:min-w-16 sm:px-2 sm:text-base"
-        >
-          건너뛰기
-        </button>
-      ) : (
-        <span className="min-w-16" aria-hidden />
-      )}
-    </div>
-  );
-}
-
-function StepLayout({ eyebrow, title, description, children }: { eyebrow: string; title: React.ReactNode; description: React.ReactNode; children: React.ReactNode }) {
-  return (
-    <div className="onboarding-step grid min-h-0 flex-1 items-center gap-2 lg:grid-cols-[.82fr_1.18fr] lg:gap-16">
-      <div className="mx-auto w-full max-w-[520px] text-center lg:order-1 lg:text-left">
-        <p className="text-sm font-black text-[#E9652B] sm:text-lg">{eyebrow}</p>
-        <h1 className="mt-1 text-[clamp(1.65rem,7.4vw,2.25rem)] font-black leading-[1.16] sm:mt-2 sm:text-[2.7rem] lg:text-[3.25rem]">{title}</h1>
-        <p className="mt-2 text-base font-bold leading-6 text-[#52635C] sm:mt-3 sm:text-xl sm:leading-9">{description}</p>
-      </div>
-      <div className="onboarding-visual flex min-h-0 items-center justify-center lg:order-2">{children}</div>
-    </div>
-  );
-}
-
-function AppFrame({ children, label }: { children: React.ReactNode; label: string }) {
-  return (
-    <div className="onboarding-phone w-full max-w-[230px] rounded-[22px] border-4 border-[#25352F] bg-white p-1.5 shadow-[0_14px_36px_rgba(42,55,48,0.14)] sm:max-w-[300px] sm:rounded-[26px] sm:border-[5px] sm:p-2 lg:max-w-[390px]" aria-label={label}>
-      <div className="mx-auto mb-1.5 h-1.5 w-14 rounded-full bg-[#D6DCD8]" aria-hidden />
-      <div className="onboarding-phone-screen overflow-hidden rounded-[14px] bg-[#FFFDF8] sm:rounded-[17px]">{children}</div>
-    </div>
-  );
-}
-
 function StepOne() {
   return (
-    <StepLayout
-      eyebrow="오늘안부와 함께"
-      title={<>평소처럼<br />생활하세요.</>}
-      description={<>생활이 차곡차곡 쌓이면<br />계절의 수확이 찾아옵니다.</>}
-    >
-      <AppFrame label="오늘안부 첫 화면 미리보기">
-        <div className="flex h-full flex-col items-center justify-center bg-[#F3F6EC] p-5 text-center" aria-hidden>
-          <span className="flex size-16 items-center justify-center rounded-2xl bg-white text-[#648064] shadow-sm"><Leaf size={32} aria-hidden /></span>
-          <div className="mt-5 flex gap-2"><span className="size-2.5 rounded-full bg-[#89A083]" /><span className="size-2.5 rounded-full bg-[#C9D5C4]" /><span className="size-2.5 rounded-full bg-[#E1E6DE]" /></div>
-        </div>
-      </AppFrame>
-    </StepLayout>
+    <div className="text-center">
+      <span className="mx-auto flex size-[88px] items-center justify-center rounded-[30px] bg-[#EAF3E5] text-[2.8rem] shadow-[0_14px_36px_rgba(65,91,67,0.10)]" aria-hidden>🌿</span>
+      <h1 className="mx-auto mt-7 max-w-[470px] text-[clamp(2rem,9vw,3rem)] font-black leading-[1.2] tracking-[-0.02em] text-[#17251F]">
+        오늘 하루를<br />간단히 기록하면<br />가족이 안심할 수 있어요.
+      </h1>
+    </div>
   );
 }
 
 function StepTwo() {
-  const signals = [
-    { icon: Footprints, title: "걸음", text: "평소처럼 움직였어요" },
-    { icon: Sun, title: "생활 리듬", text: "규칙적으로 이어지고 있어요" },
-    { icon: PhoneCall, title: "통화 활동", text: "소식을 나눈 날이에요" },
+  const moods = [
+    { emoji: "😀", label: "좋음" },
+    { emoji: "🙂", label: "보통" },
+    { emoji: "😐", label: "피곤함" },
   ];
 
   return (
-    <StepLayout
-      eyebrow="복잡한 기록 없이"
-      title={<>아무것도 기록하지<br />않아도 됩니다.</>}
-      description={<>걸음과 생활 리듬을<br />AI가 자연스럽게 살펴봅니다.</>}
-    >
-      <AppFrame label="생활 안심 화면 미리보기">
-        <div className="h-full bg-[#EEF5E9] p-4 lg:p-5">
-          <p className="text-sm font-black text-[#52725B]">오늘의 안심</p>
-          <h2 className="mt-1 text-xl font-black lg:text-2xl">생활이 자연스럽게<br />이어지고 있어요.</h2>
-          <div className="mt-4 grid gap-2.5">
-            {signals.map(({ icon: Icon, title, text }) => (
-              <div key={title} className="flex min-h-[62px] items-center gap-3 rounded-[16px] bg-white p-3 lg:min-h-[74px]">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#EDF4E9] text-[#52725B]"><Icon size={22} aria-hidden /></span>
-                <div><p className="font-black">{title}</p><p className="text-sm font-bold text-[#68756F]">{text}</p></div>
-              </div>
-            ))}
+    <div className="text-center">
+      <h1 className="text-[clamp(2rem,9vw,3rem)] font-black leading-[1.18] tracking-[-0.02em]">
+        걱정하지 마세요.<br />버튼만 누르면 됩니다.
+      </h1>
+      <div className="mx-auto mt-6 grid max-w-[460px] gap-3 rounded-[28px] bg-white p-4 shadow-[0_18px_50px_rgba(49,78,58,0.10)] sm:p-5">
+        {moods.map((mood) => (
+          <div key={mood.label} className="flex min-h-[72px] items-center gap-5 rounded-[20px] border-2 border-[#DCE5DA] bg-[#FAFCF9] px-5 text-left text-[1.35rem] font-black">
+            <span className="text-[2.25rem]" aria-hidden>{mood.emoji}</span>
+            {mood.label}
           </div>
-        </div>
-      </AppFrame>
-    </StepLayout>
+        ))}
+      </div>
+    </div>
   );
 }
 
 function StepThree() {
   return (
-    <StepLayout
-      eyebrow="가끔 도착하는 가족 소식"
-      title={<>가족의 작은 소식이<br />하루의 기쁨이 됩니다.</>}
-      description={<>손주 사진이나 퇴근길 풍경을<br />부담 없이 함께 볼 수 있어요.</>}
-    >
-      <AppFrame label="가족 소식 화면 미리보기">
-        <div className="h-full p-4 lg:p-5">
-          <div className="flex items-center gap-2.5"><span className="flex size-10 items-center justify-center rounded-xl bg-[#FFF0EA] text-[#C65C3C]"><MessageCircleHeart size={22} aria-hidden /></span><div><p className="text-sm font-black text-[#B35C45]">오늘 도착한 가족 소식</p><p className="text-xs font-bold text-[#6A756F]">딸이 사진 한 장을 보냈어요</p></div></div>
-          <div className="relative mt-3 aspect-[16/9] overflow-hidden rounded-[17px] lg:mt-4">
-            <Image src="/brand/hero-family.png" alt="가족이 보낸 따뜻한 사진" fill className="object-cover" sizes="390px" />
-          </div>
-          <div className="mt-3 rounded-[16px] bg-[#FFF3EC] p-3 lg:mt-4 lg:p-4">
-            <p className="text-base font-black leading-6 lg:text-lg">아빠, 퇴근길 노을이<br />참 예뻐서 보내요.</p>
-            <p className="mt-2 text-xs font-bold text-[#7B6258] lg:text-sm">답장 없이 사진만 보셔도 괜찮아요.</p>
-          </div>
-        </div>
-      </AppFrame>
-    </StepLayout>
-  );
-}
-
-function StepFour() {
-  return (
-    <StepLayout
-      eyebrow="생활이 만든 따뜻한 보상"
-      title={<>생활이 쌓이면<br />계절의 수확이 찾아옵니다.</>}
-      description={<>평소처럼 보낸 시간이 쌓이면<br />선택한 제철 농산물이 찾아옵니다.</>}
-    >
-      <AppFrame label="안부농장 화면 미리보기">
-        <div className="relative h-full bg-[#F4EEDC] p-4 lg:p-5">
-          <p className="text-sm font-black text-[#52725B]">계절의 수확</p>
-          <h2 className="mt-1 text-xl font-black lg:text-2xl">방울토마토가<br />잘 자라고 있어요.</h2>
-          <div className="relative mt-3 h-[145px] overflow-hidden rounded-[17px] bg-[#FFF8E9] lg:h-[225px]">
-            <Image src="/brand/farm-mascot.png" alt="수확한 채소를 안고 있는 안심이" fill className="object-cover object-center" sizes="390px" />
-          </div>
-          <div className="mt-3 rounded-[15px] bg-white p-3">
-            <div className="flex justify-between text-sm font-black"><span>성장 중</span><span className="text-[#52725B]">72%</span></div>
-            <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-[#E5E9DF]"><div className="h-full w-[72%] rounded-full bg-[#75A46E]" /></div>
-          </div>
-        </div>
-      </AppFrame>
-    </StepLayout>
-  );
-}
-
-function StepFive({ onPrevious }: { onPrevious: () => void }) {
-  return (
-    <div className="flex min-h-0 flex-1 items-center justify-center text-center">
-      <div className="w-full max-w-[720px]">
-        <span className="mx-auto flex size-16 items-center justify-center rounded-[22px] bg-[#EAF3E5] text-[#52725B] sm:size-20">
-          <Heart size={36} fill="currentColor" aria-hidden />
-        </span>
-        <p className="mt-5 text-lg font-black text-[#52725B]">이제 준비됐어요</p>
-        <h1 className="mt-3 text-[2.25rem] font-black leading-[1.2] sm:text-[3.5rem]">오늘부터<br />평소처럼 생활하세요.</h1>
-        <p className="mx-auto mt-4 max-w-[600px] text-lg font-bold leading-8 text-[#52635C] sm:text-xl sm:leading-9">
-          부모님은 평소처럼 지내고,<br />가족은 가끔 사진 한 장만 남기면 됩니다.
-        </p>
-        <div className="mx-auto mt-7 grid max-w-[520px] gap-3 sm:grid-cols-2">
-          <Link href="/start" className="inline-flex min-h-16 items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-6 text-xl font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.22)]">
-            오늘안부 시작하기 <ArrowRight size={22} aria-hidden />
-          </Link>
-          <Link href="/onboarding/add-parent" className="inline-flex min-h-16 items-center justify-center rounded-2xl border-2 border-[#8FA98D] bg-white px-6 text-xl font-black text-[#31473D]">
-            부모님 연결하기
-          </Link>
-        </div>
-        <button type="button" onClick={onPrevious} className="mt-5 inline-flex min-h-11 items-center gap-2 px-3 text-base font-black text-[#52635C]">
-          <ArrowLeft size={20} aria-hidden /> 이전
-        </button>
-      </div>
+    <div className="text-center">
+      <span className="mx-auto flex size-[96px] items-center justify-center rounded-full bg-[#FFF0E5] text-[3rem] shadow-[0_14px_36px_rgba(233,101,43,0.11)]" aria-hidden>😊</span>
+      <p className="mt-7 text-xl font-black text-[#52725B]">좋습니다.</p>
+      <h1 className="mt-3 text-[clamp(2.2rem,10vw,3.2rem)] font-black leading-[1.18] tracking-[-0.02em]">
+        그럼 오늘 하루를<br />기록해볼까요?
+      </h1>
     </div>
   );
 }
