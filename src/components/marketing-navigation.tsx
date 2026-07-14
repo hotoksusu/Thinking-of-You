@@ -13,12 +13,12 @@ const navigation = [
   { label: "기관 도입", href: "/partners" },
 ];
 
-export function MarketingHeader() {
+export function MarketingHeader({ compact = false }: { compact?: boolean }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-[#E5E8E1] bg-[#FFF9F0]/95 backdrop-blur">
-      <div className="mx-auto flex min-h-20 w-full max-w-[1200px] items-center justify-between gap-5 px-5 sm:px-8">
-        <Link href="/" className="flex min-h-14 shrink-0 items-center gap-3 text-2xl font-black text-[#52725B]">
-          <Image src="/brand/brand-icon.png" alt="" width={44} height={44} className="rounded-xl" />
+    <header className={`sticky top-0 z-50 shrink-0 border-b border-[#E5E8E1] bg-[#FFF9F0]/95 backdrop-blur ${compact ? "onboarding-header" : ""}`}>
+      <div className={`mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 sm:px-8 ${compact ? "min-h-14 gap-3 sm:min-h-16" : "min-h-20 gap-5"}`}>
+        <Link href="/" className={`flex shrink-0 items-center font-black text-[#52725B] ${compact ? "min-h-11 gap-2 text-xl" : "min-h-14 gap-3 text-2xl"}`}>
+          <Image src="/brand/brand-icon.png" alt="" width={compact ? 34 : 44} height={compact ? 34 : 44} className="rounded-xl" />
           오늘안부
         </Link>
 
@@ -31,10 +31,10 @@ export function MarketingHeader() {
         </nav>
 
         <details className="group relative lg:hidden">
-          <summary className="flex size-14 cursor-pointer list-none items-center justify-center rounded-xl border-2 border-[#C8D6C4] bg-white text-[#31473D] [&::-webkit-details-marker]:hidden" aria-label="메뉴 열기">
-            <Menu size={29} aria-hidden />
+          <summary className={`flex cursor-pointer list-none items-center justify-center rounded-xl border-2 border-[#C8D6C4] bg-white text-[#31473D] [&::-webkit-details-marker]:hidden ${compact ? "size-10" : "size-14"}`} aria-label="메뉴 열기">
+            <Menu size={compact ? 23 : 29} aria-hidden />
           </summary>
-          <nav className="absolute right-0 top-16 w-72 rounded-2xl border border-[#E1E6DE] bg-white p-3 shadow-[0_20px_50px_rgba(45,57,50,0.16)]" aria-label="모바일 서비스 메뉴">
+          <nav className={`absolute right-0 w-72 rounded-2xl border border-[#E1E6DE] bg-white p-3 shadow-[0_20px_50px_rgba(45,57,50,0.16)] ${compact ? "top-12" : "top-16"}`} aria-label="모바일 서비스 메뉴">
             {navigation.map((item) => (
               <Link key={item.href} href={item.href} className="flex min-h-14 items-center rounded-xl px-4 text-lg font-black text-[#31473D] hover:bg-[#F3F6F0]">
                 {item.label}

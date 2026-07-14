@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -24,11 +24,26 @@ export default function LandingPage() {
   const next = () => setStep((current) => Math.min(TOTAL_STEPS, current + 1));
   const skip = () => setStep(TOTAL_STEPS);
 
-  return (
-    <main className="h-[100svh] overflow-hidden bg-[#FFF9F0] text-[#20302C]">
-      <MarketingHeader />
+  useEffect(() => {
+    const updateViewportHeight = () => {
+      const height = window.visualViewport?.height ?? window.innerHeight;
+      document.documentElement.style.setProperty("--onboarding-vh", `${height}px`);
+    };
 
-      <section className="mx-auto flex h-[calc(100svh-76px)] w-full max-w-[1280px] flex-col px-5 pb-5 pt-4 sm:px-8 sm:pb-7 lg:pt-5">
+    updateViewportHeight();
+    window.addEventListener("resize", updateViewportHeight);
+    window.visualViewport?.addEventListener("resize", updateViewportHeight);
+    return () => {
+      window.removeEventListener("resize", updateViewportHeight);
+      window.visualViewport?.removeEventListener("resize", updateViewportHeight);
+    };
+  }, []);
+
+  return (
+    <main className="onboarding-page bg-[#FFF9F0] text-[#20302C]">
+      <MarketingHeader compact />
+
+      <section className="onboarding-content mx-auto flex w-full max-w-[1280px] flex-col px-4 pt-2 sm:px-8 sm:pt-3 lg:pt-5">
         <Progress step={step} onSkip={skip} />
 
         <div key={step} className="completion-slide flex min-h-0 flex-1 flex-col">
@@ -40,7 +55,7 @@ export default function LandingPage() {
         </div>
 
         {step < TOTAL_STEPS ? (
-          <nav className="mx-auto mt-3 grid w-full max-w-[520px] grid-cols-2 gap-3" aria-label="소개 단계 이동">
+          <nav className="onboarding-actions mx-auto mt-2 grid w-full max-w-[520px] shrink-0 grid-cols-2 gap-3" aria-label="소개 단계 이동">
             {step > 1 ? (
               <button
                 type="button"
@@ -66,9 +81,9 @@ export default function LandingPage() {
 
 function Progress({ step, onSkip }: { step: number; onSkip: () => void }) {
   return (
-    <div className="mx-auto flex w-full max-w-[520px] items-center justify-between" aria-label={`전체 5단계 중 ${step}단계`}>
-      <span className="min-w-16 text-left text-base font-black text-[#52635C]">{step} / 5</span>
-      <div className="flex items-center gap-2" aria-hidden>
+    <div className="mx-auto flex min-h-10 w-full max-w-[520px] shrink-0 items-center justify-between gap-2" aria-label={`전체 5단계 중 ${step}단계`}>
+      <span className="shrink-0 text-left text-sm font-black text-[#52635C] sm:min-w-16 sm:text-base">{step} / 5</span>
+      <div className="flex min-w-0 items-center gap-1.5 sm:gap-2" aria-hidden>
         {Array.from({ length: TOTAL_STEPS }).map((_, index) => (
           <span key={index} className={`h-2.5 rounded-full transition-all ${index + 1 === step ? "w-8 bg-[#E9652B]" : index + 1 < step ? "w-2.5 bg-[#89A083]" : "w-2.5 bg-[#D9DED7]"}`} />
         ))}
@@ -77,7 +92,7 @@ function Progress({ step, onSkip }: { step: number; onSkip: () => void }) {
         <button
           type="button"
           onClick={onSkip}
-          className="min-h-11 min-w-16 rounded-xl px-2 text-right text-base font-black text-[#52635C]"
+          className="min-h-10 shrink-0 rounded-xl px-1 text-right text-sm font-black text-[#52635C] sm:min-w-16 sm:px-2 sm:text-base"
         >
           건너뛰기
         </button>
@@ -90,22 +105,22 @@ function Progress({ step, onSkip }: { step: number; onSkip: () => void }) {
 
 function StepLayout({ eyebrow, title, description, children }: { eyebrow: string; title: React.ReactNode; description: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="grid min-h-0 flex-1 items-center gap-3 lg:grid-cols-[.82fr_1.18fr] lg:gap-16">
-      <div className="order-2 mx-auto w-full max-w-[520px] text-center lg:order-1 lg:text-left">
-        <p className="text-base font-black text-[#E9652B] sm:text-lg">{eyebrow}</p>
-        <h1 className="mt-2 text-[2rem] font-black leading-[1.2] sm:text-[2.7rem] lg:text-[3.25rem]">{title}</h1>
-        <p className="mt-3 text-lg font-bold leading-8 text-[#52635C] sm:text-xl sm:leading-9">{description}</p>
+    <div className="onboarding-step grid min-h-0 flex-1 items-center gap-2 lg:grid-cols-[.82fr_1.18fr] lg:gap-16">
+      <div className="mx-auto w-full max-w-[520px] text-center lg:order-1 lg:text-left">
+        <p className="text-sm font-black text-[#E9652B] sm:text-lg">{eyebrow}</p>
+        <h1 className="mt-1 text-[clamp(1.65rem,7.4vw,2.25rem)] font-black leading-[1.16] sm:mt-2 sm:text-[2.7rem] lg:text-[3.25rem]">{title}</h1>
+        <p className="mt-2 text-base font-bold leading-6 text-[#52635C] sm:mt-3 sm:text-xl sm:leading-9">{description}</p>
       </div>
-      <div className="order-1 flex min-h-0 items-center justify-center lg:order-2">{children}</div>
+      <div className="onboarding-visual flex min-h-0 items-center justify-center lg:order-2">{children}</div>
     </div>
   );
 }
 
 function AppFrame({ children, label }: { children: React.ReactNode; label: string }) {
   return (
-    <div className="w-full max-w-[290px] rounded-[26px] border-[5px] border-[#25352F] bg-white p-2 shadow-[0_20px_55px_rgba(42,55,48,0.15)] sm:max-w-[340px] lg:max-w-[390px]" aria-label={label}>
+    <div className="onboarding-phone w-full max-w-[230px] rounded-[22px] border-4 border-[#25352F] bg-white p-1.5 shadow-[0_14px_36px_rgba(42,55,48,0.14)] sm:max-w-[300px] sm:rounded-[26px] sm:border-[5px] sm:p-2 lg:max-w-[390px]" aria-label={label}>
       <div className="mx-auto mb-1.5 h-1.5 w-14 rounded-full bg-[#D6DCD8]" aria-hidden />
-      <div className="h-[300px] overflow-hidden rounded-[17px] bg-[#FFFDF8] sm:h-[360px] lg:h-[440px]">{children}</div>
+      <div className="onboarding-phone-screen overflow-hidden rounded-[14px] bg-[#FFFDF8] sm:rounded-[17px]">{children}</div>
     </div>
   );
 }
@@ -118,14 +133,9 @@ function StepOne() {
       description={<>생활이 차곡차곡 쌓이면<br />계절의 수확이 찾아옵니다.</>}
     >
       <AppFrame label="오늘안부 첫 화면 미리보기">
-        <div className="flex h-full flex-col items-center justify-center bg-[#F3F6EC] p-5 text-center">
-          <span className="flex size-14 items-center justify-center rounded-2xl bg-white text-[#648064] shadow-sm"><Leaf size={29} aria-hidden /></span>
-          <p className="mt-5 text-sm font-black text-[#52725B]">7월 8일 수요일</p>
-          <h2 className="mt-2 text-[1.55rem] font-black leading-[1.35] lg:text-[1.8rem]">오늘도 평소처럼<br />지내고 계세요.</h2>
-          <div className="mt-5 w-full rounded-[18px] bg-white p-4 text-left">
-            <p className="text-sm font-black text-[#52725B]">오늘의 생활</p>
-            <p className="mt-1 text-base font-black">편안하게 이어지고 있어요.</p>
-          </div>
+        <div className="flex h-full flex-col items-center justify-center bg-[#F3F6EC] p-5 text-center" aria-hidden>
+          <span className="flex size-16 items-center justify-center rounded-2xl bg-white text-[#648064] shadow-sm"><Leaf size={32} aria-hidden /></span>
+          <div className="mt-5 flex gap-2"><span className="size-2.5 rounded-full bg-[#89A083]" /><span className="size-2.5 rounded-full bg-[#C9D5C4]" /><span className="size-2.5 rounded-full bg-[#E1E6DE]" /></div>
         </div>
       </AppFrame>
     </StepLayout>
