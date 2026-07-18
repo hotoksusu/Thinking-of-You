@@ -1,22 +1,28 @@
+"use client";
+
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { UserMode } from "@/components/user-mode";
 
-type AppPageProps = {
-  searchParams?: Promise<{
-    registered?: string;
-    role?: string;
-    view?: string;
-  }>;
-};
-
-export default async function AppPage({ searchParams }: AppPageProps) {
-  const params = await searchParams;
-  const role = params?.role === "parent" || params?.role === "family" ? params.role : undefined;
-  const parentView = params?.view === "record" || params?.view === "photos" || params?.view === "farm" || params?.view === "profile" || params?.view === "guide"
-    ? params.view
+function AppPageContent() {
+  const params = useSearchParams();
+  const roleParam = params.get("role");
+  const role = roleParam === "parent" || roleParam === "family" ? roleParam : undefined;
+  const view = params.get("view");
+  const parentView = view === "record" || view === "photos" || view === "farm" || view === "profile" || view === "guide"
+    ? view
     : "home";
-  const familyView = params?.view === "reassurance" || params?.view === "changes" || params?.view === "compose" || params?.view === "farm" || params?.view === "profile" || params?.view === "guide"
-    ? params.view
+  const familyView = view === "reassurance" || view === "changes" || view === "compose" || view === "farm" || view === "profile" || view === "guide"
+    ? view
     : "home";
 
-  return <UserMode initialRegistered={params?.registered === "1"} initialRole={role} initialParentView={parentView} initialFamilyView={familyView} />;
+  return <UserMode initialRegistered={params.get("registered") === "1"} initialRole={role} initialParentView={parentView} initialFamilyView={familyView} />;
+}
+
+export default function AppPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-[#F7F9F6]" />}>
+      <AppPageContent />
+    </Suspense>
+  );
 }

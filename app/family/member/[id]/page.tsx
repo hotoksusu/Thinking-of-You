@@ -13,6 +13,10 @@ import {
   getResponsePattern,
 } from "@/lib/safety";
 
+export function generateStaticParams() {
+  return managedParents.map((parent) => ({ id: parent.id }));
+}
+
 export default async function FamilyMemberDetailPage({
   params,
 }: {
