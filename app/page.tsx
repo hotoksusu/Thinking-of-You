@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { storageKeys } from "@/lib/storage-keys";
 
@@ -21,23 +21,23 @@ type EntryNotice = {
 const steps = [
   {
     label: "기분 하나만 알려주세요",
-    reassurance: "부모님은 기분만 누르면 됩니다",
-    action: "알겠습니다",
+    reassurance: "긴 글은 쓰지 않으셔도 돼요",
+    action: "다음",
   },
   {
     label: "나머지는 자동으로 확인해요",
-    reassurance: "동의한 항목만 확인합니다",
-    action: "이해했습니다",
+    reassurance: "허락한 것만 살펴봐요",
+    action: "다음",
   },
   {
     label: "이어지는 변화만 확인해요",
-    reassurance: "휴대폰의 내용은 확인하지 않습니다",
-    action: "알겠습니다",
+    reassurance: "전화나 문자의 내용은 보지 않아요",
+    action: "다음",
   },
   {
     label: "평소처럼 생활하세요",
-    reassurance: "나머지는 오늘안부가 함께 살펴봅니다",
-    action: "오늘 기록 시작",
+    reassurance: "평소처럼 지내시면 됩니다",
+    action: "시작하기",
   },
 ] as const;
 
@@ -118,8 +118,8 @@ export default function ParentOnboardingPage() {
       <section className="onboarding-content mx-auto flex w-full max-w-[560px] flex-col px-5 pt-3 sm:px-8 sm:pt-5">
         <div className="flex min-h-12 shrink-0 items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-black tracking-[0.08em] text-[#E9652B]">STEP {step}</p>
-            <p className="mt-0.5 text-base font-bold text-[#52635C] sm:text-lg">{current.label}</p>
+            <p className="inline-flex rounded-full bg-[#FFF0E5] px-3 py-1.5 text-sm font-black tracking-[0.06em] text-[#E9652B]">안내 {step}/{TOTAL_STEPS}</p>
+            <p className="mt-2 text-base font-bold text-[#52635C] sm:text-lg">{current.label}</p>
           </div>
           {step < TOTAL_STEPS ? (
             <button type="button" onClick={skipOnboarding} className="min-h-11 shrink-0 px-1 py-3 text-sm font-bold text-[#8A938E] underline decoration-[#C7CCC8] underline-offset-4">
@@ -136,8 +136,7 @@ export default function ParentOnboardingPage() {
         </div>
 
         <div className="shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <p className="mb-3 flex min-h-7 items-center justify-center gap-2 text-center text-lg font-black text-[#46644F]">
-            <span className="flex size-6 items-center justify-center rounded-full bg-[#E6F0E2]" aria-hidden><Check size={17} strokeWidth={3} /></span>
+          <p className="mb-3 text-center text-lg font-black leading-7 text-[#46644F]">
             {current.reassurance}
           </p>
 
@@ -243,10 +242,10 @@ function StepOne() {
   return (
     <div className="text-center">
       <h1 className="mx-auto max-w-[470px] text-[clamp(2rem,9vw,3rem)] font-black leading-[1.2] tracking-[-0.02em] text-[#17251F]">
-        오늘 하루 기분만<br />알려주세요.
+        오늘 기분만<br />가볍게 고르세요.
       </h1>
       <div className="mx-auto mt-7 grid max-w-[460px] grid-cols-3 gap-2.5 rounded-[26px] bg-white p-4 shadow-[0_16px_44px_rgba(49,78,58,0.09)]">
-        {moods.map((mood) => <div key={mood.label} className="flex min-h-[92px] flex-col items-center justify-center rounded-[18px] border-2 border-[#DCE5DA] bg-[#FAFCF9] text-lg font-black"><span className="text-3xl" aria-hidden>{mood.emoji}</span><span className="mt-2">{mood.label}</span></div>)}
+        {moods.map((mood) => <div key={mood.label} className="flex min-h-[92px] flex-col items-center justify-center rounded-[18px] bg-[#F4F7F2] text-lg font-black text-[#27342C]"><span className="text-3xl" aria-hidden>{mood.emoji}</span><span className="mt-2">{mood.label}</span></div>)}
       </div>
     </div>
   );

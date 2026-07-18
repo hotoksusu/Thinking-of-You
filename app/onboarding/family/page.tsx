@@ -3,13 +3,13 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react";
 import { storageKeys } from "@/lib/storage-keys";
 
 const FAMILY_HOME = "/app?role=family";
 const content = [
-  { label: "부모님께 부담 없이", message: <>부모님께<br />매일 긴 글을<br />부탁하지 않습니다.</>, note: "기분 하나만 선택하면 됩니다" },
-  { label: "자동으로 함께 확인", message: <>기분과 함께<br />생활의 변화를<br />분석합니다.</>, note: "동의받은 정보만 확인합니다" },
+  { label: "부모님께 부담 없이", message: <>부모님께<br />매일 긴 글을<br />부탁하지 않습니다.</>, note: "기분 선택 하나로 충분해요" },
+  { label: "자동으로 함께 확인", message: <>기분과 함께<br />생활의 변화를<br />분석합니다.</>, note: "동의받은 정보 안에서만 살펴봐요" },
   { label: "필요할 때만 알려드려요", message: <>평소와 다른 변화가<br />계속 이어질 때만<br />가족에게 알려드립니다.</>, note: "매일 알림을 보내지 않습니다" },
   { label: "연락할 때를 참고하세요", message: <>매일 확인하지 않아도<br />중요한 변화는 놓치지 않도록<br />도와드립니다.</>, note: "의료 진단이나 응급 신고 서비스는 아닙니다" },
 ] as const;
@@ -47,7 +47,7 @@ export default function FamilyOnboardingPage() {
           {step === 2 ? <p className="mt-4 text-lg font-bold leading-7 text-[#52635C]">통화 내용, 문자 내용, 사진은 확인하지 않습니다.</p> : null}
         </div>
         <div className="shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <p className="mb-3 flex items-center justify-center gap-2 text-lg font-black text-[#46644F]"><Check size={21} strokeWidth={3} />{current.note}</p>
+          <p className="mb-3 text-center text-base font-extrabold leading-6 text-[#5F6D65]"><span className="inline-flex rounded-full bg-white px-4 py-2 shadow-sm">{current.note}</span></p>
           <button type="button" onClick={step < 4 ? () => setStep(step + 1) : finish} className="flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#2F6B46] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(47,107,70,0.22)]">{step < 4 ? "알겠습니다" : "부모님 연결하기"}<ArrowRight size={24} /></button>
           {step > 1 ? <button type="button" onClick={() => setStep(step - 1)} className="mx-auto mt-1 flex min-h-11 items-center gap-1 px-3 text-sm font-bold text-[#7B8580]"><ArrowLeft size={17} />이전</button> : <div className="h-12" />}
         </div>

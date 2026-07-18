@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check, Clock3, Home, Link as LinkIcon, ShieldCheck, UserPlus } from "lucide-react";
+import { ArrowRight, Clock3, HeartHandshake, Home, Link as LinkIcon, ShieldCheck, UserPlus } from "lucide-react";
 import { AnsimiStory } from "@/components/ansimi-story";
 import { MarketingHeader, MobileStartCta } from "@/components/marketing-navigation";
 
@@ -39,7 +39,7 @@ export default function GuidePage() {
         </div>
 
         <div className="mt-10 rounded-[24px] bg-[#EEF5E9] p-6 sm:p-8">
-          <div className="flex items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#52725B]"><Check size={24} aria-hidden /></span><div><h2 className="text-2xl font-black">부모님도 쉽게 사용할 수 있어요.</h2><p className="mt-3 font-semibold leading-8 text-[#52635C]">큰 글씨와 큰 버튼으로 구성되어 있고, 몇 번만 선택하면 오늘의 안부가 가족에게 전해집니다.</p></div></div>
+          <div className="flex items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#52725B]"><HeartHandshake size={24} aria-hidden /></span><div><h2 className="text-2xl font-black">부모님도 쉽게 사용할 수 있어요.</h2><p className="mt-3 font-semibold leading-8 text-[#52635C]">큰 글씨와 큰 버튼으로 구성되어 있고, 기분 선택 하나만으로 오늘의 안부가 가족에게 전해집니다.</p></div></div>
         </div>
 
         <div className="mt-10 text-center">

@@ -247,8 +247,9 @@ function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: string; 
   return (
     <section className="px-5 pb-36 pt-7">
       <div className="mx-auto max-w-[560px] rounded-[30px] bg-white p-7 shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
-        <p className="text-xl font-black text-[#477052]">오늘은 기분 하나만 알려주세요.</p>
+        <p className="text-xl font-black text-[#477052]">오늘 기분</p>
         <h1 className="mt-3 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘 하루는 어떠셨어요?</h1>
+        <p className="mt-3 text-lg font-bold leading-7 text-[#69736D]">가장 가까운 기분 하나만 골라주세요.</p>
         <div className="mt-8 grid gap-4">
           {moods.map((mood) => (
             <button key={mood.label} type="button" onClick={() => onSelect(mood.label)} className={`flex min-h-[82px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.45rem] font-black transition ${selectedMood === mood.label ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
