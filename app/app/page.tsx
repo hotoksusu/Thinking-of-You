@@ -11,10 +11,10 @@ type AppPageProps = {
 export default async function AppPage({ searchParams }: AppPageProps) {
   const params = await searchParams;
   const role = params?.role === "parent" || params?.role === "family" ? params.role : undefined;
-  const parentView = params?.view === "record" || params?.view === "photos" || params?.view === "farm" || params?.view === "profile"
+  const parentView = params?.view === "record" || params?.view === "photos" || params?.view === "farm" || params?.view === "profile" || params?.view === "guide"
     ? params.view
     : "home";
-  const familyView = params?.view === "reassurance" || params?.view === "changes" || params?.view === "profile"
+  const familyView = params?.view === "reassurance" || params?.view === "changes" || params?.view === "compose" || params?.view === "farm" || params?.view === "profile" || params?.view === "guide"
     ? params.view
     : "home";
 
