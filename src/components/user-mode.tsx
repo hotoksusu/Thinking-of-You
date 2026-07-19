@@ -273,6 +273,7 @@ function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: string; 
 function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrace[]; initialView: FamilyView; onAddMoment: (moment: FamilyTrace) => void }) {
   const farm = getFarmGrowth(todaySignals, moments);
   const [isWriting, setIsWriting] = useState(initialView === "compose");
+  const [familyActionDone, setFamilyActionDone] = useState(false);
 
   if (initialView === "reassurance") {
     return (
@@ -380,26 +381,26 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
         <div className="mx-auto max-w-[620px]">
           <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
           <section className="mt-3 rounded-[30px] bg-[#1F6F7A] p-6 text-white shadow-[0_24px_65px_rgba(31,111,122,0.22)]">
-            <p className="flex items-center gap-2 text-sm font-black text-[#D8EEF0]"><span className="size-2 rounded-full bg-[#95DDE5]" />오늘의 상태</p>
-            <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘은 평소와 비슷합니다.</h1>
-            <p className="mt-3 text-lg font-bold leading-8 text-white/80">최근 일주일 동안<br />큰 변화가 없습니다.</p>
-            <div className="mt-6 border-t border-white/20 pt-5"><p className="text-sm font-bold text-white/65">참고 점수</p><p className="mt-1 font-black">{todayReport.score}점 · 체험용</p></div>
+            <p className="flex items-center gap-2 text-sm font-black text-[#D8EEF0]"><span className="size-2 rounded-full bg-[#FFD08A]" />확인이 필요한 변화</p>
+            <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘 활동이<br />평소보다 적습니다.</h1>
+            <p className="mt-3 text-lg font-bold leading-8 text-white/80">이틀 연속 활동 시작이<br />평소보다 늦었습니다.</p>
           </section>
 
           <section className="mt-5 rounded-[24px] border-2 border-[#CFE1E4] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.06)]">
             <div className="flex items-start gap-4">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF6F7] text-[#1F6F7A]"><Check /></span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-[#35737B]">지금 할 일</p>
-                <h2 className="mt-1 text-xl font-black leading-7">지금 확인할 일은 없습니다.</h2>
-                <p className="mt-2 font-bold text-[#657069]">평소처럼 연락해주세요.</p>
+                <p className="text-sm font-black text-[#35737B]">권장 행동</p>
+                <h2 className="mt-1 text-xl font-black leading-7">오늘 안부 전화를 권합니다.</h2>
+                <p className="mt-2 font-bold text-[#657069]">변화가 이틀째 이어지고 있어요.</p>
               </div>
             </div>
+            {familyActionDone ? <p className="mt-5 rounded-2xl bg-[#E8F5EF] p-4 text-center font-black text-[#2F6B46]">확인 완료 · 오늘 안부를 확인했습니다.</p> : <div className="mt-5 grid grid-cols-2 gap-3"><a href="tel:01000000000" className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#1F6F7A] px-4 font-black text-white"><Phone size={20} /> 전화하기</a><button type="button" onClick={() => setFamilyActionDone(true)} className="min-h-14 rounded-2xl border-2 border-[#1F6F7A] px-4 font-black text-[#1F6F7A]">확인 완료</button></div>}
           </section>
 
           <section className="mt-5 rounded-[24px] bg-[#FFF8ED] p-6">
             <p className="text-sm font-black text-[#B95327]">부모님의 오늘 기록</p>
-            <h2 className="mt-2 text-xl font-black">오늘 기분은 “좋아요”입니다.</h2>
+            <h2 className="mt-2 text-xl font-black">오늘 기분 기록이 아직 없습니다.</h2>
             <p className="mt-2 font-bold text-[#6F665E]">어머니가 18일째 안부를 남겼습니다.</p>
           </section>
 
@@ -408,7 +409,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
             <Link href="/app?role=family&view=compose" className="flex min-h-20 items-center justify-center rounded-[20px] border border-[#E8D8C5] bg-white px-4 text-center font-black text-[#B95327]">응원 보내기</Link>
           </div>
 
-          <p className="mt-7 text-center text-sm font-bold leading-6 text-[#7A847D]">기기 연결 전 체험 화면입니다.<br />실제 연동 후 생활 데이터가 표시됩니다.</p>
+          <p className="mt-7 text-center text-sm font-bold leading-6 text-[#7A847D]">기기 연결 전 체험 화면입니다.<br />실제 연동 후 생활 데이터가 표시됩니다.<br />오늘안부는 의료 진단 서비스가 아닙니다.</p>
         </div>
       </section>
     </AppFrame>

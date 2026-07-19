@@ -1,44 +1,14 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, Check, Clock3, Footprints, Phone, ShieldCheck } from "lucide-react";
-import { todayReport } from "@/lib/life-pattern";
+import { ArrowLeft, CalendarDays, Check, Clock3, Footprints, HeartHandshake, Smile } from "lucide-react";
 
-export default function FamilyReportPage() {
-  return (
-    <main className="min-h-screen bg-[#F5F8F4] px-5 py-6 text-[#17221B]">
-      <div className="mx-auto max-w-[760px]">
-        <Link href="/app?role=family" className="inline-flex min-h-11 items-center gap-2 font-black text-[#496152]"><ArrowLeft size={19} />엄마의 오늘</Link>
-        <header className="mt-8">
-          <p className="text-sm font-black text-[#4D7858]">최근 생활 변화</p>
-          <h1 className="mt-2 text-4xl font-black leading-tight">달라진 점만<br />차분하게 알려드려요.</h1>
-          <p className="mt-4 font-semibold leading-7 text-[#6C766E]">며칠 동안 이어진 변화만 살펴봤어요.</p>
-          <p className="mt-2 text-xs font-bold text-[#8A938C]">AI가 최근 변화를 분석했어요.</p>
-        </header>
+const weeks = [62, 70, 66, 74, 71, 68, 72, 69, 61, 58, 55, 57];
 
-        <section className="mt-8 rounded-[30px] bg-[#2F6B46] p-6 text-white">
-          <div className="flex items-start justify-between"><div><p className="text-sm font-black text-[#C7E4CC]">최근 4주도 편안해요</p><p className="mt-3 text-5xl font-black">{todayReport.score}<small className="ml-1 text-base">점</small></p></div><span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-black">평소와 비슷</span></div>
-          <div className="mt-7 flex h-24 items-end gap-3">{[76, 82, 78, 86, 89, 90, 92].map((value) => <div key={value} className="flex-1 rounded-t-xl bg-[#A8D4AF]" style={{ height: `${value}%` }} />)}</div>
-          <p className="mt-5 font-bold leading-7 text-white/80">평소처럼 하루를 보내고, 소중한 사람과 연락했어요.</p>
-        </section>
+export default function FamilyReportPage(){return <main className="min-h-screen bg-[#F5F8F4] px-5 py-6 text-[#17221B]"><div className="mx-auto max-w-[820px]">
+  <Link href="/app?role=family" className="inline-flex min-h-11 items-center gap-2 font-black text-[#496152]"><ArrowLeft size={19}/>엄마의 오늘</Link>
+  <header className="mt-8"><span className="rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span><p className="mt-6 text-sm font-black text-[#4D7858]">최근 12주 생활 리포트</p><h1 className="mt-2 text-4xl font-black leading-tight">하루보다 긴 흐름을<br/>확인하세요.</h1><p className="mt-4 font-bold leading-7 text-[#6C766E]">생활 리듬과 가족 확인이 어떻게 이어졌는지 보여드립니다.</p></header>
+  <section className="mt-8 rounded-[30px] bg-[#173F46] p-6 text-white sm:p-8"><div className="flex items-center justify-between gap-3"><div><p className="text-sm font-black text-[#9FD6D9]">활동 변화 추이</p><h2 className="mt-2 text-2xl font-black">최근 3주 활동이 조금 줄었습니다.</h2></div><CalendarDays className="shrink-0 text-[#9FD6D9]"/></div><div className="mt-8 flex h-36 items-end gap-2">{weeks.map((v,i)=><div key={i} className={`flex-1 rounded-t-lg ${i>8?"bg-[#FFD08A]":"bg-[#9FD6D9]"}`} style={{height:`${v}%`}}/>)}</div><p className="mt-5 font-bold text-white/75">단기 수치가 아닌 이어지는 변화만 표시합니다.</p></section>
+  <div className="mt-5 grid gap-4 sm:grid-cols-2"><ReportCard icon={<Footprints/>} title="생활 리듬" value="최근 3주 감소" detail="오전 활동 시작이 평균 42분 늦어졌습니다."/><ReportCard icon={<Smile/>} title="기분 변화" value="대체로 안정" detail="최근 4주 ‘좋아요’ 기록이 가장 많았습니다."/><ReportCard icon={<HeartHandshake/>} title="가족 확인" value="이번 달 8회" detail="변화 알림 후 평균 24분 안에 확인했습니다."/><ReportCard icon={<Clock3/>} title="변화 발생" value="이번 달 2회" detail="두 건 모두 가족이 확인 완료했습니다."/></div>
+  <section className="mt-5 rounded-[24px] border border-[#E0E6DF] bg-white p-6"><h2 className="text-xl font-black">리포트 원칙</h2><div className="mt-4 grid gap-3 font-bold text-[#657069]"><p className="flex gap-2"><Check className="text-[#2F6B46]"/>데이터가 없으면 결과를 만들지 않습니다.</p><p className="flex gap-2"><Check className="text-[#2F6B46]"/>변화의 이유를 함께 제공합니다.</p><p className="flex gap-2"><Check className="text-[#2F6B46]"/>의료 진단으로 표현하지 않습니다.</p></div></section>
+</div></main>}
 
-        <section className="mt-5 rounded-[28px] bg-white p-6">
-          <h2 className="text-xl font-black">최근 생활에 이런 모습이 있었어요</h2>
-          <div className="mt-5 divide-y divide-[#EDF1ED]">
-            <ReportRow icon={<Footprints />} title="꾸준히 몸을 움직였어요" value="평소만큼" detail="자세히 보기에서 걸음수를 확인해요" />
-            <ReportRow icon={<Clock3 />} title="평소처럼 하루를 시작했어요" value="편안해요" detail="시작하고 쉬는 시간이 비슷해요" />
-            <ReportRow icon={<Phone />} title="소중한 사람과 연락했어요" value="잘 지냈어요" detail="통화 내용은 보지 않아요" />
-          </div>
-        </section>
-
-        <section className="mt-5 rounded-[28px] border border-[#E3E9E3] bg-white p-6">
-          <p className="flex items-center gap-2 text-sm font-black text-[#4B7556]"><ShieldCheck size={18} />가족에게 드리는 안내</p>
-          <h2 className="mt-3 text-xl font-black">오늘은 마음 놓으셔도 괜찮아요.</h2>
-          <p className="mt-3 font-semibold leading-7 text-[#6C766E]">달라진 모습이 며칠 이어질 때만 알려드릴게요.</p>
-        </section>
-      </div>
-    </main>
-  );
-}
-
-function ReportRow({ icon, title, value, detail }: { icon: React.ReactNode; title: string; value: string; detail: string }) {
-  return <div className="flex items-center justify-between gap-4 py-5"><span className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-2xl bg-[#EFF5EF] text-[#3D6F4B]">{icon}</span><span><strong className="block">{title}</strong><small className="mt-1 block font-semibold text-[#818A83]">{detail}</small></span></span><strong className="whitespace-nowrap text-[#3D6F4B]">{value}</strong></div>;
-}
+function ReportCard({icon,title,value,detail}:{icon:React.ReactNode;title:string;value:string;detail:string}){return <article className="rounded-[24px] bg-white p-6 shadow-sm"><span className="flex size-12 items-center justify-center rounded-2xl bg-[#EAF3E5] text-[#2F6B46]">{icon}</span><p className="mt-5 text-sm font-black text-[#657069]">{title}</p><h2 className="mt-1 text-xl font-black">{value}</h2><p className="mt-3 font-bold leading-7 text-[#6C766E]">{detail}</p></article>}
