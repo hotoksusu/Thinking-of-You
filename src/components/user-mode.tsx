@@ -297,13 +297,15 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
         <FamilySectionHeader title="생활 변화" />
         <section className="px-5 pb-32 pt-6">
           <div className="mx-auto max-w-[620px]">
-            <p className="text-lg font-bold leading-8 text-[#657069]">최근 달라진 흐름만 살펴볼 수 있어요.</p>
+            <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
+            <h1 className="mt-5 text-[2rem] font-black leading-tight">최근 일주일 동안<br />큰 변화가 없습니다.</h1>
+            <p className="mt-3 text-lg font-bold leading-8 text-[#657069]">결과의 근거를 함께 확인하세요.</p>
             <div className="mt-5 grid gap-4">
               <FamilyChangeCard icon={<Footprints />} title="생활 움직임" value="평소와 비슷해요" detail="최근 7일 동안 큰 변화가 없어요." />
               <FamilyChangeCard icon={<Clock3 />} title="하루 리듬" value="안정적으로 이어져요" detail="기상과 활동 시간이 평소 범위예요." />
               <FamilyChangeCard icon={<Phone />} title="가족 연락" value="꾸준히 이어졌어요" detail="이번 주에도 가족과 연락했어요." />
             </div>
-            <Link href="/family/report" className="mt-6 flex min-h-16 items-center justify-center gap-2 rounded-2xl border-2 border-[#1F6F7A] bg-white px-5 text-lg font-black text-[#1F6F7A]">생활 변화 자세히 보기 <ChevronRight size={22} /></Link>
+            <section className="mt-6 rounded-[22px] bg-[#F1F4EF] p-5 text-sm font-bold leading-6 text-[#606C65]">오늘안부는 의료 진단 서비스가 아닙니다.<br />생활 변화 확인을 돕는 참고 서비스입니다.</section>
           </div>
         </section>
       </AppFrame>
@@ -376,44 +378,37 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
       <FamilySectionHeader title="엄마의 오늘" />
       <section className="px-5 pb-32 pt-5">
         <div className="mx-auto max-w-[620px]">
-          <section className="rounded-[30px] bg-[#1F6F7A] p-6 text-white shadow-[0_24px_65px_rgba(31,111,122,0.22)]">
-            <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-black text-[#D8EEF0]"><span className="size-2 rounded-full bg-[#95DDE5]" />오늘의 안심</p><span className="text-xs font-bold text-white/65">오후 8:20 기준</span></div>
-            <h1 className="mt-6 text-[1.75rem] font-black leading-10">오늘도 평소와 비슷한 생활이에요.</h1>
-            <p className="mt-3 text-base font-bold leading-7 text-white/75">안심 점수 {todayReport.score}점</p>
-            <Link href="/app?role=family&view=reassurance" className="mt-6 flex min-h-14 items-center justify-between rounded-2xl bg-white px-5 text-base font-black text-[#1F6F7A]">오늘의 안심 자세히 보기 <ChevronRight size={22} /></Link>
+          <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
+          <section className="mt-3 rounded-[30px] bg-[#1F6F7A] p-6 text-white shadow-[0_24px_65px_rgba(31,111,122,0.22)]">
+            <p className="flex items-center gap-2 text-sm font-black text-[#D8EEF0]"><span className="size-2 rounded-full bg-[#95DDE5]" />오늘의 상태</p>
+            <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘은 평소와 비슷합니다.</h1>
+            <p className="mt-3 text-lg font-bold leading-8 text-white/80">최근 일주일 동안<br />큰 변화가 없습니다.</p>
+            <div className="mt-6 border-t border-white/20 pt-5"><p className="text-sm font-bold text-white/65">참고 점수</p><p className="mt-1 font-black">{todayReport.score}점 · 체험용</p></div>
           </section>
 
-          <section className="mt-5 rounded-[24px] border border-[#CFE1E4] bg-white p-5 shadow-[0_12px_34px_rgba(49,78,58,0.06)]">
+          <section className="mt-5 rounded-[24px] border-2 border-[#CFE1E4] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.06)]">
             <div className="flex items-start gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF6F7] text-[#1F6F7A]"><TrendingUp /></span>
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF6F7] text-[#1F6F7A]"><Check /></span>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-[#35737B]">생활 변화</p>
-                <h2 className="mt-1 text-xl font-black leading-7">최근 생활에 큰 변화는 없어요.</h2>
+                <p className="text-sm font-black text-[#35737B]">지금 할 일</p>
+                <h2 className="mt-1 text-xl font-black leading-7">지금 확인할 일은 없습니다.</h2>
+                <p className="mt-2 font-bold text-[#657069]">평소처럼 연락해주세요.</p>
               </div>
             </div>
-            <Link href="/app?role=family&view=changes" className="mt-5 flex min-h-12 items-center justify-center rounded-2xl border-2 border-[#1F6F7A] px-5 font-black text-[#1F6F7A]">생활 변화 자세히 보기</Link>
           </section>
 
-          <FamilyNewsIntro onStart={() => setIsWriting(true)} />
-          {isWriting ? <section className="mt-5 rounded-[28px] bg-[#FFF8ED] p-5"><MomentComposer onCancel={() => setIsWriting(false)} onSave={(moment) => { onAddMoment(moment); setIsWriting(false); }} /></section> : null}
+          <section className="mt-5 rounded-[24px] bg-[#FFF8ED] p-6">
+            <p className="text-sm font-black text-[#B95327]">부모님의 오늘 기록</p>
+            <h2 className="mt-2 text-xl font-black">오늘 기분은 “좋아요”입니다.</h2>
+            <p className="mt-2 font-bold text-[#6F665E]">어머니가 18일째 안부를 남겼습니다.</p>
+          </section>
 
-          <Link href="/app?role=family&view=farm" className="mt-5 flex items-center gap-4 rounded-[24px] bg-[#FFF8ED] p-5">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl">🌱</span>
-            <span className="min-w-0 flex-1"><strong className="block text-lg">토마토가 {farm.percent}% 자랐어요.</strong><small className="mt-1 block font-bold text-[#786B5E]">수확까지 47일 남았어요.</small></span>
-            <ChevronRight className="shrink-0 text-[#B95327]" />
-          </Link>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <Link href="/app?role=family&view=changes" className="flex min-h-20 items-center justify-center rounded-[20px] border border-[#CFE1E4] bg-white px-4 text-center font-black text-[#1F6F7A]">변화 근거 보기</Link>
+            <Link href="/app?role=family&view=compose" className="flex min-h-20 items-center justify-center rounded-[20px] border border-[#E8D8C5] bg-white px-4 text-center font-black text-[#B95327]">응원 보내기</Link>
+          </div>
 
-          <ServiceShortcutSection
-            title="가족이 할 수 있는 일"
-            items={[
-              { href: "/app?role=family&view=reassurance", icon: <ShieldCheck />, title: "오늘의 안심", description: "현재 생활이 평소와 비슷한지 확인해요." },
-              { href: "/app?role=family&view=changes", icon: <TrendingUp />, title: "생활 변화", description: "최근 달라진 흐름만 살펴봐요." },
-              { href: "/app?role=family&view=compose", icon: <ImagePlus />, title: "가족 소식", description: "사진 한 장이나 한 줄을 남겨요." },
-              { href: "/app?role=family&view=farm", icon: <Sprout />, title: "안부농장", description: "작물 성장과 수확 시기를 확인해요." },
-            ]}
-            tone="family"
-          />
-          <GuideLink href="/app?role=family&view=guide" tone="family" />
+          <p className="mt-7 text-center text-sm font-bold leading-6 text-[#7A847D]">기기 연결 전 체험 화면입니다.<br />실제 연동 후 생활 데이터가 표시됩니다.</p>
         </div>
       </section>
     </AppFrame>

@@ -1,302 +1,66 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { storageKeys } from "@/lib/storage-keys";
-
-const TOTAL_STEPS = 4;
-const FIRST_RECORD_URL = "/app?role=parent&view=record";
-
-type EntryNotice = {
-  id: string;
-  emoji: string;
-  eyebrow: string;
-  message: string;
-  storageKey: "milestone" | "event";
-};
+import { ArrowRight, Building2, Check, Footprints, HeartHandshake, MessageCircle, ShieldCheck, Smile, TrendingUp } from "lucide-react";
 
 const steps = [
-  {
-    label: "기분 하나만 알려주세요",
-    reassurance: "긴 글은 쓰지 않으셔도 돼요",
-    action: "다음",
-  },
-  {
-    label: "나머지는 자동으로 확인해요",
-    reassurance: "허락한 것만 살펴봐요",
-    action: "다음",
-  },
-  {
-    label: "이어지는 변화만 확인해요",
-    reassurance: "전화나 문자의 내용은 보지 않아요",
-    action: "다음",
-  },
-  {
-    label: "평소처럼 생활하세요",
-    reassurance: "평소처럼 지내시면 됩니다",
-    action: "시작하기",
-  },
-] as const;
+  { icon: <Smile />, number: "01", title: "기분을 선택해요", body: "부모님은 오늘 기분만 남깁니다." },
+  { icon: <Footprints />, number: "02", title: "생활 흐름을 확인해요", body: "걷기와 생활 리듬의 변화를 살핍니다." },
+  { icon: <HeartHandshake />, number: "03", title: "가족에게 알려드려요", body: "달라진 날과 필요한 행동을 전합니다." },
+];
 
-export default function ParentOnboardingPage() {
-  const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [isReady, setIsReady] = useState(false);
-  const [entryNotice, setEntryNotice] = useState<EntryNotice | null>(null);
-
-  useEffect(() => {
-    const updateViewportHeight = () => {
-      const height = window.visualViewport?.height ?? window.innerHeight;
-      document.documentElement.style.setProperty("--onboarding-vh", `${height}px`);
-    };
-
-    updateViewportHeight();
-    window.addEventListener("resize", updateViewportHeight);
-    window.visualViewport?.addEventListener("resize", updateViewportHeight);
-    return () => {
-      window.removeEventListener("resize", updateViewportHeight);
-      window.visualViewport?.removeEventListener("resize", updateViewportHeight);
-    };
-  }, []);
-
-  useEffect(() => {
-    const replay = new URLSearchParams(window.location.search).get("replay") === "1";
-    const completed = window.localStorage.getItem(storageKeys.onboardingCompleted) === "true";
-
-    if (replay || !completed) {
-      setIsReady(true);
-      return;
-    }
-
-    const notice = getOneTimeEntryNotice();
-    if (notice) {
-      setEntryNotice(notice);
-      setIsReady(true);
-      return;
-    }
-
-    router.replace(FIRST_RECORD_URL);
-  }, [router]);
-
-  function completeOnboarding() {
-    window.localStorage.setItem(storageKeys.onboardingCompleted, "true");
-    router.push(FIRST_RECORD_URL);
-  }
-
-  function skipOnboarding() {
-    window.localStorage.setItem(storageKeys.onboardingCompleted, "true");
-    router.push(FIRST_RECORD_URL);
-  }
-
-  function closeEntryNotice() {
-    if (entryNotice) markEntryNoticeSeen(entryNotice);
-    router.replace(FIRST_RECORD_URL);
-  }
-
-  if (!isReady) {
-    return <main className="onboarding-page bg-[#FFF9F0]" aria-label="오늘 기록 화면을 준비하고 있습니다" />;
-  }
-
-  if (entryNotice) {
-    return <OneTimeNotice notice={entryNotice} onContinue={closeEntryNotice} />;
-  }
-
-  const current = steps[step - 1];
-
+export default function LandingPage() {
   return (
-    <main className="onboarding-page bg-[#FFF9F0] text-[#17251F]">
-      <header className="flex min-h-14 shrink-0 items-center justify-center border-b border-[#E4E8E0] px-4 sm:min-h-16">
-        <Link href="/" className="flex min-h-11 items-center gap-2 text-xl font-black text-[#48634F]" aria-label="오늘안부 첫 화면">
-          <Image src="/brand/brand-icon.png" alt="" width={34} height={34} className="rounded-xl" priority />
-          오늘안부
-        </Link>
+    <main className="min-h-screen bg-[#FFF9F0] text-[#17251F]">
+      <header className="border-b border-[#E7E9E3] bg-[#FFF9F0]/95 px-5 py-4 backdrop-blur">
+        <div className="mx-auto flex max-w-[1120px] items-center justify-between gap-4">
+          <Link href="/" className="flex items-center gap-2 text-xl font-black"><Image src="/brand/brand-icon.png" alt="" width={38} height={38} className="rounded-xl" />오늘안부</Link>
+          <Link href="/plans" className="min-h-11 rounded-full px-4 py-3 text-sm font-black text-[#52635C]">요금 안내</Link>
+        </div>
       </header>
 
-      <section className="onboarding-content mx-auto flex w-full max-w-[560px] flex-col px-5 pt-3 sm:px-8 sm:pt-5">
-        <div className="flex min-h-12 shrink-0 items-center justify-between gap-3">
+      <section className="px-5 py-16 sm:py-24">
+        <div className="mx-auto grid max-w-[1120px] items-center gap-12 lg:grid-cols-[1.05fr_.95fr]">
           <div>
-            <p className="inline-flex rounded-full bg-[#FFF0E5] px-3 py-1.5 text-sm font-black tracking-[0.06em] text-[#E9652B]">안내 {step}/{TOTAL_STEPS}</p>
-            <p className="mt-2 text-base font-bold text-[#52635C] sm:text-lg">{current.label}</p>
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#E9F3E8] px-4 py-2 text-sm font-black text-[#2F6B46]"><ShieldCheck size={18} /> 생활 패턴 변화 감지 서비스</span>
+            <h1 className="mt-7 text-[2.7rem] font-black leading-[1.12] tracking-[-0.04em] sm:text-6xl">멀리 있어도,<br />부모님의 생활 변화를<br /><span className="text-[#2F6B46]">알 수 있습니다.</span></h1>
+            <p className="mt-7 text-xl font-bold leading-9 text-[#52635C]">부모님은 기분만 남깁니다.<br />오늘안부는 생활 변화를 확인해<br className="sm:hidden" /> 가족에게 알려드립니다.</p>
+            <div className="mt-9 grid gap-3 sm:flex">
+              <Link href="/app?role=family" className="flex min-h-16 items-center justify-center gap-2 rounded-[20px] bg-[#1F6F7A] px-7 text-lg font-black text-white shadow-[0_16px_34px_rgba(31,111,122,.2)]">가족으로 시작하기 <ArrowRight size={21} /></Link>
+              <Link href="/app?role=parent" className="flex min-h-16 items-center justify-center rounded-[20px] border-2 border-[#2F6B46] bg-white px-7 text-lg font-black text-[#2F6B46]">부모님 화면 체험하기</Link>
+            </div>
+            <p className="mt-4 text-sm font-bold text-[#7C857F]">현재 화면은 체험용 데이터로 제공됩니다.</p>
           </div>
-          {step < TOTAL_STEPS ? (
-            <button type="button" onClick={skipOnboarding} className="min-h-11 shrink-0 px-1 py-3 text-sm font-bold text-[#8A938E] underline decoration-[#C7CCC8] underline-offset-4">
-              건너뛰기
-            </button>
-          ) : <span className="w-14" aria-hidden />}
-        </div>
-
-        <div key={step} className="completion-slide flex min-h-0 flex-1 flex-col justify-center py-3 sm:py-5">
-          {step === 1 ? <StepOne /> : null}
-          {step === 2 ? <StepTwo /> : null}
-          {step === 3 ? <StepThree /> : null}
-          {step === 4 ? <StepFour /> : null}
-        </div>
-
-        <div className="shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          <p className="mb-3 text-center text-lg font-black leading-7 text-[#46644F]">
-            {current.reassurance}
-          </p>
-
-          {step < TOTAL_STEPS ? (
-            <button
-              type="button"
-              onClick={() => setStep((value) => Math.min(TOTAL_STEPS, value + 1))}
-              className="flex min-h-[68px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#E9652B] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.24)] focus:outline-none focus:ring-4 focus:ring-[#F5A36D]/40"
-            >
-              {current.action} <ArrowRight size={24} strokeWidth={2.8} aria-hidden />
-            </button>
-          ) : (
-            <button type="button" onClick={completeOnboarding} className="flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#E9652B] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.24)] focus:outline-none focus:ring-4 focus:ring-[#F5A36D]/40">
-              {current.action} <ArrowRight size={25} strokeWidth={2.8} aria-hidden />
-            </button>
-          )}
-
-          {step > 1 ? (
-            <button type="button" onClick={() => setStep((value) => Math.max(1, value - 1))} className="mx-auto mt-1 flex min-h-11 items-center gap-1 px-3 text-sm font-bold text-[#7B8580]">
-              <ArrowLeft size={17} aria-hidden /> 이전
-            </button>
-          ) : <div className="h-12" aria-hidden />}
+          <div className="rounded-[36px] bg-[#EAF3E5] p-6 shadow-[0_24px_70px_rgba(49,78,58,.12)] sm:p-9">
+            <Image src="/illustrations/todayanbu-hero.png" alt="부모님과 가족을 연결하는 오늘안부" width={760} height={680} className="h-auto w-full rounded-[28px]" priority />
+          </div>
         </div>
       </section>
-    </main>
-  );
-}
 
-function OneTimeNotice({ notice, onContinue }: { notice: EntryNotice; onContinue: () => void }) {
-  return (
-    <main className="onboarding-page bg-[#FFF9F0] px-5 text-[#17251F]">
-      <section className="mx-auto flex min-h-0 w-full max-w-[520px] flex-1 flex-col justify-center py-6 text-center">
-        <span className="mx-auto flex size-24 items-center justify-center rounded-[32px] bg-white text-5xl shadow-[0_16px_44px_rgba(49,78,58,0.10)]" aria-hidden>{notice.emoji}</span>
-        <p className="mt-7 text-xl font-black text-[#52725B]">{notice.eyebrow}</p>
-        <h1 className="mt-3 whitespace-pre-line text-[clamp(2.1rem,9vw,3rem)] font-black leading-[1.2] tracking-[-0.02em]">{notice.message}</h1>
-      </section>
-      <div className="mx-auto w-full max-w-[520px] shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <button type="button" onClick={onContinue} className="flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#E9652B] px-6 text-[1.3rem] font-black text-white shadow-[0_12px_28px_rgba(233,101,43,0.24)]">
-          오늘 기록하기 <ArrowRight size={25} aria-hidden />
-        </button>
-      </div>
-    </main>
-  );
-}
-
-function readStringArray(key: string) {
-  try {
-    const value = JSON.parse(window.localStorage.getItem(key) ?? "[]");
-    return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
-  } catch {
-    return [];
-  }
-}
-
-function getOneTimeEntryNotice(): EntryNotice | null {
-  try {
-    const event = JSON.parse(window.localStorage.getItem(storageKeys.pendingEntryEvent) ?? "null") as Partial<EntryNotice> | null;
-    const seenEvents = readStringArray(storageKeys.seenEntryEvents);
-    if (event?.id && event.message && !seenEvents.includes(event.id)) {
-      return {
-        id: event.id,
-        emoji: event.emoji ?? "🎉",
-        eyebrow: event.eyebrow ?? "오늘의 특별한 소식",
-        message: event.message,
-        storageKey: "event",
-      };
-    }
-  } catch {
-    // 잘못 저장된 이벤트는 건너뛰고 오늘 기록으로 이동합니다.
-  }
-
-  const streak = Number(window.localStorage.getItem(storageKeys.recordStreak) ?? 0);
-  const milestone = [90, 30, 7].find((day) => streak >= day);
-  const seenMilestones = readStringArray(storageKeys.seenMilestones);
-  if (milestone && !seenMilestones.includes(String(milestone))) {
-    return {
-      id: String(milestone),
-      emoji: "👏",
-      eyebrow: "오늘도 감사합니다.",
-      message: `벌써 ${milestone}일째\n기록하고 있어요.`,
-      storageKey: "milestone",
-    };
-  }
-
-  return null;
-}
-
-function markEntryNoticeSeen(notice: EntryNotice) {
-  const key = notice.storageKey === "event" ? storageKeys.seenEntryEvents : storageKeys.seenMilestones;
-  const seen = readStringArray(key);
-  if (!seen.includes(notice.id)) {
-    window.localStorage.setItem(key, JSON.stringify([...seen, notice.id]));
-  }
-}
-
-function StepOne() {
-  const moods = [
-    { emoji: "😀", label: "좋음" },
-    { emoji: "🙂", label: "보통" },
-    { emoji: "😐", label: "피곤함" },
-  ];
-
-  return (
-    <div className="text-center">
-      <h1 className="mx-auto max-w-[470px] text-[clamp(2rem,9vw,3rem)] font-black leading-[1.2] tracking-[-0.02em] text-[#17251F]">
-        오늘 기분만<br />가볍게 고르세요.
-      </h1>
-      <div className="mx-auto mt-7 grid max-w-[460px] grid-cols-3 gap-2.5 rounded-[26px] bg-white p-4 shadow-[0_16px_44px_rgba(49,78,58,0.09)]">
-        {moods.map((mood) => <div key={mood.label} className="flex min-h-[92px] flex-col items-center justify-center rounded-[18px] bg-[#F4F7F2] text-lg font-black text-[#27342C]"><span className="text-3xl" aria-hidden>{mood.emoji}</span><span className="mt-2">{mood.label}</span></div>)}
-      </div>
-    </div>
-  );
-}
-
-function StepTwo() {
-  const signals = [
-    { emoji: "👟", label: "걸음 수" },
-    { emoji: "📱", label: "휴대폰 사용량" },
-    { emoji: "☀️", label: "생활 패턴" },
-  ];
-
-  return (
-    <div className="text-center">
-      <h1 className="text-[clamp(2rem,9vw,3rem)] font-black leading-[1.18] tracking-[-0.02em]">
-        나머지는<br />자동으로 확인합니다.
-      </h1>
-      <div className="mx-auto mt-6 grid max-w-[460px] gap-2.5 rounded-[28px] bg-white p-4 shadow-[0_18px_50px_rgba(49,78,58,0.10)] sm:p-5">
-        {signals.map((signal) => (
-          <div key={signal.label} className="flex min-h-[64px] items-center gap-4 rounded-[18px] border border-[#DCE5DA] bg-[#F3F7F1] px-5 text-left text-xl font-black">
-            <span className="text-[1.8rem]" aria-hidden>{signal.emoji}</span>
-            {signal.label}
+      <section className="bg-white px-5 py-16 sm:py-24">
+        <div className="mx-auto max-w-[1040px]">
+          <p className="text-center text-sm font-black text-[#D95423]">이렇게 작동합니다</p>
+          <h2 className="mt-3 text-center text-3xl font-black sm:text-5xl">부모님께는 가볍게,<br />가족에게는 분명하게.</h2>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {steps.map((step) => <article key={step.number} className="rounded-[28px] border border-[#E3E9E1] bg-[#FAFCF9] p-7"><span className="flex size-14 items-center justify-center rounded-2xl bg-[#EAF3E5] text-[#2F6B46]">{step.icon}</span><p className="mt-6 text-sm font-black text-[#D95423]">{step.number}</p><h3 className="mt-2 text-2xl font-black">{step.title}</h3><p className="mt-3 text-lg font-bold leading-8 text-[#657069]">{step.body}</p></article>)}
           </div>
-        ))}
-      </div>
-      <p className="mx-auto mt-4 max-w-[440px] text-lg font-bold leading-7 text-[#5F6D65]">처음 한 번, 동의해주신 항목만 확인합니다.</p>
-      <details className="mx-auto mt-3 max-w-[440px] rounded-2xl bg-[#EEF4EE] p-4 text-left text-base font-bold leading-7 text-[#40534B]"><summary className="cursor-pointer font-black">어떻게 확인하나요?</summary><p className="mt-3">휴대폰이 제공하는 걸음 수와 하루 동안의 전체적인 사용 흐름만 확인합니다. 통화·문자·사진 내용은 가족에게 전달하지 않으며, 동의는 언제든 철회할 수 있습니다.</p></details>
-    </div>
-  );
-}
+        </div>
+      </section>
 
-function StepThree() {
-  return (
-    <div className="text-center">
-      <span className="mx-auto flex size-[96px] items-center justify-center rounded-full bg-[#EAF3E5] text-[3rem] shadow-[0_14px_36px_rgba(65,91,67,0.11)]" aria-hidden>🔒</span>
-      <h1 className="mt-7 text-[clamp(2rem,9vw,3rem)] font-black leading-[1.18] tracking-[-0.02em]">
-        평소와 다른 변화가<br />있는지만 살펴봅니다.
-      </h1>
-      <p className="mt-4 text-xl font-bold leading-8 text-[#52635C]">하루의 작은 차이만으로<br />가족에게 알리지 않습니다.</p>
-    </div>
-  );
-}
+      <section className="px-5 py-16 sm:py-24">
+        <div className="mx-auto grid max-w-[1040px] gap-6 rounded-[34px] bg-[#163F46] p-7 text-white sm:grid-cols-2 sm:p-12">
+          <div><p className="text-sm font-black text-[#9FD6D9]">가족이 얻는 가치</p><h2 className="mt-3 text-3xl font-black leading-tight">매일 확인하지 않아도,<br />달라진 날을 알려드립니다.</h2></div>
+          <div className="grid gap-4 text-lg font-bold"><p className="flex gap-3"><Check className="shrink-0 text-[#9FD6D9]" />오늘 평소와 다른지 확인</p><p className="flex gap-3"><Check className="shrink-0 text-[#9FD6D9]" />가족이 해야 할 행동 안내</p><p className="flex gap-3"><Check className="shrink-0 text-[#9FD6D9]" />주간 생활 변화 요약</p></div>
+        </div>
+      </section>
 
-function StepFour() {
-  return (
-    <div className="text-center">
-      <span className="mx-auto flex size-[96px] items-center justify-center rounded-full bg-[#FFF0E5] text-[3rem] shadow-[0_14px_36px_rgba(233,101,43,0.11)]" aria-hidden>😊</span>
-      <h1 className="mt-7 text-[clamp(2.2rem,10vw,3.2rem)] font-black leading-[1.18] tracking-[-0.02em]">
-        평소처럼<br />생활하세요.
-      </h1>
-      <p className="mt-4 text-xl font-bold leading-8 text-[#52635C]">오늘안부가 생활의 변화를<br />조용히 살펴봅니다.</p>
-    </div>
+      <section className="bg-[#F0F5EF] px-5 py-16">
+        <div className="mx-auto max-w-[1040px] rounded-[30px] bg-white p-7 sm:flex sm:items-center sm:justify-between sm:gap-10 sm:p-10">
+          <div><span className="flex size-12 items-center justify-center rounded-2xl bg-[#EAF3E5] text-[#2F6B46]"><Building2 /></span><h2 className="mt-5 text-2xl font-black">돌봄기관과 실증 파트너를 찾습니다.</h2><p className="mt-3 max-w-[620px] font-bold leading-7 text-[#657069]">독거 어르신의 생활 변화를 더 일찍 확인하고, 보호자와 담당자의 확인 행동을 연결합니다.</p></div>
+          <a href="mailto:osyoun@yna.co.kr?subject=오늘안부 실증 협력 문의" className="mt-7 flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-2xl bg-[#2F6B46] px-6 font-black text-white sm:mt-0">실증 협력 문의 <MessageCircle size={19} /></a>
+        </div>
+      </section>
+
+      <footer className="px-5 py-10 text-center text-sm font-bold text-[#6D766F]">오늘안부는 의료 진단 서비스가 아닙니다. 생활 변화 확인을 돕는 참고 서비스입니다.</footer>
+    </main>
   );
 }

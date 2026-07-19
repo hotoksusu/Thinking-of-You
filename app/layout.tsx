@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   applicationName: "오늘안부",
   title: "오늘안부",
-  description: "평소의 생활 흐름을 AI가 살펴 가족에게 따뜻한 안심 리포트로 전하는 서비스",
+  description: "부모님은 기분만 남기고, 오늘안부는 생활 변화를 확인해 가족에게 알려드립니다.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
