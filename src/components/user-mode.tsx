@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Bell,
   Check,
+  CheckCircle2,
   ChevronRight,
   Clock3,
   Footprints,
@@ -97,15 +98,20 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
 
   if (checkInStep === "done") {
     return (
-      <AppFrame role="parent" active={initialView === "home" ? "home" : initialView}>
-        <ParentSectionHeader title="오늘 기분" />
-        <section className="px-5 pb-28 pt-8">
-          <div className="mx-auto max-w-[560px] rounded-[30px] bg-[#FFF9F0] p-7 text-center shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
-            <img src="/brand/farm-mascot.png" alt="칭찬을 전하는 안심이" className="mx-auto size-36 rounded-[28px] object-cover" />
-            <p className="mt-7 text-[2rem] font-black leading-tight text-[#222222]">오늘도 잘하셨어요.</p>
-            <p className="mt-5 text-[1.25rem] font-bold leading-8 text-[#37433D]">기분 하나가 가족에게 따뜻한 안심으로 전해졌어요.</p>
-            <p className="mt-5 rounded-2xl bg-[#EAF3E5] p-4 text-xl font-black leading-8 text-[#315B3D]">토마토가 한 단계 자랐어요.</p>
-            <Link href="/app?role=parent" className="mt-8 flex min-h-[72px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-6 text-[1.4rem] font-black text-white">홈으로 돌아가기</Link>
+      <AppFrame role="parent" active={initialView === "home" ? "home" : initialView} hideNavigation>
+        <section className="flex min-h-screen items-center px-5 py-10">
+          <div className="mx-auto w-full max-w-[560px] rounded-[36px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(49,78,58,0.13)] sm:p-10">
+            <div className="mx-auto flex size-24 items-center justify-center rounded-full bg-[#EAF3E5] text-[#2F6B46]">
+              <Check size={52} strokeWidth={3} aria-hidden />
+            </div>
+            <p className="mt-7 text-[2.25rem] font-black leading-tight text-[#17221B]">오늘도 완료했어요!</p>
+            <p className="mt-3 text-[1.35rem] font-black text-[#D95423]">18일 연속 기록 중이에요.</p>
+            <div className="mt-7 grid gap-3 text-left">
+              <div className="flex items-center gap-4 rounded-[22px] bg-[#F1F7F0] p-5"><HeartHandshake className="shrink-0 text-[#2F6B46]" size={30} aria-hidden /><p className="text-lg font-black leading-7">가족에게 안심 소식이 전달됐어요.</p></div>
+              <div className="flex items-center gap-4 rounded-[22px] bg-[#FFF5EC] p-5"><Sprout className="shrink-0 text-[#D95423]" size={30} aria-hidden /><p className="text-lg font-black leading-7">농장이 자랐어요. 수확까지 3일!</p></div>
+            </div>
+            <p className="mt-7 text-lg font-bold text-[#667169]">오늘도 잘하셨어요.</p>
+            <Link href="/app?role=parent" className="mt-6 flex min-h-[76px] w-full items-center justify-center rounded-[22px] bg-[#2F6B46] px-6 text-[1.35rem] font-black text-white shadow-[0_14px_32px_rgba(47,107,70,0.22)]">확인</Link>
           </div>
         </section>
       </AppFrame>
@@ -114,8 +120,8 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
 
   if (initialView === "record") {
     return (
-      <AppFrame role="parent" active="home">
-        <ParentSectionHeader title="오늘 기분" />
+      <AppFrame role="parent" active="home" hideNavigation>
+        <ParentSectionHeader title="오늘 기록하기" />
         <MoodPicker selectedMood={selectedMood} onSelect={setSelectedMood} onDone={() => setCheckInStep("done")} />
       </AppFrame>
     );
@@ -197,46 +203,47 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
 
   return (
     <AppFrame role="parent" active="home">
-      <ParentSectionHeader title="정희님의 오늘안부" home />
-      <section className="px-5 pb-36 pt-7">
+      <section className="px-5 pb-36">
         <div className="mx-auto max-w-[560px]">
-          <p className="text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
-          <h1 className="mt-2 text-[2.05rem] font-black leading-tight text-[#17221B]">오늘도 생활이 편안하게 이어지고 있어요.</h1>
-
-          <section className="mt-7 rounded-[28px] bg-[#2F6B46] p-6 text-white shadow-[0_18px_46px_rgba(47,107,70,0.18)]">
-            <p className="text-sm font-black text-[#D5EBD8]">오늘의 생활</p>
-            <h2 className="mt-3 text-[1.55rem] font-black leading-8">오늘도 평소와 비슷하게 지내고 계세요.</h2>
-            <p className="mt-3 text-base font-bold leading-7 text-white/75">걸음과 생활 흐름은 자세한 화면에서만 천천히 볼 수 있어요.</p>
+          <section className="flex min-h-[calc(100vh-7rem)] flex-col justify-center py-10 text-center">
+            <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-[#EAF3E5] px-4 py-2 text-sm font-black text-[#2F6B46]"><ShieldCheck size={18} aria-hidden /> 생활 패턴 변화 감지 서비스</div>
+            <p className="mt-8 text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
+            <h1 className="mt-3 text-[2.35rem] font-black leading-[1.2] text-[#17221B]">오늘도 안부를<br />남겨볼까요?</h1>
+            <p className="mt-5 text-xl font-bold leading-8 text-[#5E6A62]">기분만 선택해주세요.</p>
+            <Link href="/app?role=parent&view=record" className="mt-8 flex min-h-[88px] items-center justify-center rounded-[26px] bg-[#E9652B] px-7 text-[1.6rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.3)] active:scale-[0.98]">오늘 기록하기</Link>
+            <p className="mt-5 text-lg font-black text-[#37433D]">20초면 충분합니다.</p>
+            <p className="mt-2 text-base font-bold leading-7 text-[#68736C]">걷기와 생활패턴은<br className="sm:hidden" /> 자동으로 확인됩니다.</p>
           </section>
 
-          <section className="mt-4 rounded-[24px] border border-[#F0D7C6] bg-[#FFF8F2] p-5">
-            <div className="flex items-start gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#D95423]"><Sprout size={25} /></span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-[#B95327]">오늘 달라진 점</p>
-                <h2 className="mt-2 text-xl font-black leading-7">토마토가 한 단계 자랐어요.</h2>
-              </div>
+          <section className="rounded-[30px] bg-[#2F6B46] p-7 text-white shadow-[0_18px_46px_rgba(47,107,70,0.18)]">
+            <p className="text-sm font-black text-[#D5EBD8]">생활 변화</p>
+            <h2 className="mt-3 text-[1.65rem] font-black leading-9">오늘은 평소와 비슷합니다.</h2>
+            <p className="mt-3 text-lg font-bold leading-8 text-white/80">최근 일주일 동안<br />큰 변화가 없습니다.</p>
+            <div className="mt-6 border-t border-white/20 pt-5">
+              <p className="text-sm font-bold text-white/65">안심점수</p>
+              <p className="mt-1 text-xl font-black">{todayReport.score}점</p>
             </div>
           </section>
 
-          <section className="mt-4 rounded-[28px] border-2 border-[#F4C9B5] bg-[#FFF7F1] p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]">
-            <p className="text-base font-black text-[#B94A20]">오늘 기분</p>
-            <h2 className="mt-2 text-[1.6rem] font-black leading-8">오늘 하루는 어떠셨어요?</h2>
-            <p className="mt-2 text-lg font-bold leading-7 text-[#6A594F]">기분 하나만 알려주세요.</p>
-            <Link href="/app?role=parent&view=record" className="mt-5 flex min-h-14 items-center justify-center rounded-2xl bg-[#E9652B] px-5 text-lg font-black text-white">오늘 기분 선택하기</Link>
+          <section className="mt-5 rounded-[28px] bg-[#FFF8F2] p-6">
+            <p className="text-sm font-black text-[#B95327]">오늘 기록하면</p>
+            <div className="mt-4 grid gap-4 text-lg font-black">
+              <p className="flex items-center gap-3"><Check className="text-[#2F6B46]" /> 가족이 안심합니다.</p>
+              <p className="flex items-center gap-3"><Check className="text-[#2F6B46]" /> 생활 변화가 확인됩니다.</p>
+              <p className="flex items-center gap-3"><Check className="text-[#2F6B46]" /> 농장이 자랍니다.</p>
+            </div>
           </section>
 
-          <ServiceShortcutSection
-            title="오늘안부에서 이렇게 이용해요"
-            items={[
-              { href: "/app?role=parent", icon: <Leaf />, title: "오늘의 생활", description: "걸음과 생활 흐름을 확인해요." },
-              { href: "/app?role=parent&view=photos", icon: <Images />, title: "가족 소식", description: "가족이 보낸 사진과 소식을 봐요." },
-              { href: "/app?role=parent&view=farm", icon: <Sprout />, title: "안부농장", description: "생활이 쌓일수록 작물이 자라요." },
-              { href: "/app?role=parent&view=profile", icon: <UserRound />, title: "내 정보", description: "연결 상태와 이용 설정을 확인해요." },
-            ]}
-            tone="parent"
-          />
-          <GuideLink href="/app?role=parent&view=guide" tone="parent" />
+          <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]">
+            <div className="flex items-center gap-4"><span className="flex size-14 items-center justify-center rounded-full bg-[#FFF0E6] text-2xl">💛</span><div><p className="text-sm font-black text-[#B95327]">가족 소식</p><h2 className="mt-1 text-xl font-black">딸이 응원을 보냈습니다.</h2></div></div>
+          </section>
+
+          <section className="mt-9">
+            <h2 className="text-xl font-black">최근 기록</h2>
+            <div className="mt-4 grid gap-3">
+              {["어제 · 좋아요", "7월 17일 · 괜찮아요", "7월 16일 · 좋아요"].map((record) => <div key={record} className="flex min-h-16 items-center rounded-[20px] bg-white px-5 text-lg font-bold shadow-sm"><CheckCircle2 className="mr-3 text-[#78A76E]" />{record}</div>)}
+            </div>
+          </section>
         </div>
       </section>
     </AppFrame>
@@ -247,9 +254,9 @@ function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: string; 
   return (
     <section className="px-5 pb-36 pt-7">
       <div className="mx-auto max-w-[560px] rounded-[30px] bg-white p-7 shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
-        <p className="text-xl font-black text-[#477052]">오늘 기분</p>
-        <h1 className="mt-3 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘 하루는 어떠셨어요?</h1>
-        <p className="mt-3 text-lg font-bold leading-7 text-[#69736D]">가장 가까운 기분 하나만 골라주세요.</p>
+        <p className="text-lg font-black text-[#477052]">기분만 선택해주세요.</p>
+        <h1 className="mt-3 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘 기분은<br />어떠세요?</h1>
+        <p className="mt-4 rounded-2xl bg-[#F1F7F0] p-4 text-base font-bold leading-7 text-[#526258]">걷기와 생활패턴은<br />자동으로 확인됩니다.</p>
         <div className="mt-8 grid gap-4">
           {moods.map((mood) => (
             <button key={mood.label} type="button" onClick={() => onSelect(mood.label)} className={`flex min-h-[82px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.45rem] font-black transition ${selectedMood === mood.label ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
@@ -257,7 +264,7 @@ function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: string; 
             </button>
           ))}
         </div>
-        <button type="button" disabled={!selectedMood} onClick={onDone} className="mt-8 min-h-[76px] w-full rounded-[22px] bg-[#E9652B] px-6 text-[1.45rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">오늘 기분 전하기</button>
+        <button type="button" disabled={!selectedMood} onClick={onDone} className="mt-8 min-h-[82px] w-full rounded-[22px] bg-[#E9652B] px-6 text-[1.45rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">기록 완료하기</button>
       </div>
     </section>
   );
@@ -559,6 +566,6 @@ function Brand() {
   return <Link href="/" className="inline-flex items-center gap-2 font-black"><span className="flex size-9 items-center justify-center rounded-2xl bg-[#2F6B46] text-white"><Bell size={18} /></span>오늘안부</Link>;
 }
 
-function AppFrame({ children, role, active }: { children: React.ReactNode; role: ExperienceRole; active: ParentView | FamilyView }) {
-  return <main className="app-frame min-h-screen bg-[#F7F9F6] text-[#17221B]">{children}{role === "parent" ? <ParentBottomNavigation active={active as ParentView} /> : <FamilyBottomNavigation active={active as FamilyView} />}</main>;
+function AppFrame({ children, role, active, hideNavigation = false }: { children: React.ReactNode; role: ExperienceRole; active: ParentView | FamilyView; hideNavigation?: boolean }) {
+  return <main className="app-frame min-h-screen bg-[#F7F9F6] text-[#17221B]">{children}{hideNavigation ? null : role === "parent" ? <ParentBottomNavigation active={active as ParentView} /> : <FamilyBottomNavigation active={active as FamilyView} />}</main>;
 }
