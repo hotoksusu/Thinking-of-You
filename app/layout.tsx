@@ -4,9 +4,15 @@ import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://oneul-anbu.yos1015.chatgpt.site"),
   applicationName: "오늘안부",
   title: "오늘안부",
-  description: "부모님은 기분만 남기고, 오늘안부는 생활 변화를 확인해 가족에게 알려드립니다.",
+  description: "부모님의 오늘을 간단히 기록하고, 필요한 순간을 가족에게 알려주는 안부 서비스입니다.",
+  openGraph: {
+    title: "오늘안부",
+    description: "부모님의 오늘을 가볍게 확인하세요",
+    images: [{ url: "/og.png", width: 1680, height: 952, alt: "오늘안부" }],
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
