@@ -148,6 +148,14 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
     recordAnsimiEvent("family_contact_accepted", { mood: "difficult" });
   }
 
+  function leaveMoodResult(target: string) {
+    recordAnsimiEvent("ansimi_primary_action_clicked", { mood: selectedMood, target });
+    setCheckInStep("home");
+    setSelectedMood(null);
+    setFamilyConsent("undecided");
+    window.location.assign(target);
+  }
+
   if (checkInStep === "done") {
     return (
       <AppFrame role="parent" active={initialView === "home" ? "home" : initialView} hideNavigation>
@@ -171,8 +179,8 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
               </div>
             ) : (
               <div className="mt-7">
-                <Link onClick={() => recordAnsimiEvent("ansimi_primary_action_clicked", { mood: selectedMood, target: response.primaryTarget })} href={familyConsent === "declined" ? "/app?role=parent" : response.primaryTarget} className="flex min-h-[72px] w-full items-center justify-center rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white">{familyConsent === "declined" ? "홈으로 가기" : response.primaryLabel}</Link>
-                {familyConsent !== "declined" && response.secondaryLabel && response.secondaryTarget ? <Link onClick={() => recordAnsimiEvent("ansimi_secondary_action_clicked", { mood: selectedMood, target: response.secondaryTarget })} href={response.secondaryTarget} className="mt-3 flex min-h-[58px] items-center justify-center text-lg font-black text-[#526059]">{response.secondaryLabel}</Link> : null}
+                <button type="button" onClick={() => leaveMoodResult(familyConsent === "declined" ? "/app?role=parent" : response.primaryTarget)} className="flex min-h-[72px] w-full items-center justify-center rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white">{familyConsent === "declined" ? "홈으로 가기" : response.primaryLabel}</button>
+                {familyConsent !== "declined" && response.secondaryLabel && response.secondaryTarget ? <button type="button" onClick={() => { recordAnsimiEvent("ansimi_secondary_action_clicked", { mood: selectedMood, target: response.secondaryTarget }); leaveMoodResult(response.secondaryTarget!); }} className="mt-3 flex min-h-[58px] w-full items-center justify-center text-lg font-black text-[#526059]">{response.secondaryLabel}</button> : null}
               </div>
             )}
           </div>
