@@ -22,11 +22,20 @@ export default function FarmPage() {
   const percent = getFarmGrowth().percent;
   const remainingDays = Math.max(90 - Math.round((percent / 100) * 90), 0);
   const [changeIndex, setChangeIndex] = useState(0);
+  const [hasMoodToday, setHasMoodToday] = useState(false);
 
   useEffect(() => {
     const index = todayNumber() % dailyChanges.length;
     setChangeIndex(index);
     window.localStorage.setItem("oneul-anbu-farm-last-event", JSON.stringify({ date: new Date().toISOString().slice(0, 10), index }));
+
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const history = JSON.parse(window.localStorage.getItem("oneul-anbu-mood-history") ?? "[]") as Array<{ date?: string }>;
+      setHasMoodToday(history.some((item) => item.date === today));
+    } catch {
+      setHasMoodToday(false);
+    }
   }, []);
 
   const change = dailyChanges[changeIndex];
@@ -62,7 +71,12 @@ export default function FarmPage() {
           </details>
         </section>
 
-        <Link href="/app?role=parent&view=record" className="mt-4 flex min-h-[66px] w-full items-center justify-center rounded-[20px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white shadow-[0_12px_25px_rgba(217,92,36,.22)]">오늘 기분 알려주기</Link>
+        <Link
+          href={hasMoodToday ? "/app?role=parent" : "/app?role=parent&view=record"}
+          className="mt-4 flex min-h-[66px] w-full items-center justify-center rounded-[20px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white shadow-[0_12px_25px_rgba(217,92,36,.22)]"
+        >
+          {hasMoodToday ? "홈으로 가기" : "오늘 기분 알려주기"}
+        </Link>
 
         <details className="mt-4 rounded-[20px] bg-[#FFF8E9] px-5 py-4 text-[#694D22]">
           <summary className="cursor-pointer list-none text-lg font-black">수확하면 토마토를 보내드려요. <ChevronRight className="inline" size={19} /></summary>
