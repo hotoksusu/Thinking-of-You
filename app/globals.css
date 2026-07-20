@@ -203,6 +203,14 @@ a {
   padding-bottom: calc(6.25rem + max(0.5rem, env(safe-area-inset-bottom))) !important;
 }
 
+.farm-page-content {
+  padding-bottom: calc(7.25rem + 32px + env(safe-area-inset-bottom));
+}
+
+.farm-scene {
+  isolation: isolate;
+}
+
 .app-frame :where(h1, h2, h3, h4, p, li, a, button, label, span) {
   min-width: 0;
   overflow-wrap: anywhere;
