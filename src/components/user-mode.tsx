@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -31,15 +31,47 @@ import { chooseRecommendation, recordRecommendationEvent } from "@/lib/action-co
 import { TodayRecommendation } from "@/components/today-recommendation";
 
 type ExperienceRole = "parent" | "family";
+type MoodKey = "good" | "okay" | "tired" | "difficult";
+type MoodResponse = {
+  icon: string;
+  label: string;
+  title: string;
+  description: string;
+  tone: string;
+  iconTone: string;
+  farmMessage: string;
+  primaryLabel: string;
+  primaryTarget: string;
+  secondaryLabel?: string;
+  secondaryTarget?: string;
+  familyNotifyMode: "none" | "repeated_only" | "ask_consent";
+  animation: string;
+};
 type ParentView = "home" | "record" | "photos" | "farm" | "profile" | "guide";
 type FamilyView = "home" | "reassurance" | "changes" | "compose" | "farm" | "profile" | "guide";
 
-const moods = [
-  { emoji: "😊", label: "좋았어요" },
-  { emoji: "🙂", label: "괜찮아요" },
-  { emoji: "😴", label: "피곤해요" },
-  { emoji: "😟", label: "조금 힘들어요" },
-];
+const moodResponses: Record<MoodKey, MoodResponse> = {
+  good: { icon: "😊", label: "좋아요", title: "오늘 기분이 좋으셨군요.", description: "좋은 하루를 알려주셔서 고마워요.", tone: "bg-[#FFF8E8]", iconTone: "bg-[#FFF0C7]", farmMessage: "토마토가 따뜻한 햇빛을 받았어요.", primaryLabel: "오늘 자란 농장 보기", primaryTarget: "/farm", familyNotifyMode: "none", animation: "farm-seed-pop" },
+  okay: { icon: "🙂", label: "괜찮아요", title: "오늘도 무난하게 보내셨군요.", description: "평소처럼 편안하게 지내시면 됩니다.", tone: "bg-[#F2F7EF]", iconTone: "bg-[#E4EFE0]", farmMessage: "오늘도 농장이 평소처럼 잘 자라고 있어요.", primaryLabel: "홈으로 가기", primaryTarget: "/app?role=parent", familyNotifyMode: "none", animation: "completion-slide" },
+  tired: { icon: "😴", label: "피곤해요", title: "오늘은 조금 피곤하셨군요.", description: "오늘은 편하게 쉬어도 괜찮아요.", tone: "bg-[#F1F4F8]", iconTone: "bg-[#E4EAF2]", farmMessage: "오늘은 쉬어가는 날이에요. 농장은 잘 자라고 있어요.", primaryLabel: "편하게 쉬기", primaryTarget: "/app?role=parent", secondaryLabel: "가족 소식 보기", secondaryTarget: "/app?role=parent&view=photos", familyNotifyMode: "repeated_only", animation: "completion-slide" },
+  difficult: { icon: "🤝", label: "조금 힘들어요", title: "알려주셔서 고마워요.", description: "오늘은 혼자 참지 않으셔도 괜찮아요.", tone: "bg-[#FFF5EE]", iconTone: "bg-[#FFE5D3]", farmMessage: "따뜻한 빛으로 농장을 편안하게 지켜드릴게요.", primaryLabel: "가족에게 알려주세요", primaryTarget: "", secondaryLabel: "오늘은 괜찮아요", secondaryTarget: "", familyNotifyMode: "ask_consent", animation: "completion-slide" },
+};
+
+const moods = (Object.entries(moodResponses) as [MoodKey, MoodResponse][]).map(([key, response]) => ({ key, emoji: response.icon, label: response.label }));
+
+function saveMoodChoice(mood: MoodKey) {
+  const key = "oneul-anbu-mood-history";
+  const today = new Date().toISOString().slice(0, 10);
+  try {
+    const history = JSON.parse(window.localStorage.getItem(key) ?? "[]") as Array<{ mood: MoodKey; date: string }>;
+    const next = [...history.filter((item) => item.date !== today), { mood, date: today }].slice(-30);
+    window.localStorage.setItem(key, JSON.stringify(next));
+    const tiredCount = next.slice(-3).filter((item) => item.mood === "tired").length;
+    if (tiredCount >= 2) window.localStorage.setItem("oneul-anbu-family-gentle-alert", JSON.stringify({ type: "repeated_tired", message: "최근 피곤하다는 선택이 자주 있었어요. 한 번 안부를 확인해보세요.", createdAt: new Date().toISOString() }));
+  } catch {
+    window.localStorage.setItem(key, JSON.stringify([{ mood, date: today }]));
+  }
+}
 
 export function UserMode({
   initialRole,
@@ -97,56 +129,50 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   const farm = getFarmGrowth(todaySignals, moments);
   const recommendation = chooseRecommendation("parent", todaySignals, todayReport, moments);
   const [checkInStep, setCheckInStep] = useState<"home" | "done">("home");
-  const [selectedMood, setSelectedMood] = useState("");
-  const recordedMood = moods.find((mood) => mood.label === selectedMood);
+  const [selectedMood, setSelectedMood] = useState<MoodKey | null>(null);
+  const [familyConsent, setFamilyConsent] = useState<"undecided" | "sent" | "declined">("undecided");
+  const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
+
+  function finishMoodChoice() {
+    if (!selectedMood) return;
+    saveMoodChoice(selectedMood);
+    setCheckInStep("done");
+  }
+
+  function notifyFamily() {
+    window.localStorage.setItem("oneul-anbu-family-gentle-alert", JSON.stringify({ type: "mood_consent", message: "오늘 기분이 평소보다 좋지 않았어요. 짧게 안부를 확인해보세요.", createdAt: new Date().toISOString(), consent: true }));
+    setFamilyConsent("sent");
+  }
 
   if (checkInStep === "done") {
     return (
       <AppFrame role="parent" active={initialView === "home" ? "home" : initialView} hideNavigation>
-        <section className="flex min-h-screen items-center px-4 py-6">
-          <div className="mx-auto w-full max-w-[560px] overflow-hidden rounded-[36px] bg-white text-center shadow-[0_24px_70px_rgba(49,78,58,0.13)]">
-            <div className="bg-[#2F6B46] px-6 py-5 text-white">
-              <p className="text-[1.45rem] font-black">오늘 기록 완료</p>
-            </div>
+        <section className={`flex min-h-screen items-center px-4 py-6 ${response.tone}`}>
+          <div className="mx-auto w-full max-w-[560px] rounded-[36px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(49,78,58,0.13)] sm:p-9">
+            <div className={`${response.animation} ${response.iconTone} mx-auto flex size-24 items-center justify-center rounded-full text-6xl`} aria-label={`오늘 기분: ${response.label}`}>{response.icon}</div>
+            <h1 className="mt-6 text-[2.1rem] font-black leading-tight text-[#17221B]">{familyConsent === "declined" ? "알겠습니다." : response.title}</h1>
+            <p className="mt-3 text-xl font-bold leading-8 text-[#59675F]">{familyConsent === "declined" ? "오늘은 편하게 쉬세요." : response.description}</p>
 
-            <div className="p-6 sm:p-9">
-              <div className="mx-auto flex size-24 items-center justify-center rounded-full bg-[#FFF3E9] text-6xl" aria-label={`오늘 기분: ${selectedMood}`}>
-                {recordedMood?.emoji ?? "🙂"}
+            {familyConsent !== "declined" ? <div className="mt-6 flex items-center gap-4 rounded-[24px] bg-[#EEF7EA] p-5 text-left"><img src="/brand/farm-mascot.png?v=11" alt="편안하게 자라고 있는 토마토 농장" className="size-20 rounded-2xl object-cover" /><p className="text-lg font-black leading-7 text-[#285F3A]">{response.farmMessage}</p></div> : null}
+
+            {selectedMood === "difficult" && familyConsent === "undecided" ? (
+              <div className="mt-7">
+                <p className="text-[1.4rem] font-black leading-8">가족에게 오늘 기분을<br />알려드릴까요?</p>
+                <button type="button" onClick={notifyFamily} className="mt-5 min-h-[72px] w-full rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white">알려주세요</button>
+                <button type="button" onClick={() => setFamilyConsent("declined")} className="mt-3 min-h-[62px] w-full rounded-[20px] border-2 border-[#B7C7BA] bg-white px-5 text-xl font-black text-[#46584D]">오늘은 괜찮아요</button>
               </div>
-              <h1 className="mt-5 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘 기분은<br /><span className="text-[#D95C24]">{selectedMood}</span></h1>
-
-              <div className="mt-7 rounded-[28px] border-2 border-[#BFD8B9] bg-[#EEF7EA] p-6">
-                <div className="farm-seed-pop mx-auto size-44 overflow-hidden rounded-[30px] bg-white shadow-[0_12px_28px_rgba(47,107,70,.12)]">
-                  <img src="/brand/farm-mascot.png?v=9" alt="오늘 기록으로 자란 토마토 농장" className="h-full w-full object-cover" />
-                </div>
-                <h2 className="mt-5 text-[1.85rem] font-black leading-tight text-[#245F3D]">토마토가<br /><span className="text-[2.4rem]">{Math.min(farm.percent + 1, 100)}%</span> 자랐어요</h2>
-                <div className="mt-5 h-7 overflow-hidden rounded-full bg-white" role="progressbar" aria-label="토마토 성장률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(farm.percent + 1, 100)}><div className="h-full rounded-full bg-[#65A45F]" style={{ width: `${Math.min(farm.percent + 1, 100)}%` }} /></div>
-                <p className="mt-5 rounded-2xl bg-white p-5 text-xl font-black leading-8 text-[#754316]">3번 더 기록하면<br />수확 선물을 받아요</p>
+            ) : familyConsent === "sent" ? (
+              <div className="mt-7">
+                <p className="rounded-2xl bg-[#FFF3E9] p-4 text-lg font-black text-[#8A4A14]">가족에게 부드럽게 알려드렸어요.</p>
+                <a href="tel:" className="mt-5 flex min-h-[72px] w-full items-center justify-center rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white">전화하기</a>
+                <Link href="/app?role=family&view=compose" className="mt-3 flex min-h-[60px] items-center justify-center text-lg font-black text-[#526059]">가족 소식 남기기</Link>
               </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setCheckInStep("home");
-                  setSelectedMood("");
-                  window.location.assign("/app?role=parent&view=farm&reward=1");
-                }}
-                className="mt-7 flex min-h-[82px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#D95C24] px-6 text-[1.5rem] font-black text-white shadow-[0_14px_32px_rgba(217,92,36,0.22)]"
-              >
-                내 농장 보기 <ChevronRight size={29} aria-hidden />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setCheckInStep("home");
-                  setSelectedMood("");
-                  window.location.assign("/app?role=parent&view=home&completed=1");
-                }}
-                className="mt-3 min-h-[66px] w-full rounded-[20px] border-2 border-[#B7C7BA] bg-white px-5 text-xl font-black text-[#46584D]"
-              >
-                홈으로
-              </button>
-            </div>
+            ) : (
+              <div className="mt-7">
+                <Link href={familyConsent === "declined" ? "/app?role=parent" : response.primaryTarget} className="flex min-h-[72px] w-full items-center justify-center rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white">{familyConsent === "declined" ? "홈으로 가기" : response.primaryLabel}</Link>
+                {familyConsent !== "declined" && response.secondaryLabel && response.secondaryTarget ? <Link href={response.secondaryTarget} className="mt-3 flex min-h-[58px] items-center justify-center text-lg font-black text-[#526059]">{response.secondaryLabel}</Link> : null}
+              </div>
+            )}
           </div>
         </section>
       </AppFrame>
@@ -156,8 +182,8 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   if (initialView === "record") {
     return (
       <AppFrame role="parent" active="home" hideNavigation>
-        <ParentSectionHeader title="오늘 기록하기" />
-        <MoodPicker selectedMood={selectedMood} onSelect={setSelectedMood} onDone={() => setCheckInStep("done")} />
+        <ParentSectionHeader title="오늘 기분" />
+        <MoodPicker selectedMood={selectedMood} onSelect={setSelectedMood} onDone={finishMoodChoice} />
       </AppFrame>
     );
   }
@@ -309,7 +335,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   );
 }
 
-function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: string; onSelect: (mood: string) => void; onDone: () => void }) {
+function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: MoodKey | null; onSelect: (mood: MoodKey) => void; onDone: () => void }) {
   return (
     <section className="px-5 pb-36 pt-7">
       <div className="mx-auto max-w-[560px] rounded-[30px] bg-white p-7 shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
@@ -318,12 +344,12 @@ function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: string; 
         <p className="mt-4 rounded-2xl bg-[#F1F7F0] p-4 text-base font-bold leading-7 text-[#526258]">걷기와 생활패턴은<br />자동으로 확인됩니다.</p>
         <div className="mt-8 grid gap-4">
           {moods.map((mood) => (
-            <button key={mood.label} type="button" onClick={() => onSelect(mood.label)} className={`flex min-h-[82px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.45rem] font-black transition ${selectedMood === mood.label ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
-              <span className="text-[2.35rem]" aria-hidden>{mood.emoji}</span>{mood.label}{selectedMood === mood.label ? <Check className="ml-auto text-[#E9652B]" size={29} aria-hidden /> : null}
+            <button key={mood.key} type="button" onClick={() => onSelect(mood.key)} className={`flex min-h-[82px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.45rem] font-black transition ${selectedMood === mood.key ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
+              <span className="text-[2.35rem]" aria-hidden>{mood.emoji}</span>{mood.label}{selectedMood === mood.key ? <Check className="ml-auto text-[#E9652B]" size={29} aria-hidden /> : null}
             </button>
           ))}
         </div>
-        <button type="button" disabled={!selectedMood} onClick={onDone} className="mt-8 min-h-[82px] w-full rounded-[22px] bg-[#E9652B] px-6 text-[1.45rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">기록 완료하기</button>
+        <button type="button" disabled={!selectedMood} onClick={onDone} className="mt-8 min-h-[82px] w-full rounded-[22px] bg-[#E9652B] px-6 text-[1.45rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">이 기분으로 알려주기</button>
       </div>
     </section>
   );
@@ -333,6 +359,16 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
   const farm = getFarmGrowth(todaySignals, moments);
   const recommendation = chooseRecommendation("family", todaySignals, todayReport, moments);
   const [isWriting, setIsWriting] = useState(initialView === "compose");
+  const [familyMoodAlert, setFamilyMoodAlert] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("oneul-anbu-family-gentle-alert") ?? "null") as { message?: string } | null;
+      setFamilyMoodAlert(saved?.message ?? null);
+    } catch {
+      setFamilyMoodAlert(null);
+    }
+  }, []);
 
   if (initialView === "reassurance") {
     return (
@@ -444,6 +480,8 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
             <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘은 평소와<br />비슷한 생활이에요.</h1>
             <p className="mt-3 text-lg font-bold leading-8 text-white/80">지금 확인이 필요한<br />큰 변화는 없습니다.</p>
           </section>
+
+          {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
           <TodayRecommendation recommendation={recommendation} />
 
