@@ -7,7 +7,7 @@ export default function LandingPage() {
       <header className="senior-header">
         <div className="senior-header-inner">
           <Link href="/" className="senior-brand" aria-label="오늘안부 처음 화면">
-            <img src="/brand/brand-icon.png" alt="" width="52" height="52" />
+            <img src="/brand/brand-icon.png?v=6" alt="" width="52" height="52" />
             <span>오늘안부</span>
           </Link>
           <Link href="/plans" className="senior-guide-link">이용 안내</Link>
@@ -26,7 +26,7 @@ export default function LandingPage() {
           <p className="senior-demo-note">지금은 체험용 화면입니다.</p>
         </div>
         <div className="senior-hero-image">
-          <img src="/illustrations/todayanbu-hero.png" alt="밝은 방에서 오늘의 안부를 기록하는 캐릭터" width="760" height="680" />
+          <img src="/illustrations/todayanbu-hero.png?v=6" alt="밝은 방에서 오늘의 안부를 기록하는 캐릭터" width="760" height="680" />
         </div>
       </section>
 

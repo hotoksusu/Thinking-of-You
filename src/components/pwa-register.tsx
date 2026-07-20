@@ -8,11 +8,23 @@ export function PwaRegister() {
       return;
     }
 
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {
-        // Registration is progressive enhancement.
-      });
-    });
+    const resetOldOfflineCache = async () => {
+      try {
+        const registration = await navigator.serviceWorker.register("/sw.js?v=6", {
+          updateViaCache: "none",
+        });
+        await registration.update();
+
+        if ("caches" in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((key) => caches.delete(key)));
+        }
+      } catch {
+        // The website still works normally when service workers are unavailable.
+      }
+    };
+
+    void resetOldOfflineCache();
   }, []);
 
   return null;
