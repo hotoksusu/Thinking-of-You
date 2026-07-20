@@ -30,6 +30,8 @@ import { familyTraces, getFarmGrowth, todayReport, todaySignals, type FamilyTrac
 import { chooseRecommendation, recordRecommendationEvent } from "@/lib/action-coordinator";
 import { TodayRecommendation } from "@/components/today-recommendation";
 import { AnsimiCharacter } from "@/components/ansimi-character";
+import { DailyQuestionFlow } from "@/components/daily-question-flow";
+import { readQuestionHistory } from "@/lib/daily-questions";
 import { moodDialogue, recordAnsimiEvent } from "@/lib/ansimi-dialogue";
 
 type ExperienceRole = "parent" | "family";
@@ -202,12 +204,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   }
 
   if (initialView === "record") {
-    return (
-      <AppFrame role="parent" active="home" hideNavigation>
-        <ParentSectionHeader title="오늘 기분" />
-        <MoodPicker selectedMood={selectedMood} onSelect={setSelectedMood} onDone={finishMoodChoice} />
-      </AppFrame>
-    );
+    return <DailyQuestionFlow />;
   }
 
   if (initialView === "photos") {
@@ -366,11 +363,21 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
   const recommendation = chooseRecommendation("family", todaySignals, todayReport, moments);
   const [isWriting, setIsWriting] = useState(initialView === "compose");
   const [familyMoodAlert, setFamilyMoodAlert] = useState<string | null>(null);
+  const [questionSummary, setQuestionSummary] = useState<{ title: string; detail: string; weekly: string[] } | null>(null);
 
   useEffect(() => {
     try {
       const saved = JSON.parse(window.localStorage.getItem("oneul-anbu-family-gentle-alert") ?? "null") as { message?: string } | null;
       setFamilyMoodAlert(saved?.message ?? null);
+      const answers = readQuestionHistory().filter((answer) => !answer.skipped);
+      const today = new Date().toISOString().slice(0, 10);
+      const todayAnswer = [...answers].reverse().find((answer) => answer.answeredAt.slice(0, 10) === today);
+      const recent = answers.filter((answer) => Date.now() - new Date(answer.answeredAt).getTime() < 7 * 86400000);
+      setQuestionSummary({
+        title: todayAnswer ? `오늘 확인한 내용 · ${todayAnswer.choiceLabel}` : "오늘은 질문하지 않았어요.",
+        detail: todayAnswer?.familyInterpretation ?? "생활 흐름이 평소와 비슷합니다.",
+        weekly: recent.length ? recent.slice(-4).map((answer) => answer.familyInterpretation) : ["생활 흐름은 평소와 비슷했어요.", "필요한 날에만 짧은 질문을 드렸어요."],
+      });
     } catch {
       setFamilyMoodAlert(null);
     }
@@ -484,6 +491,29 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
           <TodayRecommendation recommendation={recommendation} />
+
+          <section className="mt-5 rounded-[24px] border border-[#CFE1E4] bg-white p-6 shadow-sm">
+            <p className="text-sm font-black text-[#1F6F7A]">오늘 질문 상태</p>
+            <h2 className="mt-2 text-xl font-black">{questionSummary?.title ?? "오늘 확인 내용을 살펴보고 있어요."}</h2>
+            <p className="mt-2 font-bold leading-7 text-[#637069]">{questionSummary?.detail ?? "한 번의 답보다 반복되는 흐름을 함께 봅니다."}</p>
+            <Link href="/app?role=family&view=changes" className="mt-4 inline-flex min-h-12 items-center font-black text-[#1F6F7A]">생활 변화 보기 <ChevronRight size={20} /></Link>
+          </section>
+
+          <section className="mt-5 rounded-[24px] bg-[#F1F7F3] p-6">
+            <p className="text-sm font-black text-[#2F6B46]">이번 주에는</p>
+            <ul className="mt-3 space-y-2 font-bold leading-7 text-[#536258]">{(questionSummary?.weekly ?? []).map((line) => <li key={line} className="flex gap-2"><Check className="mt-1 shrink-0 text-[#78A76E]" size={19} /><span>{line}</span></li>)}</ul>
+            <p className="mt-4 rounded-2xl bg-white p-4 font-black text-[#315B3D]">크게 달라진 점은 없어요. 단일 답변보다 생활 흐름과 반복 패턴을 함께 해석해요.</p>
+          </section>
+
+          <section className="mt-5 rounded-[24px] bg-[#EAF6F7] p-6">
+            <p className="text-sm font-black text-[#1F6F7A]">오늘안부가 확인하는 방법</p>
+            <h2 className="mt-2 text-2xl font-black leading-8">매일 묻지 않고,<br />필요한 것만 확인합니다.</h2>
+            <div className="mt-5 grid gap-3">{[
+              ["1", "생활을 자동으로 확인", "걸음, 생활 리듬, 통화 활동을 동의한 범위에서 살펴봅니다."],
+              ["2", "오늘 필요한 질문 하나", "식사, 기분, 몸 상태 중 그날 필요한 내용만 짧게 확인합니다."],
+              ["3", "달라진 점만 가족에게 전달", "한 번의 응답보다 반복되는 변화와 생활 흐름을 함께 봅니다."],
+            ].map(([number, title, detail]) => <div key={number} className="flex gap-4 rounded-2xl bg-white p-4"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#1F6F7A] font-black text-white">{number}</span><div><strong>{title}</strong><p className="mt-1 text-sm font-bold leading-6 text-[#657069]">{detail}</p></div></div>)}</div>
+          </section>
 
           <section className="mt-5 rounded-[24px] bg-[#FFF8ED] p-6">
             <p className="text-sm font-black text-[#B95327]">부모님의 오늘 기록</p>
