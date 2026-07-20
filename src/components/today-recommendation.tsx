@@ -24,6 +24,7 @@ export function TodayRecommendation({ recommendation }: { recommendation: Action
   function accept() {
     const now = new Date().toISOString();
     recordRecommendationEvent(recommendation, { openedAt: now, acceptedAt: now, completedAt: recommendation.recommendedAction === "view_farm" || recommendation.recommendedAction === "no_action_needed" ? now : undefined, outcome: recommendation.recommendedAction === "view_farm" ? "activity_viewed" : recommendation.recommendedAction === "no_action_needed" ? "no_action_needed" : recommendation.recommendedAction === "call_family" ? "phone_call_started" : undefined });
+    if (recommendation.recommendedAction === "no_action_needed") { setHidden(true); return; }
     router.push(recommendation.href);
   }
 

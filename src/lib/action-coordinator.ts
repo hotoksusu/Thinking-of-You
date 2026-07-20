@@ -68,10 +68,10 @@ export function chooseRecommendation(role: CoordinatorRole, signals: LifeSignal[
   }
 
   if (role === "parent") {
-    return { id: "parent-positive-farm", userRole: role, triggerType: "positive_change", triggerSummary: "오늘도 평소처럼 생활하고 계세요.", actionLabel: "안부농장 보기", recommendedAction: "view_farm", href: "/app?role=parent&view=farm&source=recommendation", tone: "positive", optional: true };
+    return { id: "parent-no-change", userRole: role, triggerType: "no_change", triggerSummary: "오늘도 평소와 비슷해요.", actionLabel: "확인했어요", recommendedAction: "no_action_needed", href: "/app?role=parent", secondaryLabel: "농장 구경하기", secondaryHref: "/farm", tone: "calm", optional: true };
   }
 
-  return { id: "family-no-action", userRole: role, triggerType: "no_change", triggerSummary: report.summary.replace("하고 계십니다", "하고 계세요"), actionLabel: "사진 한 장 남기기", recommendedAction: "share_photo", href: "/app?role=family&view=compose&source=recommendation", tone: "calm", optional: true };
+  return { id: "family-no-action", userRole: role, triggerType: "no_change", triggerSummary: "오늘은 확인할 변화가 없어요.", actionLabel: "확인했어요", recommendedAction: "no_action_needed", href: "/app?role=family", secondaryLabel: "가족 소식 남기기", secondaryHref: "/app?role=family&view=compose", tone: "calm", optional: true };
 }
 
 export function recordRecommendationEvent(recommendation: ActionRecommendation, update: Partial<RecommendationEvent>) {

@@ -34,7 +34,7 @@ export default function LandingPage() {
         <p className="senior-section-label">이렇게 이용해요</p>
         <h2 id="how-title">세 가지만 기억하세요</h2>
         <div className="senior-steps">
-          <article><span className="senior-step-number">1</span><h3>오늘 상태 선택</h3><p>기분과 생활을 간단히 눌러요.</p></article>
+          <article><span className="senior-step-number">1</span><h3>생활 흐름 확인</h3><p>평소의 생활을 조용히 살펴봐요.</p></article>
           <article><span className="senior-step-number">2</span><h3>변화 확인</h3><p>평소와 다른 날만 알려드려요.</p></article>
           <article><span className="senior-step-number">3</span><h3>가족과 연결</h3><p>필요할 때 가족이 확인해요.</p></article>
         </div>

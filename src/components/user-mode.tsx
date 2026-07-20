@@ -296,16 +296,6 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
             <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">오늘 기분 알려주기</Link>
           </section>
 
-          <section className="rounded-[30px] bg-[#2F6B46] p-7 text-white shadow-[0_18px_46px_rgba(47,107,70,0.18)]">
-            <p className="text-sm font-black text-[#D5EBD8]">생활 변화</p>
-            <h2 className="mt-3 text-[1.65rem] font-black leading-9">오늘은 평소와 비슷합니다.</h2>
-            <p className="mt-3 text-lg font-bold leading-8 text-white/80">최근 일주일 동안<br />큰 변화가 없습니다.</p>
-            <div className="mt-6 border-t border-white/20 pt-5">
-              <p className="text-sm font-bold text-white/65">안심점수</p>
-              <p className="mt-1 text-xl font-black">{todayReport.score}점</p>
-            </div>
-          </section>
-
           <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]">
             <div className="flex items-center gap-4"><span className="flex size-14 items-center justify-center rounded-full bg-[#FFF0E6] text-2xl">💛</span><div><p className="text-sm font-black text-[#B95327]">가족 소식</p><h2 className="mt-1 text-xl font-black">딸이 응원을 보냈습니다.</h2></div></div>
           </section>
@@ -461,12 +451,6 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
       <section className="px-5 pb-32 pt-5">
         <div className="mx-auto max-w-[620px]">
           <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
-          <section className="mt-3 rounded-[30px] bg-[#1F6F7A] p-6 text-white shadow-[0_24px_65px_rgba(31,111,122,0.22)]">
-            <p className="flex items-center gap-2 text-sm font-black text-[#D8EEF0]"><span className="size-2 rounded-full bg-[#B9E1C0]" />오늘의 안심</p>
-            <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘은 평소와 비슷해요.</h1>
-            <p className="mt-3 text-lg font-bold leading-8 text-white/80">지금 확인할 큰 변화는 없어요.</p>
-          </section>
-
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
           <TodayRecommendation recommendation={recommendation} />

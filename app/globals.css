@@ -179,9 +179,22 @@ a {
 }
 
 .page-shell {
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
   min-height: 100vh;
   min-height: 100svh;
   min-height: 100dvh;
+}
+
+.page-content {
+  padding-inline: clamp(18px, 5vw, 24px);
+  padding-bottom: calc(var(--bottom-nav-height, 80px) + 28px + env(safe-area-inset-bottom));
+}
+
+.content-card {
+  padding: clamp(20px, 5vw, 28px);
+  border-radius: 24px;
 }
 
 .safe-bottom {
@@ -225,7 +238,7 @@ a {
 .ansimi-guide-compact .ansimi-bubble::before { top: 50%; left: -9px; transform: translateY(-50%) rotate(-45deg); }
 .ansimi-guide-compact .ansimi-bubble strong { font-size: 1.25rem; line-height: 1.4; }
 .ansimi-guide-compact .ansimi-bubble span { font-size: 1.05rem; }
-.ansimi-state-listening { animation: ansimi-listen 1.8s ease-in-out infinite; }
+.ansimi-state-idle, .ansimi-state-greeting, .ansimi-state-listening { animation: ansimi-listen 1s ease-out 1 both; }
 .ansimi-state-happy, .ansimi-state-celebrate { animation: ansimi-happy .8s ease-out both; }
 .ansimi-state-calm { animation: ansimi-calm .9s ease-out both; }
 .ansimi-state-tired_empathy, .ansimi-state-rest { animation: ansimi-rest .9s ease-out both; }
