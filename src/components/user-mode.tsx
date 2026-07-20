@@ -131,12 +131,24 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   const farm = getFarmGrowth(todaySignals, moments);
   const [checkInStep, setCheckInStep] = useState<"home" | "done">("home");
   const [selectedMood, setSelectedMood] = useState<MoodKey | null>(null);
+  const [todayMood, setTodayMood] = useState<MoodKey | null | undefined>(undefined);
   const [familyConsent, setFamilyConsent] = useState<"undecided" | "sent" | "declined">("undecided");
   const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
+
+  useEffect(() => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const history = JSON.parse(window.localStorage.getItem("oneul-anbu-mood-history") ?? "[]") as Array<{ mood?: MoodKey; date?: string }>;
+      setTodayMood(history.find((item) => item.date === today)?.mood ?? null);
+    } catch {
+      setTodayMood(null);
+    }
+  }, []);
 
   function finishMoodChoice() {
     if (!selectedMood) return;
     saveMoodChoice(selectedMood);
+    setTodayMood(selectedMood);
     recordAnsimiEvent("mood_selected", { mood: selectedMood });
     recordAnsimiEvent("dialogue_completed", { dialogue: "mood", mood: selectedMood });
     setCheckInStep("done");
@@ -300,8 +312,18 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
         <div className="mx-auto max-w-[560px]">
           <section className="py-7 text-center">
             <p className="mb-5 text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
-            <AnsimiCharacter state="greeting" message="오늘도 평소와 비슷해요." secondaryMessage="기분 하나만 알려주시겠어요?" />
-            <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">오늘 기분 알려주기</Link>
+            <AnsimiCharacter
+              state={todayMood === "tired" ? "rest" : todayMood ? "calm" : "greeting"}
+              message={todayMood ? moodResponses[todayMood].title : "오늘도 평소와 비슷해요."}
+              secondaryMessage={todayMood ? "오늘 기분은 잘 전해졌어요." : "기분 하나만 알려주시겠어요?"}
+            />
+            {todayMood === null ? (
+              <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">오늘 기분 알려주기</Link>
+            ) : todayMood ? (
+              <div className="mt-6 flex min-h-[68px] items-center justify-center gap-3 rounded-[22px] bg-[#EAF3E5] px-6 text-xl font-black text-[#2F6B46]">
+                <CheckCircle2 size={28} aria-hidden /> 오늘 기분을 알려주셨어요
+              </div>
+            ) : null}
           </section>
 
           <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]">
