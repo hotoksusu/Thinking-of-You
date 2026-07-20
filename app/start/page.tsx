@@ -5,7 +5,7 @@ const roles = [
   {
     label: "부모님",
     text: "평소처럼 생활하시면 됩니다.",
-    href: "/app?role=parent",
+    href: "/onboarding?role=parent",
     icon: Smile,
     tone: "bg-[#FFF0E4] border-[#F6C9A7]",
     iconTone: "bg-[#FFE2CC] text-[#D85B24]",
@@ -14,7 +14,7 @@ const roles = [
   {
     label: "가족",
     text: "생활 변화와 안심을 확인해요.",
-    href: "/onboarding/family",
+    href: "/onboarding?role=family",
     icon: HeartHandshake,
     tone: "bg-[#EEF4FF] border-[#BFD2F5]",
     iconTone: "bg-[#DCE8FF] text-[#315FA8]",
