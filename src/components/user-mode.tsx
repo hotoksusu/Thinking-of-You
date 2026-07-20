@@ -29,6 +29,8 @@ import {
 import { familyTraces, getFarmGrowth, todayReport, todaySignals, type FamilyTrace } from "@/lib/life-pattern";
 import { chooseRecommendation, recordRecommendationEvent } from "@/lib/action-coordinator";
 import { TodayRecommendation } from "@/components/today-recommendation";
+import { AnsimiCharacter } from "@/components/ansimi-character";
+import { moodDialogue, recordAnsimiEvent } from "@/lib/ansimi-dialogue";
 
 type ExperienceRole = "parent" | "family";
 type MoodKey = "good" | "okay" | "tired" | "difficult";
@@ -136,12 +138,15 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   function finishMoodChoice() {
     if (!selectedMood) return;
     saveMoodChoice(selectedMood);
+    recordAnsimiEvent("mood_selected", { mood: selectedMood });
+    recordAnsimiEvent("dialogue_completed", { dialogue: "mood", mood: selectedMood });
     setCheckInStep("done");
   }
 
   function notifyFamily() {
     window.localStorage.setItem("oneul-anbu-family-gentle-alert", JSON.stringify({ type: "mood_consent", message: "오늘 기분이 평소보다 좋지 않았어요. 짧게 안부를 확인해보세요.", createdAt: new Date().toISOString(), consent: true }));
     setFamilyConsent("sent");
+    recordAnsimiEvent("family_contact_accepted", { mood: "difficult" });
   }
 
   if (checkInStep === "done") {
@@ -149,17 +154,15 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
       <AppFrame role="parent" active={initialView === "home" ? "home" : initialView} hideNavigation>
         <section className={`flex min-h-screen items-center px-4 py-6 ${response.tone}`}>
           <div className="mx-auto w-full max-w-[560px] rounded-[36px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(49,78,58,0.13)] sm:p-9">
-            <div className={`${response.animation} ${response.iconTone} mx-auto flex size-24 items-center justify-center rounded-full text-6xl`} aria-label={`오늘 기분: ${response.label}`}>{response.icon}</div>
-            <h1 className="mt-6 text-[2.1rem] font-black leading-tight text-[#17221B]">{familyConsent === "declined" ? "알겠습니다." : response.title}</h1>
-            <p className="mt-3 text-xl font-bold leading-8 text-[#59675F]">{familyConsent === "declined" ? "오늘은 편하게 쉬세요." : response.description}</p>
+            <AnsimiCharacter state={familyConsent === "sent" ? "guide" : familyConsent === "declined" ? "rest" : moodDialogue[`${selectedMood}-response`]?.characterState ?? "calm"} message={familyConsent === "declined" ? "알겠습니다." : response.title} secondaryMessage={familyConsent === "declined" ? "오늘은 편하게 쉬세요." : response.description} />
 
-            {familyConsent !== "declined" ? <div className="mt-6 flex items-center gap-4 rounded-[24px] bg-[#EEF7EA] p-5 text-left"><img src="/brand/farm-mascot.png?v=11" alt="편안하게 자라고 있는 토마토 농장" className="size-20 rounded-2xl object-cover" /><p className="text-lg font-black leading-7 text-[#285F3A]">{response.farmMessage}</p></div> : null}
+            {familyConsent !== "declined" ? <div className="mt-5 rounded-[22px] bg-[#EEF7EA] p-5 text-center"><p className="text-lg font-black leading-7 text-[#285F3A]">🌱 {response.farmMessage}</p></div> : null}
 
             {selectedMood === "difficult" && familyConsent === "undecided" ? (
               <div className="mt-7">
                 <p className="text-[1.4rem] font-black leading-8">가족에게 오늘 기분을<br />알려드릴까요?</p>
                 <button type="button" onClick={notifyFamily} className="mt-5 min-h-[72px] w-full rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white">알려주세요</button>
-                <button type="button" onClick={() => setFamilyConsent("declined")} className="mt-3 min-h-[62px] w-full rounded-[20px] border-2 border-[#B7C7BA] bg-white px-5 text-xl font-black text-[#46584D]">오늘은 괜찮아요</button>
+                <button type="button" onClick={() => { setFamilyConsent("declined"); recordAnsimiEvent("family_contact_declined", { mood: "difficult" }); }} className="mt-3 min-h-[62px] w-full rounded-[20px] border-2 border-[#B7C7BA] bg-white px-5 text-xl font-black text-[#46584D]">오늘은 괜찮아요</button>
               </div>
             ) : familyConsent === "sent" ? (
               <div className="mt-7">
@@ -169,8 +172,8 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
               </div>
             ) : (
               <div className="mt-7">
-                <Link href={familyConsent === "declined" ? "/app?role=parent" : response.primaryTarget} className="flex min-h-[72px] w-full items-center justify-center rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white">{familyConsent === "declined" ? "홈으로 가기" : response.primaryLabel}</Link>
-                {familyConsent !== "declined" && response.secondaryLabel && response.secondaryTarget ? <Link href={response.secondaryTarget} className="mt-3 flex min-h-[58px] items-center justify-center text-lg font-black text-[#526059]">{response.secondaryLabel}</Link> : null}
+                <Link onClick={() => recordAnsimiEvent("ansimi_primary_action_clicked", { mood: selectedMood, target: response.primaryTarget })} href={familyConsent === "declined" ? "/app?role=parent" : response.primaryTarget} className="flex min-h-[72px] w-full items-center justify-center rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white">{familyConsent === "declined" ? "홈으로 가기" : response.primaryLabel}</Link>
+                {familyConsent !== "declined" && response.secondaryLabel && response.secondaryTarget ? <Link onClick={() => recordAnsimiEvent("ansimi_secondary_action_clicked", { mood: selectedMood, target: response.secondaryTarget })} href={response.secondaryTarget} className="mt-3 flex min-h-[58px] items-center justify-center text-lg font-black text-[#526059]">{response.secondaryLabel}</Link> : null}
               </div>
             )}
           </div>
@@ -336,20 +339,19 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
 }
 
 function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: MoodKey | null; onSelect: (mood: MoodKey) => void; onDone: () => void }) {
+  const start = moodDialogue.start;
   return (
     <section className="px-5 pb-36 pt-7">
       <div className="mx-auto max-w-[560px] rounded-[30px] bg-white p-7 shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
-        <p className="text-lg font-black text-[#477052]">기분만 선택해주세요.</p>
-        <h1 className="mt-3 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘 기분은<br />어떠세요?</h1>
-        <p className="mt-4 rounded-2xl bg-[#F1F7F0] p-4 text-base font-bold leading-7 text-[#526258]">걷기와 생활패턴은<br />자동으로 확인됩니다.</p>
-        <div className="mt-8 grid gap-4">
+        <AnsimiCharacter state={selectedMood ? "thinking" : start.characterState} message={selectedMood ? `${moodResponses[selectedMood].label}, 맞으신가요?` : start.message} secondaryMessage={selectedMood ? "아래 버튼을 누르면 안심이가 답할게요." : start.secondaryMessage} />
+        <div className="mt-7 grid gap-3">
           {moods.map((mood) => (
-            <button key={mood.key} type="button" onClick={() => onSelect(mood.key)} className={`flex min-h-[82px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.45rem] font-black transition ${selectedMood === mood.key ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
+            <button key={mood.key} type="button" onClick={() => { onSelect(mood.key); recordAnsimiEvent("ansimi_choice_selected", { choice: mood.key }); }} className={`flex min-h-[72px] w-full items-center gap-5 rounded-[22px] border-2 px-6 text-left text-[1.4rem] font-black transition ${selectedMood === mood.key ? "border-[#E9652B] bg-[#FFF1E8] text-[#9A3E18]" : "border-[#DDE5DC] bg-[#FAFCF9] text-[#222222]"}`}>
               <span className="text-[2.35rem]" aria-hidden>{mood.emoji}</span>{mood.label}{selectedMood === mood.key ? <Check className="ml-auto text-[#E9652B]" size={29} aria-hidden /> : null}
             </button>
           ))}
         </div>
-        <button type="button" disabled={!selectedMood} onClick={onDone} className="mt-8 min-h-[82px] w-full rounded-[22px] bg-[#E9652B] px-6 text-[1.45rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">이 기분으로 알려주기</button>
+        <button type="button" disabled={!selectedMood} onClick={onDone} className="mt-6 min-h-[72px] w-full rounded-[22px] bg-[#E9652B] px-6 text-[1.4rem] font-black text-white shadow-[0_16px_34px_rgba(233,101,43,0.24)] disabled:bg-[#C8CEC6] disabled:shadow-none">안심이에게 알려주기</button>
       </div>
     </section>
   );
