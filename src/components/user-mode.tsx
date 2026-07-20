@@ -102,32 +102,25 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
       <AppFrame role="parent" active={initialView === "home" ? "home" : initialView} hideNavigation>
         <section className="flex min-h-screen items-center px-4 py-6">
           <div className="mx-auto w-full max-w-[560px] overflow-hidden rounded-[36px] bg-white text-center shadow-[0_24px_70px_rgba(49,78,58,0.13)]">
-            <div className="bg-[#2F6B46] px-6 py-4 text-white">
-              <p className="text-xl font-black">18일째 잘 이어오고 있어요!</p>
+            <div className="bg-[#2F6B46] px-6 py-5 text-white">
+              <p className="text-[1.45rem] font-black">오늘 기록 완료</p>
             </div>
 
             <div className="p-6 sm:p-9">
-              <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#FFF3E9] text-5xl" aria-label={`오늘 기분: ${selectedMood}`}>
+              <div className="mx-auto flex size-24 items-center justify-center rounded-full bg-[#FFF3E9] text-6xl" aria-label={`오늘 기분: ${selectedMood}`}>
                 {recordedMood?.emoji ?? "🙂"}
               </div>
-              <h1 className="mt-4 text-[2rem] font-black leading-tight text-[#17221B]">오늘은 “{selectedMood}”라고<br />기록했어요.</h1>
-              <p className="mt-3 text-xl font-bold text-[#5E6E65]">짧게 알려주셔서 고마워요.</p>
+              <h1 className="mt-5 text-[2.15rem] font-black leading-tight text-[#17221B]">오늘 기분은<br /><span className="text-[#D95C24]">{selectedMood}</span></h1>
 
-              <div className="mt-6 rounded-[28px] border-2 border-[#BFD8B9] bg-[#EEF7EA] p-5">
-                <p className="text-lg font-black text-[#315B3D]">오늘의 작은 보상</p>
-                <div className="farm-seed-pop mx-auto mt-3 size-36 overflow-hidden rounded-[28px] bg-white shadow-[0_12px_28px_rgba(47,107,70,.12)]">
+              <div className="mt-7 rounded-[28px] border-2 border-[#BFD8B9] bg-[#EEF7EA] p-6">
+                <div className="farm-seed-pop mx-auto size-44 overflow-hidden rounded-[30px] bg-white shadow-[0_12px_28px_rgba(47,107,70,.12)]">
                   <img src="/brand/farm-mascot.png?v=9" alt="오늘 기록으로 자란 토마토 농장" className="h-full w-full object-cover" />
                 </div>
-                <h2 className="mt-4 text-[1.75rem] font-black leading-tight text-[#245F3D]">정희님의 토마토가<br />한 번 더 자랐어요!</h2>
-                <div className="mt-4 flex items-center justify-center gap-3 text-xl font-black">
-                  <span className="text-[#718078]">{farm.percent}%</span>
-                  <ArrowRight className="text-[#D95C24]" aria-hidden />
-                  <span className="rounded-full bg-[#D95C24] px-4 py-2 text-white">{Math.min(farm.percent + 1, 100)}%</span>
-                </div>
-                <p className="mt-4 rounded-2xl bg-white p-4 text-lg font-black leading-7 text-[#754316]">앞으로 3번만 더 기록하면<br />수확 선물을 준비해요.</p>
+                <h2 className="mt-5 text-[1.85rem] font-black leading-tight text-[#245F3D]">토마토가<br /><span className="text-[2.4rem]">{Math.min(farm.percent + 1, 100)}%</span> 자랐어요</h2>
+                <div className="mt-5 h-7 overflow-hidden rounded-full bg-white" role="progressbar" aria-label="토마토 성장률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(farm.percent + 1, 100)}><div className="h-full rounded-full bg-[#65A45F]" style={{ width: `${Math.min(farm.percent + 1, 100)}%` }} /></div>
+                <p className="mt-5 rounded-2xl bg-white p-5 text-xl font-black leading-8 text-[#754316]">3번 더 기록하면<br />수확 선물을 받아요</p>
               </div>
 
-              <p className="mt-5 flex items-center justify-center gap-2 text-lg font-black text-[#2F6B46]"><HeartHandshake size={26} aria-hidden /> 가족에게도 안심 소식을 보냈어요.</p>
               <button
                 type="button"
                 onClick={() => {
@@ -135,9 +128,9 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
                   setSelectedMood("");
                   window.location.assign("/app?role=parent&view=farm&reward=1");
                 }}
-                className="mt-6 flex min-h-[78px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#D95C24] px-6 text-[1.4rem] font-black text-white shadow-[0_14px_32px_rgba(217,92,36,0.22)]"
+                className="mt-7 flex min-h-[82px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#D95C24] px-6 text-[1.5rem] font-black text-white shadow-[0_14px_32px_rgba(217,92,36,0.22)]"
               >
-                자란 토마토 보러 가기 <ChevronRight size={27} aria-hidden />
+                내 농장 보기 <ChevronRight size={29} aria-hidden />
               </button>
               <button
                 type="button"
@@ -146,11 +139,10 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
                   setSelectedMood("");
                   window.location.assign("/app?role=parent&view=home&completed=1");
                 }}
-                className="mt-3 min-h-[60px] w-full rounded-[20px] border-2 border-[#B7C7BA] bg-white px-5 text-lg font-black text-[#46584D]"
+                className="mt-3 min-h-[66px] w-full rounded-[20px] border-2 border-[#B7C7BA] bg-white px-5 text-xl font-black text-[#46584D]"
               >
-                홈으로 돌아가기
+                홈으로
               </button>
-              <p className="mt-4 text-base font-bold text-[#6B766F]">내일도 한 번만 눌러주세요.</p>
             </div>
           </div>
         </section>
