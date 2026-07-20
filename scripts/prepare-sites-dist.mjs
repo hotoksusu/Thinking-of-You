@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const output = resolve("out");
@@ -24,4 +24,37 @@ function copyDirectory(from, to) {
   }
 }
 
-copyDirectory(output, dist);
+const client = join(dist, "client");
+const server = join(dist, "server");
+
+copyDirectory(output, client);
+mkdirSync(server, { recursive: true });
+
+writeFileSync(
+  join(server, "index.js"),
+  `const worker = {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    let response = await env.ASSETS.fetch(request);
+
+    if (response.status !== 404 || url.pathname.includes(".")) {
+      return response;
+    }
+
+    const candidates = url.pathname === "/"
+      ? ["/index.html"]
+      : [\`\${url.pathname}.html\`, \`\${url.pathname}/index.html\`];
+
+    for (const pathname of candidates) {
+      response = await env.ASSETS.fetch(new Request(new URL(pathname, url), request));
+      if (response.status !== 404) return response;
+    }
+
+    return response;
+  },
+};
+
+export default worker;
+`,
+  "utf8",
+);
