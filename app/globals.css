@@ -4,7 +4,8 @@
 @tailwind components;
 @tailwind utilities;
 
-.senior-landing { min-height: 100vh; background: #fffaf2; color: #17251f; }
+.senior-landing { min-height: 100vh; min-height: 100dvh; background: #fffaf2; color: #17251f; word-break: keep-all; overflow-wrap: break-word; }
+.senior-landing :where(h1,h2,h3) { text-wrap: balance; overflow-wrap: normal; }
 .senior-header { border-bottom: 1px solid #dfe5dc; background: rgba(255,250,242,.96); }
 .senior-header-inner { width: min(1120px,calc(100% - 40px)); min-height: 82px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .senior-brand { display: inline-flex; align-items: center; gap: 12px; color: #17251f; font-size: 1.55rem; font-weight: 900; }
@@ -218,6 +219,12 @@ a {
 .ansimi-bubble strong { position: relative; display: block; font-size: 1.45rem; line-height: 1.45; }
 .ansimi-bubble span { position: relative; display: block; margin-top: 6px; font-size: 1.1rem; font-weight: 750; line-height: 1.5; color: #5c6961; }
 .ansimi-effect { position: absolute; right: -10px; top: 2px; font-size: 2.5rem; animation: ansimi-sun .8s ease-out both; }
+.ansimi-guide-compact { grid-template-columns: 76px minmax(0,1fr); align-items: center; gap: 12px; }
+.ansimi-guide-compact .ansimi-character { width: 76px; height: 76px; }
+.ansimi-guide-compact .ansimi-bubble { min-height: 84px; text-align: left; padding: 14px 16px; }
+.ansimi-guide-compact .ansimi-bubble::before { top: 50%; left: -9px; transform: translateY(-50%) rotate(-45deg); }
+.ansimi-guide-compact .ansimi-bubble strong { font-size: 1.25rem; line-height: 1.4; }
+.ansimi-guide-compact .ansimi-bubble span { font-size: 1.05rem; }
 .ansimi-state-listening { animation: ansimi-listen 1.8s ease-in-out infinite; }
 .ansimi-state-happy, .ansimi-state-celebrate { animation: ansimi-happy .8s ease-out both; }
 .ansimi-state-calm { animation: ansimi-calm .9s ease-out both; }
@@ -238,7 +245,21 @@ a {
 
 .app-frame :where(h1, h2, h3, h4, p, li, a, button, label, span) {
   min-width: 0;
-  overflow-wrap: anywhere;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.copy-title,
+.app-frame :where(h1, h2, h3) {
+  text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+.copy-body,
+.app-frame :where(p, li) {
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .app-frame :where(button, input, textarea, select) {

@@ -129,7 +129,6 @@ function RoleCard({ icon, role, description, actionLabel, onClick }: { icon: Rea
 
 function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialView: ParentView }) {
   const farm = getFarmGrowth(todaySignals, moments);
-  const recommendation = chooseRecommendation("parent", todaySignals, todayReport, moments);
   const [checkInStep, setCheckInStep] = useState<"home" | "done">("home");
   const [selectedMood, setSelectedMood] = useState<MoodKey | null>(null);
   const [familyConsent, setFamilyConsent] = useState<"undecided" | "sent" | "declined">("undecided");
@@ -291,14 +290,10 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
     <AppFrame role="parent" active="home">
       <section className="px-5 pb-36">
         <div className="mx-auto max-w-[560px]">
-          <section className="flex min-h-[calc(100vh-7rem)] flex-col justify-center py-10 text-center">
-            <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-[#EAF3E5] px-4 py-2 text-sm font-black text-[#2F6B46]"><ShieldCheck size={18} aria-hidden /> 생활 패턴 변화 감지 서비스</div>
-            <p className="mt-8 text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
-            <h1 className="mt-3 text-[2.35rem] font-black leading-[1.2] text-[#17221B]">오늘도 안부를<br />남겨볼까요?</h1>
-            <p className="mt-5 text-xl font-bold leading-8 text-[#5E6A62]">기분만 선택해주세요.</p>
-            <Link href="/app?role=parent&view=record" className="mt-8 flex min-h-[88px] items-center justify-center rounded-[26px] bg-[#E9652B] px-7 text-[1.6rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.3)] active:scale-[0.98]">오늘 기록하기</Link>
-            <p className="mt-5 text-lg font-black text-[#37433D]">20초면 충분합니다.</p>
-            <p className="mt-2 text-base font-bold leading-7 text-[#68736C]">걷기와 생활패턴은<br className="sm:hidden" /> 자동으로 확인됩니다.</p>
+          <section className="py-7 text-center">
+            <p className="mb-5 text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
+            <AnsimiCharacter state="greeting" message="오늘도 평소와 비슷해요." secondaryMessage="기분 하나만 알려주시겠어요?" />
+            <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">오늘 기분 알려주기</Link>
           </section>
 
           <section className="rounded-[30px] bg-[#2F6B46] p-7 text-white shadow-[0_18px_46px_rgba(47,107,70,0.18)]">
@@ -308,17 +303,6 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
             <div className="mt-6 border-t border-white/20 pt-5">
               <p className="text-sm font-bold text-white/65">안심점수</p>
               <p className="mt-1 text-xl font-black">{todayReport.score}점</p>
-            </div>
-          </section>
-
-          <TodayRecommendation recommendation={recommendation} />
-
-          <section className="mt-5 rounded-[28px] bg-[#FFF8F2] p-6">
-            <p className="text-sm font-black text-[#B95327]">오늘 기록하면</p>
-            <div className="mt-4 grid gap-4 text-lg font-black">
-              <p className="flex items-center gap-3"><Check className="text-[#2F6B46]" /> 가족이 안심합니다.</p>
-              <p className="flex items-center gap-3"><Check className="text-[#2F6B46]" /> 생활 변화가 확인됩니다.</p>
-              <p className="flex items-center gap-3"><Check className="text-[#2F6B46]" /> 농장이 자랍니다.</p>
             </div>
           </section>
 
@@ -479,8 +463,8 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
           <section className="mt-3 rounded-[30px] bg-[#1F6F7A] p-6 text-white shadow-[0_24px_65px_rgba(31,111,122,0.22)]">
             <p className="flex items-center gap-2 text-sm font-black text-[#D8EEF0]"><span className="size-2 rounded-full bg-[#B9E1C0]" />오늘의 안심</p>
-            <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘은 평소와<br />비슷한 생활이에요.</h1>
-            <p className="mt-3 text-lg font-bold leading-8 text-white/80">지금 확인이 필요한<br />큰 변화는 없습니다.</p>
+            <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘은 평소와 비슷해요.</h1>
+            <p className="mt-3 text-lg font-bold leading-8 text-white/80">지금 확인할 큰 변화는 없어요.</p>
           </section>
 
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
@@ -498,7 +482,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
             <Link href="/app?role=family&view=compose" className="flex min-h-20 items-center justify-center rounded-[20px] border border-[#E8D8C5] bg-white px-4 text-center font-black text-[#B95327]">응원 보내기</Link>
           </div>
 
-          <p className="mt-7 text-center text-sm font-bold leading-6 text-[#7A847D]">기기 연결 전 체험 화면입니다.<br />실제 연동 후 생활 데이터가 표시됩니다.<br />오늘안부는 의료 진단 서비스가 아닙니다.</p>
+          <p className="mt-7 text-center text-base font-bold leading-7 text-[#7A847D]">현재는 체험용 화면입니다. 오늘안부는 의료 진단 서비스가 아닙니다.</p>
         </div>
       </section>
     </AppFrame>
@@ -652,5 +636,5 @@ function Brand() {
 }
 
 function AppFrame({ children, role, active, hideNavigation = false }: { children: React.ReactNode; role: ExperienceRole; active: ParentView | FamilyView; hideNavigation?: boolean }) {
-  return <main className="app-frame min-h-screen bg-[#F7F9F6] text-[#17221B]">{children}{hideNavigation ? null : role === "parent" ? <ParentBottomNavigation active={active as ParentView} /> : <FamilyBottomNavigation active={active as FamilyView} />}</main>;
+  return <main className={`app-frame min-h-screen bg-[#F7F9F6] text-[#17221B] ${hideNavigation ? "" : "has-bottom-nav"}`}>{children}{hideNavigation ? null : role === "parent" ? <ParentBottomNavigation active={active as ParentView} /> : <FamilyBottomNavigation active={active as FamilyView} />}</main>;
 }

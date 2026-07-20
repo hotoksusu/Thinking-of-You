@@ -17,8 +17,8 @@ export default function LandingPage() {
       <section className="senior-hero">
         <div className="senior-hero-copy">
           <p className="senior-kicker"><ShieldCheck aria-hidden="true" /> 가족 안심 서비스</p>
-          <h1>부모님의 오늘을<br />가볍게 확인하세요</h1>
-          <p className="senior-summary">매일 전화하지 않아도<br className="mobile-only" /> 필요한 순간을 알려드려요.</p>
+          <h1>부모님의 오늘을 가볍게 확인하세요</h1>
+          <p className="senior-summary">매일 전화하지 않아도 필요한 순간을 알려드려요.</p>
           <div className="senior-actions" aria-label="사용자 선택">
             <Link href="/app?role=parent" className="senior-button senior-button-primary">부모님으로 시작 <ArrowRight aria-hidden="true" /></Link>
             <Link href="/app?role=family" className="senior-button senior-button-secondary">가족으로 시작</Link>
@@ -42,7 +42,7 @@ export default function LandingPage() {
 
       <section className="senior-trust">
         <div>
-          <h2>복잡한 설정 없이<br />바로 시작할 수 있어요.</h2>
+          <h2>복잡한 설정 없이 바로 시작할 수 있어요.</h2>
           <ul>
             <li><Check aria-hidden="true" /> 큰 글씨와 큰 버튼</li>
             <li><Check aria-hidden="true" /> 필요한 내용만 표시</li>
