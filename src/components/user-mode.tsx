@@ -111,7 +111,17 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
               <div className="flex items-center gap-4 rounded-[22px] bg-[#FFF5EC] p-5"><Sprout className="shrink-0 text-[#D95423]" size={30} aria-hidden /><p className="text-lg font-black leading-7">농장이 자랐어요. 수확까지 3일!</p></div>
             </div>
             <p className="mt-7 text-lg font-bold text-[#667169]">오늘도 잘하셨어요.</p>
-            <Link href="/app?role=parent" className="mt-6 flex min-h-[76px] w-full items-center justify-center rounded-[22px] bg-[#2F6B46] px-6 text-[1.35rem] font-black text-white shadow-[0_14px_32px_rgba(47,107,70,0.22)]">확인</Link>
+            <button
+              type="button"
+              onClick={() => {
+                setCheckInStep("home");
+                setSelectedMood("");
+                window.location.assign("/app?role=parent&view=home&completed=1");
+              }}
+              className="mt-6 flex min-h-[76px] w-full items-center justify-center rounded-[22px] bg-[#2F6B46] px-6 text-[1.35rem] font-black text-white shadow-[0_14px_32px_rgba(47,107,70,0.22)]"
+            >
+              확인
+            </button>
           </div>
         </section>
       </AppFrame>
