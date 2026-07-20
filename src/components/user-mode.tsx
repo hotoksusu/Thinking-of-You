@@ -27,6 +27,8 @@ import {
   X,
 } from "lucide-react";
 import { familyTraces, getFarmGrowth, todayReport, todaySignals, type FamilyTrace } from "@/lib/life-pattern";
+import { chooseRecommendation, recordRecommendationEvent } from "@/lib/action-coordinator";
+import { TodayRecommendation } from "@/components/today-recommendation";
 
 type ExperienceRole = "parent" | "family";
 type ParentView = "home" | "record" | "photos" | "farm" | "profile" | "guide";
@@ -93,6 +95,7 @@ function RoleCard({ icon, role, description, actionLabel, onClick }: { icon: Rea
 
 function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialView: ParentView }) {
   const farm = getFarmGrowth(todaySignals, moments);
+  const recommendation = chooseRecommendation("parent", todaySignals, todayReport, moments);
   const [checkInStep, setCheckInStep] = useState<"home" | "done">("home");
   const [selectedMood, setSelectedMood] = useState("");
   const recordedMood = moods.find((mood) => mood.label === selectedMood);
@@ -285,6 +288,8 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
             </div>
           </section>
 
+          <TodayRecommendation recommendation={recommendation} />
+
           <section className="mt-5 rounded-[28px] bg-[#FFF8F2] p-6">
             <p className="text-sm font-black text-[#B95327]">오늘 기록하면</p>
             <div className="mt-4 grid gap-4 text-lg font-black">
@@ -332,8 +337,8 @@ function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: string; 
 
 function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrace[]; initialView: FamilyView; onAddMoment: (moment: FamilyTrace) => void }) {
   const farm = getFarmGrowth(todaySignals, moments);
+  const recommendation = chooseRecommendation("family", todaySignals, todayReport, moments);
   const [isWriting, setIsWriting] = useState(initialView === "compose");
-  const [familyActionDone, setFamilyActionDone] = useState(false);
 
   if (initialView === "reassurance") {
     return (
@@ -381,7 +386,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           <div className="mx-auto max-w-[620px]">
             <FamilyNewsIntro onStart={() => setIsWriting(true)} />
             <section className="mt-5 rounded-[28px] bg-[#FFF8ED] p-5">
-              <MomentComposer onCancel={() => setIsWriting(false)} onSave={(moment) => { onAddMoment(moment); setIsWriting(false); }} />
+              <MomentComposer onCancel={() => setIsWriting(false)} onSave={(moment) => { onAddMoment(moment); recordRecommendationEvent(recommendation, { completedAt: new Date().toISOString(), outcome: "family_photo_shared" }); setIsWriting(false); }} />
             </section>
           </div>
         </section>
@@ -441,22 +446,12 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
         <div className="mx-auto max-w-[620px]">
           <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
           <section className="mt-3 rounded-[30px] bg-[#1F6F7A] p-6 text-white shadow-[0_24px_65px_rgba(31,111,122,0.22)]">
-            <p className="flex items-center gap-2 text-sm font-black text-[#D8EEF0]"><span className="size-2 rounded-full bg-[#FFD08A]" />확인이 필요한 변화</p>
-            <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘 활동이<br />평소보다 적습니다.</h1>
-            <p className="mt-3 text-lg font-bold leading-8 text-white/80">이틀 연속 활동 시작이<br />평소보다 늦었습니다.</p>
+            <p className="flex items-center gap-2 text-sm font-black text-[#D8EEF0]"><span className="size-2 rounded-full bg-[#B9E1C0]" />오늘의 안심</p>
+            <h1 className="mt-5 text-[1.85rem] font-black leading-10">오늘은 평소와<br />비슷한 생활이에요.</h1>
+            <p className="mt-3 text-lg font-bold leading-8 text-white/80">지금 확인이 필요한<br />큰 변화는 없습니다.</p>
           </section>
 
-          <section className="mt-5 rounded-[24px] border-2 border-[#CFE1E4] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.06)]">
-            <div className="flex items-start gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF6F7] text-[#1F6F7A]"><Check /></span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-[#35737B]">권장 행동</p>
-                <h2 className="mt-1 text-xl font-black leading-7">오늘 안부 전화를 권합니다.</h2>
-                <p className="mt-2 font-bold text-[#657069]">변화가 이틀째 이어지고 있어요.</p>
-              </div>
-            </div>
-            {familyActionDone ? <p className="mt-5 rounded-2xl bg-[#E8F5EF] p-4 text-center font-black text-[#2F6B46]">확인 완료 · 오늘 안부를 확인했습니다.</p> : <div className="mt-5 grid grid-cols-2 gap-3"><a href="tel:01000000000" className="flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[#1F6F7A] px-4 font-black text-white"><Phone size={20} /> 전화하기</a><button type="button" onClick={() => setFamilyActionDone(true)} className="min-h-14 rounded-2xl border-2 border-[#1F6F7A] px-4 font-black text-[#1F6F7A]">확인 완료</button></div>}
-          </section>
+          <TodayRecommendation recommendation={recommendation} />
 
           <section className="mt-5 rounded-[24px] bg-[#FFF8ED] p-6">
             <p className="text-sm font-black text-[#B95327]">부모님의 오늘 기록</p>
