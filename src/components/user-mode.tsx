@@ -41,7 +41,7 @@ type MoodResponse = {
   description: string;
   tone: string;
   iconTone: string;
-  farmMessage: string;
+  farmMessage: string[];
   primaryLabel: string;
   primaryTarget: string;
   secondaryLabel?: string;
@@ -53,10 +53,10 @@ type ParentView = "home" | "record" | "photos" | "farm" | "profile" | "guide";
 type FamilyView = "home" | "reassurance" | "changes" | "compose" | "farm" | "profile" | "guide";
 
 const moodResponses: Record<MoodKey, MoodResponse> = {
-  good: { icon: "😊", label: "좋아요", title: "오늘 기분이 좋으셨군요.", description: "좋은 하루를 알려주셔서 고마워요.", tone: "bg-[#FFF8E8]", iconTone: "bg-[#FFF0C7]", farmMessage: "토마토가 따뜻한 햇빛을 받았어요.", primaryLabel: "오늘 자란 농장 보기", primaryTarget: "/farm", familyNotifyMode: "none", animation: "farm-seed-pop" },
-  okay: { icon: "🙂", label: "괜찮아요", title: "오늘도 무난하게 보내셨군요.", description: "평소처럼 편안하게 지내시면 됩니다.", tone: "bg-[#F2F7EF]", iconTone: "bg-[#E4EFE0]", farmMessage: "오늘도 농장이 평소처럼 잘 자라고 있어요.", primaryLabel: "홈으로 가기", primaryTarget: "/app?role=parent", familyNotifyMode: "none", animation: "completion-slide" },
-  tired: { icon: "😴", label: "피곤해요", title: "오늘은 조금 피곤하셨군요.", description: "오늘은 편하게 쉬어도 괜찮아요.", tone: "bg-[#F1F4F8]", iconTone: "bg-[#E4EAF2]", farmMessage: "오늘은 쉬어가는 날이에요. 농장은 잘 자라고 있어요.", primaryLabel: "편하게 쉬기", primaryTarget: "/app?role=parent", secondaryLabel: "가족 소식 보기", secondaryTarget: "/app?role=parent&view=photos", familyNotifyMode: "repeated_only", animation: "completion-slide" },
-  difficult: { icon: "🤝", label: "조금 힘들어요", title: "알려주셔서 고마워요.", description: "오늘은 혼자 참지 않으셔도 괜찮아요.", tone: "bg-[#FFF5EE]", iconTone: "bg-[#FFE5D3]", farmMessage: "따뜻한 빛으로 농장을 편안하게 지켜드릴게요.", primaryLabel: "가족에게 알려주세요", primaryTarget: "", secondaryLabel: "오늘은 괜찮아요", secondaryTarget: "", familyNotifyMode: "ask_consent", animation: "completion-slide" },
+  good: { icon: "😊", label: "좋아요", title: "오늘 기분이 좋으셨군요.", description: "좋은 하루를 알려주셔서 고마워요.", tone: "bg-[#FFF8E8]", iconTone: "bg-[#FFF0C7]", farmMessage: ["토마토가 따뜻한 햇빛을 받았어요."], primaryLabel: "오늘 자란 농장 보기", primaryTarget: "/farm", familyNotifyMode: "none", animation: "farm-seed-pop" },
+  okay: { icon: "🙂", label: "괜찮아요", title: "오늘도 무난하게 보내셨군요.", description: "평소처럼 편안하게 지내시면 됩니다.", tone: "bg-[#F2F7EF]", iconTone: "bg-[#E4EFE0]", farmMessage: ["오늘도 농장이 잘 자라고 있어요."], primaryLabel: "홈으로 가기", primaryTarget: "/app?role=parent", familyNotifyMode: "none", animation: "completion-slide" },
+  tired: { icon: "😴", label: "피곤해요", title: "오늘은 조금 피곤하셨군요.", description: "오늘은 편하게 쉬어도 괜찮아요.", tone: "bg-[#F1F4F8]", iconTone: "bg-[#E4EAF2]", farmMessage: ["오늘은 쉬어가는 날이에요.", "농장은 잘 자라고 있어요."], primaryLabel: "편하게 쉬기", primaryTarget: "/app?role=parent", secondaryLabel: "가족 소식 보기", secondaryTarget: "/app?role=parent&view=photos", familyNotifyMode: "repeated_only", animation: "completion-slide" },
+  difficult: { icon: "🤝", label: "조금 힘들어요", title: "알려주셔서 고마워요.", description: "오늘은 혼자 참지 않으셔도 괜찮아요.", tone: "bg-[#FFF5EE]", iconTone: "bg-[#FFE5D3]", farmMessage: ["따뜻한 빛으로 농장을 지켜드릴게요."], primaryLabel: "가족에게 알려주세요", primaryTarget: "", secondaryLabel: "오늘은 괜찮아요", secondaryTarget: "", familyNotifyMode: "ask_consent", animation: "completion-slide" },
 };
 
 const moods = (Object.entries(moodResponses) as [MoodKey, MoodResponse][]).map(([key, response]) => ({ key, emoji: response.icon, label: response.label }));
@@ -163,7 +163,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
           <div className="mx-auto w-full max-w-[560px] rounded-[36px] bg-white p-7 text-center shadow-[0_24px_70px_rgba(49,78,58,0.13)] sm:p-9">
             <AnsimiCharacter state={familyConsent === "sent" ? "guide" : familyConsent === "declined" ? "rest" : moodDialogue[`${selectedMood}-response`]?.characterState ?? "calm"} message={familyConsent === "declined" ? "알겠습니다." : response.title} secondaryMessage={familyConsent === "declined" ? "오늘은 편하게 쉬세요." : response.description} />
 
-            {familyConsent !== "declined" ? <div className="mt-5 rounded-[22px] bg-[#EEF7EA] p-5 text-center"><p className="text-lg font-black leading-7 text-[#285F3A]">🌱 {response.farmMessage}</p></div> : null}
+            {familyConsent !== "declined" ? <div className="mt-5 rounded-[22px] bg-[#EEF7EA] p-5 text-center"><div className="readable-sentences text-lg font-black leading-8 text-[#285F3A]">{response.farmMessage.map((message, index) => <p key={message}>{index === 0 ? "🌱 " : ""}{message}</p>)}</div></div> : null}
 
             {selectedMood === "difficult" && familyConsent === "undecided" ? (
               <div className="mt-7">
@@ -588,7 +588,7 @@ function ParentBottomNavigation({ active }: { active: ParentView }) {
     { id: "farm" as const, label: "농장", href: "/app?role=parent&view=farm", icon: Sprout },
     { id: "profile" as const, label: "내정보", href: "/app?role=parent&view=profile", icon: UserRound },
   ];
-  return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home") || (active === "guide" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.95rem] font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={26} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
+  return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home") || (active === "guide" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-base font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={27} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
 }
 
 function FamilyBottomNavigation({ active }: { active: FamilyView }) {
@@ -598,7 +598,7 @@ function FamilyBottomNavigation({ active }: { active: FamilyView }) {
     { id: "compose" as const, label: "소식남기기", href: "/app?role=family&view=compose", icon: ImagePlus },
     { id: "farm" as const, label: "농장", href: "/app?role=family&view=farm", icon: Sprout },
   ];
-  return <nav aria-label="가족 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "reassurance" && tab.id === "home") || (active === "profile" && tab.id === "home") || (active === "guide" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.9rem] font-black ${selected ? "bg-[#EAF6F7] text-[#1F6F7A]" : "text-[#59655E]"}`}><Icon size={25} strokeWidth={selected ? 2.8 : 2.1} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
+  return <nav aria-label="가족 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "reassurance" && tab.id === "home") || (active === "profile" && tab.id === "home") || (active === "guide" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-base font-black ${selected ? "bg-[#EAF6F7] text-[#1F6F7A]" : "text-[#59655E]"}`}><Icon size={27} strokeWidth={selected ? 2.8 : 2.1} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
 }
 
 function MomentComposer({ onCancel, onSave }: { onCancel: () => void; onSave: (moment: FamilyTrace) => void }) {

@@ -275,6 +275,29 @@ a {
   overflow-wrap: break-word;
 }
 
+.readable-sentences > * {
+  display: block;
+  margin: 0;
+  text-wrap: balance;
+  word-break: keep-all;
+}
+
+.readable-sentences > * + * {
+  margin-top: 0.2rem;
+}
+
+@media (max-width: 520px) {
+  .app-frame :where(.text-xs, .text-sm, small) {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .app-frame :where(button, a) {
+    word-break: keep-all;
+    white-space: normal;
+  }
+}
+
 .app-frame :where(button, input, textarea, select) {
   max-width: 100%;
 }

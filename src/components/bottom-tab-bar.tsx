@@ -17,7 +17,7 @@ export function BottomTabBar({ active }: { active: TabId }) {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const selected = tab.id === active;
-          return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[0.95rem] font-black ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={25} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>;
+          return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-base font-black ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={27} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>;
         })}
       </div>
     </nav>
