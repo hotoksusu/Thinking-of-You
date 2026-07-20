@@ -157,14 +157,42 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
       <AppFrame role="parent" active="farm">
         <ParentSectionHeader title="안부농장" />
         <section className="px-5 pb-36 pt-7">
-          <div className="mx-auto max-w-[560px] rounded-[30px] bg-[#EAF3E5] p-7 text-center shadow-[0_20px_55px_rgba(49,78,58,0.10)] sm:p-9">
-            <img src="/brand/farm-mascot.png" alt="토마토를 키우는 안심이" className="mx-auto size-44 rounded-[30px] object-cover" />
-            <p className="mt-6 text-xl font-black text-[#477052]">정희님의 토마토</p>
-            <h1 className="mt-3 text-[2rem] font-black leading-tight text-[#17221B]">오늘도 생활이 쌓여 작물이 자라고 있어요.</h1>
-            <div className="mt-7 h-5 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full bg-[#78A76E]" style={{ width: `${farm.percent}%` }} /></div>
-            <p className="mt-4 text-xl font-black text-[#315B3D]">지금 {farm.percent}% 자랐어요</p>
-            <p className="mt-5 text-lg font-bold leading-8 text-[#526258]">수확할 때가 되면 가족이 배송을 도와드려요.</p>
-            <Link href="/farm" className="mt-8 flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#2F6B46] px-6 text-[1.35rem] font-black text-white">농장 자세히 보기 <ChevronRight size={25} /></Link>
+          <div className="mx-auto max-w-[560px] overflow-hidden rounded-[30px] bg-[#EAF3E5] text-center shadow-[0_20px_55px_rgba(49,78,58,0.12)]">
+            <div className="bg-[#245F3D] px-6 py-4 text-white">
+              <p className="flex items-center justify-center gap-2 text-xl font-black"><Sprout size={25} aria-hidden /> 매일 기록할수록 농작물이 자라요</p>
+            </div>
+
+            <div className="p-7 sm:p-9">
+              <img src="/brand/farm-mascot.png?v=7" alt="토마토와 수확 바구니를 든 안심이" className="mx-auto size-44 rounded-[30px] object-cover" />
+              <p className="mt-5 text-xl font-black text-[#315B3D]">정희님이 선택한 토마토</p>
+              <h1 className="mt-3 text-[2.15rem] font-black leading-[1.25] text-[#17221B]">오늘 안부를 기록하면<br /><span className="text-[#267044]">토마토가 또 자라요!</span></h1>
+
+              <div className="mt-7 rounded-[24px] bg-white p-5 text-left">
+                <div className="flex items-center justify-between gap-3">
+                  <strong className="text-xl text-[#263A30]">수확까지 자란 만큼</strong>
+                  <strong className="text-[1.75rem] text-[#267044]">{farm.percent}%</strong>
+                </div>
+                <div className="mt-3 h-6 overflow-hidden rounded-full bg-[#E3ECE0]" role="progressbar" aria-label="토마토 성장률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={farm.percent}>
+                  <div className="h-full rounded-full bg-[#65A45F]" style={{ width: `${farm.percent}%` }} />
+                </div>
+                <p className="mt-3 text-lg font-black text-[#315B3D]">조금만 더 기록하면 수확할 수 있어요.</p>
+              </div>
+
+              <div className="mt-5 rounded-[24px] border-2 border-[#F2C47D] bg-[#FFF7E8] p-5 text-left">
+                <p className="flex items-center gap-2 text-xl font-black text-[#8A4A14]"><PackageOpen size={27} aria-hidden /> 다 자라면 실물로 배송해 드려요</p>
+                <p className="mt-2 text-lg font-bold leading-8 text-[#6C5540]">수확한 농작물을 받을 주소는 가족이 함께 확인해요.</p>
+              </div>
+
+              <div className="mt-6 grid grid-cols-3 gap-2" aria-label="안부농장 이용 순서">
+                <div className="rounded-2xl bg-white p-3"><CheckCircle2 className="mx-auto text-[#267044]" size={27} aria-hidden /><strong className="mt-2 block text-base">매일 기록</strong></div>
+                <div className="rounded-2xl bg-white p-3"><Sprout className="mx-auto text-[#267044]" size={27} aria-hidden /><strong className="mt-2 block text-base">작물 성장</strong></div>
+                <div className="rounded-2xl bg-white p-3"><PackageOpen className="mx-auto text-[#C56922]" size={27} aria-hidden /><strong className="mt-2 block text-base">실물 배송</strong></div>
+              </div>
+
+              <Link href="/app?role=parent&view=record" className="mt-7 flex min-h-[76px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#D95C24] px-6 text-[1.4rem] font-black text-white shadow-[0_14px_28px_rgba(217,92,36,.22)]">오늘 기록하고 키우기 <ChevronRight size={27} /></Link>
+              <Link href="/farm" className="mt-3 flex min-h-[64px] w-full items-center justify-center gap-2 rounded-[20px] border-2 border-[#2F6B46] bg-white px-6 text-xl font-black text-[#2F6B46]">내 농장 자세히 보기</Link>
+              <p className="mt-4 text-base font-bold leading-7 text-[#596A60]">현재는 서비스 체험 화면이며 실제 배송은 정식 운영 시 제공됩니다.</p>
+            </div>
           </div>
         </section>
       </AppFrame>
