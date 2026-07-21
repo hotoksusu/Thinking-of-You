@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Footprints, Phone, ShieldCheck } from "lucide-react";
 import { storageKeys } from "@/lib/storage-keys";
 
+const supportStatus = [["걸음과 움직임", "연결 가능"], ["앱 방문과 질문 응답", "연결 가능"], ["생활 시간대", "테스트 중"], ["통화 활동", "준비 중"], ["수면", "지원 예정"]] as const;
+
 const permissions = [
   {
     key: storageKeys.stepsPermission,
@@ -51,6 +53,11 @@ export default function PermissionGuidePage() {
             <p className="flex items-start gap-3 rounded-2xl bg-[#EEF4EE] p-5"><ShieldCheck className="mt-1 shrink-0 text-[#2F6B46]" />{current.excluded}</p>
           </div>
           <p className="mt-4 text-base font-bold leading-7 text-[#5F6D65]">동의는 나중에 언제든 철회할 수 있습니다. 현재 체험에서는 실제 정보 대신 연결 선택 상태만 저장됩니다.</p>
+          <details className="mt-5 rounded-[22px] bg-white p-5">
+            <summary className="cursor-pointer text-lg font-black text-[#2F6B46]">현재 지원 상태 보기</summary>
+            <div className="mt-4 grid gap-2">{supportStatus.map(([name, status]) => <div key={name} className="flex items-center justify-between gap-3 rounded-xl bg-[#F5F8F3] px-4 py-3 font-bold"><span>{name}</span><span className="text-sm text-[#52705A]">{status}</span></div>)}</div>
+            <p className="mt-4 font-bold leading-7 text-[#52635C]">통화 내용, 문자 내용, 사진 내용은 확인하지 않습니다.</p>
+          </details>
         </div>
         <button type="button" onClick={() => choose("granted")} className="flex min-h-[72px] items-center justify-center gap-2 rounded-[22px] bg-[#2F6B46] px-5 text-xl font-black text-white">{current.action}<ArrowRight size={23} /></button>
         <button type="button" onClick={() => choose("later")} className="mt-2 min-h-14 text-lg font-black text-[#52635C]">나중에 하기</button>

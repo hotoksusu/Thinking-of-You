@@ -31,6 +31,7 @@ import { chooseRecommendation, recordRecommendationEvent } from "@/lib/action-co
 import { TodayRecommendation } from "@/components/today-recommendation";
 import { AnsimiCharacter } from "@/components/ansimi-character";
 import { DailyQuestionFlow } from "@/components/daily-question-flow";
+import { experienceCopy, type ExperienceMode } from "@/lib/experience-mode";
 import { readQuestionHistory } from "@/lib/daily-questions";
 import { moodDialogue, recordAnsimiEvent } from "@/lib/ansimi-dialogue";
 
@@ -358,6 +359,8 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
   const [shareComplete, setShareComplete] = useState(false);
   const [familyMoodAlert, setFamilyMoodAlert] = useState<string | null>(null);
   const [questionSummary, setQuestionSummary] = useState<{ title: string; detail: string; weekly: string[] } | null>(null);
+  const experienceMode: ExperienceMode = "demo";
+  const experience = experienceCopy[experienceMode];
 
   useEffect(() => {
     try {
@@ -471,6 +474,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
             <div className="mt-5 grid gap-3">
               <SettingLink href="/family/members" icon={<UsersRound />} title="가족 연결 관리" description="함께 확인할 가족을 관리해요." tone="family" />
               <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 설정" description="알림 받을 시간과 내용을 정해요." tone="family" />
+              <SettingLink href="/permissions" icon={<ShieldCheck />} title="데이터 연결 상태" description="연결 가능·테스트 중·준비 중인 정보를 확인해요." tone="family" />
               <SettingLink href="/app?role=family&view=guide" icon={<Leaf />} title="오늘안부 이용 안내" description="주요 서비스를 다시 볼 수 있어요." tone="family" />
             </div>
           </div>
@@ -493,23 +497,24 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
       <FamilySectionHeader title="엄마의 오늘" />
       <section className="px-5 pb-32 pt-5">
         <div className="mx-auto max-w-[620px]">
-          <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
+          <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">{experience.badge}</span>
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
           <section className="mt-4 rounded-[28px] bg-[#1F6F7A] p-6 text-white shadow-[0_18px_45px_rgba(31,111,122,.18)]">
             <p className="text-sm font-black text-white/75">오늘의 상태</p>
-            <h1 className="mt-3 text-[2rem] font-black leading-tight">오늘도 평소와 비슷한 생활입니다.</h1>
+            <h1 className="mt-3 text-[2rem] font-black leading-tight">{experience.status}</h1>
             <div className="mt-5 rounded-[20px] bg-white/12 p-4 text-lg font-bold leading-8">
-              <p>• 최근 움직임은 평소 범위예요.</p>
-              <p>• {questionSummary?.detail ?? "짧은 응답도 함께 살펴보고 있어요."}</p>
+              <p>• 최근 3일간 움직임이 줄어든 예시입니다.</p>
+              <p>• {questionSummary?.detail ?? experience.detail}</p>
             </div>
           </section>
 
           <section className="mt-5 rounded-[24px] bg-white p-6 shadow-sm">
             <p className="text-sm font-black text-[#2F6B46]">오늘의 행동</p>
-            <h2 className="mt-2 text-2xl font-black">지금 필요한 행동은 없습니다.</h2>
-            <p className="mt-3 font-bold leading-7 text-[#637069]">평소와 다른 변화가 이어질 때 할 일 하나를 알려드릴게요.</p>
-            <Link href="/app?role=family&view=changes" className="mt-4 inline-flex min-h-12 items-center font-black text-[#1F6F7A]">확인한 근거 보기 <ChevronRight size={20} /></Link>
+            <h2 className="mt-2 text-2xl font-black">오늘 짧게 전화해보세요.</h2>
+            <p className="mt-3 font-bold leading-7 text-[#637069]">변화 예시를 확인한 뒤 부모님의 안부를 직접 확인해보세요.</p>
+            <a href="tel:" className="mt-5 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a>
+            <Link href="/app?role=family&view=changes" className="mt-2 flex min-h-12 items-center justify-center font-black text-[#1F6F7A]">변화 자세히 보기 <ChevronRight size={20} /></Link>
           </section>
 
           <section className="mt-5 rounded-[24px] bg-[#F1F7F3] p-6">
