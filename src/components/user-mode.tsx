@@ -354,7 +354,8 @@ function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: MoodKey 
 function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrace[]; initialView: FamilyView; onAddMoment: (moment: FamilyTrace) => void }) {
   const farm = getFarmGrowth(todaySignals, moments);
   const recommendation = chooseRecommendation("family", todaySignals, todayReport, moments);
-  const [isWriting, setIsWriting] = useState(initialView === "compose");
+  const [isWriting, setIsWriting] = useState(false);
+  const [shareComplete, setShareComplete] = useState(false);
   const [familyMoodAlert, setFamilyMoodAlert] = useState<string | null>(null);
   const [questionSummary, setQuestionSummary] = useState<{ title: string; detail: string; weekly: string[] } | null>(null);
 
@@ -420,10 +421,21 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
         <FamilySectionHeader title="가족 소식 남기기" />
         <section className="px-5 pb-32 pt-6">
           <div className="mx-auto max-w-[620px]">
-            <FamilyNewsIntro onStart={() => setIsWriting(true)} />
-            <section className="mt-5 rounded-[28px] bg-[#FFF8ED] p-5">
-              <MomentComposer onCancel={() => setIsWriting(false)} onSave={(moment) => { onAddMoment(moment); recordRecommendationEvent(recommendation, { completedAt: new Date().toISOString(), outcome: "family_photo_shared" }); setIsWriting(false); }} />
-            </section>
+            {shareComplete ? (
+              <section className="rounded-[28px] bg-white p-7 text-center shadow-[0_16px_42px_rgba(49,78,58,.08)]">
+                <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#EAF3E5] text-[#2F6B46]"><Check size={38} /></span>
+                <h1 className="mt-5 text-[1.8rem] font-black">가족 소식을 남겼어요.</h1>
+                <p className="mt-3 text-lg font-bold text-[#637069]">부모님이 가족 소식에서 확인할 수 있어요.</p>
+                <Link href="/app?role=family" className="mt-6 flex min-h-[64px] items-center justify-center rounded-[20px] bg-[#D95423] px-6 text-xl font-black text-white">가족 홈으로 가기</Link>
+                <button type="button" onClick={() => { setShareComplete(false); setIsWriting(true); }} className="mt-2 min-h-14 w-full text-lg font-black text-[#52635C]">소식 하나 더 남기기</button>
+              </section>
+            ) : isWriting ? (
+              <section className="rounded-[28px] bg-[#FFF8ED] p-5">
+                <MomentComposer onCancel={() => setIsWriting(false)} onSave={(moment) => { onAddMoment(moment); recordRecommendationEvent(recommendation, { completedAt: new Date().toISOString(), outcome: "family_photo_shared" }); setIsWriting(false); setShareComplete(true); }} />
+              </section>
+            ) : (
+              <FamilyNewsIntro onStart={() => setIsWriting(true)} />
+            )}
           </div>
         </section>
       </AppFrame>
