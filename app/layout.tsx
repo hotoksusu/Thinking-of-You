@@ -7,10 +7,10 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://oneul-anbu.yos1015.chatgpt.site"),
   applicationName: "오늘안부",
   title: "오늘안부",
-  description: "부모님의 오늘을 간단히 기록하고, 필요한 순간을 가족에게 알려주는 안부 서비스입니다.",
+  description: "매일 묻지 않아도 평소와 다른 날을 알려드리는 생활 변화 안심 서비스입니다.",
   openGraph: {
     title: "오늘안부",
-    description: "부모님의 오늘을 가볍게 확인하세요",
+    description: "부모님은 평소처럼 생활하고, 가족은 달라진 날만 확인하세요.",
     images: [{ url: "/og.png", width: 1680, height: 952, alt: "오늘안부" }],
   },
   manifest: "/manifest.json",

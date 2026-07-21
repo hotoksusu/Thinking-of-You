@@ -20,7 +20,6 @@ function todayNumber() {
 
 export default function FarmPage() {
   const percent = getFarmGrowth().percent;
-  const remainingDays = Math.max(90 - Math.round((percent / 100) * 90), 0);
   const [changeIndex, setChangeIndex] = useState(0);
   const [hasMoodToday, setHasMoodToday] = useState(false);
 
@@ -60,11 +59,11 @@ export default function FarmPage() {
 
         <section className="mt-4 rounded-[24px] bg-white px-5 py-4 shadow-[0_10px_28px_rgba(40,70,48,.07)]" aria-label="토마토 수확 진행 상황">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-[1.6rem] font-black">수확까지 {remainingDays}일</h2>
+            <h2 className="text-[1.6rem] font-black">30일 성장 과정</h2>
             <span className="text-lg font-black text-[#397248]">{percent}%</span>
           </div>
           <div className="mt-3 h-5 overflow-hidden rounded-full bg-[#E4ECE1]" role="progressbar" aria-label="토마토 성장률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}><div className="h-full rounded-full bg-[#66A35E]" style={{ width: `${percent}%` }} /></div>
-          <p className="mt-3 text-lg font-bold text-[#52645A]">열매가 익어가는 중이에요.</p>
+          <p className="mt-3 text-lg font-bold text-[#52645A]">평소의 생활과 가족 응원이 따뜻한 장면으로 쌓여요.</p>
           <details className="mt-2 text-lg font-bold text-[#397248]">
             <summary className="cursor-pointer list-none py-1">다음에는 토마토가 더 붉어져요. <ChevronRight className="inline" size={19} /></summary>
             <p className="mt-2 rounded-xl bg-[#F4F8F1] p-3 text-base text-[#5C6C62]">생활이 쌓이면 다음 모습이 자동으로 나타납니다.</p>
@@ -79,8 +78,8 @@ export default function FarmPage() {
         </Link>
 
         <details className="mt-4 rounded-[20px] bg-[#FFF8E9] px-5 py-4 text-[#694D22]">
-          <summary className="cursor-pointer list-none text-lg font-black">수확하면 토마토를 보내드려요. <ChevronRight className="inline" size={19} /></summary>
-          <div className="mt-3 border-t border-[#E8D7B7] pt-3 text-base font-bold leading-7"><p>주소는 수확할 때 가족이 확인합니다.</p><p>현재는 체험용이며 실제 배송 조건은 정식 운영 전에 안내합니다.</p></div>
+          <summary className="cursor-pointer list-none text-lg font-black">체험용 농장 안내 <ChevronRight className="inline" size={19} /></summary>
+          <div className="mt-3 border-t border-[#E8D7B7] pt-3 text-base font-bold leading-7"><p>질문을 건너뛰거나 힘든 날에도 불이익은 없습니다.</p><p>실제 수확 및 배송 조건은 정식 운영 전에 안내합니다.</p></div>
         </details>
       </div>
 

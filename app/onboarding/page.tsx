@@ -47,7 +47,7 @@ function OnboardingFlow() {
   const params = useSearchParams();
   const router = useRouter();
   const role: Role = params.get("role") === "family" ? "family" : "parent";
-  const total = role === "parent" ? 4 : 6;
+  const total = 4;
   const [step, setStep] = useState(1);
   const [purposes, setPurposes] = useState<string[]>([]);
   const [relation, setRelation] = useState("");
@@ -113,18 +113,16 @@ function OnboardingFlow() {
 
 function ParentStep({ step, onNext, onFinish }: { step: number; onNext: () => void; onFinish: () => void }) {
   if (step === 1) return <StepBody icon={<HeartHandshake />} title={<>안녕하세요.<br />오늘안부를 편하게 시작해볼게요.</>}><PrimaryButton onClick={onNext}>시작하기</PrimaryButton></StepBody>;
-  if (step === 2) return <StepBody icon={<Footprints />} title={<>매일 많은 것을<br />묻지 않아요.</>} description={<>걸음과 생활은 자동으로 살펴보고,<br />필요한 날에만 질문 하나를 짧게 여쭤볼게요.</>}><div className="mx-auto mt-6 flex max-w-[330px] items-center justify-center gap-4 rounded-[26px] bg-[#F2F7EF] p-5"><span className="text-5xl">🚶</span><ArrowRight className="text-[#78A76E]" /><span className="text-5xl">🌿</span></div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
-  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>통화 내용은<br />보지 않습니다.</>} description={<>연락한 시간과 횟수의<br />변화만 확인합니다.</>}><div className="mt-6 rounded-[22px] bg-[#EFF6F1] p-4 text-lg font-black text-[#315B3D]">내용은 보호하고, 변화만 살펴봐요.</div><PrimaryButton onClick={onNext}>확인했어요</PrimaryButton></StepBody>;
-  return <StepBody icon={<Sparkles />} title={<>대답하기 싫은 날은<br />건너뛰어도 괜찮아요.</>} description={<>건너뛰어도 농장과 기록에 불이익이 없고,<br />같은 질문을 다음 날 강제로 묻지 않아요.</>}><ServiceSummary role="parent" /><PrimaryButton onClick={onFinish}>오늘안부 시작하기</PrimaryButton></StepBody>;
+  if (step === 2) return <StepBody icon={<Footprints />} title={<>매일 많은 것을<br />묻지 않아요.</>} description={<>동의한 걸음과 생활 흐름을<br />조용히 살펴봅니다.</>}><div className="mx-auto mt-6 flex max-w-[330px] items-center justify-center gap-4 rounded-[26px] bg-[#F2F7EF] p-5"><span className="text-5xl">🚶</span><ArrowRight className="text-[#78A76E]" /><span className="text-5xl">🌿</span></div><PrimaryButton onClick={onNext}>생활 확인 연결하기</PrimaryButton></StepBody>;
+  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>필요한 날에만<br />질문 하나를 드릴게요.</>} description={<>대답하기 싫은 날은<br />건너뛰어도 괜찮아요.</>}><div className="mt-6 rounded-[22px] bg-[#EFF6F1] p-4 text-lg font-black text-[#315B3D]">통화와 문자 내용은 보지 않아요.</div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
+  return <StepBody icon={<Sparkles />} title={<>이제 평소처럼<br />생활하시면 됩니다.</>} description={<>가족 소식과 농장 변화도<br />여기에서 볼 수 있어요.</>}><PrimaryButton onClick={onFinish}>오늘안부 시작하기</PrimaryButton></StepBody>;
 }
 
 function FamilyStep({ step, purposes, relation, method, onTogglePurpose, onRelation, onMethod, onNext, onFinish }: { step: number; purposes: string[]; relation: string; method: string; onTogglePurpose: (id: string) => void; onRelation: (id: string) => void; onMethod: (id: string) => void; onNext: () => void; onFinish: () => void }) {
-  if (step === 1) return <StepBody icon={<HeartHandshake />} title={<>오늘안부를<br />어떻게 사용하고 싶으신가요?</>} description="최대 2개까지 선택해 주세요."><ChoiceList items={familyPurposes} selected={purposes} onSelect={onTogglePurpose} /><PrimaryButton onClick={onNext} disabled={!purposes.length}>다음</PrimaryButton></StepBody>;
-  if (step === 2) return <StepBody icon={<Users />} title="누구와 연결하시나요?"><ChoiceList items={relations} selected={relation ? [relation] : []} onSelect={onRelation} compact /><PrimaryButton onClick={onNext} disabled={!relation}>다음</PrimaryButton></StepBody>;
-  if (step === 3) return <StepBody icon={<ImageIcon />} title={<>사진 한 장도<br />큰 안부가 됩니다.</>}><div className="mt-6 grid grid-cols-4 gap-2">{[["👶","손주"],["🍚","식사"],["✈️","여행"],["☀️","일상"]].map(([icon,label]) => <div key={label} className="rounded-2xl bg-[#FFF5EC] p-3 text-center"><span className="text-3xl">{icon}</span><strong className="mt-2 block text-sm">{label}</strong></div>)}</div><PrimaryButton onClick={onNext}>알겠습니다</PrimaryButton></StepBody>;
-  if (step === 4) return <StepBody icon={<ShieldCheck />} title={<>부모님께 매일<br />긴 기록을 요구하지 않습니다.</>} description={<>생활 흐름은 자동으로 확인하고,<br />필요한 날에만 짧은 질문 하나를 드립니다.</>}><div className="mt-5 rounded-[22px] bg-[#EFF6F1] p-4 text-left font-bold leading-7 text-[#315B3D]">월요일 식사 · 수요일 몸 상태 · 금요일 기분<br /><small>예시는 상황에 따라 달라질 수 있어요.</small></div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
-  if (step === 5) return <StepBody icon={<Smartphone />} title="어떻게 연결할까요?"><ChoiceList items={methods} selected={method ? [method] : []} onSelect={onMethod} /><PrimaryButton onClick={onNext} disabled={!method}>이 방법으로 연결하기</PrimaryButton></StepBody>;
-  return <StepBody icon={<Check />} title={<>단일 답변이 아니라<br />반복되는 흐름을 보여드려요.</>} description="생활 데이터와 질문 응답을 함께 해석해 가족에게 불안을 주지 않아요."><ServiceSummary role="family" /><PrimaryButton onClick={onFinish}>가족 홈 시작하기</PrimaryButton></StepBody>;
+  if (step === 1) return <StepBody icon={<HeartHandshake />} title={<>부모님께 매일<br />긴 기록을 요구하지 않습니다.</>} description={<>생활 흐름은 조용히 확인하고,<br />필요한 날에만 질문 하나를 드립니다.</>}><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
+  if (step === 2) return <StepBody icon={<Footprints />} title={<>한 번의 답보다<br />반복되는 변화를 봅니다.</>} description={<>동의한 생활 흐름과<br />짧은 응답을 함께 살펴봅니다.</>}><PrimaryButton onClick={onNext}>다음</PrimaryButton></StepBody>;
+  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>평소와 다른 날만<br />알려드립니다.</>} description={<>가족은 변화가 있을 때<br />필요한 행동 하나를 선택합니다.</>}><PrimaryButton onClick={onNext}>다음</PrimaryButton></StepBody>;
+  return <StepBody icon={<Smartphone />} title="어떻게 연결할까요?" description={<>부모님은 평소처럼 생활하고,<br />가족은 달라진 날만 확인합니다.</>}><ChoiceList items={methods} selected={method ? [method] : []} onSelect={onMethod} /><PrimaryButton onClick={onFinish} disabled={!method}>부모님 연결하기</PrimaryButton></StepBody>;
 }
 
 function StepBody({ icon, title, description, children }: { icon: React.ReactNode; title: React.ReactNode; description?: React.ReactNode; children: React.ReactNode }) {
@@ -140,6 +138,6 @@ function PrimaryButton({ onClick, disabled = false, children }: { onClick: () =>
 }
 
 function ServiceSummary({ role }: { role: Role }) {
-  const items = role === "parent" ? [["오늘의 생활","평소처럼 생활하면 됩니다.",<Footprints key="a" />],["가족 소식","사진과 안부를 받아봅니다.",<ImageIcon key="b" />],["안부농장","생활이 쌓이면 작물이 자랍니다.",<Sprout key="c" />],["수확 선물","꾸준한 생활이 계절 수확이 됩니다.",<PackageOpen key="d" />]] : [["오늘의 안심","평소와 다른 변화만 확인합니다.",<ShieldCheck key="a" />],["생활 변화","생활 흐름을 살펴봅니다.",<Footprints key="b" />],["가족 소식","사진이나 한 줄을 남깁니다.",<ImageIcon key="c" />],["안부농장","성장과 수확 시기를 확인합니다.",<Leaf key="d" />]];
+  const items = role === "parent" ? [["오늘의 생활","평소처럼 생활하면 됩니다.",<Footprints key="a" />],["가족 소식","사진과 안부를 받아봅니다.",<ImageIcon key="b" />],["안부농장","생활이 쌓이면 작물이 자랍니다.",<Sprout key="c" />]] : [["오늘의 상태","평소와 다른 변화만 확인합니다.",<ShieldCheck key="a" />],["다음 행동","필요할 때 할 일 하나를 안내합니다.",<Footprints key="b" />],["가족 소식","가끔 사진이나 한 줄을 남깁니다.",<ImageIcon key="c" />]];
   return <div className="mt-6 rounded-[24px] bg-[#F2F7EF] p-4 text-left"><p className="mb-3 text-center text-lg font-black text-[#315B3D]">오늘안부는 이렇게 사용해요</p><div className="grid gap-2">{items.map(([title,text,icon]) => <div key={String(title)} className="flex items-center gap-3 rounded-2xl bg-white p-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#EAF3E5] text-[#2F6B46] [&>svg]:size-5">{icon}</span><span><strong className="block text-base">{title}</strong><span className="text-sm font-bold text-[#667169]">{text}</span></span></div>)}</div></div>;
 }

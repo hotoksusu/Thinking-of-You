@@ -260,12 +260,12 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
               </div>
 
               <div className="mt-5 rounded-[24px] border-2 border-[#F2C47D] bg-[#FFF7E8] p-5 text-left">
-                <p className="flex items-center gap-2 text-xl font-black text-[#8A4A14]"><PackageOpen size={27} aria-hidden /> 수확하면 제철 토마토를 보내드려요</p>
-                <p className="mt-2 text-lg font-bold leading-8 text-[#6C5540]">주소는 수확할 때 가족이 확인합니다.</p>
+                <p className="flex items-center gap-2 text-xl font-black text-[#8A4A14]"><PackageOpen size={27} aria-hidden /> 현재는 체험용 농장입니다</p>
+                <p className="mt-2 text-lg font-bold leading-8 text-[#6C5540]">실제 수확과 배송 조건은 정식 운영 전에 안내합니다.</p>
               </div>
 
               <Link href="/farm" className="mt-7 flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white shadow-[0_14px_28px_rgba(217,92,36,.22)]">오늘 자란 모습 보기 <ChevronRight size={27} /></Link>
-              <p className="mt-4 text-base font-bold leading-7 text-[#596A60]">현재는 서비스 체험 화면이며 실제 배송은 정식 운영 시 제공됩니다.</p>
+              <p className="mt-4 text-base font-bold leading-7 text-[#596A60]">질문을 건너뛰거나 힘든 날에도 농장에는 불이익이 없습니다.</p>
             </div>
           </div>
         </section>
@@ -310,28 +310,21 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
           <section className="py-7 text-center">
             <p className="mb-5 text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
             <AnsimiCharacter
-              state={todayMood === "tired" ? "rest" : todayMood ? "calm" : "greeting"}
-              message={todayMood ? moodResponses[todayMood].title : "오늘도 평소와 비슷해요."}
-              secondaryMessage={todayMood ? "오늘 기분은 잘 전해졌어요." : "기분 하나만 알려주시겠어요?"}
+              state="greeting"
+              message="오늘은 이것만 여쭤볼게요."
+              secondaryMessage="긴 기록 없이 질문 하나면 충분해요."
             />
-            {todayMood === null ? (
-              <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">오늘 기분 알려주기</Link>
-            ) : todayMood ? (
-              <div className="mt-6 flex min-h-[68px] items-center justify-center gap-3 rounded-[22px] bg-[#EAF3E5] px-6 text-xl font-black text-[#2F6B46]">
-                <CheckCircle2 size={28} aria-hidden /> 오늘 기분을 알려주셨어요
-              </div>
-            ) : null}
+            <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">오늘의 질문 보기</Link>
           </section>
 
           <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]">
             <div className="flex items-center gap-4"><span className="flex size-14 items-center justify-center rounded-full bg-[#FFF0E6] text-2xl">💛</span><div><p className="text-sm font-black text-[#B95327]">가족 소식</p><h2 className="mt-1 text-xl font-black">딸이 응원을 보냈습니다.</h2></div></div>
           </section>
 
-          <section className="mt-9">
-            <h2 className="text-xl font-black">최근 기록</h2>
-            <div className="mt-4 grid gap-3">
-              {["어제 · 좋아요", "7월 17일 · 괜찮아요", "7월 16일 · 좋아요"].map((record) => <div key={record} className="flex min-h-16 items-center rounded-[20px] bg-white px-5 text-lg font-bold shadow-sm"><CheckCircle2 className="mr-3 text-[#78A76E]" />{record}</div>)}
-            </div>
+          <section className="mt-5 rounded-[28px] bg-[#EAF3E5] p-6">
+            <p className="text-sm font-black text-[#477052]">생활 확인</p>
+            <h2 className="mt-2 text-2xl font-black">생활 흐름을 알아가는 중이에요.</h2>
+            <p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">며칠 더 살펴본 뒤 평소와 다른 점을 알려드릴게요.</p>
           </section>
         </div>
       </section>
@@ -391,8 +384,8 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           <div className="mx-auto max-w-[620px]">
             <section className="rounded-[30px] bg-[#1F6F7A] p-7 text-white shadow-[0_22px_58px_rgba(31,111,122,0.22)]">
               <div className="flex items-center justify-between gap-3"><span className="rounded-full bg-white/15 px-4 py-2 text-sm font-black">오늘 오후 8:20 기준</span><ShieldCheck size={30} /></div>
-              <h1 className="mt-7 text-[2rem] font-black leading-tight">오늘도 평소와 비슷한 생활이에요.</h1>
-              <p className="mt-4 text-lg font-bold leading-8 text-white/80">안심 점수 {todayReport.score}점은 보조 정보로만 확인해요.</p>
+              <h1 className="mt-7 text-[2rem] font-black leading-tight">오늘도 평소와 비슷한 생활입니다.</h1>
+              <p className="mt-4 text-lg font-bold leading-8 text-white/80">지금 확인하거나 하실 일은 없습니다.</p>
             </section>
           </div>
         </section>
@@ -445,7 +438,8 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           <div className="mx-auto max-w-[620px] rounded-[28px] bg-[#FFF8ED] p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]">
             <div className="flex items-center gap-4"><span className="flex size-14 items-center justify-center rounded-2xl bg-white text-[#D95423]"><Sprout size={30} /></span><div><p className="text-sm font-black text-[#B95327]">안부농장</p><h1 className="text-2xl font-black">토마토가 {farm.percent}% 자랐어요.</h1></div></div>
             <div className="mt-6 h-4 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full bg-[#78A76E]" style={{ width: `${farm.percent}%` }} /></div>
-            <p className="mt-5 text-lg font-bold leading-8 text-[#655D54]">수확까지 47일 남았어요. 수확 시기가 되면 가족이 배송지를 확인할 수 있어요.</p>
+            <p className="mt-5 text-lg font-bold leading-8 text-[#655D54]">생활과 가족 응원이 쌓이며 7일·14일·30일마다 새로운 모습이 나타납니다.</p>
+            <p className="mt-3 rounded-2xl bg-white p-4 font-bold text-[#6F665E]">체험용 농장 · 실제 수확과 배송 조건은 정식 운영 전에 안내합니다.</p>
           </div>
         </section>
       </AppFrame>
@@ -490,35 +484,26 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
-          <TodayRecommendation recommendation={recommendation} />
+          <section className="mt-4 rounded-[28px] bg-[#1F6F7A] p-6 text-white shadow-[0_18px_45px_rgba(31,111,122,.18)]">
+            <p className="text-sm font-black text-white/75">오늘의 상태</p>
+            <h1 className="mt-3 text-[2rem] font-black leading-tight">오늘도 평소와 비슷한 생활입니다.</h1>
+            <div className="mt-5 rounded-[20px] bg-white/12 p-4 text-lg font-bold leading-8">
+              <p>• 최근 움직임은 평소 범위예요.</p>
+              <p>• {questionSummary?.detail ?? "짧은 응답도 함께 살펴보고 있어요."}</p>
+            </div>
+          </section>
 
-          <section className="mt-5 rounded-[24px] border border-[#CFE1E4] bg-white p-6 shadow-sm">
-            <p className="text-sm font-black text-[#1F6F7A]">오늘 질문 상태</p>
-            <h2 className="mt-2 text-xl font-black">{questionSummary?.title ?? "오늘 확인 내용을 살펴보고 있어요."}</h2>
-            <p className="mt-2 font-bold leading-7 text-[#637069]">{questionSummary?.detail ?? "한 번의 답보다 반복되는 흐름을 함께 봅니다."}</p>
-            <Link href="/app?role=family&view=changes" className="mt-4 inline-flex min-h-12 items-center font-black text-[#1F6F7A]">생활 변화 보기 <ChevronRight size={20} /></Link>
+          <section className="mt-5 rounded-[24px] bg-white p-6 shadow-sm">
+            <p className="text-sm font-black text-[#2F6B46]">오늘의 행동</p>
+            <h2 className="mt-2 text-2xl font-black">지금 필요한 행동은 없습니다.</h2>
+            <p className="mt-3 font-bold leading-7 text-[#637069]">평소와 다른 변화가 이어질 때 할 일 하나를 알려드릴게요.</p>
+            <Link href="/app?role=family&view=changes" className="mt-4 inline-flex min-h-12 items-center font-black text-[#1F6F7A]">확인한 근거 보기 <ChevronRight size={20} /></Link>
           </section>
 
           <section className="mt-5 rounded-[24px] bg-[#F1F7F3] p-6">
             <p className="text-sm font-black text-[#2F6B46]">이번 주에는</p>
             <ul className="mt-3 space-y-2 font-bold leading-7 text-[#536258]">{(questionSummary?.weekly ?? []).map((line) => <li key={line} className="flex gap-2"><Check className="mt-1 shrink-0 text-[#78A76E]" size={19} /><span>{line}</span></li>)}</ul>
             <p className="mt-4 rounded-2xl bg-white p-4 font-black text-[#315B3D]">크게 달라진 점은 없어요. 단일 답변보다 생활 흐름과 반복 패턴을 함께 해석해요.</p>
-          </section>
-
-          <section className="mt-5 rounded-[24px] bg-[#EAF6F7] p-6">
-            <p className="text-sm font-black text-[#1F6F7A]">오늘안부가 확인하는 방법</p>
-            <h2 className="mt-2 text-2xl font-black leading-8">매일 묻지 않고,<br />필요한 것만 확인합니다.</h2>
-            <div className="mt-5 grid gap-3">{[
-              ["1", "생활을 자동으로 확인", "걸음, 생활 리듬, 통화 활동을 동의한 범위에서 살펴봅니다."],
-              ["2", "오늘 필요한 질문 하나", "식사, 기분, 몸 상태 중 그날 필요한 내용만 짧게 확인합니다."],
-              ["3", "달라진 점만 가족에게 전달", "한 번의 응답보다 반복되는 변화와 생활 흐름을 함께 봅니다."],
-            ].map(([number, title, detail]) => <div key={number} className="flex gap-4 rounded-2xl bg-white p-4"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#1F6F7A] font-black text-white">{number}</span><div><strong>{title}</strong><p className="mt-1 text-sm font-bold leading-6 text-[#657069]">{detail}</p></div></div>)}</div>
-          </section>
-
-          <section className="mt-5 rounded-[24px] bg-[#FFF8ED] p-6">
-            <p className="text-sm font-black text-[#B95327]">부모님의 오늘 기록</p>
-            <h2 className="mt-2 text-xl font-black">오늘 기분 기록이 아직 없습니다.</h2>
-            <p className="mt-2 font-bold text-[#6F665E]">어머니가 18일째 안부를 남겼습니다.</p>
           </section>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
