@@ -34,7 +34,7 @@ export default async function FamilyMemberDetailPage({
   return (
     <FamilyManagerShell
       title={`${parent.nickname} 상세`}
-      description="안심 상태, 최근 응답 패턴, 이상 신호와 긴급 연락처를 확인합니다."
+      description="안심 상태, 최근 응답 패턴, 생활 변화와 연락처를 확인합니다."
       active="/family"
     >
       <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
@@ -103,7 +103,7 @@ export default async function FamilyMemberDetailPage({
         <Card>
           <h2 className="flex items-center gap-2 text-lg font-bold">
             <Bell size={20} className="text-[#2563EB]" aria-hidden />
-            이상 신호
+            생활 변화
           </h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {(safety.signals.length ? safety.signals : ["오늘 응답 완료"]).map((signal) => (

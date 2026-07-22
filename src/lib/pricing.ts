@@ -23,7 +23,7 @@ export const pricingPlans: PricingPlan[] = [
     id: "safety",
     name: "안심 플랜",
     price: "월 4,900원",
-    description: "매일의 안부 요청과 변화 감지로 이상 신호를 놓치지 않아요.",
+    description: "생활 흐름을 살펴보고 확인할 변화를 놓치지 않아요.",
     features: ["자동 안부 요청", "미응답 알림", "안심 점수", "변화 감지"],
     cta: "안심 플랜 시작하기",
     highlighted: true,

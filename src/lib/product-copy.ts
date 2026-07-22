@@ -1,5 +1,9 @@
 export const PRODUCT_COPY = {
   corePromise: "매일 묻지 않아도, 평소와 다른 날을 알려드립니다.",
+  radarName: "생활 변화 레이더",
+  radarDescription: "평소 생활을 조용히 살펴보고, 다른 흐름이 이어질 때 가족이 먼저 확인하도록 돕습니다.",
+  engineName: "Personal Baseline Engine",
+  engineDescription: "다른 사람의 평균이 아닌, 부모님 본인의 평소 생활과 비교하는 생활 변화 분석 엔진입니다.",
   parentBehavior: "부모님은 매일 기록하지 않습니다. 확인이 필요한 날에만 질문 하나에 답합니다.",
   parentSkip: "답하기 어려운 날은 건너뛰어도 괜찮습니다.",
   familyBehavior: "가족은 평소와 다른 날에 달라진 이유와 행동 하나를 확인합니다.",

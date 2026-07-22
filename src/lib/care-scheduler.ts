@@ -24,7 +24,7 @@ export const defaultCareAutomationSchedule: CareAutomationSchedule = {
     {
       id: "update-safety",
       title: "안심 상태 업데이트",
-      description: "응답 없음과 이상 신호를 기준으로 안심 상태를 계산합니다.",
+      description: "응답 흐름과 생활 변화를 기준으로 안심 상태를 정리합니다.",
     },
     {
       id: "notify-guardian",

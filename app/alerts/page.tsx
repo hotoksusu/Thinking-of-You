@@ -87,7 +87,7 @@ export default function AlertsPage() {
           <AlertTriangle size={23} aria-hidden />
         </span>
         <div>
-          <p className="text-sm font-bold text-brand-primary">안심 상태와 이상 신호</p>
+          <p className="text-sm font-bold text-brand-primary">안심 상태와 생활 변화</p>
           <h1 className="brand-title mt-2 text-3xl">
             {personLabel}의 놓치기 쉬운 신호
           </h1>
@@ -109,7 +109,7 @@ export default function AlertsPage() {
               </span>
               <div>
                 <p className="text-sm font-extrabold text-brand-hover">
-                  현재 큰 이상 신호는 없어요
+                  현재 확인할 변화는 없어요
                 </p>
                 <p className="soft-copy mt-1 text-sm text-brand-subtext">
                   응답 없음이나 컨디션 나쁨을 표시하면 이 화면에서 바로 확인할

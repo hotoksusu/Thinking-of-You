@@ -280,7 +280,7 @@ export const adminUsers = [
     type: "부모님 챙기기",
     joined: "2026-06-12",
     recent: "3일 전",
-    status: "휴면 위험",
+    status: "장기 미사용",
   },
 ];
 

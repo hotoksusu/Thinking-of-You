@@ -42,7 +42,7 @@ export default function GuidePage() {
         <div className="mt-10 rounded-[24px] bg-[#EEF5E9] p-6 sm:p-8">
           <div className="flex items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#52725B]"><HeartHandshake size={24} aria-hidden /></span><div><h2 className="text-2xl font-black">부모님도 쉽게 쓸 수 있어요.</h2><div className="readable-sentences mt-3 font-semibold leading-8 text-[#52635C]"><p>글씨와 버튼이 큽니다.</p><p>질문 하나만 선택하면 됩니다.</p></div></div></div>
         </div>
-        <div className="mt-5 rounded-[24px] bg-white p-6 font-bold leading-8 text-[#52635C]"><p>평소에는 앱을 매일 열지 않아도 괜찮습니다.</p><p>답하기 어려운 날은 건너뛰어도 괜찮습니다.</p><p>한 번 답하지 않았다고 위험한 상태로 표시하지 않습니다.</p></div>
+        <div className="mt-5 rounded-[24px] bg-white p-6 font-bold leading-8 text-[#52635C]"><p>평소에는 앱을 매일 열지 않아도 괜찮습니다.</p><p>답하기 어려운 날은 건너뛰어도 괜찮습니다.</p><p>한 번 답하지 않았다고 확인 대상으로 표시하지 않습니다.</p></div>
 
         <div className="mt-10 text-center">
           <Link href="/start" className="inline-flex min-h-16 w-full max-w-[440px] items-center justify-center gap-2 rounded-2xl bg-[#E9652B] px-7 text-xl font-black text-white">오늘안부 시작하기 <ArrowRight size={21} aria-hidden /></Link>

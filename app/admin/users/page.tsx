@@ -13,7 +13,7 @@ export default function AdminUsersPage() {
             <option>전체 상태</option>
             <option>활성</option>
             <option>확인 필요</option>
-            <option>휴면 위험</option>
+            <option>장기 미사용</option>
           </select>
         </div>
         <AdminTable

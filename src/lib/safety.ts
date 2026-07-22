@@ -274,7 +274,7 @@ export function calculatePeaceScore(responses: CareResponseRecord[]): PeaceScore
       score,
       level: "caution",
       label: "주의 필요",
-      summary: "큰 이상은 없지만 일부 항목에서 평소와 다른 신호가 보여요.",
+      summary: "일부 항목에서 평소와 다른 흐름이 보여요.",
       responseRate,
       factors: ["응답 흐름 일부 변화", "약 복용 확인 필요", "활동량 관찰 권장"],
     };
@@ -300,7 +300,7 @@ export function generateAiReport(): AiReport {
       "활동량 소폭 감소",
     ],
     opinion:
-      "현재 큰 이상은 없지만 활동량이 조금 줄어드는 흐름이 보입니다.",
+      "활동량이 조금 줄어드는 흐름이 보입니다.",
     recommendation: "이번 주에 한 번 짧게 통화해보는 것을 권장합니다.",
   };
 }
@@ -364,7 +364,7 @@ export function detectRiskSignal(responses: CareResponseRecord[]): RiskSignal {
   if (signals.length > 0) {
     return { level: "caution", message: signals[0] };
   }
-  return { level: "info", message: "현재 큰 이상 신호는 없습니다." };
+  return { level: "info", message: "현재 확인할 생활 변화는 없습니다." };
 }
 
 export function sendEmergencyAlert(profileId: string) {

@@ -320,7 +320,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
               secondaryMessage={hasAnsweredToday ? "평소처럼 편하게 지내세요." : "오늘 식사는 어떠셨어요?"}
             />
             {hasAnsweredToday ? <><p className="mt-5 text-lg font-bold text-[#637069]">앱을 닫으셔도 괜찮아요.</p><button type="button" onClick={() => setHomeAcknowledged(true)} className="mt-5 min-h-[72px] w-full rounded-[22px] bg-[#2F6B46] px-6 text-xl font-black text-white">{homeAcknowledged ? "확인했습니다" : "확인했어요"}</button></> : <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">질문 하나에 답하기</Link>}
-            <p className="mt-5 text-base font-bold leading-7 text-[#6B766F]">답하기 어려운 날은 건너뛰어도 괜찮아요.<br />한 번 답하지 않았다고 가족에게 위험 알림이 가지 않습니다.</p>
+            <p className="mt-5 text-base font-bold leading-7 text-[#6B766F]">답하기 어려운 날은 건너뛰어도 괜찮아요.<br />한 번 답하지 않았다고 가족에게 알리지 않습니다.</p>
           </section>
 
           <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]">
