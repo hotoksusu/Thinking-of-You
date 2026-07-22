@@ -33,7 +33,7 @@ import { AnsimiCharacter } from "@/components/ansimi-character";
 import { DailyQuestionFlow } from "@/components/daily-question-flow";
 import { experienceCopy, type ExperienceMode } from "@/lib/experience-mode";
 import { readQuestionHistory } from "@/lib/daily-questions";
-import { moodDialogue, recordAnsimiEvent } from "@/lib/ansimi-dialogue";
+import { ANSIMI_MOTION_KEY, moodDialogue, recordAnsimiEvent, type AnsimiMotion } from "@/lib/ansimi-dialogue";
 import { PRODUCT_COPY } from "@/lib/product-copy";
 
 type ExperienceRole = "parent" | "family";
@@ -141,6 +141,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   const [hasAnsweredToday, setHasAnsweredToday] = useState(initialAnswered);
   const [familyConsent, setFamilyConsent] = useState<"undecided" | "sent" | "declined">("undecided");
   const [openMoment, setOpenMoment] = useState<FamilyTrace | null>(null);
+  const [characterMotion, setCharacterMotion] = useState<AnsimiMotion>("subtle");
   const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
 
   useEffect(() => {
@@ -149,6 +150,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
       const history = JSON.parse(window.localStorage.getItem("oneul-anbu-mood-history") ?? "[]") as Array<{ mood?: MoodKey; date?: string }>;
       setTodayMood(history.find((item) => item.date === today)?.mood ?? null);
       setHasAnsweredToday(initialAnswered || readQuestionHistory().some((item) => item.answeredAt.slice(0, 10) === today));
+      setCharacterMotion((window.localStorage.getItem(ANSIMI_MOTION_KEY) as AnsimiMotion | null) ?? "subtle");
     } catch {
       setTodayMood(null);
     }
@@ -175,6 +177,14 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
     setSelectedMood(null);
     setFamilyConsent("undecided");
     window.location.assign(target);
+  }
+
+  function toggleCharacterMotion() {
+    const next: AnsimiMotion = characterMotion === "static" ? "subtle" : "static";
+    window.localStorage.setItem(ANSIMI_MOTION_KEY, next);
+    setCharacterMotion(next);
+    window.dispatchEvent(new Event("ansimi-motion-change"));
+    recordAnsimiEvent("ansimi_motion_preference_changed", { mode: next });
   }
 
   if (checkInStep === "done") {
@@ -220,7 +230,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
         <ParentSectionHeader title="가족" />
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
-            <p className="text-xl font-black leading-8 text-[#37433D]">지은이가 보낸 사진과 말을<br />편하게 보세요.</p>
+            <div className="flex items-center gap-4"><AnsimiCharacter state="familyPhoto" motion="once" size="small" ariaLabel="가족 사진이 도착했음을 안내하는 안심이"/><p className="text-xl font-black leading-8 text-[#37433D]">지은이가 보낸 사진과 말을<br />편하게 보세요.</p></div>
             <div className="mt-6 grid gap-6">
               {moments.map((moment, index) => (
                 <article key={moment.id} className="overflow-hidden rounded-[30px] border border-[#DDE6DC] bg-white">
@@ -230,7 +240,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
                     <p className="mt-2 text-base font-bold text-[#6A756E]">{formatFamilyTime(moment.createdAt)}</p>
                     <h2 className="mt-4 text-[1.35rem] font-black leading-[1.6] text-[#17221B]">{moment.source === "summary" ? moment.title : `“${moment.title}”`}</h2>
                     {moment.source === "summary" ? <p className="mt-2 text-base font-bold text-[#6A756E]">오늘안부가 정리한 내용입니다.</p> : null}
-                    <button type="button" onClick={() => setOpenMoment(moment)} className="mt-5 flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-lg font-black text-white">{familyContentAction(moment)}</button>
+                    <button type="button" onClick={() => { setOpenMoment(moment); recordAnsimiEvent("family_content_opened", { kind: moment.kind }); }} className="mt-5 flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-lg font-black text-white">{familyContentAction(moment)}</button>
                   </div>
                 </article>
               ))}
@@ -296,6 +306,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
               <SettingLink href="/settings/privacy" icon={<ShieldCheck />} title="내 정보는 내가 정합니다" description="연결 정보와 공유 내용을 확인해요." tone="parent" />
               <SettingLink href="/family/members" icon={<UsersRound />} title="가족 연결" description="연결된 가족을 보거나 해제해요." tone="parent" />
               <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="질문을 받을 시간을 정해요." tone="parent" />
+              <button type="button" role="switch" aria-checked={characterMotion === "static"} onClick={toggleCharacterMotion} className="flex min-h-[88px] items-center gap-4 rounded-[22px] bg-white p-5 text-left shadow-[0_10px_30px_rgba(49,78,58,0.06)]"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF3E9] text-[#2F6B46]"><Leaf /></span><span className="min-w-0 flex-1"><strong className="block text-lg">캐릭터 움직임 줄이기</strong><small className="mt-1 block font-semibold leading-5 text-[#737C75]">{characterMotion === "static" ? "움직임을 줄이고 있어요." : "필요한 순간에 한 번만 움직여요."}</small></span><span className={`h-8 w-14 rounded-full p-1 ${characterMotion === "static" ? "bg-[#2F6B46]" : "bg-[#C9D2C9]"}`} aria-hidden><span className={`block size-6 rounded-full bg-white transition-transform ${characterMotion === "static" ? "translate-x-6" : ""}`}/></span></button>
               <SettingLink href="/app?role=parent&view=guide" icon={<Leaf />} title="오늘안부 이용 안내" description="주요 서비스를 다시 볼 수 있어요." tone="parent" />
               <SettingLink href="mailto:hello@oneulanbu.kr" icon={<Phone />} title="문의하기" description="궁금한 점을 물어보세요." tone="parent" />
             </div>
@@ -320,12 +331,12 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
         <div className="mx-auto max-w-[560px]">
           <section className="py-7">
             <p className="text-lg font-black text-[#477052]">정희 어머니, 안녕하세요.</p>
-            <div className="mt-4 flex items-center gap-4"><img src={hasAnsweredToday ? "/brand/farm-mascot.png?v=12" : "/brand/hero-ansimi-phone-v1.png"} alt="" className="size-[72px] shrink-0 rounded-[22px] object-cover"/><h1 className="text-[1.75rem] font-black leading-[1.35]">{hasAnsweredToday ? "오늘은 하실 일이 없어요." : "오늘은 질문 하나만 부탁드릴게요."}</h1></div>
+            <div className="mt-4 flex items-center gap-4"><AnsimiCharacter state={hasAnsweredToday ? "noTask" : "question"} motion="once" size="small" ariaLabel={hasAnsweredToday ? "편안히 쉬며 오늘 할 일이 없음을 안내하는 안심이" : "휴대폰으로 질문 하나를 안내하는 안심이"}/><h1 className="text-[1.75rem] font-black leading-[1.35]">{hasAnsweredToday ? "오늘은 하실 일이 없어요." : "오늘은 질문 하나만 부탁드릴게요."}</h1></div>
             <p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">{hasAnsweredToday ? "평소처럼 편안하게 하루를 보내세요." : "편한 답 하나를 눌러 주세요."}</p>
             {!hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-4 text-lg font-bold leading-8 text-[#6B766F]">오늘은 답하지 않아도 괜찮습니다.</p></> : null}
           </section>
 
-          {hasAnsweredToday && moments[0] ? <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white"><div className="p-6"><div className="flex flex-wrap items-center gap-2"><h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>{moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-sm font-black text-[#667269]">체험 예시</span> : null}</div><p className="mt-4 text-lg font-black leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p></div>{moments[0].imageUrl ? <button type="button" onClick={() => setOpenMoment(moments[0])} className="block w-full" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 크게 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain bg-[#F4F1E9]" /></button> : null}<div className="p-5"><button type="button" onClick={() => setOpenMoment(moments[0])} className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white">{familyContentAction(moments[0])}</button></div></section> : null}
+          {hasAnsweredToday && moments[0] ? <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white"><div className="p-6"><div className="flex flex-wrap items-center gap-2"><h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>{moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-sm font-black text-[#667269]">체험 예시</span> : null}</div><p className="mt-4 text-lg font-black leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p></div>{moments[0].imageUrl ? <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="block w-full" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 크게 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain bg-[#F4F1E9]" /></button> : null}<div className="p-5"><button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white">{familyContentAction(moments[0])}</button></div></section> : null}
 
           {hasAnsweredToday ? <p className="px-2 pb-5 pt-7 text-center text-base font-bold leading-7 text-[#637069]">확인이 필요한 날에만 질문 하나를 드릴게요.</p> : null}
         </div>
@@ -491,7 +502,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
         <FamilySectionHeader title="안부농장" />
         <section className="px-5 pb-32 pt-6">
           <div className="mx-auto max-w-[620px] rounded-[28px] bg-[#FFF8ED] p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]">
-            <div className="flex items-center gap-4"><span className="flex size-14 items-center justify-center rounded-2xl bg-white text-[#D95423]"><Sprout size={30} /></span><div><p className="text-sm font-black text-[#B95327]">안부농장</p><h1 className="text-2xl font-black">토마토가 {farm.percent}% 자랐어요.</h1></div></div>
+            <div className="flex items-center gap-4"><AnsimiCharacter state="growing" motion="once" size="small" ariaLabel="작물이 자란 모습을 안내하는 안심이"/><div><p className="text-sm font-black text-[#B95327]">안부농장</p><h1 className="text-2xl font-black">토마토가 {farm.percent}% 자랐어요.</h1></div></div>
             <div className="mt-6 h-4 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full bg-[#78A76E]" style={{ width: `${farm.percent}%` }} /></div>
             <p className="mt-5 text-lg font-bold leading-8 text-[#655D54]">생활과 가족 응원이 쌓이며 7일·14일·30일마다 새로운 모습이 나타납니다.</p>
             <p className="mt-3 rounded-2xl bg-white p-4 font-bold text-[#6F665E]">체험용 농장 · 실제 수확과 배송 조건은 정식 운영 전에 안내합니다.</p>
@@ -542,7 +553,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
           <section className="mt-4 rounded-[28px] bg-[#1F6F7A] p-6 text-white shadow-[0_18px_45px_rgba(31,111,122,.18)]">
-            <p className="text-sm font-black text-white/75">오늘의 상태</p>
+            <div className="flex items-center justify-between gap-4"><p className="text-sm font-black text-white/75">오늘의 상태</p><div className="rounded-[18px] bg-white/95 p-1.5"><AnsimiCharacter state={demoState === "change" ? "question" : demoState === "learning" ? "idle" : "noTask"} motion="once" size="small" ariaLabel={demoState === "change" ? "확인이 필요한 날을 안내하는 안심이" : "오늘 상태를 편안히 안내하는 안심이"}/></div></div>
             <h1 className="mt-3 text-[2rem] font-black leading-tight">{demoView.status}</h1>
             <div className="mt-5 rounded-[20px] bg-white/12 p-4 text-lg font-bold leading-8">
               {demoView.reasons.map((reason) => <p key={reason}>• {reason}</p>)}

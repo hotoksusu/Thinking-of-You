@@ -28,7 +28,7 @@ export function DailyQuestionFlow() {
 
   if (stage === "empty") return <ResultShell><AnsimiCharacter state="calm" message="오늘은 하실 일이 없습니다." secondaryMessage="평소처럼 생활하세요. 필요한 날에만 질문을 드릴게요." /><Link href="/app?role=parent&view=photos" className="mt-7 flex min-h-14 items-center justify-center text-lg font-black text-[#526059]">가족에게 안부 한마디 보내기</Link></ResultShell>;
   if (stage === "skipped") return <ResultShell><AnsimiCharacter state="rest" message="알겠습니다." secondaryMessage="오늘은 편하게 쉬세요." /><div className="mt-5 rounded-[22px] bg-[#F2F6EF] p-5 text-center font-bold leading-7 text-[#536258]">오늘은 답하지 않아도 괜찮습니다.<br />농장에도 불이익이 없어요.</div><ResultActions primary="오늘 화면으로 돌아가기" href="/app?role=parent&answered=1" /></ResultShell>;
-  if (stage === "result" && selected) return <ResultShell><AnsimiCharacter state="happy" message="답변해 주셔서 고맙습니다." secondaryMessage="이제 평소처럼 하루를 보내세요." /><ResultActions primary="오늘 화면으로 돌아가기" href="/app?role=parent&answered=1" /></ResultShell>;
+  if (stage === "result" && selected) return <ResultShell><AnsimiCharacter state="completed" motion="once" message="답변해 주셔서 고맙습니다." secondaryMessage="이제 평소처럼 하루를 보내세요." ariaLabel="답변 완료를 미소로 안내하는 안심이" /><ResultActions primary="오늘 화면으로 돌아가기" href="/app?role=parent&answered=1" /></ResultShell>;
 
   return (
     <main className="min-h-screen bg-[#F7F9F6] px-4 py-5 text-[#17221B]">
@@ -39,7 +39,7 @@ export function DailyQuestionFlow() {
           <span className="w-12" />
         </header>
         <section className="mt-5 rounded-[34px] bg-white p-6 shadow-[0_22px_60px_rgba(49,78,58,.11)] sm:p-8">
-          <AnsimiCharacter state="guide" message="오늘은 질문 하나만 부탁드릴게요." secondaryMessage="편한 답을 눌러 주세요." />
+          <AnsimiCharacter state="question" motion="once" message="오늘은 질문 하나만 부탁드릴게요." secondaryMessage="편한 답을 눌러 주세요." ariaLabel="휴대폰으로 오늘 질문 하나를 안내하는 안심이" />
           <h1 className="mt-6 text-center text-[clamp(2rem,8vw,2.8rem)] font-black leading-tight tracking-[-.03em]">{question?.prompt}</h1>
           <div className="mt-7 grid gap-3">
             {question?.choices.map((item) => <button key={item.id} type="button" onClick={() => answer(item)} className="flex min-h-[76px] items-center justify-between rounded-[22px] border-2 border-[#DCE5DC] bg-[#FAFCF9] px-6 text-left text-[1.25rem] font-black transition active:scale-[.98] active:border-[#E9652B] active:bg-[#FFF1E8]"><span>{item.label}</span><span className="flex size-9 items-center justify-center rounded-full bg-white text-[#78A76E]"><Check size={20} /></span></button>)}

@@ -240,6 +240,9 @@ a {
 
 .ansimi-guide { display: grid; justify-items: center; gap: 1rem; }
 .ansimi-character { position: relative; width: 9.5rem; height: 9.5rem; transform-origin: 50% 100%; }
+.ansimi-guide:has(.ansimi-character:only-child) { display: inline-grid; flex: 0 0 auto; }
+.ansimi-size-small .ansimi-character { width: 72px; height: 72px; }
+.ansimi-size-large .ansimi-character { width: min(19rem, 68vw); height: min(19rem, 68vw); }
 .ansimi-bubble { position: relative; width: 100%; min-height: 88px; border: 2px solid #c9dcc5; border-radius: 24px; background: #fff; padding: 16px 20px; text-align: center; color: #183022; box-shadow: 0 12px 30px rgba(49,78,58,.08); }
 .ansimi-bubble::before { content: ""; position: absolute; top: -10px; left: 50%; width: 18px; height: 18px; transform: translateX(-50%) rotate(45deg); border-left: 2px solid #c9dcc5; border-top: 2px solid #c9dcc5; background: #fff; }
 .ansimi-bubble strong { position: relative; display: block; font-size: 1.45rem; line-height: 1.45; }
@@ -251,22 +254,34 @@ a {
 .ansimi-guide-compact .ansimi-bubble::before { top: 50%; left: -9px; transform: translateY(-50%) rotate(-45deg); }
 .ansimi-guide-compact .ansimi-bubble strong { font-size: 1.25rem; line-height: 1.4; }
 .ansimi-guide-compact .ansimi-bubble span { font-size: 1.05rem; }
-.ansimi-state-idle, .ansimi-state-greeting, .ansimi-state-listening { animation: ansimi-listen 1s ease-out 1 both; }
-.ansimi-state-happy, .ansimi-state-celebrate { animation: ansimi-happy .8s ease-out both; }
-.ansimi-state-calm { animation: ansimi-calm .9s ease-out both; }
+.ansimi-state-idle, .ansimi-state-greeting, .ansimi-state-listening, .ansimi-state-noTask { animation: ansimi-listen .8s ease-out 1 both; }
+.ansimi-state-happy, .ansimi-state-celebrate, .ansimi-state-completed, .ansimi-state-connected { animation: ansimi-happy .9s ease-out 1 both; }
+.ansimi-state-calm, .ansimi-state-familyMessage, .ansimi-state-familyPhoto, .ansimi-state-familyVoice { animation: ansimi-calm .7s ease-out 1 both; }
 .ansimi-state-tired_empathy, .ansimi-state-rest { animation: ansimi-rest .9s ease-out both; }
 .ansimi-state-comfort { animation: ansimi-comfort .8s ease-out both; }
-.ansimi-state-guide { animation: ansimi-guide .8s ease-out both; }
+.ansimi-state-guide, .ansimi-state-question, .ansimi-state-thinking { animation: ansimi-guide .7s ease-out 1 both; }
+.ansimi-state-growing { animation: ansimi-growing .9s ease-out 1 both; }
+.ansimi-state-disconnected, .ansimi-state-offline, .ansimi-state-help { animation: ansimi-help .65s ease-out 1 both; }
+.ansimi-motion-static .ansimi-character, .ansimi-motion-static .ansimi-effect { animation: none !important; transform: none !important; }
 @keyframes ansimi-listen { 0%,100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
 @keyframes ansimi-happy { 0% { transform: scale(.96); } 55% { transform: translateY(-5px) scale(1.04); } 100% { transform: none; } }
 @keyframes ansimi-calm { 0%,100% { transform: rotate(0); } 45% { transform: rotate(2deg) translateY(2px); } }
 @keyframes ansimi-rest { from { transform: translateY(-3px); } to { transform: translateY(5px) scale(.98); } }
 @keyframes ansimi-comfort { from { filter: brightness(.96); } to { filter: brightness(1.06); } }
 @keyframes ansimi-guide { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: none; } }
+@keyframes ansimi-growing { 0% { transform: scale(.98); } 55% { transform: translateY(-4px) scale(1.03); } 100% { transform: none; } }
+@keyframes ansimi-help { 0% { transform: translateX(-4px); opacity: .82; } 100% { transform: none; opacity: 1; } }
 @keyframes ansimi-sun { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+.ansimi-hero-once { animation: ansimi-hero-arrive 1.5s ease-out 1 both; transform-origin: 55% 70%; }
+@keyframes ansimi-hero-arrive { 0% { opacity: .78; transform: translateY(12px) scale(.99); } 55% { opacity: 1; transform: translateY(0) scale(1.015); } 100% { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .ansimi-character, .ansimi-effect { animation: none !important; transform: none !important; }
+  .ansimi-character, .ansimi-effect, .ansimi-hero-once { animation: none !important; transform: none !important; }
+}
+
+@media (max-width: 640px) {
+  .ansimi-size-large .ansimi-character { width: min(13rem, 56vw); height: min(13rem, 56vw); }
+  .ansimi-hero-once { animation-duration: .9s; }
 }
 
 .app-frame :where(h1, h2, h3, h4, p, li, a, button, label, span) {
@@ -315,7 +330,7 @@ a {
   max-width: 100%;
 }
 
-.app-frame button {
+:where(.app-frame button) {
   min-height: 44px;
 }
 

@@ -1,4 +1,11 @@
-export type AnsimiState = "idle" | "greeting" | "listening" | "happy" | "calm" | "tired_empathy" | "comfort" | "thinking" | "celebrate" | "guide" | "rest";
+export type AnsimiState =
+  | "idle" | "greeting" | "noTask" | "question" | "listening" | "thinking"
+  | "completed" | "happy" | "calm" | "tired_empathy" | "comfort" | "celebrate" | "guide" | "rest"
+  | "familyMessage" | "familyPhoto" | "familyVoice" | "growing" | "connected"
+  | "disconnected" | "offline" | "help";
+
+export type AnsimiMotion = "static" | "subtle" | "standard";
+export const ANSIMI_MOTION_KEY = "oneul-anbu:ansimi-motion";
 
 export type DialogueChoice = { id: string; label: string; nextStepId: string };
 export type DialogueStep = {
@@ -31,7 +38,7 @@ export const moodDialogue: Record<string, DialogueStep> = {
   "difficult-response": { id: "difficult-response", characterState: "comfort", message: "알려주셔서 고마워요.", secondaryMessage: "오늘은 혼자 참지 않으셔도 괜찮아요.", effect: "comfort" },
 };
 
-export type AnsimiEventName = "ansimi_viewed" | "ansimi_rendered" | "ansimi_animation_started" | "ansimi_animation_completed" | "ansimi_message_shown" | "ansimi_message_completed" | "ansimi_message_skipped" | "ansimi_choice_selected" | "ansimi_primary_action_clicked" | "ansimi_secondary_action_clicked" | "ansimi_dialogue_dismissed" | "ansimi_voice_played" | "ansimi_motion_reduced" | "ansimi_reduced_motion_used" | "ansimi_fallback_rendered" | "dialogue_completed" | "dialogue_abandoned" | "mood_selected" | "farm_viewed_after_dialogue" | "family_contact_accepted" | "family_contact_declined";
+export type AnsimiEventName = "ansimi_viewed" | "ansimi_rendered" | "ansimi_animation_started" | "ansimi_animation_completed" | "ansimi_message_shown" | "ansimi_message_completed" | "ansimi_message_skipped" | "ansimi_choice_selected" | "ansimi_primary_action_clicked" | "ansimi_secondary_action_clicked" | "ansimi_dialogue_dismissed" | "ansimi_voice_played" | "ansimi_motion_reduced" | "ansimi_reduced_motion_used" | "ansimi_fallback_rendered" | "ansimi_state_entered" | "ansimi_motion_preference_changed" | "family_content_opened" | "dialogue_completed" | "dialogue_abandoned" | "mood_selected" | "farm_viewed_after_dialogue" | "family_contact_accepted" | "family_contact_declined";
 
 export function recordAnsimiEvent(name: AnsimiEventName, detail: Record<string, unknown> = {}) {
   try {
