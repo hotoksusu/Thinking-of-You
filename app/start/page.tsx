@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, HeartHandshake, Home, Smile } from "lucide-react";
+import { PRODUCT_COPY } from "@/lib/product-copy";
 
 const roles = [
   {
@@ -86,7 +87,7 @@ export default function StartPage() {
         </section>
 
         <p className="shrink-0 pb-2 text-center text-base font-bold leading-7 text-[#68756F]">
-          부모님은 매일 기록하지 않고,<br />필요한 날에만 질문 하나에 답합니다.
+          {PRODUCT_COPY.parentBehavior}
         </p>
       </div>
     </main>

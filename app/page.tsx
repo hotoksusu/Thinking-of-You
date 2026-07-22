@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Check, Footprints, HelpCircle, MessageCircle, Phone, ShieldCheck } from "lucide-react";
+import { PRODUCT_COPY } from "@/lib/product-copy";
 
 const supportStatus = [
   ["질문 응답", "현재 지원", "bg-[#E3F3E7] text-[#24613A]"],
@@ -26,7 +27,7 @@ export default function LandingPage() {
       <section className="senior-hero">
         <div className="senior-hero-copy">
           <p className="senior-kicker"><ShieldCheck aria-hidden="true" /> 생활 변화 안심 서비스</p>
-          <h1>매일 묻지 않아도,<br />평소와 다른 날을 알려드립니다.</h1>
+          <h1>{PRODUCT_COPY.corePromise.split(", ").map((line, index) => <span key={line}>{index ? <br /> : null}{line}</span>)}</h1>
           <p className="senior-summary">부모님은 평소처럼 생활하세요.<br />확인이 필요한 날에만 질문 하나를 드립니다.<br />가족은 달라진 날만 확인하면 됩니다.</p>
           <div className="senior-actions" aria-label="사용자 선택">
             <Link href="/onboarding?role=family" className="senior-button senior-button-primary">부모님과 시작하기 <ArrowRight aria-hidden="true" /></Link>

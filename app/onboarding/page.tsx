@@ -21,6 +21,7 @@ import {
   Users,
 } from "lucide-react";
 import { storageKeys } from "@/lib/storage-keys";
+import { PRODUCT_COPY } from "@/lib/product-copy";
 
 type Role = "parent" | "family";
 type Choice = { id: string; label: string; icon?: React.ReactNode };
@@ -115,14 +116,14 @@ function OnboardingFlow() {
 function ParentStep({ step, invited, onNext, onFinish }: { step: number; invited: boolean; onNext: () => void; onFinish: () => void }) {
   if (step === 1) return <StepBody icon={<HeartHandshake />} title={invited ? <>가족이 오늘안부에<br />초대했어요.</> : <>안녕하세요.<br />오늘안부를 편하게 시작해볼게요.</>} description={invited ? <>평소에는 따로 기록하지 않아도 됩니다.<br />필요한 날에만 질문 하나를 드릴게요.</> : undefined}><PrimaryButton onClick={onNext}>시작하기</PrimaryButton></StepBody>;
   if (step === 2) return <StepBody icon={<Footprints />} title={<>매일 많은 것을<br />묻지 않아요.</>} description={<>동의한 걸음과 생활 흐름을<br />조용히 살펴봅니다.</>}><div className="mx-auto mt-6 flex max-w-[330px] items-center justify-center gap-4 rounded-[26px] bg-[#F2F7EF] p-5"><span className="text-5xl">🚶</span><ArrowRight className="text-[#78A76E]" /><span className="text-5xl">🌿</span></div><PrimaryButton onClick={onNext}>생활 확인 연결하기</PrimaryButton></StepBody>;
-  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>필요한 날에만<br />질문 하나를 드릴게요.</>} description={<>대답하기 싫은 날은<br />건너뛰어도 괜찮아요.</>}><div className="mt-6 rounded-[22px] bg-[#EFF6F1] p-4 text-lg font-black text-[#315B3D]">통화와 문자 내용은 보지 않아요.</div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
+  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>필요한 날에만<br />질문 하나를 드릴게요.</>} description={PRODUCT_COPY.parentSkip}><div className="mt-6 rounded-[22px] bg-[#EFF6F1] p-4 text-lg font-black text-[#315B3D]">통화와 문자 내용은 보지 않아요.</div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
   return <StepBody icon={<Sparkles />} title={<>이제 평소처럼<br />생활하시면 됩니다.</>} description={<>가족 소식과 농장 변화도<br />여기에서 볼 수 있어요.</>}><PrimaryButton onClick={onFinish}>오늘안부 시작하기</PrimaryButton></StepBody>;
 }
 
 function FamilyStep({ step, purposes, relation, method, onTogglePurpose, onRelation, onMethod, onNext, onFinish }: { step: number; purposes: string[]; relation: string; method: string; onTogglePurpose: (id: string) => void; onRelation: (id: string) => void; onMethod: (id: string) => void; onNext: () => void; onFinish: () => void }) {
-  if (step === 1) return <StepBody icon={<HeartHandshake />} title={<>부모님께 매일<br />긴 기록을 요구하지 않습니다.</>} description={<>생활 흐름은 조용히 확인하고,<br />필요한 날에만 질문 하나를 드립니다.</>}><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
+  if (step === 1) return <StepBody icon={<HeartHandshake />} title={<>부모님께 매일<br />긴 기록을 요구하지 않습니다.</>} description={PRODUCT_COPY.parentBehavior}><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
   if (step === 2) return <StepBody icon={<Footprints />} title={<>한 번의 답보다<br />반복되는 변화를 봅니다.</>} description={<>동의한 생활 흐름과<br />짧은 응답을 함께 살펴봅니다.</>}><PrimaryButton onClick={onNext}>다음</PrimaryButton></StepBody>;
-  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>평소와 다른 날만<br />알려드립니다.</>} description={<>가족은 변화가 있을 때<br />필요한 행동 하나를 선택합니다.</>}><PrimaryButton onClick={onNext}>다음</PrimaryButton></StepBody>;
+  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>평소와 다른 날만<br />알려드립니다.</>} description={PRODUCT_COPY.familyBehavior}><PrimaryButton onClick={onNext}>다음</PrimaryButton></StepBody>;
   return <StepBody icon={<Smartphone />} title="어떻게 연결할까요?" description={<>부모님은 평소처럼 생활하고,<br />가족은 달라진 날만 확인합니다.</>}><ChoiceList items={methods} selected={method ? [method] : []} onSelect={onMethod} /><PrimaryButton onClick={onFinish} disabled={!method}>부모님 연결하기</PrimaryButton></StepBody>;
 }
 

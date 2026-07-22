@@ -49,7 +49,7 @@ export default function SelfCheckinPage() {
       {saved ? (
         <p className="flex items-center gap-3 rounded-2xl bg-brand-mint p-5 text-2xl font-bold">
           <CheckCircle2 size={30} aria-hidden />
-          오늘 상태를 기록했어요.
+          오늘 질문에 답했어요.
         </p>
       ) : null}
 

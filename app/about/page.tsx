@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Activity, ArrowRight, HeartHandshake, ScanLine, ShieldCheck } from "lucide-react";
 import { MarketingHeader, MobileStartCta } from "@/components/marketing-navigation";
+import { PRODUCT_COPY } from "@/lib/product-copy";
 
 const differences = [
   ["기존 안부 확인", "그날의 대답만 확인", "괜찮다는 한마디에 의존"],
@@ -14,7 +15,7 @@ export default function AboutPage() {
       <section className="mx-auto w-full max-w-[980px] px-5 py-16 sm:px-8 sm:py-24">
         <p className="inline-flex rounded-full bg-[#EAF3E5] px-4 py-2 text-sm font-black text-[#2F6B46]">생활 변화 확인 서비스</p>
         <h1 className="mt-5 text-4xl font-black leading-tight sm:text-6xl">매일 상태를 묻지 않고,<br />평소와 다른 흐름을 확인합니다.</h1>
-        <p className="mt-6 max-w-[760px] text-lg font-bold leading-8 text-[#5E6C66] sm:text-xl">부모님은 매일 기록하지 않습니다. 현재 지원하는 질문 응답과 응답 시간대를 알아가고, 확인이 필요한 날에만 질문 하나를 드립니다. 반복되는 변화가 확인되면 가족에게 이유와 행동 하나를 알려드립니다.</p>
+        <p className="mt-6 max-w-[760px] text-lg font-bold leading-8 text-[#5E6C66] sm:text-xl">{PRODUCT_COPY.parentBehavior} 현재 지원하는 질문 응답과 응답 시간대를 알아가며, 반복되는 변화가 확인되면 가족에게 이유와 행동 하나를 알려드립니다.</p>
         <div className="mt-8 flex flex-wrap gap-3"><Link href="/start" className="inline-flex min-h-14 items-center gap-2 rounded-2xl bg-[#E9652B] px-6 text-lg font-black text-white">우리 가족 시작하기 <ArrowRight size={20} /></Link><Link href="/features" className="inline-flex min-h-14 items-center rounded-2xl border-2 border-[#8FA98D] bg-white px-6 text-lg font-black">어떻게 살펴보나요?</Link></div>
 
         <div className="mt-12 grid gap-4 md:grid-cols-3">

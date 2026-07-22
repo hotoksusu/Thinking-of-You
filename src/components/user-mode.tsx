@@ -34,6 +34,7 @@ import { DailyQuestionFlow } from "@/components/daily-question-flow";
 import { experienceCopy, type ExperienceMode } from "@/lib/experience-mode";
 import { readQuestionHistory } from "@/lib/daily-questions";
 import { moodDialogue, recordAnsimiEvent } from "@/lib/ansimi-dialogue";
+import { PRODUCT_COPY } from "@/lib/product-copy";
 
 type ExperienceRole = "parent" | "family";
 type MoodKey = "good" | "okay" | "tired" | "difficult";
@@ -368,10 +369,10 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
   const experienceMode: ExperienceMode = demoState === "learning" ? "learning" : "demo";
   const experience = experienceCopy[experienceMode];
   const demoView = demoState === "usual"
-    ? { status: "오늘도 평소와 비슷한 생활입니다.", reasons: ["평소와 비슷한 시간에 응답했어요.", "최근 응답 흐름도 평소 범위예요."], action: "지금 필요한 행동은 없습니다." }
+    ? { status: PRODUCT_COPY.noChange, reasons: ["평소와 비슷한 시간에 응답했어요.", "최근 응답 흐름도 평소 범위예요."], action: PRODUCT_COPY.noAction }
     : demoState === "change"
-      ? { status: "오늘은 평소와 조금 다릅니다.", reasons: ["최근 3일간 움직임이 줄어든 예시예요.", "오늘은 조금 피곤하다고 답한 예시예요."], action: "오늘 짧게 전화해보세요." }
-      : { status: "생활 흐름을 알아가는 중입니다.", reasons: ["아직 비교할 응답이 충분하지 않아요.", "며칠 더 살펴본 뒤 다른 점을 알려드릴게요."], action: "" };
+      ? { status: PRODUCT_COPY.changeDetected, reasons: ["최근 3일간 움직임이 줄어든 예시예요.", "오늘은 조금 피곤하다고 답한 예시예요."], action: PRODUCT_COPY.callAction }
+      : { status: PRODUCT_COPY.learning, reasons: ["아직 비교할 응답이 충분하지 않아요.", "며칠 더 살펴본 뒤 다른 점을 알려드릴게요."], action: "" };
 
   useEffect(() => {
     try {

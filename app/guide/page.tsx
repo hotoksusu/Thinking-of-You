@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Clock3, HeartHandshake, Home, Link as LinkIcon, ShieldCheck, UserPlus } from "lucide-react";
 import { AnsimiStory } from "@/components/ansimi-story";
 import { MarketingHeader, MobileStartCta } from "@/components/marketing-navigation";
+import { PRODUCT_COPY } from "@/lib/product-copy";
 
 const steps = [
   { icon: UserPlus, title: "가족이 시작해요", text: "가족이 오늘안부를 시작하고 부모님 연결을 준비합니다." },
@@ -18,7 +19,7 @@ export default function GuidePage() {
       <section className="mx-auto w-full max-w-[980px] px-5 pt-16 text-center sm:px-8 sm:pt-24">
         <p className="text-sm font-black text-[#E9652B]">이용 방법</p>
         <h1 className="mt-4 text-4xl font-black leading-tight sm:text-6xl">매일 묻지 않아도,<br />달라진 날을 알 수 있어요.</h1>
-        <p className="mx-auto mt-6 max-w-[680px] text-lg font-bold leading-8 text-[#5E6C66] sm:text-xl">부모님은 평소처럼 생활하고, 가족은 변화가 있을 때만 확인합니다.</p>
+        <p className="mx-auto mt-6 max-w-[680px] text-lg font-bold leading-8 text-[#5E6C66] sm:text-xl">{PRODUCT_COPY.parentBehavior} {PRODUCT_COPY.familyBehavior}</p>
       </section>
 
       <div className="mt-12"><AnsimiStory /></div>

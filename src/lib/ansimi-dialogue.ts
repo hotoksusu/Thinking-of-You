@@ -17,7 +17,7 @@ export const moodDialogue: Record<string, DialogueStep> = {
     id: "start",
     characterState: "listening",
     message: "정희님, 오늘 하루는 어떠셨어요?",
-    secondaryMessage: "가장 가까운 기분 하나를 눌러주세요.",
+    secondaryMessage: "오늘 필요한 질문 하나에 답해주세요.",
     choices: [
       { id: "good", label: "좋았어요", nextStepId: "good-response" },
       { id: "okay", label: "괜찮았어요", nextStepId: "okay-response" },
