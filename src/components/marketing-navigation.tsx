@@ -7,10 +7,11 @@ import { useEffect, useState } from "react";
 
 const navigation = [
   { label: "서비스 소개", href: "/about" },
-  { label: "주요 기능", href: "/features" },
+  { label: "AI 기술", href: "/technology" },
+  { label: "가족", href: "/families" },
+  { label: "부모님", href: "/parents" },
   { label: "이용 방법", href: "/guide" },
-  { label: "요금/플랜", href: "/plans" },
-  { label: "기관 도입", href: "/partners" },
+  { label: "요금", href: "/plans" },
 ];
 
 export function MarketingHeader({ compact = false }: { compact?: boolean }) {
