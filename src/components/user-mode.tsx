@@ -281,17 +281,18 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   if (initialView === "profile") {
     return (
       <AppFrame role="parent" active="profile">
-        <ParentSectionHeader title="내정보" />
+        <ParentSectionHeader title="설정" />
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
             <section className="rounded-[28px] bg-white p-6 shadow-[0_16px_42px_rgba(49,78,58,0.08)]">
               <div className="flex items-center gap-4"><span className="flex size-20 items-center justify-center rounded-full bg-[#FFF0E6] text-[2.5rem]">👩</span><div><p className="text-[1.55rem] font-black">김정희님</p><p className="mt-2 text-lg font-bold text-[#69736D]">오늘안부를 사용 중이에요</p></div></div>
             </section>
             <div className="mt-5 grid gap-4">
-              <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="저녁 8시에 알려드려요." tone="parent" />
-              <SettingLink href="/family/members" icon={<UsersRound />} title="연결된 가족" description="지은님, 민수님과 연결됐어요." tone="parent" />
-              <SettingLink href="/permissions" icon={<ShieldCheck />} title="연결 상태" description="생활 정보 연결을 확인해요." tone="parent" />
+              <SettingLink href="/permissions" icon={<ShieldCheck />} title="내 정보는 내가 정합니다" description="연결 정보와 공유 내용을 확인해요." tone="parent" />
+              <SettingLink href="/family/members" icon={<UsersRound />} title="가족 연결" description="연결된 가족을 보거나 해제해요." tone="parent" />
+              <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="질문을 받을 시간을 정해요." tone="parent" />
               <SettingLink href="/app?role=parent&view=guide" icon={<Leaf />} title="오늘안부 이용 안내" description="주요 서비스를 다시 볼 수 있어요." tone="parent" />
+              <SettingLink href="mailto:hello@oneulanbu.kr" icon={<Phone />} title="문의하기" description="궁금한 점을 물어보세요." tone="parent" />
             </div>
           </div>
         </section>
@@ -648,12 +649,11 @@ function SettingLink({ href, icon, title, description, tone }: { href: string; i
 
 function ParentBottomNavigation({ active }: { active: ParentView }) {
   const tabs = [
-    { id: "home" as const, label: "홈", href: "/app?role=parent", icon: Home },
-    { id: "photos" as const, label: "가족소식", href: "/app?role=parent&view=photos", icon: Images },
-    { id: "farm" as const, label: "농장", href: "/app?role=parent&view=farm", icon: Sprout },
-    { id: "profile" as const, label: "내정보", href: "/app?role=parent&view=profile", icon: UserRound },
+    { id: "home" as const, label: "오늘", href: "/app?role=parent", icon: Home },
+    { id: "photos" as const, label: "가족", href: "/app?role=parent&view=photos", icon: Images },
+    { id: "profile" as const, label: "설정", href: "/app?role=parent&view=profile", icon: UserRound },
   ];
-  return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home") || (active === "guide" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-base font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={27} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
+  return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-3 gap-2">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home") || (active === "guide" && tab.id === "home") || (active === "farm" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-lg font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={28} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
 }
 
 function FamilyBottomNavigation({ active }: { active: FamilyView }) {

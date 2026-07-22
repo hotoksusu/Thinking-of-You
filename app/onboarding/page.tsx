@@ -49,7 +49,7 @@ function OnboardingFlow() {
   const router = useRouter();
   const role: Role = params.get("role") === "family" ? "family" : "parent";
   const invited = role === "parent" && params.get("invited") === "1";
-  const total = 4;
+  const total = role === "parent" ? 3 : 4;
   const [step, setStep] = useState(1);
   const [purposes, setPurposes] = useState<string[]>([]);
   const [relation, setRelation] = useState("");
@@ -114,10 +114,9 @@ function OnboardingFlow() {
 }
 
 function ParentStep({ step, invited, onNext, onFinish }: { step: number; invited: boolean; onNext: () => void; onFinish: () => void }) {
-  if (step === 1) return <StepBody icon={<HeartHandshake />} title={invited ? <>가족이 초대했어요.</> : <>안녕하세요.</>} description={invited ? <><span>매일 기록하지 않아요.</span><span>필요한 날에만 질문을 드려요.</span></> : <span>오늘안부를 시작해볼게요.</span>}><PrimaryButton onClick={onNext}>시작하기</PrimaryButton></StepBody>;
-  if (step === 2) return <StepBody icon={<Footprints />} title={<>매일 묻지 않아요.</>} description={<><span>걸음과 생활 흐름을 살펴봐요.</span><span>동의한 정보만 확인해요.</span></>}><div className="mx-auto mt-6 flex max-w-[330px] items-center justify-center gap-4 rounded-[26px] bg-[#F2F7EF] p-5"><span className="text-5xl">🚶</span><ArrowRight className="text-[#78A76E]" /><span className="text-5xl">🌿</span></div><PrimaryButton onClick={onNext}>생활 확인 연결하기</PrimaryButton></StepBody>;
-  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>필요한 날만 물어요.</>} description={<><span>질문은 하나예요.</span><span>{PRODUCT_COPY.parentSkip}</span></>}><div className="mt-6 rounded-[22px] bg-[#EFF6F1] p-4 text-lg font-black text-[#315B3D]">통화와 문자 내용은 보지 않아요.</div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
-  return <StepBody icon={<Sparkles />} title={<>준비됐어요.</>} description={<><span>평소처럼 지내시면 돼요.</span><span>가족 소식도 여기서 볼 수 있어요.</span></>}><PrimaryButton onClick={onFinish}>오늘안부 시작하기</PrimaryButton></StepBody>;
+  if (step === 1) return <StepBody icon={<HeartHandshake />} title="우리 아이가 덜 걱정하도록" description={<span>필요한 날만 안부를 확인합니다.</span>}><PrimaryButton onClick={onNext}>내가 할 일 보기</PrimaryButton></StepBody>;
+  if (step === 2) return <StepBody icon={<Footprints />} title="질문 하나만 눌러 주세요." description={<span>편한 답을 고르면 됩니다.</span>}><PrimaryButton onClick={onNext}>안심 안내 보기</PrimaryButton></StepBody>;
+  return <StepBody icon={<ShieldCheck />} title="매일 하지 않아도 됩니다." description={<><span>어려운 날은 건너뛰어도 됩니다.</span><span>동의한 정보만 사용합니다.</span></>}><PrimaryButton onClick={onFinish}>부모 화면으로 가기</PrimaryButton></StepBody>;
 }
 
 function FamilyStep({ step, purposes, relation, method, onTogglePurpose, onRelation, onMethod, onNext, onFinish }: { step: number; purposes: string[]; relation: string; method: string; onTogglePurpose: (id: string) => void; onRelation: (id: string) => void; onMethod: (id: string) => void; onNext: () => void; onFinish: () => void }) {

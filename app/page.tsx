@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Check, CircleDot, Footprints, HelpCircle, Layers3, MessageCircle, Phone, Radar, ShieldCheck, TrendingUp, UserRound } from "lucide-react";
 import { PRODUCT_COPY } from "@/lib/product-copy";
-import { LandingIA } from "@/components/landing-ia";
+import { ParentFirstLanding } from "@/components/parent-first-landing";
 
 const supportStatus = [
   ["질문 응답", "현재 지원", "bg-[#E3F3E7] text-[#24613A]"],
@@ -29,7 +29,7 @@ const enginePrinciples = [
   "생활 변화와 질문 응답을 함께 봅니다.",
 ] as const;
 
-export default function LandingPage() { return <LandingIA />; }
+export default function LandingPage() { return <ParentFirstLanding />; }
 
 function LandingPageLegacy() {
   return (
