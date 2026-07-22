@@ -1,0 +1,2 @@
+import { InfoCards, InfoPage } from "@/components/info-page";
+export default function Page(){return <InfoPage eyebrow="요금" title="지금은 무료로 체험할 수 있습니다." intro="정식 연결 요금은 출시 전에 명확히 안내합니다. 결제 없이 부모·가족 화면의 핵심 흐름을 먼저 확인하세요." cta={{label:"무료 체험 시작하기",href:"/for-family"}}><InfoCards items={[["무료 체험","부모 질문과 가족 화면의 데모를 제한 없이 확인합니다."],["안심 구독 · 준비 중","실제 생활 정보 연결, 변화 안내, 가족 행동 제안을 준비하고 있습니다."]]}/></InfoPage>}

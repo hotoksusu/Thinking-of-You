@@ -6,12 +6,12 @@ import { ArrowRight, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const navigation = [
-  { label: "서비스 소개", href: "/about" },
-  { label: "AI 기술", href: "/technology" },
-  { label: "가족", href: "/families" },
-  { label: "부모님", href: "/parents" },
-  { label: "이용 방법", href: "/guide" },
-  { label: "요금", href: "/plans" },
+  { label: "부모님", href: "/for-parent" },
+  { label: "가족", href: "/for-family" },
+  { label: "작동 방식", href: "/how-it-works" },
+  { label: "기술", href: "/technology" },
+  { label: "요금", href: "/pricing" },
+  { label: "도움말", href: "/guide" },
 ];
 
 export function MarketingHeader({ compact = false }: { compact?: boolean }) {

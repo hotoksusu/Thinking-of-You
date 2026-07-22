@@ -1,0 +1,3 @@
+import { InfoCards, InfoPage } from "@/components/info-page";
+const steps=[["평소처럼 생활합니다.","부모님이 매일 기록할 필요는 없습니다."],["동의한 정보만 확인합니다.","현재는 질문 응답과 응답 시간대를 확인합니다."],["개인의 평소와 비교합니다.","다른 사람의 평균이 아닌 본인의 생활 흐름을 기준으로 봅니다."],["달라진 날에는 질문합니다.","짧은 질문 하나로 지금 상태를 확인합니다."],["필요하면 가족에게 알립니다.","변화 이유와 권장 행동 하나를 보여드립니다."]] as const;
+export default function Page(){return <InfoPage eyebrow="작동 방식" title="감시하지 않고, 평소와 다른 흐름을 확인합니다." intro="오늘안부는 질병을 예측하거나 진단하지 않습니다. 동의한 정보 안에서 생활 변화를 이해하기 쉽게 안내합니다." cta={{label:"가족 화면에서 확인하기",href:"/experience/family"}}><InfoCards items={steps}/><div className="mt-8 rounded-[24px] bg-[#EAF3E5] p-6 font-bold leading-8 text-[#315B3D]">현재 지원: 질문 응답·응답 시간대<br/>준비 중: 걸음·움직임·생활 시간대 연결<br/>확인하지 않음: 통화·문자·사진의 내용</div></InfoPage>}
