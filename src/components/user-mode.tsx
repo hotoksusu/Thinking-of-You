@@ -227,7 +227,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   if (initialView === "photos") {
     return (
       <AppFrame role="parent" active="photos">
-        <ParentSectionHeader title="가족" />
+        <ParentSectionHeader title="가족" topLevel />
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
             <div className="flex items-center gap-4"><AnsimiCharacter state="familyPhoto" motion="once" size="small" ariaLabel="가족 사진이 도착했음을 안내하는 안심이"/><p className="text-xl font-black leading-8 text-[#37433D]">지은이가 보낸 사진과 말을<br />편하게 보세요.</p></div>
@@ -296,7 +296,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   if (initialView === "profile") {
     return (
       <AppFrame role="parent" active="profile">
-        <ParentSectionHeader title="설정" />
+        <ParentSectionHeader title="설정" topLevel />
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
             <section className="rounded-[28px] bg-white p-6 shadow-[0_16px_42px_rgba(49,78,58,0.08)]">
@@ -319,7 +319,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   if (initialView === "guide") {
     return (
       <AppFrame role="parent" active="home">
-        <ParentSectionHeader title="오늘안부 이용 안내" />
+        <ParentSectionHeader title="오늘안부 이용 안내" backHref="/app?role=parent&view=profile" backLabel="설정으로" />
         <ServiceGuide role="parent" />
       </AppFrame>
     );
@@ -327,6 +327,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
 
   return (
     <AppFrame role="parent" active="home">
+      <ParentTopHeader />
       <section className="px-5 pb-36">
         <div className="mx-auto max-w-[560px]">
           <section className="py-7">
@@ -660,8 +661,12 @@ function ServiceGuide({ role }: { role: ExperienceRole }) {
   );
 }
 
-function ParentSectionHeader({ title, home = false }: { title: string; home?: boolean }) {
-  return <header className="sticky top-0 z-20 border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 py-5 backdrop-blur"><div className="mx-auto flex max-w-[560px] items-center gap-3">{home ? <span className="flex size-12 items-center justify-center rounded-2xl bg-[#2F6B46] text-white"><Bell size={23} /></span> : <Link href="/app?role=parent" aria-label="홈으로" className="flex size-12 shrink-0 items-center justify-center rounded-full border border-[#D7E0D6] bg-white text-[#2F3D34] shadow-sm"><ArrowLeft size={25} /></Link>}<h1 className="text-[1.55rem] font-black text-[#17221B]">{title}</h1></div></header>;
+function ParentTopHeader() {
+  return <header className="border-b border-[#E1E8E0] bg-white/90 px-5 py-3"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-3"><img src="/brand/brand-icon.png?v=10" alt="" className="size-10 rounded-xl"/><div><p className="text-sm font-black text-[#68756D]">오늘안부</p><p className="text-lg font-black text-[#2F6B46]">오늘</p></div></div></header>;
+}
+
+function ParentSectionHeader({ title, topLevel = false, backHref = "/app?role=parent", backLabel = "오늘 화면으로" }: { title: string; topLevel?: boolean; backHref?: string; backLabel?: string }) {
+  return <header className="sticky top-0 z-20 border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 py-4 backdrop-blur"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-3">{topLevel ? <img src="/brand/brand-icon.png?v=10" alt="" className="size-10 rounded-xl"/> : <Link href={backHref} aria-label={backLabel} className="flex size-12 shrink-0 items-center justify-center rounded-full border border-[#D7E0D6] bg-white text-[#2F3D34] shadow-sm"><ArrowLeft size={25} /></Link>}<div><p className="text-sm font-black text-[#68756D]">오늘안부</p><h1 className="text-[1.45rem] font-black text-[#17221B]">{title}</h1></div></div></header>;
 }
 
 function FamilySectionHeader({ title }: { title: string }) {
