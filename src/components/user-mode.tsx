@@ -137,7 +137,6 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   const [selectedMood, setSelectedMood] = useState<MoodKey | null>(null);
   const [todayMood, setTodayMood] = useState<MoodKey | null | undefined>(undefined);
   const [hasAnsweredToday, setHasAnsweredToday] = useState(false);
-  const [homeAcknowledged, setHomeAcknowledged] = useState(false);
   const [familyConsent, setFamilyConsent] = useState<"undecided" | "sent" | "declined">("undecided");
   const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
 
@@ -215,18 +214,17 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   if (initialView === "photos") {
     return (
       <AppFrame role="parent" active="photos">
-        <ParentSectionHeader title="가족 소식" />
+        <ParentSectionHeader title="가족" />
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
-            <p className="text-xl font-black leading-8 text-[#37433D]">가족이 보낸 사진과 소식을 편하게 보세요.</p>
+            <p className="text-xl font-black leading-8 text-[#37433D]">가족이 전한 말을 편하게 보세요.</p>
             <div className="mt-6 grid gap-6">
               {moments.map((moment, index) => (
                 <article key={moment.id} className="overflow-hidden rounded-[30px] bg-white shadow-[0_18px_48px_rgba(49,78,58,0.10)]">
                   {moment.imageUrl ? <img src={moment.imageUrl} alt={moment.title} className="aspect-[4/3] w-full object-cover" /> : <div className={`flex aspect-[4/3] items-center justify-center text-[6rem] ${index % 2 ? "bg-[#EAF3E5]" : "bg-[#FFF3E8]"}`}>{moment.emoji}</div>}
                   <div className="p-6 sm:p-7">
-                    <p className="text-lg font-black text-[#477052]">{moment.sender}님이 보낸 가족 소식</p>
-                    <h2 className="mt-3 text-[1.45rem] font-black leading-9 text-[#17221B]">{moment.title}</h2>
-                    <p className="mt-3 text-base font-bold text-[#7A847D]">부담 없이 천천히 둘러보세요.</p>
+                    <p className="text-xl font-black text-[#477052]">{moment.sender}가 안부를 전했어요.</p>
+                    <h2 className="mt-3 text-[1.45rem] font-black leading-9 text-[#17221B]">“{moment.title}”</h2>
                   </div>
                 </article>
               ))}
@@ -288,7 +286,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
               <div className="flex items-center gap-4"><span className="flex size-20 items-center justify-center rounded-full bg-[#FFF0E6] text-[2.5rem]">👩</span><div><p className="text-[1.55rem] font-black">김정희님</p><p className="mt-2 text-lg font-bold text-[#69736D]">오늘안부를 사용 중이에요</p></div></div>
             </section>
             <div className="mt-5 grid gap-4">
-              <SettingLink href="/permissions" icon={<ShieldCheck />} title="내 정보는 내가 정합니다" description="연결 정보와 공유 내용을 확인해요." tone="parent" />
+              <SettingLink href="/settings/privacy" icon={<ShieldCheck />} title="내 정보는 내가 정합니다" description="연결 정보와 공유 내용을 확인해요." tone="parent" />
               <SettingLink href="/family/members" icon={<UsersRound />} title="가족 연결" description="연결된 가족을 보거나 해제해요." tone="parent" />
               <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="질문을 받을 시간을 정해요." tone="parent" />
               <SettingLink href="/app?role=parent&view=guide" icon={<Leaf />} title="오늘안부 이용 안내" description="주요 서비스를 다시 볼 수 있어요." tone="parent" />
@@ -314,24 +312,20 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
       <section className="px-5 pb-36">
         <div className="mx-auto max-w-[560px]">
           <section className="py-7 text-center">
-            <p className="mb-5 text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
+            <p className="mb-5 text-xl font-black text-[#477052]">정희 어머니, 안녕하세요.</p>
             <AnsimiCharacter
               state={hasAnsweredToday ? "calm" : "greeting"}
-              message={hasAnsweredToday ? "오늘은 따로 여쭤볼 것이 없어요." : "오늘은 이것만 여쭤볼게요."}
-              secondaryMessage={hasAnsweredToday ? "평소처럼 편하게 지내세요." : "오늘 식사는 어떠셨어요?"}
+              message={hasAnsweredToday ? "오늘은 하실 일이 없어요." : "오늘은 질문 하나만 부탁드릴게요."}
+              secondaryMessage={hasAnsweredToday ? "평소처럼 편안하게 하루를 보내세요." : "편한 답을 눌러 주세요."}
             />
-            {hasAnsweredToday ? <><p className="mt-5 text-lg font-bold text-[#637069]">앱을 닫으셔도 괜찮아요.</p><button type="button" onClick={() => setHomeAcknowledged(true)} className="mt-5 min-h-[72px] w-full rounded-[22px] bg-[#2F6B46] px-6 text-xl font-black text-white">{homeAcknowledged ? "확인했습니다" : "확인했어요"}</button></> : <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">질문 하나에 답하기</Link>}
-            <p className="mt-5 text-base font-bold leading-7 text-[#6B766F]">답하기 어려운 날은 건너뛰어도 괜찮아요.<br />한 번 답하지 않았다고 가족에게 알리지 않습니다.</p>
+            {hasAnsweredToday ? <p className="mt-5 text-lg font-bold leading-8 text-[#637069]">확인이 필요한 날에만<br />질문 하나를 드릴게요.</p> : <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">오늘 질문에 답하기</Link><p className="mt-5 text-lg font-bold leading-8 text-[#6B766F]">답하기 어려우면<br />건너뛰어도 괜찮습니다.</p></>}
           </section>
 
-          <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]">
-            <div className="flex items-center gap-4"><span className="flex size-14 items-center justify-center rounded-full bg-[#FFF0E6] text-2xl">💛</span><div><p className="text-sm font-black text-[#B95327]">가족 소식</p><h2 className="mt-1 text-xl font-black">딸이 응원을 보냈습니다.</h2></div></div>
-          </section>
+          {moments[0] ? <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]"><div className="flex items-center gap-4"><span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-[#FFF0E6] text-2xl" aria-hidden>💛</span><div className="text-left"><h2 className="text-xl font-black">{moments[0].sender}가 안부를 전했어요.</h2><p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">“{moments[0].title}”</p></div></div><Link href="/app?role=parent&view=photos" className="mt-5 flex min-h-14 items-center justify-center rounded-2xl border-2 border-[#2F6B46] text-lg font-black text-[#2F6B46]">{moments[0].sender}의 소식 보기</Link></section> : null}
 
           <section className="mt-5 rounded-[28px] bg-[#EAF3E5] p-6">
-            <p className="text-sm font-black text-[#477052]">생활 확인</p>
-            <h2 className="mt-2 text-2xl font-black">생활 흐름을 알아가는 중이에요.</h2>
-            <p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">며칠 더 살펴본 뒤 평소와 다른 점을 알려드릴게요.</p>
+            <h2 className="text-2xl font-black">평소 생활을 확인하고 있어요.</h2>
+            <p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">별도로 하실 일은 없습니다.<br />필요한 날에만 질문을 드릴게요.</p>
           </section>
         </div>
       </section>
