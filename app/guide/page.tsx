@@ -9,7 +9,7 @@ const steps = [
   { icon: LinkIcon, title: "연결 링크를 보내요", text: "카카오톡이나 문자로 부모님께 연결 링크를 보냅니다." },
   { icon: Home, title: "부모님이 권한을 확인해요", text: "받은 링크에서 바로 시작합니다. 홈 화면 추가는 선택 사항입니다." },
   { icon: Clock3, title: "필요한 날에만 답해요", text: "평소에는 기록하지 않고 질문 알림이 온 날만 짧게 답하거나 건너뜁니다." },
-  { icon: ShieldCheck, title: "가족이 이유와 행동을 확인해요", text: "평소와 다른 흐름이 이어질 때 확인할 이유와 행동 하나를 봅니다." },
+  { icon: ShieldCheck, title: "가족이 변화를 확인해요", text: "이유와 행동 하나만 봅니다." },
 ];
 
 export default function GuidePage() {
@@ -40,7 +40,7 @@ export default function GuidePage() {
         </div>
 
         <div className="mt-10 rounded-[24px] bg-[#EEF5E9] p-6 sm:p-8">
-          <div className="flex items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#52725B]"><HeartHandshake size={24} aria-hidden /></span><div><h2 className="text-2xl font-black">부모님도 쉽게 사용할 수 있어요.</h2><p className="mt-3 font-semibold leading-8 text-[#52635C]">큰 글씨와 큰 버튼으로 구성되어 있고, 필요한 날의 질문 하나만 선택하면 됩니다.</p></div></div>
+          <div className="flex items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[#52725B]"><HeartHandshake size={24} aria-hidden /></span><div><h2 className="text-2xl font-black">부모님도 쉽게 쓸 수 있어요.</h2><div className="readable-sentences mt-3 font-semibold leading-8 text-[#52635C]"><p>글씨와 버튼이 큽니다.</p><p>질문 하나만 선택하면 됩니다.</p></div></div></div>
         </div>
         <div className="mt-5 rounded-[24px] bg-white p-6 font-bold leading-8 text-[#52635C]"><p>평소에는 앱을 매일 열지 않아도 괜찮습니다.</p><p>답하기 어려운 날은 건너뛰어도 괜찮습니다.</p><p>한 번 답하지 않았다고 위험한 상태로 표시하지 않습니다.</p></div>
 

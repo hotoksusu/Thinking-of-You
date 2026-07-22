@@ -4,8 +4,8 @@ import { MarketingHeader, MobileStartCta } from "@/components/marketing-navigati
 
 const features = [
   { icon: Activity, title: "평소 생활을 알아갑니다", text: "현재 지원하는 질문 응답과 응답 시간대를 바탕으로 개인의 평소 흐름을 알아갑니다." },
-  { icon: ShieldCheck, title: "필요한 날에만 질문 하나", text: "작은 변화마다 묻지 않고 확인이 필요할 때만 쉬운 선택형 질문을 드립니다." },
-  { icon: FileHeart, title: "가족에게 이유와 행동 안내", text: "무엇이 달라졌는지 쉬운 문장으로 설명하고 지금 필요한 행동 하나를 제안합니다." },
+  { icon: ShieldCheck, title: "필요한 날만 물어요", text: "쉬운 질문 하나를 드립니다." },
+  { icon: FileHeart, title: "행동 하나를 알려드려요", text: "달라진 이유도 짧게 설명합니다." },
 ];
 
 export default function FeaturesPage() {

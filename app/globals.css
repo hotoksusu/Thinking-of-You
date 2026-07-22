@@ -157,6 +157,19 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+:where(h1, h2, h3, h4) {
+  text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+:where(p, li) {
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 img,
@@ -283,7 +296,7 @@ a {
 }
 
 .readable-sentences > * + * {
-  margin-top: 0.2rem;
+  margin-top: 0.35rem;
 }
 
 @media (max-width: 520px) {

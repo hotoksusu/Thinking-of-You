@@ -103,7 +103,7 @@ function OnboardingFlow() {
           <div key={`${role}-${step}`} className="completion-slide mt-4">
             <div className="flex items-start gap-3">
               <img src="/brand/brand-icon.png?v=10" alt="" className="size-12 rounded-2xl object-cover" />
-              <div className="rounded-[6px_22px_22px_22px] bg-[#EEF4EA] px-5 py-4 text-lg font-black text-[#315B3D]">차근차근 도와드릴게요.</div>
+              <div className="rounded-[6px_22px_22px_22px] bg-[#EEF4EA] px-5 py-4 text-lg font-black text-[#315B3D]">하나씩 알려드릴게요.</div>
             </div>
             {role === "parent" ? <ParentStep step={step} invited={invited} onNext={next} onFinish={finish} /> : <FamilyStep step={step} purposes={purposes} relation={relation} method={method} onTogglePurpose={togglePurpose} onRelation={setRelation} onMethod={setMethod} onNext={next} onFinish={finish} />}
           </div>
@@ -114,10 +114,10 @@ function OnboardingFlow() {
 }
 
 function ParentStep({ step, invited, onNext, onFinish }: { step: number; invited: boolean; onNext: () => void; onFinish: () => void }) {
-  if (step === 1) return <StepBody icon={<HeartHandshake />} title={invited ? <>가족이 오늘안부에<br />초대했어요.</> : <>안녕하세요.<br />오늘안부를 편하게 시작해볼게요.</>} description={invited ? <>평소에는 따로 기록하지 않아도 됩니다.<br />필요한 날에만 질문 하나를 드릴게요.</> : undefined}><PrimaryButton onClick={onNext}>시작하기</PrimaryButton></StepBody>;
-  if (step === 2) return <StepBody icon={<Footprints />} title={<>매일 많은 것을<br />묻지 않아요.</>} description={<>동의한 걸음과 생활 흐름을<br />조용히 살펴봅니다.</>}><div className="mx-auto mt-6 flex max-w-[330px] items-center justify-center gap-4 rounded-[26px] bg-[#F2F7EF] p-5"><span className="text-5xl">🚶</span><ArrowRight className="text-[#78A76E]" /><span className="text-5xl">🌿</span></div><PrimaryButton onClick={onNext}>생활 확인 연결하기</PrimaryButton></StepBody>;
-  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>필요한 날에만<br />질문 하나를 드릴게요.</>} description={PRODUCT_COPY.parentSkip}><div className="mt-6 rounded-[22px] bg-[#EFF6F1] p-4 text-lg font-black text-[#315B3D]">통화와 문자 내용은 보지 않아요.</div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
-  return <StepBody icon={<Sparkles />} title={<>이제 평소처럼<br />생활하시면 됩니다.</>} description={<>가족 소식과 농장 변화도<br />여기에서 볼 수 있어요.</>}><PrimaryButton onClick={onFinish}>오늘안부 시작하기</PrimaryButton></StepBody>;
+  if (step === 1) return <StepBody icon={<HeartHandshake />} title={invited ? <>가족이 초대했어요.</> : <>안녕하세요.</>} description={invited ? <><span>매일 기록하지 않아요.</span><span>필요한 날에만 질문을 드려요.</span></> : <span>오늘안부를 시작해볼게요.</span>}><PrimaryButton onClick={onNext}>시작하기</PrimaryButton></StepBody>;
+  if (step === 2) return <StepBody icon={<Footprints />} title={<>매일 묻지 않아요.</>} description={<><span>걸음과 생활 흐름을 살펴봐요.</span><span>동의한 정보만 확인해요.</span></>}><div className="mx-auto mt-6 flex max-w-[330px] items-center justify-center gap-4 rounded-[26px] bg-[#F2F7EF] p-5"><span className="text-5xl">🚶</span><ArrowRight className="text-[#78A76E]" /><span className="text-5xl">🌿</span></div><PrimaryButton onClick={onNext}>생활 확인 연결하기</PrimaryButton></StepBody>;
+  if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>필요한 날만 물어요.</>} description={<><span>질문은 하나예요.</span><span>{PRODUCT_COPY.parentSkip}</span></>}><div className="mt-6 rounded-[22px] bg-[#EFF6F1] p-4 text-lg font-black text-[#315B3D]">통화와 문자 내용은 보지 않아요.</div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
+  return <StepBody icon={<Sparkles />} title={<>준비됐어요.</>} description={<><span>평소처럼 지내시면 돼요.</span><span>가족 소식도 여기서 볼 수 있어요.</span></>}><PrimaryButton onClick={onFinish}>오늘안부 시작하기</PrimaryButton></StepBody>;
 }
 
 function FamilyStep({ step, purposes, relation, method, onTogglePurpose, onRelation, onMethod, onNext, onFinish }: { step: number; purposes: string[]; relation: string; method: string; onTogglePurpose: (id: string) => void; onRelation: (id: string) => void; onMethod: (id: string) => void; onNext: () => void; onFinish: () => void }) {
@@ -128,7 +128,7 @@ function FamilyStep({ step, purposes, relation, method, onTogglePurpose, onRelat
 }
 
 function StepBody({ icon, title, description, children }: { icon: React.ReactNode; title: React.ReactNode; description?: React.ReactNode; children: React.ReactNode }) {
-  return <div className="mt-7 text-center"><span className="mx-auto flex size-20 items-center justify-center rounded-[26px] bg-[#FFF0E6] text-[#D95C24] [&>svg]:size-10">{icon}</span><h1 className="mt-5 text-[clamp(2rem,8vw,2.7rem)] font-black leading-[1.2] tracking-[-.025em]">{title}</h1>{description ? <p className="mt-4 text-xl font-bold leading-8 text-[#596A61]">{description}</p> : null}{children}</div>;
+  return <div className="mt-7 text-center"><span className="mx-auto flex size-20 items-center justify-center rounded-[26px] bg-[#FFF0E6] text-[#D95C24] [&>svg]:size-10">{icon}</span><h1 className="copy-title mt-5 text-[clamp(2rem,8vw,2.7rem)] font-black leading-[1.2] tracking-[-.025em]">{title}</h1>{description ? <div className="readable-sentences mt-4 text-xl font-bold leading-8 text-[#596A61]">{description}</div> : null}{children}</div>;
 }
 
 function ChoiceList({ items, selected, onSelect, compact = false }: { items: Choice[]; selected: string[]; onSelect: (id: string) => void; compact?: boolean }) {
