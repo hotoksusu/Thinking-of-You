@@ -16,7 +16,7 @@ function AppPageContent() {
     ? view
     : "home";
 
-  return <UserMode initialRegistered={params.get("registered") === "1"} initialRole={role} initialParentView={parentView} initialFamilyView={familyView} />;
+  return <UserMode initialRegistered={params.get("registered") === "1"} initialRole={role} initialParentView={parentView} initialFamilyView={familyView} initialAnswered={params.get("answered") === "1"} />;
 }
 
 export default function AppPage() {

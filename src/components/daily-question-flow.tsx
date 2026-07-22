@@ -27,8 +27,8 @@ export function DailyQuestionFlow() {
   }
 
   if (stage === "empty") return <ResultShell><AnsimiCharacter state="calm" message="오늘은 하실 일이 없습니다." secondaryMessage="평소처럼 생활하세요. 필요한 날에만 질문을 드릴게요." /><Link href="/app?role=parent&view=photos" className="mt-7 flex min-h-14 items-center justify-center text-lg font-black text-[#526059]">가족에게 안부 한마디 보내기</Link></ResultShell>;
-  if (stage === "skipped") return <ResultShell><AnsimiCharacter state="rest" message="알겠습니다." secondaryMessage="오늘은 편하게 쉬세요." /><div className="mt-5 rounded-[22px] bg-[#F2F6EF] p-5 text-center font-bold leading-7 text-[#536258]">건너뛰어도 농장과 기록에는 아무 불이익이 없어요.<br />내일 같은 질문을 다시 강제로 묻지 않아요.</div><ResultActions primary="홈으로 가기" href="/app?role=parent" /></ResultShell>;
-  if (stage === "result" && selected) return <ResultShell><AnsimiCharacter state="happy" message="답변해 주셔서 고맙습니다." secondaryMessage="이제 평소처럼 하루를 보내세요." /><ResultActions primary="오늘 화면으로 돌아가기" href="/app?role=parent" /></ResultShell>;
+  if (stage === "skipped") return <ResultShell><AnsimiCharacter state="rest" message="알겠습니다." secondaryMessage="오늘은 편하게 쉬세요." /><div className="mt-5 rounded-[22px] bg-[#F2F6EF] p-5 text-center font-bold leading-7 text-[#536258]">오늘은 답하지 않아도 괜찮습니다.<br />농장에도 불이익이 없어요.</div><ResultActions primary="오늘 화면으로 돌아가기" href="/app?role=parent&answered=1" /></ResultShell>;
+  if (stage === "result" && selected) return <ResultShell><AnsimiCharacter state="happy" message="답변해 주셔서 고맙습니다." secondaryMessage="이제 평소처럼 하루를 보내세요." /><ResultActions primary="오늘 화면으로 돌아가기" href="/app?role=parent&answered=1" /></ResultShell>;
 
   return (
     <main className="min-h-screen bg-[#F7F9F6] px-4 py-5 text-[#17221B]">

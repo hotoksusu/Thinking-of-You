@@ -83,18 +83,20 @@ export function UserMode({
   initialRole,
   initialParentView = "home",
   initialFamilyView = "home",
+  initialAnswered = false,
 }: {
   initialRegistered: boolean;
   initialRole?: ExperienceRole;
   initialParentView?: ParentView;
   initialFamilyView?: FamilyView;
+  initialAnswered?: boolean;
 }) {
   const [role, setRole] = useState<ExperienceRole | null>(initialRole ?? null);
   const [moments, setMoments] = useState<FamilyTrace[]>(familyTraces);
 
   if (!role) return <RoleSelect onSelect={setRole} />;
   return role === "parent" ? (
-    <ParentHome moments={moments} initialView={initialParentView} />
+    <ParentHome moments={moments} initialView={initialParentView} initialAnswered={initialAnswered} />
   ) : (
     <FamilyHome moments={moments} initialView={initialFamilyView} onAddMoment={(moment) => setMoments((current) => [moment, ...current])} />
   );
@@ -131,13 +133,14 @@ function RoleCard({ icon, role, description, actionLabel, onClick }: { icon: Rea
   );
 }
 
-function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialView: ParentView }) {
+function ParentHome({ moments, initialView, initialAnswered }: { moments: FamilyTrace[]; initialView: ParentView; initialAnswered: boolean }) {
   const farm = getFarmGrowth(todaySignals, moments);
   const [checkInStep, setCheckInStep] = useState<"home" | "done">("home");
   const [selectedMood, setSelectedMood] = useState<MoodKey | null>(null);
   const [todayMood, setTodayMood] = useState<MoodKey | null | undefined>(undefined);
-  const [hasAnsweredToday, setHasAnsweredToday] = useState(false);
+  const [hasAnsweredToday, setHasAnsweredToday] = useState(initialAnswered);
   const [familyConsent, setFamilyConsent] = useState<"undecided" | "sent" | "declined">("undecided");
+  const [openMoment, setOpenMoment] = useState<FamilyTrace | null>(null);
   const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
 
   useEffect(() => {
@@ -145,11 +148,11 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
       const today = new Date().toISOString().slice(0, 10);
       const history = JSON.parse(window.localStorage.getItem("oneul-anbu-mood-history") ?? "[]") as Array<{ mood?: MoodKey; date?: string }>;
       setTodayMood(history.find((item) => item.date === today)?.mood ?? null);
-      setHasAnsweredToday(readQuestionHistory().some((item) => item.answeredAt.slice(0, 10) === today));
+      setHasAnsweredToday(initialAnswered || readQuestionHistory().some((item) => item.answeredAt.slice(0, 10) === today));
     } catch {
       setTodayMood(null);
     }
-  }, []);
+  }, [initialAnswered]);
 
   function finishMoodChoice() {
     if (!selectedMood) return;
@@ -217,20 +220,24 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
         <ParentSectionHeader title="가족" />
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
-            <p className="text-xl font-black leading-8 text-[#37433D]">가족이 전한 말을 편하게 보세요.</p>
+            <p className="text-xl font-black leading-8 text-[#37433D]">지은이가 보낸 사진과 말을<br />편하게 보세요.</p>
             <div className="mt-6 grid gap-6">
               {moments.map((moment, index) => (
-                <article key={moment.id} className="overflow-hidden rounded-[30px] bg-white shadow-[0_18px_48px_rgba(49,78,58,0.10)]">
-                  {moment.imageUrl ? <img src={moment.imageUrl} alt={moment.title} className="aspect-[4/3] w-full object-cover" /> : <div className={`flex aspect-[4/3] items-center justify-center text-[6rem] ${index % 2 ? "bg-[#EAF3E5]" : "bg-[#FFF3E8]"}`}>{moment.emoji}</div>}
+                <article key={moment.id} className="overflow-hidden rounded-[30px] border border-[#DDE6DC] bg-white">
+                  {moment.imageUrl ? <button type="button" onClick={() => setOpenMoment(moment)} className="block w-full focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-[-4px] focus-visible:outline-[#D95C24]" aria-label={`${moment.sender}이가 보낸 사진 크게 보기`}><img src={moment.imageUrl} alt={`${moment.sender}이가 보낸 사진`} className="aspect-[4/3] w-full object-contain bg-[#F4F1E9]" /></button> : <div className={`flex min-h-36 items-center justify-center text-[5rem] ${index % 2 ? "bg-[#EAF3E5]" : "bg-[#FFF3E8]"}`} aria-hidden>{moment.emoji}</div>}
                   <div className="p-6 sm:p-7">
-                    <p className="text-xl font-black text-[#477052]">{moment.sender}가 안부를 전했어요.</p>
-                    <h2 className="mt-3 text-[1.45rem] font-black leading-9 text-[#17221B]">“{moment.title}”</h2>
+                    <div className="flex flex-wrap items-center gap-2"><p className="text-xl font-black text-[#315B3D]">{withSubject(moment.sender)} 보낸 말</p>{moment.demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-sm font-black text-[#667269]">체험 예시</span> : null}</div>
+                    <p className="mt-2 text-base font-bold text-[#6A756E]">{formatFamilyTime(moment.createdAt)}</p>
+                    <h2 className="mt-4 text-[1.35rem] font-black leading-[1.6] text-[#17221B]">{moment.source === "summary" ? moment.title : `“${moment.title}”`}</h2>
+                    {moment.source === "summary" ? <p className="mt-2 text-base font-bold text-[#6A756E]">오늘안부가 정리한 내용입니다.</p> : null}
+                    <button type="button" onClick={() => setOpenMoment(moment)} className="mt-5 flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-lg font-black text-white">{familyContentAction(moment)}</button>
                   </div>
                 </article>
               ))}
             </div>
           </div>
         </section>
+        {openMoment ? <FamilyContentDialog moment={openMoment} onClose={() => setOpenMoment(null)} /> : null}
       </AppFrame>
     );
   }
@@ -311,26 +318,52 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
     <AppFrame role="parent" active="home">
       <section className="px-5 pb-36">
         <div className="mx-auto max-w-[560px]">
-          <section className="py-7 text-center">
-            <p className="mb-5 text-xl font-black text-[#477052]">정희 어머니, 안녕하세요.</p>
-            <AnsimiCharacter
-              state={hasAnsweredToday ? "calm" : "greeting"}
-              message={hasAnsweredToday ? "오늘은 하실 일이 없어요." : "오늘은 질문 하나만 부탁드릴게요."}
-              secondaryMessage={hasAnsweredToday ? "평소처럼 편안하게 하루를 보내세요." : "편한 답을 눌러 주세요."}
-            />
-            {hasAnsweredToday ? <p className="mt-5 text-lg font-bold leading-8 text-[#637069]">확인이 필요한 날에만<br />질문 하나를 드릴게요.</p> : <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">오늘 질문에 답하기</Link><p className="mt-5 text-lg font-bold leading-8 text-[#6B766F]">답하기 어려우면<br />건너뛰어도 괜찮습니다.</p></>}
+          <section className="py-7">
+            <p className="text-lg font-black text-[#477052]">정희 어머니, 안녕하세요.</p>
+            <h1 className="mt-4 text-[1.75rem] font-black leading-[1.35]">{hasAnsweredToday ? "오늘은 하실 일이 없어요." : "오늘은 질문 하나만 부탁드릴게요."}</h1>
+            <p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">{hasAnsweredToday ? "평소처럼 편안하게 하루를 보내세요." : "편한 답 하나를 눌러 주세요."}</p>
+            {!hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-4 text-lg font-bold leading-8 text-[#6B766F]">오늘은 답하지 않아도 괜찮습니다.</p></> : null}
           </section>
 
-          {moments[0] ? <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]"><div className="flex items-center gap-4"><span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-[#FFF0E6] text-2xl" aria-hidden>💛</span><div className="text-left"><h2 className="text-xl font-black">{moments[0].sender}가 안부를 전했어요.</h2><p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">“{moments[0].title}”</p></div></div><Link href="/app?role=parent&view=photos" className="mt-5 flex min-h-14 items-center justify-center rounded-2xl border-2 border-[#2F6B46] text-lg font-black text-[#2F6B46]">{moments[0].sender}의 소식 보기</Link></section> : null}
+          {hasAnsweredToday && moments[0] ? <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white"><div className="p-6"><div className="flex flex-wrap items-center gap-2"><h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>{moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-sm font-black text-[#667269]">체험 예시</span> : null}</div><p className="mt-4 text-lg font-black leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p></div>{moments[0].imageUrl ? <button type="button" onClick={() => setOpenMoment(moments[0])} className="block w-full" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 크게 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain bg-[#F4F1E9]" /></button> : null}<div className="p-5"><button type="button" onClick={() => setOpenMoment(moments[0])} className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white">{familyContentAction(moments[0])}</button></div></section> : null}
 
-          <section className="mt-5 rounded-[28px] bg-[#EAF3E5] p-6">
-            <h2 className="text-2xl font-black">평소 생활을 확인하고 있어요.</h2>
-            <p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">별도로 하실 일은 없습니다.<br />필요한 날에만 질문을 드릴게요.</p>
-          </section>
+          {hasAnsweredToday ? <p className="px-2 pb-5 pt-7 text-center text-base font-bold leading-7 text-[#637069]">확인이 필요한 날에만 질문 하나를 드릴게요.</p> : null}
         </div>
       </section>
+      {openMoment ? <FamilyContentDialog moment={openMoment} onClose={() => setOpenMoment(null)} /> : null}
     </AppFrame>
   );
+}
+
+function familyContentLabel(moment: FamilyTrace) {
+  if (moment.kind === "drawing") return "그림";
+  if (moment.kind === "video") return "영상";
+  if (moment.kind === "audio") return "음성 메시지";
+  if (moment.imageUrl || moment.kind === "photo") return "사진";
+  return "메시지";
+}
+
+function withSubject(name: string) {
+  const last = name.charCodeAt(name.length - 1);
+  const hasFinalConsonant = last >= 0xac00 && last <= 0xd7a3 && (last - 0xac00) % 28 !== 0;
+  return `${name}${hasFinalConsonant ? "이가" : "가"}`;
+}
+
+function familyContentAction(moment: FamilyTrace) {
+  const label = familyContentLabel(moment);
+  if (label === "사진" || label === "그림") return `${label} 크게 보기`;
+  if (label === "영상") return "영상 보기";
+  if (label === "음성 메시지") return "음성 메시지 듣기";
+  return "메시지 전체 읽기";
+}
+
+function formatFamilyTime(createdAt: string) {
+  const date = new Date(createdAt);
+  return `${date.getMonth() + 1}월 ${date.getDate()}일 ${date.getHours() < 12 ? "오전" : "오후"}`;
+}
+
+function FamilyContentDialog({ moment, onClose }: { moment: FamilyTrace; onClose: () => void }) {
+  return <div className="fixed inset-0 z-[80] flex items-end bg-black/55 p-3 sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="family-content-title" className="mx-auto max-h-[90dvh] w-full max-w-[620px] overflow-y-auto rounded-[28px] bg-white p-5" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between gap-4"><h2 id="family-content-title" className="text-2xl font-black">{withSubject(moment.sender)} 보낸 {familyContentLabel(moment)}</h2><button type="button" onClick={onClose} aria-label="닫기" className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF2EC]"><X size={26} /></button></div>{moment.imageUrl ? <img src={moment.imageUrl} alt={`${withSubject(moment.sender)} 보낸 ${familyContentLabel(moment)}`} className="mt-5 max-h-[55dvh] w-full rounded-2xl bg-[#F4F1E9] object-contain" /> : null}<p className="mt-5 text-xl font-black leading-[1.65]">{moment.source === "summary" ? moment.title : `“${moment.title}”`}</p>{moment.source === "summary" ? <p className="mt-3 text-base font-bold text-[#69756D]">오늘안부가 정리한 내용입니다.</p> : null}<button type="button" onClick={onClose} className="mt-6 min-h-[56px] w-full rounded-2xl bg-[#2F6B46] text-lg font-black text-white">다 봤어요</button></section></div>;
 }
 
 function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: MoodKey | null; onSelect: (mood: MoodKey) => void; onDone: () => void }) {
@@ -678,7 +711,7 @@ function MomentComposer({ onCancel, onSave }: { onCancel: () => void; onSave: (m
     {imageUrl ? <div className="relative mt-4"><img src={imageUrl} alt="선택한 가족 소식" className="h-44 w-full rounded-2xl object-cover" /><label className="absolute bottom-3 right-3 cursor-pointer rounded-full bg-white px-3 py-2 text-xs font-black shadow"><input type="file" accept="image/*" onChange={readImage} className="sr-only" />사진 바꾸기</label></div> : <label className="mt-4 flex min-h-24 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#D8CBB8] bg-[#FFFCF7] text-sm font-black text-[#746B60]"><ImagePlus size={22} /><span>사진 선택 <small className="font-semibold">(선택)</small></span><input type="file" accept="image/*" onChange={readImage} className="sr-only" /></label>}
     <textarea value={text} onChange={(event) => setText(event.target.value)} maxLength={120} placeholder="한 줄을 남겨보세요. (선택)" className="mt-3 min-h-28 w-full resize-none rounded-2xl border border-[#E6DED2] px-4 py-3 font-semibold outline-none focus:border-[#6E9174]" />
     <p className="mt-2 text-xs font-semibold text-[#948A7D]">사진만, 한 줄만, 사진과 한 줄 함께 남겨도 괜찮아요.</p>
-    <button type="button" disabled={!canSave} onClick={() => onSave({ id: `moment-${Date.now()}`, kind: imageUrl ? "photo" : "memo", sender: "나", title: text.trim() || "사진으로 가족 소식을 남겼어요.", emoji: imageUrl ? "📷" : "✍️", imageUrl, createdAt: new Date().toISOString() })} className="mt-4 min-h-12 w-full rounded-2xl bg-[#D95423] px-5 font-black text-white disabled:bg-[#C8D2C9]">가족 소식 남기기</button>
+    <button type="button" disabled={!canSave} onClick={() => onSave({ id: `moment-${Date.now()}`, kind: imageUrl ? "photo" : "memo", sender: "지은", title: text.trim() || "엄마, 오늘 사진 한 장 보낼게.", emoji: imageUrl ? "📷" : "✍️", imageUrl, createdAt: new Date().toISOString(), source: "family" })} className="mt-4 min-h-12 w-full rounded-2xl bg-[#D95423] px-5 font-black text-white disabled:bg-[#C8D2C9]">가족 소식 남기기</button>
   </div>;
 }
 

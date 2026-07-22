@@ -25,12 +25,14 @@ export type LifeSignal = {
 
 export type FamilyTrace = {
   id: string;
-  kind: "photo" | "meal" | "moment" | "pet" | "memo";
+  kind: "photo" | "drawing" | "video" | "audio" | "meal" | "moment" | "pet" | "memo";
   sender: string;
   title: string;
   emoji: string;
   imageUrl?: string;
   createdAt: string;
+  source?: "family" | "summary";
+  demo?: boolean;
 };
 
 export type ReassuranceReport = {
@@ -60,8 +62,8 @@ export const todayReport: ReassuranceReport = {
 };
 
 export const familyTraces: FamilyTrace[] = [
-  { id: "trace-1", kind: "photo", sender: "지은", title: "손주가 오늘 그림을 그렸어요.", emoji: "🎨", imageUrl: "/brand/hero-family.png", createdAt: "2026-07-04T18:10:00+09:00" },
-  { id: "trace-2", kind: "photo", sender: "민수", title: "주말에 다 같이 웃으며 사진을 찍었어요.", emoji: "💛", imageUrl: "/illustrations/family-guide.png", createdAt: "2026-07-03T20:32:00+09:00" },
+  { id: "trace-1", kind: "photo", sender: "지은", title: "엄마, 오늘 저녁은 잘 챙겨 먹었어. 엄마도 식사 꼭 챙겨.", emoji: "🍚", imageUrl: "/hero-family-v2.png", createdAt: "2026-07-22T18:10:00+09:00", source: "family", demo: true },
+  { id: "trace-2", kind: "memo", sender: "지은", title: "엄마, 오늘 저녁에 전화할게.", emoji: "💛", createdAt: "2026-07-21T16:30:00+09:00", source: "family", demo: true },
 ];
 
 export function getFarmGrowth(signals = todaySignals, traces = familyTraces) {
