@@ -23,19 +23,19 @@ const summaries = [
   {
     icon: Smartphone,
     title: "별도 앱 설치 없이",
-    text: <>동의만 하면<br />평소처럼 사용하세요.</>,
+    text: <>받은 링크에서 바로 시작하고<br />홈 화면 추가는 선택할 수 있어요.</>,
     tone: "bg-[#FFF0E4] text-[#D85D28]",
   },
   {
     icon: Sparkles,
-    title: "안심이가 지켜봐요",
-    text: <>생활 패턴을 조용히 분석하여<br />변화를 살펴봅니다.</>,
+    title: "필요할 때만 질문",
+    text: <>평소에는 기록하지 않고<br />알림이 온 날만 짧게 답해요.</>,
     tone: "bg-[#EEF5E9] text-[#52725B]",
   },
   {
     icon: Heart,
     title: "가족은 안심",
-    text: <>이상 징후가 감지되면<br />가족에게 먼저 알려드립니다.</>,
+    text: <>다른 흐름이 이어지면<br />이유와 행동 하나를 알려드립니다.</>,
     tone: "bg-[#FFF1ED] text-[#DC5E52]",
   },
 ];
@@ -68,9 +68,9 @@ export function AnsimiStory() {
             오늘안부,<br className="sm:hidden" /> 이렇게 시작됩니다 😊
           </h2>
           <p className="mt-5 text-lg font-bold leading-8 text-[#52635C]">
-            복잡한 설치도, 매일 기록도 필요 없습니다.<br />
-            동의만 하면 평소처럼 생활하세요.<br />
-            안심이가 생활 변화를 조용히 살펴보다가<br className="sm:hidden" /> 필요한 순간 가족에게 알려드립니다.
+            앱스토어 설치 없이 받은 링크에서 바로 시작합니다.<br />
+            평소에는 앱을 매일 열지 않아도 괜찮습니다.<br />
+            질문 알림이 온 날만 짧게 답하고,<br className="sm:hidden" /> 어려운 날은 건너뛰어도 괜찮습니다.
           </p>
         </div>
 

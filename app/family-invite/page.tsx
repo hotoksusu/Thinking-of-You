@@ -42,7 +42,7 @@ export default function FamilyInvitePage() {
   }
 
   async function shareInvite() {
-    const inviteUrl = `https://oneul-anbu.local/invite/${inviteCode}`;
+    const inviteUrl = `https://oneul-anbu.yos1015.chatgpt.site/onboarding?role=parent&invited=1&code=${inviteCode}`;
     const nav = navigator as Navigator & {
       share?: (data: ShareData) => Promise<void>;
     };
@@ -50,7 +50,7 @@ export default function FamilyInvitePage() {
     if (typeof nav.share === "function") {
       await nav.share({
         title: "오늘안부 초대 코드",
-        text: `오늘안부에서 안부를 함께 나눠요. 초대 코드: ${inviteCode}`,
+        text: `가족이 오늘안부에 초대했어요. 평소에는 기록하지 않고 필요한 날에만 질문 하나에 답하면 됩니다. 초대 코드: ${inviteCode}`,
         url: inviteUrl,
       });
     } else {

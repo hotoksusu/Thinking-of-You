@@ -47,6 +47,7 @@ function OnboardingFlow() {
   const params = useSearchParams();
   const router = useRouter();
   const role: Role = params.get("role") === "family" ? "family" : "parent";
+  const invited = role === "parent" && params.get("invited") === "1";
   const total = 4;
   const [step, setStep] = useState(1);
   const [purposes, setPurposes] = useState<string[]>([]);
@@ -103,7 +104,7 @@ function OnboardingFlow() {
               <img src="/brand/brand-icon.png?v=10" alt="" className="size-12 rounded-2xl object-cover" />
               <div className="rounded-[6px_22px_22px_22px] bg-[#EEF4EA] px-5 py-4 text-lg font-black text-[#315B3D]">차근차근 도와드릴게요.</div>
             </div>
-            {role === "parent" ? <ParentStep step={step} onNext={next} onFinish={finish} /> : <FamilyStep step={step} purposes={purposes} relation={relation} method={method} onTogglePurpose={togglePurpose} onRelation={setRelation} onMethod={setMethod} onNext={next} onFinish={finish} />}
+            {role === "parent" ? <ParentStep step={step} invited={invited} onNext={next} onFinish={finish} /> : <FamilyStep step={step} purposes={purposes} relation={relation} method={method} onTogglePurpose={togglePurpose} onRelation={setRelation} onMethod={setMethod} onNext={next} onFinish={finish} />}
           </div>
         </section>
       </div>
@@ -111,8 +112,8 @@ function OnboardingFlow() {
   );
 }
 
-function ParentStep({ step, onNext, onFinish }: { step: number; onNext: () => void; onFinish: () => void }) {
-  if (step === 1) return <StepBody icon={<HeartHandshake />} title={<>안녕하세요.<br />오늘안부를 편하게 시작해볼게요.</>}><PrimaryButton onClick={onNext}>시작하기</PrimaryButton></StepBody>;
+function ParentStep({ step, invited, onNext, onFinish }: { step: number; invited: boolean; onNext: () => void; onFinish: () => void }) {
+  if (step === 1) return <StepBody icon={<HeartHandshake />} title={invited ? <>가족이 오늘안부에<br />초대했어요.</> : <>안녕하세요.<br />오늘안부를 편하게 시작해볼게요.</>} description={invited ? <>평소에는 따로 기록하지 않아도 됩니다.<br />필요한 날에만 질문 하나를 드릴게요.</> : undefined}><PrimaryButton onClick={onNext}>시작하기</PrimaryButton></StepBody>;
   if (step === 2) return <StepBody icon={<Footprints />} title={<>매일 많은 것을<br />묻지 않아요.</>} description={<>동의한 걸음과 생활 흐름을<br />조용히 살펴봅니다.</>}><div className="mx-auto mt-6 flex max-w-[330px] items-center justify-center gap-4 rounded-[26px] bg-[#F2F7EF] p-5"><span className="text-5xl">🚶</span><ArrowRight className="text-[#78A76E]" /><span className="text-5xl">🌿</span></div><PrimaryButton onClick={onNext}>생활 확인 연결하기</PrimaryButton></StepBody>;
   if (step === 3) return <StepBody icon={<ShieldCheck />} title={<>필요한 날에만<br />질문 하나를 드릴게요.</>} description={<>대답하기 싫은 날은<br />건너뛰어도 괜찮아요.</>}><div className="mt-6 rounded-[22px] bg-[#EFF6F1] p-4 text-lg font-black text-[#315B3D]">통화와 문자 내용은 보지 않아요.</div><PrimaryButton onClick={onNext}>알겠어요</PrimaryButton></StepBody>;
   return <StepBody icon={<Sparkles />} title={<>이제 평소처럼<br />생활하시면 됩니다.</>} description={<>가족 소식과 농장 변화도<br />여기에서 볼 수 있어요.</>}><PrimaryButton onClick={onFinish}>오늘안부 시작하기</PrimaryButton></StepBody>;

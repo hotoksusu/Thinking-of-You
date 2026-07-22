@@ -2,8 +2,8 @@ import { Check, Clock3 } from "lucide-react";
 import { MarketingHeader, MobileStartCta } from "@/components/marketing-navigation";
 
 const plans = [
-  { name: "무료 체험", description: "오늘안부의 기본 흐름을 경험해요.", features: ["하루 한 질문", "가족 소식", "체험용 생활 변화 화면"] },
-  { name: "유료 기능 예정", description: "실제 연결과 변화 알림을 준비하고 있어요.", features: ["실제 생활 흐름 분석", "변화 감지 알림", "주간 요약과 행동 제안"] },
+  { name: "무료 체험", description: "오늘안부의 기본 흐름을 경험해요.", features: ["하루 한 질문 체험", "부모·가족 화면 체험", "가족 소식", "생활 변화 예시 확인"] },
+  { name: "안심 구독", description: "실제 연결과 변화 알림을 준비하고 있어요.", features: ["실제 생활 데이터 연결", "개인 기준선 기반 변화 확인", "확인이 필요한 변화 알림", "가족 행동 제안", "주간 생활 요약", "가족 공동 확인"] },
 ];
 
 export default function PlansPage() {
@@ -27,6 +27,8 @@ export default function PlansPage() {
           ))}
         </div>
       </section>
+      <section className="mx-auto mb-8 grid w-[calc(100%-2.5rem)] max-w-[1030px] gap-4 md:grid-cols-2"><article className="rounded-[24px] bg-white p-6"><h2 className="text-2xl font-black">전화와 카카오톡</h2><p className="mt-3 font-bold leading-7 text-[#68756F]">가족이 먼저 연락해 확인합니다. 매일 반복하면 서로 부담될 수 있습니다.</p></article><article className="rounded-[24px] bg-[#EAF3E5] p-6"><h2 className="text-2xl font-black">오늘안부</h2><p className="mt-3 font-bold leading-7 text-[#52635C]">평소 흐름을 알아가고 필요한 날에만 질문한 뒤, 이유와 행동 하나를 안내합니다.</p></article></section>
+      <section className="mx-auto mb-8 w-[calc(100%-2.5rem)] max-w-[1030px] rounded-[24px] bg-white p-6 font-bold leading-8 text-[#52635C]"><h2 className="text-2xl font-black text-[#20302C]">알림은 꼭 필요할 때만</h2><p className="mt-3">하루의 작은 변화마다 알리지 않습니다. 단일 미응답이나 한 번의 부정 응답만으로 위험하게 표현하지 않습니다.</p></section>
       <section className="mx-auto mb-16 w-[calc(100%-2.5rem)] max-w-[1030px] rounded-[26px] bg-[#EAF3E5] p-6 text-center sm:p-8"><h2 className="copy-title text-2xl font-black">매일 확인하지 않아도 달라진 날을 알려드려요.</h2></section>
       <MobileStartCta />
     </main>

@@ -4,7 +4,7 @@ import { ArrowLeft, ChevronRight, HeartHandshake, Home, Smile } from "lucide-rea
 const roles = [
   {
     label: "부모님",
-    text: "평소처럼 생활하시면 됩니다.",
+    text: "매일 기록하지 않고, 필요한 날에만 질문 하나에 답해요.",
     href: "/onboarding?role=parent",
     icon: Smile,
     tone: "bg-[#FFF0E4] border-[#F6C9A7]",
@@ -13,7 +13,7 @@ const roles = [
   },
   {
     label: "가족",
-    text: "생활 변화와 안심을 확인해요.",
+    text: "평소와 다른 날의 이유와 행동 하나를 확인해요.",
     href: "/onboarding?role=family",
     icon: HeartHandshake,
     tone: "bg-[#EEF4FF] border-[#BFD2F5]",
@@ -47,8 +47,6 @@ export default function StartPage() {
           <div className="text-center">
             <p className="text-lg font-black text-[#6B7A72]">생활이 안심이 되는 하루</p>
             <h1 className="mt-4 text-[2.25rem] font-black leading-[1.16] tracking-[-0.01em] text-[#162720] sm:text-[2.75rem]">
-              오늘안부를
-              <br />
               누가 사용하시나요?
             </h1>
             <p className="mt-4 text-xl font-bold text-[#5E6A65]">맞는 화면을 선택해 주세요.</p>
@@ -88,9 +86,7 @@ export default function StartPage() {
         </section>
 
         <p className="shrink-0 pb-2 text-center text-base font-bold leading-7 text-[#68756F]">
-          부모님은 입력하지 않고,
-          <br className="sm:hidden" />
-          평소처럼 생활하시면 됩니다.
+          부모님은 매일 기록하지 않고,<br />필요한 날에만 질문 하나에 답합니다.
         </p>
       </div>
     </main>

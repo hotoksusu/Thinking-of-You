@@ -135,6 +135,8 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
   const [checkInStep, setCheckInStep] = useState<"home" | "done">("home");
   const [selectedMood, setSelectedMood] = useState<MoodKey | null>(null);
   const [todayMood, setTodayMood] = useState<MoodKey | null | undefined>(undefined);
+  const [hasAnsweredToday, setHasAnsweredToday] = useState(false);
+  const [homeAcknowledged, setHomeAcknowledged] = useState(false);
   const [familyConsent, setFamilyConsent] = useState<"undecided" | "sent" | "declined">("undecided");
   const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
 
@@ -143,6 +145,7 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
       const today = new Date().toISOString().slice(0, 10);
       const history = JSON.parse(window.localStorage.getItem("oneul-anbu-mood-history") ?? "[]") as Array<{ mood?: MoodKey; date?: string }>;
       setTodayMood(history.find((item) => item.date === today)?.mood ?? null);
+      setHasAnsweredToday(readQuestionHistory().some((item) => item.answeredAt.slice(0, 10) === today));
     } catch {
       setTodayMood(null);
     }
@@ -311,11 +314,12 @@ function ParentHome({ moments, initialView }: { moments: FamilyTrace[]; initialV
           <section className="py-7 text-center">
             <p className="mb-5 text-xl font-black text-[#477052]">정희님, 안녕하세요.</p>
             <AnsimiCharacter
-              state="greeting"
-              message="오늘은 이것만 여쭤볼게요."
-              secondaryMessage="긴 기록 없이 질문 하나면 충분해요."
+              state={hasAnsweredToday ? "calm" : "greeting"}
+              message={hasAnsweredToday ? "오늘은 따로 여쭤볼 것이 없어요." : "오늘은 이것만 여쭤볼게요."}
+              secondaryMessage={hasAnsweredToday ? "평소처럼 편하게 지내세요." : "오늘 식사는 어떠셨어요?"}
             />
-            <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">오늘의 질문 보기</Link>
+            {hasAnsweredToday ? <><p className="mt-5 text-lg font-bold text-[#637069]">앱을 닫으셔도 괜찮아요.</p><button type="button" onClick={() => setHomeAcknowledged(true)} className="mt-5 min-h-[72px] w-full rounded-[22px] bg-[#2F6B46] px-6 text-xl font-black text-white">{homeAcknowledged ? "확인했습니다" : "확인했어요"}</button></> : <Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#E9652B] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(233,101,43,0.26)] active:scale-[0.98]">질문 하나에 답하기</Link>}
+            <p className="mt-5 text-base font-bold leading-7 text-[#6B766F]">답하기 어려운 날은 건너뛰어도 괜찮아요.<br />한 번 답하지 않았다고 가족에게 위험 알림이 가지 않습니다.</p>
           </section>
 
           <section className="mt-5 rounded-[28px] bg-white p-6 shadow-[0_12px_34px_rgba(49,78,58,0.07)]">
@@ -359,8 +363,15 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
   const [shareComplete, setShareComplete] = useState(false);
   const [familyMoodAlert, setFamilyMoodAlert] = useState<string | null>(null);
   const [questionSummary, setQuestionSummary] = useState<{ title: string; detail: string; weekly: string[] } | null>(null);
-  const experienceMode: ExperienceMode = "demo";
+  const [demoState, setDemoState] = useState<"usual" | "change" | "learning">("usual");
+  const [showCallConfirm, setShowCallConfirm] = useState(false);
+  const experienceMode: ExperienceMode = demoState === "learning" ? "learning" : "demo";
   const experience = experienceCopy[experienceMode];
+  const demoView = demoState === "usual"
+    ? { status: "오늘도 평소와 비슷한 생활입니다.", reasons: ["평소와 비슷한 시간에 응답했어요.", "최근 응답 흐름도 평소 범위예요."], action: "지금 필요한 행동은 없습니다." }
+    : demoState === "change"
+      ? { status: "오늘은 평소와 조금 다릅니다.", reasons: ["최근 3일간 움직임이 줄어든 예시예요.", "오늘은 조금 피곤하다고 답한 예시예요."], action: "오늘 짧게 전화해보세요." }
+      : { status: "생활 흐름을 알아가는 중입니다.", reasons: ["아직 비교할 응답이 충분하지 않아요.", "며칠 더 살펴본 뒤 다른 점을 알려드릴게요."], action: "" };
 
   useEffect(() => {
     try {
@@ -498,23 +509,21 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
       <section className="px-5 pb-32 pt-5">
         <div className="mx-auto max-w-[620px]">
           <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">{experience.badge}</span>
+          <div className="mt-4 grid grid-cols-3 gap-2 rounded-[20px] bg-white p-2" aria-label="가족 홈 체험 상태 선택">{[["usual","평소와 비슷함"],["change","변화 확인"],["learning","학습 중"]].map(([value,label]) => <button key={value} type="button" onClick={() => setDemoState(value as typeof demoState)} className={`min-h-12 rounded-2xl px-2 text-sm font-black ${demoState === value ? "bg-[#1F6F7A] text-white" : "text-[#59655E]"}`}>{label}</button>)}</div>
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
           <section className="mt-4 rounded-[28px] bg-[#1F6F7A] p-6 text-white shadow-[0_18px_45px_rgba(31,111,122,.18)]">
             <p className="text-sm font-black text-white/75">오늘의 상태</p>
-            <h1 className="mt-3 text-[2rem] font-black leading-tight">{experience.status}</h1>
+            <h1 className="mt-3 text-[2rem] font-black leading-tight">{demoView.status}</h1>
             <div className="mt-5 rounded-[20px] bg-white/12 p-4 text-lg font-bold leading-8">
-              <p>• 최근 3일간 움직임이 줄어든 예시입니다.</p>
-              <p>• {questionSummary?.detail ?? experience.detail}</p>
+              {demoView.reasons.map((reason) => <p key={reason}>• {reason}</p>)}
             </div>
           </section>
 
           <section className="mt-5 rounded-[24px] bg-white p-6 shadow-sm">
             <p className="text-sm font-black text-[#2F6B46]">오늘의 행동</p>
-            <h2 className="mt-2 text-2xl font-black">오늘 짧게 전화해보세요.</h2>
-            <p className="mt-3 font-bold leading-7 text-[#637069]">변화 예시를 확인한 뒤 부모님의 안부를 직접 확인해보세요.</p>
-            <a href="tel:" className="mt-5 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a>
-            <Link href="/app?role=family&view=changes" className="mt-2 flex min-h-12 items-center justify-center font-black text-[#1F6F7A]">변화 자세히 보기 <ChevronRight size={20} /></Link>
+            <h2 className="mt-2 text-2xl font-black">{demoView.action || "지금은 행동 제안이 없습니다."}</h2>
+            {demoState === "change" ? <><button type="button" onClick={() => setShowCallConfirm(true)} className="mt-5 flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</button><Link href="/app?role=family&view=changes" className="mt-2 flex min-h-12 items-center justify-center font-black text-[#1F6F7A]">변화 자세히 보기 <ChevronRight size={20} /></Link></> : <p className="mt-3 font-bold leading-7 text-[#637069]">변화가 없거나 학습 중일 때는 행동을 요구하지 않습니다.</p>}
           </section>
 
           <section className="mt-5 rounded-[24px] bg-[#F1F7F3] p-6">
@@ -531,6 +540,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
           <p className="mt-7 text-center text-base font-bold leading-7 text-[#7A847D]">현재는 체험용 화면입니다. 오늘안부는 의료 진단 서비스가 아닙니다.</p>
         </div>
       </section>
+      {showCallConfirm ? <div className="fixed inset-0 z-[80] flex items-end bg-black/35 p-4 sm:items-center" role="dialog" aria-modal="true" aria-label="전화 연결 확인"><section className="mx-auto w-full max-w-[480px] rounded-[28px] bg-white p-7 text-center"><Phone className="mx-auto text-[#1F6F7A]" size={38} /><h2 className="mt-4 text-2xl font-black">지금 부모님께 전화할까요?</h2><a href="tel:" className="mt-6 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white">전화하기</a><button type="button" onClick={() => setShowCallConfirm(false)} className="mt-2 min-h-14 w-full text-lg font-black text-[#59655E]">나중에</button></section></div> : null}
     </AppFrame>
   );
 }

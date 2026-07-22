@@ -2,8 +2,9 @@ import Link from "next/link";
 import { ArrowRight, Check, Footprints, HelpCircle, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 
 const supportStatus = [
-  ["걸음과 움직임", "연결 가능", "bg-[#E3F3E7] text-[#24613A]"],
-  ["앱 방문과 질문 응답", "연결 가능", "bg-[#E3F3E7] text-[#24613A]"],
+  ["질문 응답", "현재 지원", "bg-[#E3F3E7] text-[#24613A]"],
+  ["응답 시간대", "현재 지원", "bg-[#E3F3E7] text-[#24613A]"],
+  ["걸음과 움직임", "준비 중", "bg-[#EEF1F0] text-[#58645E]"],
   ["생활 시간대", "테스트 중", "bg-[#FFF0D5] text-[#87571B]"],
   ["통화 활동", "준비 중", "bg-[#EEF1F0] text-[#58645E]"],
   ["수면", "지원 예정", "bg-[#EEF1F0] text-[#58645E]"],
@@ -26,7 +27,7 @@ export default function LandingPage() {
         <div className="senior-hero-copy">
           <p className="senior-kicker"><ShieldCheck aria-hidden="true" /> 생활 변화 안심 서비스</p>
           <h1>매일 묻지 않아도,<br />평소와 다른 날을 알려드립니다.</h1>
-          <p className="senior-summary">부모님은 평소처럼 생활하세요.<br />가족은 달라진 날만 확인하면 됩니다.</p>
+          <p className="senior-summary">부모님은 평소처럼 생활하세요.<br />확인이 필요한 날에만 질문 하나를 드립니다.<br />가족은 달라진 날만 확인하면 됩니다.</p>
           <div className="senior-actions" aria-label="사용자 선택">
             <Link href="/onboarding?role=family" className="senior-button senior-button-primary">부모님과 시작하기 <ArrowRight aria-hidden="true" /></Link>
             <Link href="/start" className="senior-button senior-button-secondary">먼저 체험해보기</Link>
@@ -75,7 +76,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1040px]">
           <p className="senior-section-label">하루 한 질문</p>
           <h2 className="mt-3 text-3xl font-black sm:text-5xl">부모님께 매일 묻지 않습니다</h2>
-          <p className="mt-5 max-w-[760px] text-xl font-bold leading-9 text-[#56675E]">걸음과 생활 흐름은 동의한 범위에서 살펴봅니다. 확인이 필요한 날에만 질문 하나를 드리며, 질문은 건너뛰어도 괜찮습니다.</p>
+          <p className="mt-5 max-w-[760px] text-xl font-bold leading-9 text-[#56675E]">현재 지원하는 질문 응답과 응답 시간대를 바탕으로 평소 흐름을 알아갑니다. 확인이 필요한 날에만 질문 하나를 드리며, 질문은 건너뛰어도 괜찮습니다.</p>
           <div className="mt-9 grid gap-4 md:grid-cols-3">{[["1","자동 확인","동의한 생활 흐름을 조용히 살펴봅니다."],["2","질문 하나","확인이 필요한 날에만 짧게 묻습니다."],["3","변화 해석","단일 답보다 반복되는 변화를 함께 봅니다."]].map(([number,title,text]) => <article key={number} className="rounded-[26px] border-2 border-[#DCE6D9] bg-white p-6"><span className="flex size-12 items-center justify-center rounded-full bg-[#2F6B46] text-xl font-black text-white">{number}</span><h3 className="mt-5 text-2xl font-black">{title}</h3><p className="mt-3 text-lg font-bold leading-8 text-[#586960]">{text}</p></article>)}</div>
         </div>
       </section>
@@ -100,6 +101,7 @@ export default function LandingPage() {
         </div>
         <Link href="/app?role=parent" className="senior-button senior-button-light">체험 시작하기</Link>
       </section>
+      <section className="mx-auto mb-16 w-[calc(100%-40px)] max-w-[1040px] rounded-[28px] bg-white p-7 sm:p-10"><h2 className="text-3xl font-black">하루의 작은 변화마다 알리지 않습니다.</h2><p className="mt-4 text-lg font-bold leading-8 text-[#56675E]">평소와 다른 흐름이 이어지거나 확인이 필요할 때만 안내합니다. 단일 미응답이나 한 번의 부정 응답만으로 위험하게 표현하지 않습니다.</p></section>
       <footer className="senior-footer">오늘안부는 의료 진단 서비스가 아닙니다.</footer>
     </main>
   );
