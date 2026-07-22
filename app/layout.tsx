@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "오늘안부",
     description: "부모님은 평소처럼 생활하고, 가족은 달라진 날만 확인하세요.",
-    images: [{ url: "/og.png", width: 1680, height: 952, alt: "오늘안부" }],
   },
   manifest: "/manifest.json",
   appleWebApp: {

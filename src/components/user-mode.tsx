@@ -320,7 +320,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
         <div className="mx-auto max-w-[560px]">
           <section className="py-7">
             <p className="text-lg font-black text-[#477052]">정희 어머니, 안녕하세요.</p>
-            <h1 className="mt-4 text-[1.75rem] font-black leading-[1.35]">{hasAnsweredToday ? "오늘은 하실 일이 없어요." : "오늘은 질문 하나만 부탁드릴게요."}</h1>
+            <div className="mt-4 flex items-center gap-4"><img src={hasAnsweredToday ? "/brand/farm-mascot.png?v=12" : "/brand/hero-ansimi-phone-v1.png"} alt="" className="size-[72px] shrink-0 rounded-[22px] object-cover"/><h1 className="text-[1.75rem] font-black leading-[1.35]">{hasAnsweredToday ? "오늘은 하실 일이 없어요." : "오늘은 질문 하나만 부탁드릴게요."}</h1></div>
             <p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">{hasAnsweredToday ? "평소처럼 편안하게 하루를 보내세요." : "편한 답 하나를 눌러 주세요."}</p>
             {!hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-4 text-lg font-bold leading-8 text-[#6B766F]">오늘은 답하지 않아도 괜찮습니다.</p></> : null}
           </section>
