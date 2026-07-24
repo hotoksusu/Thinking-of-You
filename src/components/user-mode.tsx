@@ -337,9 +337,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
             {!hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-4 text-lg font-bold leading-8 text-[#6B766F]">오늘은 답하지 않아도 괜찮습니다.</p></> : null}
           </section>
 
-          {hasAnsweredToday && moments[0] ? <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white"><div className="p-6"><div className="flex flex-wrap items-center gap-2"><h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>{moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-sm font-black text-[#667269]">체험 예시</span> : null}</div><p className="mt-4 text-lg font-black leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p></div>{moments[0].imageUrl ? <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="block w-full" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 크게 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain bg-[#F4F1E9]" /></button> : null}<div className="p-5"><button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white">{familyContentAction(moments[0])}</button></div></section> : null}
-
-          {hasAnsweredToday ? <p className="px-2 pb-5 pt-7 text-center text-base font-bold leading-7 text-[#637069]">확인이 필요한 날에만 질문 하나를 드릴게요.</p> : null}
+          {moments[0] ? <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white"><div className="p-6"><div className="flex flex-wrap items-center gap-2"><h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>{moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-base font-black text-[#4F6056]">체험 예시</span> : null}</div><p className="mt-4 text-lg font-black leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p></div>{moments[0].imageUrl ? <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="block w-full" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain bg-[#F4F1E9]" /></button> : null}<div className="p-5"><button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white">{familyContentAction(moments[0])}</button></div></section> : null}
         </div>
       </section>
       {openMoment ? <FamilyContentDialog moment={openMoment} onClose={() => setOpenMoment(null)} /> : null}
@@ -363,7 +361,7 @@ function withSubject(name: string) {
 
 function familyContentAction(moment: FamilyTrace) {
   const label = familyContentLabel(moment);
-  if (label === "사진" || label === "그림") return `${label} 크게 보기`;
+  if (label === "사진" || label === "그림") return `${label} 보기`;
   if (label === "영상") return "영상 보기";
   if (label === "음성 메시지") return "음성 메시지 듣기";
   return "메시지 전체 읽기";
