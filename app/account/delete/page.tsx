@@ -1,0 +1,2 @@
+import { PolicyPage, PolicySection } from "@/components/policy-page";
+export default function Page(){return <PolicyPage title="회원탈퇴 안내" notice="자동 삭제 기능 연결 전까지는 운영자 확인이 필요한 요청 진입점입니다."><PolicySection title="탈퇴 요청"><p>문의 경로를 통해 계정 이메일과 탈퇴 요청을 보내 주세요. 본인 확인 후 계정과 사용자별 기록을 삭제합니다.</p></PolicySection><PolicySection title="삭제 전 확인"><p>탈퇴 후 찜, 활동 이력, 답변과 추천 기록은 복구할 수 없습니다. 법령상 보관 의무가 있는 정보는 해당 기간 동안 분리 보관할 수 있습니다.</p></PolicySection></PolicyPage>}

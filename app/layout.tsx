@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { PwaRegister } from "@/components/pwa-register";
+import { AuthSync } from "@/components/auth-sync";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body>
         <Script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js" strategy="afterInteractive" />
         <PwaRegister />
+        <AuthSync />
         {children}
       </body>
     </html>

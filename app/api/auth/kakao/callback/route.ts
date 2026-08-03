@@ -1,8 +1,3 @@
-export const dynamic = "force-static";
-
 export function GET() {
-  return new Response(null, {
-    status: 302,
-    headers: { Location: "/onboarding/add-parent?auth=mock" },
-  });
+  return Response.json({ error: "카카오 인증 설정이 완료되지 않았습니다." }, { status: 501 });
 }

@@ -5,7 +5,8 @@ const output = resolve("out");
 const dist = resolve("dist");
 
 if (!existsSync(output)) {
-  throw new Error("Next static export output was not found at ./out");
+  console.log("Skipping Sites artifact: this is a Vercel server build.");
+  process.exit(0);
 }
 
 rmSync(dist, { recursive: true, force: true });

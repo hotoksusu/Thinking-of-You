@@ -1,0 +1,2 @@
+import { PolicyPage, PolicySection } from "@/components/policy-page";
+export default function Page(){return <PolicyPage title="문의하기" notice="공개 전 운영 이메일 또는 문의 폼 주소를 연결해 주세요."><PolicySection title="서비스 문의"><p>로그인, 기록 저장, 개인정보, 오류 신고를 구분해 접수할 수 있는 운영 연락처를 준비하고 평균 답변 시간을 안내하세요.</p></PolicySection><PolicySection title="긴급 상황"><p>이 서비스는 응급 구조 서비스가 아닙니다. 즉시 도움이 필요한 경우 112 또는 119 등 지역 긴급기관에 연락하세요.</p></PolicySection></PolicyPage>}

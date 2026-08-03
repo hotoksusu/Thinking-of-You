@@ -1,0 +1,2 @@
+import { PolicyPage, PolicySection } from "@/components/policy-page";
+export default function Page(){return <PolicyPage title="이용약관 초안" notice="법률 자문을 거친 최종 약관이 아닌 운영자 검토용 초안입니다."><PolicySection title="서비스 성격"><p>오늘안부는 생활 변화 확인과 가족 간 소통을 돕는 서비스이며 의료 진단이나 응급 구조 서비스를 대신하지 않습니다.</p></PolicySection><PolicySection title="이용자 책임"><p>이용자는 정확한 계정 정보를 사용하고 타인의 개인정보를 권한 없이 입력하거나 이용해서는 안 됩니다.</p></PolicySection><PolicySection title="서비스 변경"><p>안정적인 운영을 위해 기능이 변경되거나 일시 중단될 수 있으며 중요한 변경은 사전에 안내합니다.</p></PolicySection></PolicyPage>}
