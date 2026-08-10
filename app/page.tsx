@@ -117,7 +117,7 @@ export default function LandingPage() {
 
       <section className="bg-[#EAF3E5] px-5 py-16 sm:px-8 sm:py-24">
         <div className="mx-auto grid max-w-[1200px] gap-6 lg:grid-cols-2">
-          <RoleCard role="부모님 화면" title="평소처럼 생활하세요." text="복잡한 분석이나 입력 없이, 필요한 경우에도 큰 답 하나만 누를 수 있어요." href="/parent-intro" cta="부모님 화면 보기" image="/brand/hero-ansimi-phone-v1.png" />
+          <RoleCard role="부모님 화면" title="평소처럼 생활하세요." text="복잡한 분석이나 입력 없이, 필요한 경우에도 큰 답 하나만 누를 수 있어요." href="/parent-start" cta="부모님 화면 보기" image="/brand/hero-ansimi-phone-v1.png" />
           <RoleCard role="가족 화면" title="매일 확인하지 않아도 괜찮아요." text="오늘 상태와 평소 대비 변화, 확인이 필요한 경우의 행동만 간단히 보여드려요." href="/family-intro" cta="가족 화면 보기" image="/illustrations/todayanbu-hero.png" />
         </div>
       </section>
