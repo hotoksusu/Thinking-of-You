@@ -9,7 +9,7 @@
 .senior-header { border-bottom: 1px solid #dfe5dc; background: rgba(255,250,242,.96); }
 .senior-header-inner { width: min(1120px,calc(100% - 40px)); min-height: 82px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .senior-brand { display: inline-flex; align-items: center; gap: 12px; color: #17251f; font-size: 1.55rem; font-weight: 900; }
-.senior-brand img { width: 48px; height: 48px; border-radius: 14px; object-fit: cover; }
+.senior-brand img { width: 34px; height: 34px; object-fit: contain; }
 .senior-guide-link { min-height: 52px; display: inline-flex; align-items: center; padding: 0 18px; border-radius: 14px; color: #344a40; font-size: 1.12rem; font-weight: 800; }
 .senior-hero { width: min(1120px,calc(100% - 40px)); margin: 0 auto; padding: 72px 0; display: grid; grid-template-columns: 1fr .9fr; align-items: center; gap: 64px; }
 .senior-kicker { display: inline-flex; align-items: center; gap: 9px; margin: 0; padding: 10px 16px; border-radius: 999px; background: #e6f2e4; color: #245c3b; font-size: 1.05rem; font-weight: 850; }
@@ -44,7 +44,7 @@
 @media (max-width: 800px) {
   .senior-header-inner { width: min(100% - 28px,1120px); min-height: 72px; }
   .senior-brand { font-size: 1.35rem; }
-  .senior-brand img { width: 44px; height: 44px; }
+  .senior-brand img { width: 32px; height: 32px; }
   .senior-guide-link { padding: 0 10px; font-size: 1.05rem; }
   .senior-hero { width: min(100% - 32px,640px); padding: 44px 0 52px; grid-template-columns: 1fr; gap: 34px; }
   .senior-hero-copy { text-align: center; }

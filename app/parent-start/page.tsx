@@ -38,7 +38,7 @@ export default function ParentStartPage() {
 
       {step === 1 ? <section className="fade-in flex flex-1 flex-col justify-center py-7">
         <div className="mx-auto w-full text-center">
-          <Image src="/brand/brand-icon.png" alt="오늘안부" width={88} height={88} priority className="mx-auto rounded-[26px]" />
+          <Image src="/brand/oneul-anbu-icon.png" alt="오늘안부" width={88} height={88} priority className="mx-auto object-contain" />
           <h1 className="mt-7 text-[clamp(2.25rem,10vw,3.35rem)] font-black leading-[1.16] tracking-[-.035em]">평소처럼<br />생활하세요.</h1>
           <p className="mt-6 text-[1.35rem] font-black leading-9 text-[#40534A]">매일 적거나 확인할 것은<br />거의 없습니다.</p>
           <p className="mt-5 text-lg font-bold leading-8 text-[#65736C]">평소와 다른 생활 변화가 있을 때만<br />가족이 확인할 수 있도록 도와드립니다.</p>

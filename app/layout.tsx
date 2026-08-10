@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "오늘안부",
     description: "매일 연락하지 못해도, 평소와 다른 변화는 놓치지 않도록.",
-    images: [{ url: "/og-v2.png", width: 1200, height: 630, alt: "매일 연락하지 못해도 평소와 다른 변화는 놓치지 않도록, 오늘안부" }],
+    images: [{ url: "/og-brand-v3.png", width: 1200, height: 630, alt: "매일 연락하지 못해도 평소와 다른 변화는 놓치지 않도록, 오늘안부" }],
   },
   manifest: "/manifest.json",
   appleWebApp: {
@@ -20,13 +20,13 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    shortcut: [{ url: "/icons/favicon-ansimi.ico" }],
+    shortcut: [{ url: "/icons/favicon-v2.ico" }],
     icon: [
-      { url: "/icons/favicon-ansimi.ico", sizes: "64x64", type: "image/x-icon" },
-      { url: "/icons/ansimi-icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/ansimi-icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/favicon-v2.ico", sizes: "64x64", type: "image/x-icon" },
+      { url: "/icons/oneul-anbu-icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/oneul-anbu-icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/icons/ansimi-apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/icons/oneul-anbu-apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 

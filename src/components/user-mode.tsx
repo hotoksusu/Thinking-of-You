@@ -663,11 +663,11 @@ function ServiceGuide({ role }: { role: ExperienceRole }) {
 }
 
 function ParentTopHeader() {
-  return <header className="border-b border-[#E1E8E0] bg-white/90 px-5 py-3"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-3"><img src="/brand/brand-icon.png?v=10" alt="" className="size-10 rounded-xl"/><div><p className="text-sm font-black text-[#68756D]">오늘안부</p><p className="text-lg font-black text-[#2F6B46]">오늘</p></div></div></header>;
+  return <header className="border-b border-[#E1E8E0] bg-white/90 px-5 py-3"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-2.5"><img src="/brand/oneul-anbu-icon.png" alt="" className="size-8 object-contain"/><div><p className="text-sm font-black text-[#68756D]">오늘안부</p><p className="text-lg font-black text-[#2F6B46]">오늘</p></div></div></header>;
 }
 
 function ParentSectionHeader({ title, topLevel = false, backHref = "/app?role=parent", backLabel = "오늘 화면으로" }: { title: string; topLevel?: boolean; backHref?: string; backLabel?: string }) {
-  return <header className="sticky top-0 z-20 border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 py-4 backdrop-blur"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-3">{topLevel ? <img src="/brand/brand-icon.png?v=10" alt="" className="size-10 rounded-xl"/> : <Link href={backHref} aria-label={backLabel} className="flex size-12 shrink-0 items-center justify-center rounded-full border border-[#D7E0D6] bg-white text-[#2F3D34] shadow-sm"><ArrowLeft size={25} /></Link>}<div><p className="text-sm font-black text-[#68756D]">오늘안부</p><h1 className="text-[1.45rem] font-black text-[#17221B]">{title}</h1></div></div></header>;
+  return <header className="sticky top-0 z-20 border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 py-4 backdrop-blur"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-2.5">{topLevel ? <img src="/brand/oneul-anbu-icon.png" alt="" className="size-8 object-contain"/> : <Link href={backHref} aria-label={backLabel} className="flex size-12 shrink-0 items-center justify-center rounded-full border border-[#D7E0D6] bg-white text-[#2F3D34] shadow-sm"><ArrowLeft size={25} /></Link>}<div><p className="text-sm font-black text-[#68756D]">오늘안부</p><h1 className="text-[1.45rem] font-black text-[#17221B]">{title}</h1></div></div></header>;
 }
 
 function FamilySectionHeader({ title }: { title: string }) {

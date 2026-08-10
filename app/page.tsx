@@ -137,7 +137,7 @@ export default function LandingPage() {
 function Header() {
   return <header className="sticky top-0 z-50 border-b border-[#E1E7DE] bg-[#FFF9F0]/95 backdrop-blur">
     <div className="mx-auto flex min-h-[76px] max-w-[1200px] items-center justify-between px-5 sm:px-8 lg:min-h-[88px]">
-      <Link href="/" className="flex min-h-12 items-center gap-3 text-2xl font-black text-[#315B3D]"><Image src="/brand/brand-icon.png" alt="" width={44} height={44} className="rounded-xl" />오늘안부</Link>
+      <Link href="/" className="flex min-h-12 items-center gap-2.5 text-2xl font-black text-[#315B3D]"><Image src="/brand/oneul-anbu-icon.png" alt="" width={36} height={36} className="size-9 object-contain" />오늘안부</Link>
       <nav className="hidden items-center gap-1 lg:flex" aria-label="주요 메뉴">
         <Link href="#how" className="flex min-h-12 items-center rounded-xl px-4 text-lg font-black text-[#46584F]">서비스 소개</Link>
         <Link href="/guide" className="flex min-h-12 items-center rounded-xl px-4 text-lg font-black text-[#46584F]">이용 안내</Link>
@@ -152,7 +152,7 @@ function FamilyStatusCard() {
   return <div className="relative mx-auto w-full max-w-[520px] lg:justify-self-end">
     <div className="absolute -inset-6 -z-10 rounded-full bg-[#E6F1E1] blur-2xl" />
     <div className="rounded-[34px] border border-[#DCE7D9] bg-white p-5 shadow-[0_26px_70px_rgba(49,78,58,.15)] sm:p-7">
-      <div className="flex items-center justify-between border-b border-[#E8ECE5] pb-5"><div><p className="text-sm font-black text-[#77827C]">오늘안부</p><p className="mt-1 text-lg font-black">어머니의 오늘</p></div><Image src="/brand/brand-icon.png" alt="" width={46} height={46} className="rounded-xl" /></div>
+      <div className="flex items-center justify-between border-b border-[#E8ECE5] pb-5"><div><p className="text-sm font-black text-[#77827C]">오늘안부</p><p className="mt-1 text-lg font-black">어머니의 오늘</p></div><Image src="/brand/oneul-anbu-icon.png" alt="" width={40} height={40} className="size-10 object-contain" /></div>
       <div className="py-7"><span className="rounded-full bg-[#E8F3E5] px-3 py-2 text-sm font-black text-[#2F6B46]">오늘 상태</span><h2 className="mt-5 text-[clamp(1.9rem,3vw,2.6rem)] font-black leading-tight">오늘은 평소와<br />비슷해요.</h2><p className="mt-3 text-lg font-bold text-[#65736C]">특별히 확인할 변화가 없습니다.</p></div>
       <div className="grid gap-3">{signals.map(([name,status,Icon]) => <div key={name} className="flex min-h-16 items-center gap-4 rounded-2xl bg-[#F4F8F1] px-4"><span className="flex size-10 items-center justify-center rounded-xl bg-white text-[#2F6B46]"><Icon size={21} /></span><strong className="flex-1 text-lg">{name}</strong><span className="font-black text-[#2F6B46]">{status}</span></div>)}</div>
       <p className="mt-5 rounded-2xl bg-[#FFF4E9] p-4 text-center font-black text-[#795338]">가족이 매일 앱을 확인할 필요가 없어요.</p>
