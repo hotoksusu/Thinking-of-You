@@ -31,7 +31,7 @@ export default function AboutPage() {
           <p className="mt-4 max-w-[700px] text-lg font-semibold leading-8 text-white/75">{PRODUCT_COPY.engineDescription} 가족이 먼저 확인하면 좋은 시점을 알려드립니다.</p>
         </section>
 
-        <section className="mt-10 rounded-[24px] border border-[#E2E8DE] bg-white p-7"><h2 className="text-2xl font-black">계속 사용하기 위한 보조 기능</h2><p className="mt-3 font-bold leading-7 text-[#68756F]">가족 소식, 안심이 안내, 체험용 농장은 핵심 변화 감지 흐름을 편하게 이어가도록 돕습니다.</p></section>
+        <section className="mt-10 rounded-[24px] border border-[#E2E8DE] bg-white p-7"><h2 className="text-2xl font-black">생활 흐름을 이해하는 보조 기능</h2><p className="mt-3 font-bold leading-7 text-[#68756F]">가족 소식과 오늘안부 정원은 복잡한 생활변화를 편안하게 이해하도록 돕습니다.</p></section>
 
         <section className="mt-16">
           <h2 className="text-3xl font-black">기존 안부 확인과 무엇이 다른가요?</h2>

@@ -32,7 +32,7 @@ export const moodDialogue: Record<string, DialogueStep> = {
       { id: "difficult", label: "조금 힘들었어요", nextStepId: "difficult-response" },
     ],
   },
-  "good-response": { id: "good-response", characterState: "happy", message: "오늘 기분이 좋으셨군요.", secondaryMessage: "좋은 하루를 알려주셔서 고마워요.", primaryAction: { label: "오늘 자란 농장 보기", target: "/farm" }, effect: "sunshine" },
+  "good-response": { id: "good-response", characterState: "happy", message: "오늘 기분이 좋으셨군요.", secondaryMessage: "좋은 하루를 알려주셔서 고마워요.", primaryAction: { label: "오늘안부 정원 보기", target: "/farm" }, effect: "sunshine" },
   "okay-response": { id: "okay-response", characterState: "calm", message: "오늘도 무난하게 보내셨군요.", secondaryMessage: "평소처럼 편안하게 지내시면 됩니다.", primaryAction: { label: "홈으로 가기", target: "/app?role=parent" }, effect: "leaf" },
   "tired-response": { id: "tired-response", characterState: "rest", message: "오늘은 조금 피곤하셨군요.", secondaryMessage: "오늘은 편하게 쉬어도 괜찮아요.", primaryAction: { label: "편하게 쉬기", target: "/app?role=parent" }, secondaryAction: { label: "가족 소식 보기", target: "/app?role=parent&view=photos" }, effect: "rest" },
   "difficult-response": { id: "difficult-response", characterState: "comfort", message: "알려주셔서 고마워요.", secondaryMessage: "오늘은 혼자 참지 않으셔도 괜찮아요.", effect: "comfort" },

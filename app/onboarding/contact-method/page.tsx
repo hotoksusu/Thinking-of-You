@@ -79,8 +79,8 @@ export default function ContactMethodPage() {
           <Sprout size={23} aria-hidden />
         </span>
         <div>
-          <p className="text-sm font-extrabold text-[#15803D]">링크를 받은 부모님은 첫 작물을 고릅니다.</p>
-          <p className="soft-copy mt-1 text-sm text-brand-subtext">매일 20초 안부가 작물을 키우기 때문에 부모님께도 다시 돌아올 이유가 생깁니다.</p>
+          <p className="text-sm font-extrabold text-[#15803D]">링크를 받은 부모님은 평소처럼 생활합니다.</p>
+          <p className="soft-copy mt-1 text-sm text-brand-subtext">생활 흐름은 자동으로 작은 정원에 담기며 매일 앱을 열 필요가 없습니다.</p>
         </div>
       </div>
 

@@ -88,7 +88,7 @@ function AddParentContent() {
         </span>
         <div>
           <p className="text-sm font-extrabold text-[#15803D]">연결 뒤에는 부모님의 첫 씨앗 심기가 시작돼요.</p>
-          <p className="soft-copy mt-1 text-sm text-brand-subtext">안심농장은 부모님이 스스로 매일 돌아와 짧은 안부를 남길 수 있도록 돕는 따뜻한 습관입니다.</p>
+          <p className="soft-copy mt-1 text-sm text-brand-subtext">오늘안부 정원은 부모님의 생활 흐름이 잘 기록되고 있음을 따뜻하게 보여줍니다.</p>
         </div>
       </div>
 

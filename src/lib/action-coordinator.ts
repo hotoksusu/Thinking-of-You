@@ -46,7 +46,7 @@ export function chooseRecommendation(role: CoordinatorRole, signals: LifeSignal[
     return {
       id: `${role}-learning`, userRole: role, triggerType: "learning",
       triggerSummary: "생활 흐름을 알아가는 중이에요. 며칠 더 지켜볼게요.",
-      actionLabel: role === "parent" ? "안부농장 보기" : "연결 상태 보기",
+      actionLabel: role === "parent" ? "오늘안부 정원 보기" : "연결 상태 보기",
       recommendedAction: role === "parent" ? "view_farm" : "no_action_needed",
       href: role === "parent" ? "/app?role=parent&view=farm" : "/app?role=family&view=profile",
       tone: "calm", optional: true,
@@ -68,7 +68,7 @@ export function chooseRecommendation(role: CoordinatorRole, signals: LifeSignal[
   }
 
   if (role === "parent") {
-    return { id: "parent-no-change", userRole: role, triggerType: "no_change", triggerSummary: "오늘도 평소와 비슷해요.", actionLabel: "확인했어요", recommendedAction: "no_action_needed", href: "/app?role=parent", secondaryLabel: "농장 구경하기", secondaryHref: "/farm", tone: "calm", optional: true };
+    return { id: "parent-no-change", userRole: role, triggerType: "no_change", triggerSummary: "오늘도 평소와 비슷해요.", actionLabel: "확인했어요", recommendedAction: "no_action_needed", href: "/app?role=parent", secondaryLabel: "정원 둘러보기", secondaryHref: "/farm", tone: "calm", optional: true };
   }
 
   return { id: "family-no-action", userRole: role, triggerType: "no_change", triggerSummary: "오늘은 확인할 변화가 없어요.", actionLabel: "확인했어요", recommendedAction: "no_action_needed", href: "/app?role=family", secondaryLabel: "가족 소식 남기기", secondaryHref: "/app?role=family&view=compose", tone: "calm", optional: true };

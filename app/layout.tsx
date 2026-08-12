@@ -6,11 +6,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://oneul-anbu.yos1015.chatgpt.site"),
   applicationName: "오늘안부",
-  title: "오늘안부",
-  description: "부모님이 따로 기록하지 않아도 평소와 다른 생활 변화가 이어지면 가족에게 알려드리는 안심 서비스입니다.",
+  title: "오늘안부 Care | 퇴원 후 생활변화 모니터링",
+  description: "퇴원한 고령자의 생활 변화를 개인의 평소와 비교하고 가족 확인과 Care Report로 연결합니다.",
   openGraph: {
-    title: "오늘안부",
-    description: "매일 연락하지 못해도, 평소와 다른 변화는 놓치지 않도록.",
+    title: "오늘안부 Care",
+    description: "퇴원 후 집에서의 생활 변화까지 살펴봅니다.",
     images: [{ url: "/og-brand-v3.png", width: 1200, height: 630, alt: "매일 연락하지 못해도 평소와 다른 변화는 놓치지 않도록, 오늘안부" }],
   },
   manifest: "/manifest.json",

@@ -12,6 +12,7 @@ import {
   Clock3,
   Footprints,
   HeartHandshake,
+  Hospital,
   Home,
   HelpCircle,
   ImagePlus,
@@ -257,39 +258,9 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   if (initialView === "farm") {
     return (
       <AppFrame role="parent" active="farm">
-        <ParentSectionHeader title="안부농장" />
+        <ParentSectionHeader title="오늘안부 정원" />
         <section className="px-5 pb-36 pt-7">
-          <div className="mx-auto max-w-[560px] overflow-hidden rounded-[30px] bg-[#EAF3E5] text-center shadow-[0_20px_55px_rgba(49,78,58,0.12)]">
-            <div className="bg-[#245F3D] px-6 py-4 text-white">
-              <p className="flex items-center justify-center gap-2 text-xl font-black"><Sprout size={25} aria-hidden /> 오늘의 농장 소식</p>
-            </div>
-
-            <div className="p-7 sm:p-9">
-              <img src="/brand/farm-mascot.png?v=7" alt="토마토와 수확 바구니를 든 안심이" className="mx-auto size-44 rounded-[30px] object-cover" />
-              <p className="mt-5 text-xl font-black text-[#315B3D]">오늘의 변화</p>
-              <h1 className="mt-3 text-[2.15rem] font-black leading-[1.25] text-[#17221B]">토마토가<br /><span className="text-[#267044]">더 붉게 익었어요.</span></h1>
-              <p className="mt-3 text-lg font-bold text-[#596A60]">오늘의 생활이 농장에 반영됐습니다.</p>
-
-              <div className="mt-7 rounded-[24px] bg-white p-5 text-left">
-                <div className="flex items-center justify-between gap-3">
-                  <strong className="text-xl text-[#263A30]">열매가 익어가는 중</strong>
-                  <strong className="text-[1.75rem] text-[#D95C24]">27일</strong>
-                </div>
-                <div className="mt-3 h-6 overflow-hidden rounded-full bg-[#E3ECE0]" role="progressbar" aria-label="토마토 성장률" aria-valuemin={0} aria-valuemax={100} aria-valuenow={farm.percent}>
-                  <div className="h-full rounded-full bg-[#65A45F]" style={{ width: `${farm.percent}%` }} />
-                </div>
-                <p className="mt-3 text-lg font-black text-[#315B3D]">{farm.percent}% 자랐어요 · 평소처럼 생활하세요.</p>
-              </div>
-
-              <div className="mt-5 rounded-[24px] border-2 border-[#F2C47D] bg-[#FFF7E8] p-5 text-left">
-                <p className="flex items-center gap-2 text-xl font-black text-[#8A4A14]"><PackageOpen size={27} aria-hidden /> 현재는 체험용 농장입니다</p>
-                <p className="mt-2 text-lg font-bold leading-8 text-[#6C5540]">실제 수확과 배송 조건은 정식 운영 전에 안내합니다.</p>
-              </div>
-
-              <Link href="/farm" className="mt-7 flex min-h-[72px] w-full items-center justify-center gap-2 rounded-[22px] bg-[#D95C24] px-6 text-[1.35rem] font-black text-white shadow-[0_14px_28px_rgba(217,92,36,.22)]">오늘 자란 모습 보기 <ChevronRight size={27} /></Link>
-              <p className="mt-4 text-base font-bold leading-7 text-[#596A60]">질문을 건너뛰거나 힘든 날에도 농장에는 불이익이 없습니다.</p>
-            </div>
-          </div>
+          <div className="mx-auto max-w-[560px] overflow-hidden rounded-[30px] bg-[#EAF3E5] p-7 text-center shadow-[0_20px_55px_rgba(49,78,58,0.12)]"><div className="flex min-h-56 items-end justify-center gap-2 rounded-[26px] bg-gradient-to-b from-[#E9F6F2] to-[#DDEACF] p-6"><span className="text-7xl">🌳</span><span className="text-5xl">🌿</span><span className="text-5xl">🌼</span><span className="text-4xl">🌱</span></div><p className="mt-6 text-sm font-black text-[#52725B]">오늘의 생활 흐름</p><h1 className="mt-2 text-[2rem] font-black leading-tight">정원에 작은 꽃이 피었어요.</h1><p className="mt-4 text-xl font-bold leading-9 text-[#596A60]">오늘도 평소처럼 지내세요.<br/>생활 흐름이 정원에 차곡차곡 담기고 있어요.</p><Link href="/farm" className="mt-7 flex min-h-[72px] items-center justify-center rounded-[22px] bg-[#2F6B46] px-6 text-[1.35rem] font-black text-white">오늘안부 정원 보기</Link><p className="mt-4 font-bold leading-7 text-[#65736C]">많이 걷거나 매일 기록할 필요가 없습니다.<br/>편안히 쉬는 날에도 정원은 시들지 않아요.</p></div>
         </section>
       </AppFrame>
     );
@@ -334,13 +305,15 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
         <div className="mx-auto max-w-[560px]">
           <section className="py-7">
             <p className="text-lg font-black text-[#477052]">오늘안부</p>
-            <div className="mt-4 flex items-center gap-4"><AnsimiCharacter state={questionPending && !hasAnsweredToday ? "question" : "noTask"} motion="once" size="small" ariaLabel={questionPending && !hasAnsweredToday ? "질문 하나를 안내하는 안심이" : "평소처럼 생활해도 된다고 안내하는 안심이"}/><h1 className="text-[2rem] font-black leading-[1.3]">{questionPending && !hasAnsweredToday ? "오늘은 질문 하나만 부탁드릴게요." : "오늘도 평소처럼 잘 지내고 계세요."}</h1></div>
-            <p className="mt-3 text-xl font-bold leading-9 text-[#596A60]">{questionPending && !hasAnsweredToday ? "편한 답 하나를 눌러 주세요." : "따로 하실 일은 없습니다. 평소처럼 생활하시면 됩니다."}</p>
-            {questionPending && !hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-4 text-lg font-bold leading-8 text-[#6B766F]">오늘은 답하지 않아도 괜찮습니다.</p></> : <div className="mt-6 rounded-[24px] bg-[#EAF3E5] p-5"><p className="text-xl font-black text-[#285F3A]">가족과 연결되어 있어요.</p><p className="mt-2 text-lg font-bold leading-8 text-[#52635C]">필요한 변화가 있을 때만 가족이 확인할 수 있도록 도와드립니다.</p></div>}
-            <p className="mt-5 text-lg font-bold leading-8 text-[#6B766F]">하루 덜 걸었다고 바로 가족에게 알리지 않습니다. 여러 생활 변화를 함께 살펴봅니다.</p>
+            <div className="mt-4 flex items-center gap-4"><AnsimiCharacter state="noTask" motion="once" size="small" ariaLabel="평소처럼 생활해도 된다고 안내하는 안심이"/><h1 className="text-[2.25rem] font-black leading-[1.3]">오늘도 평소처럼<br/>지내세요.</h1></div>
+            <p className="mt-4 text-xl font-bold leading-9 text-[#596A60]">따로 기록하실 것은 없습니다.<br/>오늘안부가 생활 변화를 살펴보고 있습니다.</p>
+            <div className="mt-7 grid gap-3"><p className="rounded-[20px] bg-[#EAF3E5] p-5 text-xl font-black text-[#285F3A]">✓ 생활정보 연결됨</p><p className="rounded-[20px] bg-[#EAF6F7] p-5 text-xl font-black text-[#1F6F7A]">✓ 가족 연결됨</p></div>
+            <Link href="/app?role=parent&view=photos" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.4rem] font-black text-white">가족에게 안부 보내기</Link>
           </section>
 
-          {moments[0] ? <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white"><div className="p-6"><div className="flex flex-wrap items-center gap-2"><h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>{moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-base font-black text-[#4F6056]">체험 예시</span> : null}</div><p className="mt-4 text-lg font-black leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p></div>{moments[0].imageUrl ? <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="block w-full" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain bg-[#F4F1E9]" /></button> : null}<div className="p-5"><button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white">{familyContentAction(moments[0])}</button></div></section> : null}
+          <Link href="/farm" className="block rounded-[26px] bg-[#EAF3E5] p-5"><div className="flex items-center gap-4"><span className="flex size-20 items-center justify-center rounded-[22px] bg-white/60 text-5xl">🌼</span><div><p className="text-sm font-black text-[#52725B]">오늘안부 정원</p><h2 className="mt-1 text-xl font-black">생활 흐름이 담기고 있어요.</h2><p className="mt-2 font-bold text-[#65736C]">오늘도 평소처럼 지내세요.</p></div></div></Link>
+
+          <p className="mt-7 text-center text-base font-bold leading-7 text-[#748078]">앱을 계속 열어둘 필요가 없습니다.<br/>평소와 다른 변화가 이어질 때 가족에게 알려드립니다.</p>
         </div>
       </section>
       {openMoment ? <FamilyContentDialog moment={openMoment} onClose={() => setOpenMoment(null)} /> : null}
@@ -457,14 +430,18 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
         <section className="px-5 pb-32 pt-6">
           <div className="mx-auto max-w-[620px]">
             <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">체험용 데이터</span>
-            <h1 className="mt-5 text-[2rem] font-black leading-tight">최근 일주일 동안<br />큰 변화가 없습니다.</h1>
-            <p className="mt-3 text-lg font-bold leading-8 text-[#657069]">결과의 근거를 함께 확인하세요.</p>
+            <p className="mt-5 text-sm font-black text-[#1F6F7A]">최근 30일 생활 변화</p>
+            <h1 className="mt-2 text-[2rem] font-black leading-tight">평소보다 활동량이<br />조금 줄었습니다.</h1>
+            <p className="mt-3 text-lg font-bold leading-8 text-[#657069]">다른 사람의 평균이 아닌 김정희님의 평소 생활과 비교했습니다.</p>
             <div className="mt-5 grid gap-4">
-              <FamilyChangeCard icon={<Footprints />} title="생활 움직임" value="평소와 비슷해요" detail="최근 7일 동안 큰 변화가 없어요." />
-              <FamilyChangeCard icon={<Clock3 />} title="하루 리듬" value="안정적으로 이어져요" detail="기상과 활동 시간이 평소 범위예요." />
-              <FamilyChangeCard icon={<Phone />} title="가족 연락" value="꾸준히 이어졌어요" detail="이번 주에도 가족과 연락했어요." />
+              <FamilyChangeCard icon={<Footprints />} title="평균 걸음" value="평소보다 30% 감소" detail="평소 4,200보 · 최근 2,950보" />
+              <FamilyChangeCard icon={<Home />} title="외출 횟수" value="조금 줄었어요" detail="평소 주 5회 · 최근 주 3회" />
+              <FamilyChangeCard icon={<Phone />} title="휴대전화 활동" value="평소보다 짧아졌어요" detail="최근 2주 동안 사용 흐름이 감소했습니다." />
+              <FamilyChangeCard icon={<Clock3 />} title="생활 리듬" value="시작 시간이 늦어졌어요" detail="최근 5일간 첫 활동이 평소보다 늦었습니다." />
             </div>
-            <section className="mt-6 rounded-[22px] bg-[#F1F4EF] p-5 text-sm font-bold leading-6 text-[#606C65]">오늘안부는 의료 진단 서비스가 아닙니다.<br />생활 변화 확인을 돕는 참고 서비스입니다.</section>
+            <section className="mt-6 rounded-[22px] bg-[#FFF4EA] p-5 font-bold leading-7 text-[#694A38]">생활 변화는 질병을 의미하지 않습니다. 평소와 다른 변화가 이어진다면 부모님의 상태를 확인해 주세요.</section>
+            <Link href="/family/check" className="mt-4 flex min-h-16 items-center justify-center rounded-[20px] bg-[#D95423] px-5 text-xl font-black text-white">부모님께 안부 묻기</Link>
+            <Link href="/family/report" className="mt-3 flex min-h-14 items-center justify-center rounded-[18px] border-2 border-[#B9D2D5] bg-white px-5 font-black text-[#1F6F7A]">병원 방문용 리포트 보기</Link>
           </div>
         </section>
       </AppFrame>
@@ -501,14 +478,9 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
   if (initialView === "farm") {
     return (
       <AppFrame role="family" active="farm">
-        <FamilySectionHeader title="안부농장" />
+        <FamilySectionHeader title="오늘안부 정원" />
         <section className="px-5 pb-32 pt-6">
-          <div className="mx-auto max-w-[620px] rounded-[28px] bg-[#FFF8ED] p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]">
-            <div className="flex items-center gap-4"><AnsimiCharacter state="growing" motion="once" size="small" ariaLabel="작물이 자란 모습을 안내하는 안심이"/><div><p className="text-sm font-black text-[#B95327]">안부농장</p><h1 className="text-2xl font-black">토마토가 {farm.percent}% 자랐어요.</h1></div></div>
-            <div className="mt-6 h-4 overflow-hidden rounded-full bg-white"><div className="h-full rounded-full bg-[#78A76E]" style={{ width: `${farm.percent}%` }} /></div>
-            <p className="mt-5 text-lg font-bold leading-8 text-[#655D54]">생활과 가족 응원이 쌓이며 7일·14일·30일마다 새로운 모습이 나타납니다.</p>
-            <p className="mt-3 rounded-2xl bg-white p-4 font-bold text-[#6F665E]">체험용 농장 · 실제 수확과 배송 조건은 정식 운영 전에 안내합니다.</p>
-          </div>
+          <div className="mx-auto max-w-[620px] rounded-[28px] bg-[#EAF3E5] p-6 shadow-[0_14px_38px_rgba(49,78,58,0.07)]"><div className="flex min-h-52 items-end justify-center gap-2 rounded-[24px] bg-gradient-to-b from-[#E9F6F2] to-[#DDEACF] p-6"><span className="text-7xl">🌳</span><span className="text-5xl">🌿</span><span className="text-5xl">🌼</span><span className="text-4xl">🌱</span></div><p className="mt-6 text-sm font-black text-[#52725B]">오늘안부 정원</p><h1 className="mt-2 text-2xl font-black">평소 생활에 조금 더 가까워지고 있어요.</h1><p className="mt-4 text-lg font-bold leading-8 text-[#596A60]">퇴원 직후보다 생활 흐름이 천천히 자리 잡고 있습니다.</p><p className="mt-4 rounded-2xl bg-white p-4 font-bold text-[#1F6F7A]">보조 정보 · 현재 평소 생활 수준의 약 81%</p><Link href="/family/care/recovery" className="mt-5 flex min-h-14 items-center justify-center rounded-2xl bg-[#1F6F7A] font-black text-white">생활 변화 자세히 보기</Link></div>
         </section>
       </AppFrame>
     );
@@ -550,12 +522,11 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
       <FamilySectionHeader title="엄마의 오늘" />
       <section className="px-5 pb-32 pt-5">
         <div className="mx-auto max-w-[620px]">
-          <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">{experience.badge}</span>
-          <div className="mt-4 grid grid-cols-3 gap-2 rounded-[20px] bg-white p-2" aria-label="가족 홈 체험 상태 선택">{[["usual","평소와 비슷함"],["change","변화 확인"],["learning","학습 중"]].map(([value,label]) => <button key={value} type="button" onClick={() => setDemoState(value as typeof demoState)} className={`min-h-12 rounded-2xl px-2 text-sm font-black ${demoState === value ? "bg-[#1F6F7A] text-white" : "text-[#59655E]"}`}>{label}</button>)}</div>
+          <span className="inline-flex rounded-full bg-[#EAF6F7] px-3 py-2 text-sm font-black text-[#1F6F7A]">퇴원 Care · D+21 · 체험용 데이터</span>
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
           <section className="mt-4 rounded-[28px] bg-[#1F6F7A] p-6 text-white shadow-[0_18px_45px_rgba(31,111,122,.18)]">
-            <div className="flex items-center justify-between gap-4"><p className="text-sm font-black text-white/75">오늘의 상태</p><div className="rounded-[18px] bg-white/95 p-1.5"><AnsimiCharacter state={demoState === "change" ? "question" : demoState === "learning" ? "idle" : "noTask"} motion="once" size="small" ariaLabel={demoState === "change" ? "확인이 필요한 날을 안내하는 안심이" : "오늘 상태를 편안히 안내하는 안심이"}/></div></div>
+            <div className="flex items-center justify-between gap-4"><p className="text-sm font-black text-white/75">오늘의 안심 상태</p><div className="rounded-[18px] bg-white/95 p-1.5"><AnsimiCharacter state={demoState === "change" ? "question" : demoState === "learning" ? "idle" : "noTask"} motion="once" size="small" ariaLabel={demoState === "change" ? "확인이 필요한 날을 안내하는 안심이" : "오늘 상태를 편안히 안내하는 안심이"}/></div></div>
             <h1 className="mt-3 text-[2rem] font-black leading-tight">{demoView.status}</h1>
             <div className="mt-5 rounded-[20px] bg-white/12 p-4 text-lg font-bold leading-8">
               {demoView.reasons.map((reason) => <p key={reason}>• {reason}</p>)}
@@ -568,11 +539,13 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
             {demoState === "change" ? <><button type="button" onClick={() => setShowCallConfirm(true)} className="mt-5 flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</button><Link href="/app?role=family&view=changes" className="mt-2 flex min-h-12 items-center justify-center font-black text-[#1F6F7A]">변화 자세히 보기 <ChevronRight size={20} /></Link></> : <p className="mt-3 font-bold leading-7 text-[#637069]">변화가 없거나 학습 중일 때는 행동을 요구하지 않습니다.</p>}
           </section>
 
-          <section className="mt-5 rounded-[24px] bg-[#F1F7F3] p-6">
-            <p className="text-sm font-black text-[#2F6B46]">이번 주에는</p>
-            <ul className="mt-3 space-y-2 font-bold leading-7 text-[#536258]">{(questionSummary?.weekly ?? []).map((line) => <li key={line} className="flex gap-2"><Check className="mt-1 shrink-0 text-[#78A76E]" size={19} /><span>{line}</span></li>)}</ul>
-            <p className="mt-4 rounded-2xl bg-white p-4 font-black text-[#315B3D]">크게 달라진 점은 없어요. 단일 답변보다 생활 흐름과 반복 패턴을 함께 해석해요.</p>
-          </section>
+          <section className="mt-5 rounded-[24px] bg-[#F1F7F3] p-6"><p className="text-sm font-black text-[#2F6B46]">Personal Baseline</p><h2 className="mt-2 text-2xl font-black">개인의 평소 생활과 비교합니다.</h2><div className="mt-4 grid grid-cols-2 gap-3"><p className="rounded-2xl bg-white p-4 font-bold"><span className="block text-sm text-[#718079]">평소 걸음</span>4,200보</p><p className="rounded-2xl bg-white p-4 font-bold"><span className="block text-sm text-[#718079]">최근 7일</span>3,350보</p></div><p className="mt-4 font-black text-[#315B3D]">평소보다 활동량이 20% 적지만 회복 흐름은 이어지고 있어요.</p></section>
+
+          <Link href="/family/care/recovery" className="mt-5 block rounded-[24px] bg-white p-6 shadow-sm"><p className="text-sm font-black text-[#1F6F7A]">퇴원 후 생활 회복 · D+21</p><div className="mt-3 flex items-end justify-between"><div><h2 className="text-2xl font-black">평소 활동의 81%</h2><p className="mt-2 font-bold text-[#657069]">조금씩 평소 생활로 돌아오고 있어요.</p></div><ChevronRight className="text-[#1F6F7A]"/></div><div className="mt-5 h-3 overflow-hidden rounded-full bg-[#E4EBE5]"><div className="h-full w-[81%] rounded-full bg-[#65A59B]"/></div></Link>
+
+          <Link href="/app?role=family&view=farm" className="mt-5 block rounded-[24px] bg-[#EAF3E5] p-6"><div className="flex items-center gap-4"><span className="flex size-20 items-center justify-center rounded-[22px] bg-white/60 text-5xl">🌼</span><div><p className="text-sm font-black text-[#52725B]">오늘안부 정원</p><h2 className="mt-1 text-xl font-black">평소 생활에 조금 더 가까워졌어요.</h2><p className="mt-2 font-bold text-[#65736C]">생활 흐름을 따뜻하게 보여드려요.</p></div><ChevronRight className="ml-auto shrink-0 text-[#52725B]"/></div></Link>
+
+          <div className="mt-5 grid grid-cols-2 gap-3"><Link href="/family/check" className="flex min-h-20 items-center justify-center rounded-[20px] bg-[#D95423] px-4 text-center font-black text-white">부모님 상태 확인</Link><Link href="/family/report" className="flex min-h-20 items-center justify-center rounded-[20px] border-2 border-[#B9D2D5] bg-white px-4 text-center font-black text-[#1F6F7A]">30일 Care Report</Link></div>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
             <Link href="/app?role=family&view=changes" className="flex min-h-20 items-center justify-center rounded-[20px] border border-[#CFE1E4] bg-white px-4 text-center font-black text-[#1F6F7A]">변화 근거 보기</Link>
@@ -704,10 +677,11 @@ function FamilyBottomNavigation({ active }: { active: FamilyView }) {
   const tabs = [
     { id: "home" as const, label: "홈", href: "/app?role=family", icon: Home },
     { id: "changes" as const, label: "생활변화", href: "/app?role=family&view=changes", icon: TrendingUp },
-    { id: "compose" as const, label: "소식남기기", href: "/app?role=family&view=compose", icon: ImagePlus },
-    { id: "farm" as const, label: "농장", href: "/app?role=family&view=farm", icon: Sprout },
+    { id: "care" as const, label: "Care", href: "/family/care", icon: Hospital },
+    { id: "compose" as const, label: "가족", href: "/app?role=family&view=compose", icon: ImagePlus },
+    { id: "farm" as const, label: "정원", href: "/app?role=family&view=farm", icon: Sprout },
   ];
-  return <nav aria-label="가족 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-4 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "reassurance" && tab.id === "home") || (active === "profile" && tab.id === "home") || (active === "guide" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-base font-black ${selected ? "bg-[#EAF6F7] text-[#1F6F7A]" : "text-[#59655E]"}`}><Icon size={27} strokeWidth={selected ? 2.8 : 2.1} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
+  return <nav aria-label="가족 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-5 gap-1">{tabs.map((tab) => { const Icon = tab.icon; const selected = (tab.id !== "care" && active === tab.id) || ((active === "reassurance" || active === "profile" || active === "guide") && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[68px] flex-col items-center justify-center gap-1 rounded-2xl px-0.5 text-sm font-black ${selected ? "bg-[#EAF6F7] text-[#1F6F7A]" : "text-[#59655E]"}`}><Icon size={24} strokeWidth={selected ? 2.8 : 2.1} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
 }
 
 function MomentComposer({ onCancel, onSave }: { onCancel: () => void; onSave: (moment: FamilyTrace) => void }) {

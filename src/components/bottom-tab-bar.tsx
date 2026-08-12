@@ -6,7 +6,7 @@ type TabId = "home" | "news" | "farm" | "profile";
 const tabs = [
   { id: "home" as const, label: "홈", href: "/app?role=parent", icon: Home },
   { id: "news" as const, label: "가족소식", href: "/app?role=parent&view=photos", icon: Images },
-  { id: "farm" as const, label: "농장", href: "/farm", icon: Sprout },
+  { id: "farm" as const, label: "정원", href: "/farm", icon: Sprout },
   { id: "profile" as const, label: "내정보", href: "/app?role=parent&view=profile", icon: UserRound },
 ];
 

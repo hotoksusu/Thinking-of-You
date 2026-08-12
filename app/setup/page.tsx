@@ -94,8 +94,8 @@ function SetupContent() {
             <Sprout size={23} aria-hidden />
           </span>
           <div>
-            <p className="text-sm font-black text-[#15803D]">부모님이 꾸준히 돌아오는 안심농장</p>
-            <p className="mt-1 text-sm font-semibold leading-6 text-stone-600">연결이 끝나면 부모님은 첫 씨앗을 고릅니다. 매일 짧은 안부가 작물을 키우고 가족의 안심 흐름도 더 또렷하게 만듭니다.</p>
+            <p className="text-sm font-black text-[#15803D]">생활 흐름을 담는 오늘안부 정원</p>
+            <p className="mt-1 text-sm font-semibold leading-6 text-stone-600">연결이 끝나면 생활 변화가 작은 정원에 부담 없이 담깁니다. 매일 입력할 필요는 없습니다.</p>
           </div>
         </div>
       ) : null}
@@ -296,7 +296,7 @@ function SetupContent() {
         </Card>
 
         <Button type="submit" className="w-full">
-          {isFamily ? "부모님 연결하고 안심농장 준비하기" : "오늘의 안심 홈으로 가기"}
+          {isFamily ? "부모님 연결하고 오늘안부 정원 보기" : "오늘의 안심 홈으로 가기"}
         </Button>
       </form>
     </main>

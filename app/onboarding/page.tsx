@@ -139,6 +139,6 @@ function PrimaryButton({ onClick, disabled = false, children }: { onClick: () =>
 }
 
 function ServiceSummary({ role }: { role: Role }) {
-  const items = role === "parent" ? [["오늘의 생활","평소처럼 생활하면 됩니다.",<Footprints key="a" />],["가족 소식","사진과 안부를 받아봅니다.",<ImageIcon key="b" />],["안부농장","생활이 쌓이면 작물이 자랍니다.",<Sprout key="c" />]] : [["오늘의 상태","평소와 다른 변화만 확인합니다.",<ShieldCheck key="a" />],["다음 행동","필요할 때 할 일 하나를 안내합니다.",<Footprints key="b" />],["가족 소식","가끔 사진이나 한 줄을 남깁니다.",<ImageIcon key="c" />]];
+  const items = role === "parent" ? [["오늘의 생활","평소처럼 생활하면 됩니다.",<Footprints key="a" />],["가족 소식","사진과 안부를 받아봅니다.",<ImageIcon key="b" />],["오늘안부 정원","생활 흐름이 작은 정원에 담깁니다.",<Sprout key="c" />]] : [["오늘의 상태","평소와 다른 변화만 확인합니다.",<ShieldCheck key="a" />],["다음 행동","필요할 때 할 일 하나를 안내합니다.",<Footprints key="b" />],["가족 소식","가끔 사진이나 한 줄을 남깁니다.",<ImageIcon key="c" />]];
   return <div className="mt-6 rounded-[24px] bg-[#F2F7EF] p-4 text-left"><p className="mb-3 text-center text-lg font-black text-[#315B3D]">오늘안부는 이렇게 사용해요</p><div className="grid gap-2">{items.map(([title,text,icon]) => <div key={String(title)} className="flex items-center gap-3 rounded-2xl bg-white p-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#EAF3E5] text-[#2F6B46] [&>svg]:size-5">{icon}</span><span><strong className="block text-base">{title}</strong><span className="text-sm font-bold text-[#667169]">{text}</span></span></div>)}</div></div>;
 }

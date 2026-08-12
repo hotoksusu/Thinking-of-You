@@ -1,5 +1,59 @@
 export type UserMode = "family" | "self";
 
+export type DailyLifeData = {
+  date: string;
+  steps?: number;
+  phoneUsageMinutes?: number;
+  outingDetected?: boolean;
+  firstActivityTime?: string;
+  lastActivityTime?: string;
+};
+
+export type PersonalBaseline = {
+  avgSteps?: number;
+  avgPhoneUsage?: number;
+  avgOutingDaysPerWeek?: number;
+  avgFirstActivityTime?: string;
+};
+
+export type ChangeSignal = {
+  type: "activity" | "outing" | "phone_usage" | "daily_rhythm";
+  changePercent?: number;
+  level: "normal" | "changed" | "check";
+  durationDays?: number;
+};
+
+export type FamilyCheck = {
+  date: string;
+  method: "call" | "visit" | "video" | "family";
+  status: "normal" | "tired" | "uncomfortable" | "hospital_visit" | "unknown";
+  memo?: string;
+};
+
+export type RecoveryTimelinePoint = {
+  daysFromDischarge: 1 | 7 | 14 | 30 | number;
+  activityPercentOfBaseline: number;
+  recordedAt: string;
+};
+
+export type HealthcareUtilization = {
+  date: string;
+  type: "outpatient" | "emergency" | "readmission" | "other";
+  source: "family" | "hospital";
+  memo?: string;
+};
+
+export type LifeChangeRecord = {
+  patientId: string;
+  dischargeDate: string;
+  baseline: PersonalBaseline;
+  dailyLife: DailyLifeData[];
+  signals: ChangeSignal[];
+  familyVerification: FamilyCheck[];
+  recoveryTimeline: RecoveryTimelinePoint[];
+  healthcareUtilization?: HealthcareUtilization[];
+};
+
 export type CareTaskType =
   | "안부"
   | "건강"
