@@ -13,10 +13,10 @@ import {
   Footprints,
   HeartHandshake,
   Home,
-  HelpCircle,
   ImagePlus,
   Images,
   Leaf,
+  MoreHorizontal,
   PackageOpen,
   Phone,
   Settings,
@@ -55,6 +55,16 @@ type MoodResponse = {
 };
 type ParentView = "home" | "record" | "photos" | "farm" | "profile" | "guide";
 type FamilyView = "home" | "reassurance" | "changes" | "compose" | "farm" | "profile" | "guide";
+type ParentReaction = {
+  event: "parent_reaction";
+  family_message_seen: true;
+  moment_id: string;
+  sender: string;
+  parent_reaction: "heart";
+  reaction_at: string;
+};
+
+const PARENT_REACTION_KEY = "oneul-anbu-parent-reaction";
 
 const moodResponses: Record<MoodKey, MoodResponse> = {
   good: { icon: "😊", label: "좋아요", title: "오늘 기분이 좋으셨군요.", description: "좋은 하루를 알려주셔서 고마워요.", tone: "bg-[#FFF8E8]", iconTone: "bg-[#FFF0C7]", farmMessage: ["토마토가 따뜻한 햇빛을 받았어요."], primaryLabel: "오늘 자란 농장 보기", primaryTarget: "/farm", familyNotifyMode: "none", animation: "farm-seed-pop" },
@@ -143,6 +153,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   const [openMoment, setOpenMoment] = useState<FamilyTrace | null>(null);
   const [characterMotion, setCharacterMotion] = useState<AnsimiMotion>("subtle");
   const [questionPending, setQuestionPending] = useState(false);
+  const [parentReaction, setParentReaction] = useState<ParentReaction | null>(null);
   const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
 
   useEffect(() => {
@@ -153,6 +164,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
       setHasAnsweredToday(initialAnswered || readQuestionHistory().some((item) => item.answeredAt.slice(0, 10) === today));
       setCharacterMotion((window.localStorage.getItem(ANSIMI_MOTION_KEY) as AnsimiMotion | null) ?? "subtle");
       setQuestionPending(window.localStorage.getItem("oneul-anbu-parent-question-pending") === "true");
+      setParentReaction(JSON.parse(window.localStorage.getItem(PARENT_REACTION_KEY) ?? "null") as ParentReaction | null);
     } catch {
       setTodayMood(null);
     }
@@ -187,6 +199,20 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
     setCharacterMotion(next);
     window.dispatchEvent(new Event("ansimi-motion-change"));
     recordAnsimiEvent("ansimi_motion_preference_changed", { mode: next });
+  }
+
+  function sendHeart(moment: FamilyTrace) {
+    const reaction: ParentReaction = {
+      event: "parent_reaction",
+      family_message_seen: true,
+      moment_id: moment.id,
+      sender: moment.sender,
+      parent_reaction: "heart",
+      reaction_at: new Date().toISOString(),
+    };
+    window.localStorage.setItem(PARENT_REACTION_KEY, JSON.stringify(reaction));
+    setParentReaction(reaction);
+    recordAnsimiEvent("parent_reaction", { momentId: moment.id, reaction: "heart" });
   }
 
   if (checkInStep === "done") {
@@ -233,6 +259,11 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
             <div className="flex items-center gap-4"><AnsimiCharacter state="familyPhoto" motion="once" size="small" ariaLabel="가족 사진이 도착했음을 안내하는 안심이"/><p className="text-xl font-black leading-8 text-[#37433D]">지은이가 보낸 사진과 말을<br />편하게 보세요.</p></div>
+            <section className="mt-6 flex items-center gap-4 rounded-[24px] bg-[#EAF3E5] p-5">
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-white text-2xl" aria-hidden>👩</span>
+              <div className="min-w-0 flex-1"><h2 className="text-xl font-bold">지은</h2><p className="mt-1 text-lg font-medium text-[#52635C]">딸</p></div>
+              <a href="tel:" className="flex min-h-[60px] items-center gap-2 rounded-2xl bg-[#2F6B46] px-5 text-lg font-bold text-white"><Phone size={22} /> 전화하기</a>
+            </section>
             <div className="mt-6 grid gap-6">
               {moments.map((moment, index) => (
                 <article key={moment.id} className="overflow-hidden rounded-[30px] border border-[#DDE6DC] bg-white">
@@ -298,18 +329,19 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   if (initialView === "profile") {
     return (
       <AppFrame role="parent" active="profile">
-        <ParentSectionHeader title="설정" topLevel />
+        <ParentSectionHeader title="더보기" topLevel />
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
             <section className="rounded-[28px] bg-white p-6 shadow-[0_16px_42px_rgba(49,78,58,0.08)]">
               <div className="flex items-center gap-4"><span className="flex size-20 items-center justify-center rounded-full bg-[#FFF0E6] text-[2.5rem]">👩</span><div><p className="text-[1.55rem] font-black">김정희님</p><p className="mt-2 text-lg font-bold text-[#69736D]">오늘안부를 사용 중이에요</p></div></div>
             </section>
             <div className="mt-5 grid gap-4">
-              <SettingLink href="/settings/privacy" icon={<ShieldCheck />} title="내 정보는 내가 정합니다" description="연결 정보와 공유 내용을 확인해요." tone="parent" />
-              <SettingLink href="/family/members" icon={<UsersRound />} title="가족 연결" description="연결된 가족을 보거나 해제해요." tone="parent" />
-              <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="질문을 받을 시간을 정해요." tone="parent" />
+              <SettingLink href="tel:" icon={<Phone />} title="가족 연락하기" description="연결된 가족에게 전화해요." tone="parent" />
+              <SettingLink href="/app?role=parent&view=guide" icon={<Leaf />} title="오늘안부 사용방법" description="사용 방법을 다시 확인해요." tone="parent" />
+              <SettingLink href="/permissions" icon={<UsersRound />} title="연결 상태" description="가족과 생활 정보 연결을 확인해요." tone="parent" />
+              <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 설정" description="알림 받을 시간을 정해요." tone="parent" />
+              <SettingLink href="/settings/privacy" icon={<ShieldCheck />} title="개인정보 및 데이터 안내" description="연결 정보와 공유 내용을 확인해요." tone="parent" />
               <button type="button" role="switch" aria-checked={characterMotion === "static"} onClick={toggleCharacterMotion} className="flex min-h-[88px] items-center gap-4 rounded-[22px] bg-white p-5 text-left shadow-[0_10px_30px_rgba(49,78,58,0.06)]"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF3E9] text-[#2F6B46]"><Leaf /></span><span className="min-w-0 flex-1"><strong className="block text-lg">캐릭터 움직임 줄이기</strong><small className="mt-1 block font-semibold leading-5 text-[#737C75]">{characterMotion === "static" ? "움직임을 줄이고 있어요." : "필요한 순간에 한 번만 움직여요."}</small></span><span className={`h-8 w-14 rounded-full p-1 ${characterMotion === "static" ? "bg-[#2F6B46]" : "bg-[#C9D2C9]"}`} aria-hidden><span className={`block size-6 rounded-full bg-white transition-transform ${characterMotion === "static" ? "translate-x-6" : ""}`}/></span></button>
-              <SettingLink href="/app?role=parent&view=guide" icon={<Leaf />} title="오늘안부 이용 안내" description="주요 서비스를 다시 볼 수 있어요." tone="parent" />
               <SettingLink href="mailto:hello@oneulanbu.kr" icon={<Phone />} title="문의하기" description="궁금한 점을 물어보세요." tone="parent" />
             </div>
           </div>
@@ -320,7 +352,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
 
   if (initialView === "guide") {
     return (
-      <AppFrame role="parent" active="home">
+      <AppFrame role="parent" active="profile">
         <ParentSectionHeader title="오늘안부 이용 안내" backHref="/app?role=parent&view=profile" backLabel="설정으로" />
         <ServiceGuide role="parent" />
       </AppFrame>
@@ -336,27 +368,30 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
             <p className="typo-label font-semibold text-[#477052]">오늘 상태</p>
             <div className="mt-3 flex items-center gap-4"><AnsimiCharacter state={questionPending && !hasAnsweredToday ? "question" : "noTask"} motion="once" size="small" ariaLabel={questionPending && !hasAnsweredToday ? "질문 하나를 안내하는 안심이" : "평소처럼 생활해도 된다고 안내하는 안심이"}/><h1 className="typo-state">{questionPending && !hasAnsweredToday ? "오늘은 질문 하나만 답해주세요." : "오늘도 평소와 비슷해요."}</h1></div>
             <p className="typo-body-readable mt-2">{questionPending && !hasAnsweredToday ? "편한 답 하나를 눌러 주세요." : "지금은 하실 일이 없습니다."}</p>
-            {questionPending && !hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-5 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.35rem] font-bold text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-3 text-lg font-medium leading-8 text-[#52635C]">오늘은 답하지 않아도 괜찮습니다.</p></> : <div className="mt-5 rounded-[22px] bg-[#EAF3E5] p-5"><p className="text-xl font-bold text-[#285F3A]">가족과 연결되어 있어요.</p><p className="mt-2 text-lg font-medium leading-8 text-[#43574D]">변화가 이어질 때만 가족에게 알려드려요.</p></div>}
-            <details className="group mt-4 border-t border-[#DCE5DC] pt-2"><summary className="flex min-h-14 cursor-pointer list-none items-center justify-between text-lg font-semibold text-[#315B3D] [&::-webkit-details-marker]:hidden">어떻게 살펴보나요? <ChevronRight className="transition-transform group-open:rotate-90" size={22}/></summary><p className="typo-support-readable pb-2">하루의 변화만 보지 않고 여러 생활 흐름을 함께 살펴봅니다.</p></details>
+            {questionPending && !hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-5 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.35rem] font-bold text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-3 text-lg font-medium leading-8 text-[#52635C]">오늘은 답하지 않아도 괜찮습니다.</p></> : null}
           </section>
 
           {moments[0] ? (
-            <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white">
-              <div className="p-6">
+            <section className="border-t border-[#DCE5DC] pt-6">
+              <p className="typo-label font-semibold text-[#477052]">오늘의 가족 소식</p>
+              <div className="pb-5 pt-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>
+                  <h2 className="text-[1.55rem] font-bold">{moments[0].sender}에게 소식이 왔어요.</h2>
                   {moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-base font-black text-[#4F6056]">체험 예시</span> : null}
                 </div>
                 <p className="mt-4 text-lg font-semibold leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p>
               </div>
-              {moments[0].imageUrl ? <img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full bg-[#F4F1E9] object-contain" /> : null}
-              <div className="p-5 text-center">
-                <p className="text-lg font-medium leading-8 text-[#52635C]">사진은 이미 도착했어요.</p>
-                <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="mt-3 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-bold text-white">사진 크게 보기</button>
-                <p className="mt-3 text-lg font-medium text-[#52635C]">지금은 더 하실 일이 없어요.</p>
+              {moments[0].imageUrl ? <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="block w-full overflow-hidden rounded-[26px] bg-[#F4F1E9] focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#D95C24]" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 크게 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain" /></button> : null}
+              <div className="pt-5 text-center">
+                {parentReaction?.moment_id === moments[0].id ? <p role="status" className="rounded-[22px] bg-[#EAF3E5] p-5 text-xl font-bold text-[#285F3A]">{moments[0].sender}에게 마음을 보냈어요. ♥</p> : <button type="button" onClick={() => sendHeart(moments[0])} className="flex min-h-[72px] w-full items-center justify-center rounded-[22px] bg-[#D95423] px-5 text-[1.35rem] font-bold text-white shadow-[0_14px_30px_rgba(217,84,35,.2)]">잘 봤어 ♥</button>}
+                <Link href="/app?role=parent&view=photos" className="mt-3 inline-flex min-h-[56px] items-center gap-1 px-3 text-lg font-semibold text-[#315B3D]">지난 가족 소식 보기 <ChevronRight size={22} /></Link>
               </div>
             </section>
           ) : null}
+          <section className="border-t border-[#DCE5DC] py-7 text-left">
+            <h2 className="text-[1.45rem] font-bold text-[#22362B]">오늘은 더 하실 일이 없어요.</h2>
+            <p className="mt-2 text-lg font-medium text-[#52635C]">편하게 하루 보내세요.</p>
+          </section>
         </div>
       </section>
       {openMoment ? <FamilyContentDialog moment={openMoment} onClose={() => setOpenMoment(null)} /> : null}
@@ -423,6 +458,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
   const [questionSummary, setQuestionSummary] = useState<{ title: string; detail: string; weekly: string[] } | null>(null);
   const [demoState, setDemoState] = useState<"usual" | "change" | "learning">("usual");
   const [showCallConfirm, setShowCallConfirm] = useState(false);
+  const [parentReaction, setParentReaction] = useState<ParentReaction | null>(null);
   const experienceMode: ExperienceMode = demoState === "learning" ? "learning" : "demo";
   const experience = experienceCopy[experienceMode];
   const demoView = demoState === "usual"
@@ -435,6 +471,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
     try {
       const saved = JSON.parse(window.localStorage.getItem("oneul-anbu-family-gentle-alert") ?? "null") as { message?: string } | null;
       setFamilyMoodAlert(saved?.message ?? null);
+      setParentReaction(JSON.parse(window.localStorage.getItem(PARENT_REACTION_KEY) ?? "null") as ParentReaction | null);
       const answers = readQuestionHistory().filter((answer) => !answer.skipped);
       const today = new Date().toISOString().slice(0, 10);
       const todayAnswer = [...answers].reverse().find((answer) => answer.answeredAt.slice(0, 10) === today);
@@ -567,6 +604,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
       <section className="px-5 pb-32 pt-5">
         <div className="mx-auto max-w-[620px]">
           <span className="inline-flex rounded-full bg-[#FFF0E6] px-3 py-2 text-sm font-black text-[#B95327]">{experience.badge}</span>
+          {parentReaction ? <section className="mt-4 rounded-[24px] border border-[#CFE2D2] bg-[#EDF7ED] p-5"><p className="text-lg font-bold text-[#285F3A]">엄마가 마음을 보냈어요. ♥</p><p className="mt-1 text-base font-medium text-[#52635C]">가족 소식을 잘 확인하셨어요.</p></section> : null}
           <div className="mt-4 grid grid-cols-3 gap-2 rounded-[20px] bg-white p-2" aria-label="가족 홈 체험 상태 선택">{[["usual","평소와 비슷함"],["change","변화 확인"],["learning","학습 중"]].map(([value,label]) => <button key={value} type="button" onClick={() => setDemoState(value as typeof demoState)} className={`min-h-12 rounded-2xl px-2 text-sm font-black ${demoState === value ? "bg-[#1F6F7A] text-white" : "text-[#59655E]"}`}>{label}</button>)}</div>
           {familyMoodAlert ? <section className="mt-4 rounded-[24px] border-2 border-[#F1C9AE] bg-[#FFF5ED] p-5"><p className="text-sm font-black text-[#B95327]">부드러운 안부 안내</p><p className="mt-2 text-lg font-black leading-7 text-[#51392E]">{familyMoodAlert}</p><a href="tel:" className="mt-4 flex min-h-14 items-center justify-center rounded-2xl bg-[#D95423] text-lg font-black text-white"><Phone className="mr-2" size={21} />전화하기</a></section> : null}
 
@@ -711,7 +749,7 @@ function ParentBottomNavigation({ active }: { active: ParentView }) {
   const tabs = [
     { id: "home" as const, label: "오늘", href: "/app?role=parent", icon: Home },
     { id: "photos" as const, label: "가족", href: "/app?role=parent&view=photos", icon: Images },
-    { id: "guide" as const, label: "도움", href: "/app?role=parent&view=guide", icon: HelpCircle },
+    { id: "profile" as const, label: "더보기", href: "/app?role=parent&view=profile", icon: MoreHorizontal },
   ];
   return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-3 gap-2">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home") || (active === "farm" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-lg font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={28} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
 }
