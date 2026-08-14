@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, ChevronDown, Clock3, LockKeyhole, Menu, ShieldCheck, Smartphone, X } from "lucide-react";
-import SimpleLandingPage from "./simple-landing";
+import HospitalLandingPage from "./hospital-landing";
 
 type Role = "family" | "parent";
 type State = { currentStep:number; concernType?:string; dataCardIndex:number; parentAnswer?:string; role?:Role };
@@ -97,4 +97,4 @@ function FinalStartStep({state,selectRole,restart,details,toggleDetails}:{state:
 }
 function ExpandableDetails({open,toggle}:{open:boolean;toggle:()=>void}){return <div className="mt-10 border-t border-[#DEE5E1] pt-5"><button onClick={toggle} aria-expanded={open} className="flex min-h-[52px] w-full items-center justify-between text-left font-black">서비스를 더 자세히 알아보기<ChevronDown className={open?"rotate-180":""}/></button>{open&&<div className="onboarding-step mt-4 grid gap-3 text-sm font-semibold leading-6 text-[#5E6C65]"><p>오늘안부는 응답 여부와 시간대, 반복되는 답변의 변화를 바탕으로 생활 흐름을 안내합니다.</p><p>걸음 수, 움직임 변화, 휴대폰 사용 패턴 등은 동의 기반으로 순차 연결할 예정입니다.</p><p>부모님은 질문이 있는 날에만 짧게 답하고, 가족은 필요한 변화와 권장 행동을 확인합니다.</p><p>연결 정보는 부모님이 직접 확인하고 언제든 해제할 수 있습니다.</p><p className="rounded-xl bg-[#EEF2F0] p-4 font-black">오늘안부는 의료 진단이나 응급 구조 서비스가 아닙니다. 생활 흐름의 변화를 참고 정보로 안내합니다.</p><div className="flex flex-wrap gap-4"><Link href="/privacy-simple" className="underline">개인정보 상세 설명</Link><Link href="/help" className="underline">자주 묻는 질문</Link><Link href="/technology" className="underline">기술 설명</Link></div></div>}</div>}
 
-export default SimpleLandingPage;
+export default HospitalLandingPage;

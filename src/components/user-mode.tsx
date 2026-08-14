@@ -35,8 +35,9 @@ import { experienceCopy, type ExperienceMode } from "@/lib/experience-mode";
 import { readQuestionHistory } from "@/lib/daily-questions";
 import { ANSIMI_MOTION_KEY, moodDialogue, recordAnsimiEvent, type AnsimiMotion } from "@/lib/ansimi-dialogue";
 import { PRODUCT_COPY } from "@/lib/product-copy";
+import { HospitalMode } from "@/components/hospital-mode";
 
-type ExperienceRole = "parent" | "family";
+type ExperienceRole = "parent" | "family" | "hospital";
 type MoodKey = "good" | "okay" | "tired" | "difficult";
 type MoodResponse = {
   icon: string;
@@ -93,19 +94,23 @@ export function UserMode({
   initialRole,
   initialParentView = "home",
   initialFamilyView = "home",
+  initialHospitalView = "dashboard",
+  initialPatientId,
   initialAnswered = false,
 }: {
   initialRegistered: boolean;
   initialRole?: ExperienceRole;
   initialParentView?: ParentView;
   initialFamilyView?: FamilyView;
+  initialHospitalView?: "dashboard" | "patient";
+  initialPatientId?: string;
   initialAnswered?: boolean;
 }) {
   const [role, setRole] = useState<ExperienceRole | null>(initialRole ?? null);
   const [moments, setMoments] = useState<FamilyTrace[]>(familyTraces);
 
   if (!role) return <RoleSelect onSelect={setRole} />;
-  return role === "parent" ? (
+  return role === "hospital" ? <HospitalMode view={initialHospitalView} patientId={initialPatientId} /> : role === "parent" ? (
     <ParentHome moments={moments} initialView={initialParentView} initialAnswered={initialAnswered} />
   ) : (
     <FamilyHome moments={moments} initialView={initialFamilyView} onAddMoment={(moment) => setMoments((current) => [moment, ...current])} />
@@ -121,9 +126,10 @@ function RoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) => void }) 
           <h1 className="text-[2.15rem] font-black leading-tight sm:text-5xl">누가 시작하시나요?</h1>
           <p className="mt-3 text-lg font-semibold text-[#657069]">사용할 화면을 선택해 주세요.</p>
         </section>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <RoleCard icon={<Leaf />} role="부모님" description="평소처럼 생활하고 가족 소식과 농장을 확인해요." actionLabel="부모님으로 시작하기" onClick={() => onSelect("parent")} />
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <RoleCard icon={<Leaf />} role="퇴원환자" description="평소처럼 생활하며 필요한 안내만 확인해요." actionLabel="환자 화면 시작" onClick={() => onSelect("parent")} />
           <RoleCard icon={<HeartHandshake />} role="가족" description="오늘의 안심과 생활 변화를 확인하고 소식을 남겨요." actionLabel="가족으로 시작하기" onClick={() => onSelect("family")} />
+          <RoleCard icon={<ShieldCheck />} role="병원" description="확인이 필요한 퇴원환자를 먼저 살펴봐요." actionLabel="병원 화면 시작" onClick={() => onSelect("hospital")} />
         </div>
       </div>
     </main>

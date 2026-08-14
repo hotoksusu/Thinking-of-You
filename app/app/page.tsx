@@ -7,7 +7,7 @@ import { UserMode } from "@/components/user-mode";
 function AppPageContent() {
   const params = useSearchParams();
   const roleParam = params.get("role");
-  const role = roleParam === "parent" || roleParam === "family" ? roleParam : undefined;
+  const role = roleParam === "parent" || roleParam === "family" || roleParam === "hospital" ? roleParam : undefined;
   const view = params.get("view");
   const parentView = view === "record" || view === "photos" || view === "farm" || view === "profile" || view === "guide"
     ? view
@@ -16,7 +16,9 @@ function AppPageContent() {
     ? view
     : "home";
 
-  return <UserMode initialRegistered={params.get("registered") === "1"} initialRole={role} initialParentView={parentView} initialFamilyView={familyView} initialAnswered={params.get("answered") === "1"} />;
+  const hospitalView = view === "patient" ? "patient" : "dashboard";
+
+  return <UserMode initialRegistered={params.get("registered") === "1"} initialRole={role} initialParentView={parentView} initialFamilyView={familyView} initialHospitalView={hospitalView} initialPatientId={params.get("patient") ?? undefined} initialAnswered={params.get("answered") === "1"} />;
 }
 
 export default function AppPage() {
