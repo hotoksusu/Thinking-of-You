@@ -20,7 +20,7 @@ export default function SimpleLandingPage() {
         <div className="text-center lg:text-left">
           <p className="typo-label font-semibold text-[#286141]">부모님을 위한 편안한 안부</p>
           <h1 className="typo-display mt-3">
-            부모님은<br /><span className="whitespace-nowrap">평소처럼 생활하세요.</span>
+            부모님은<br /><span className="whitespace-nowrap">평소처럼 지내세요.</span>
           </h1>
           <p className="typo-body-readable mx-auto mt-4 lg:mx-0">
             <strong className="font-semibold text-[#24382F]">생활의 변화를 자동으로 살펴봅니다.</strong><br />걷기와 휴대전화 사용 같은 평소 생활을 기준으로 확인해요.
@@ -49,7 +49,7 @@ export default function SimpleLandingPage() {
           <article className="mx-auto mt-8 max-w-[680px] rounded-[28px] border-2 border-[#D4E1D5] bg-white p-6 text-left shadow-[0_14px_38px_rgba(50,79,60,.09)] sm:p-8">
             <div className="flex items-center justify-between gap-4">
               <span className="rounded-full bg-[#EAF4E9] px-4 py-2 text-lg font-semibold text-[#286141]">오늘 상태</span>
-              <span className="text-[1.05rem] font-medium text-[#4B5C53]">오전 9시 확인</span>
+              <span className="typo-support-readable whitespace-nowrap">오전 9시 확인</span>
             </div>
             <div className="mt-7 flex items-start gap-4">
               <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-[#EAF4E9] text-[#2D6C48]">
@@ -61,7 +61,7 @@ export default function SimpleLandingPage() {
               </div>
             </div>
             <details className="group mt-5 border-t border-[#DFE7DE] pt-3">
-              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between text-lg font-semibold text-[#315B3D] [&::-webkit-details-marker]:hidden">생활 변화 자세히 보기 <ChevronDown className="transition-transform group-open:rotate-180" size={22} /></summary>
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between text-lg font-semibold text-[#315B3D] [&::-webkit-details-marker]:hidden">생활 변화 자세히 보기 <ChevronDown className="transition-transform group-open:rotate-180" size={22} /></summary>
               <p className="typo-support-readable mt-2">걷기 · 움직임 · 휴대전화 사용이 평소 범위에 있어요.</p>
             </details>
           </article>
@@ -142,7 +142,7 @@ function MainCta({ light = false, className = "" }: { light?: boolean; className
   return (
     <Link
       href="/start"
-      className={`mx-auto mt-7 flex min-h-[70px] w-full max-w-[380px] items-center justify-center gap-2 rounded-2xl px-7 text-[1.3rem] font-black shadow-[0_14px_30px_rgba(31,107,72,.18)] focus:outline-none focus:ring-4 focus:ring-[#F2A06B] ${light ? "bg-white text-[#184C36]" : "bg-[#1F6B48] text-white"} ${className}`}
+      className={`mx-auto mt-7 flex min-h-[70px] w-full max-w-[380px] items-center justify-center gap-2 rounded-2xl px-7 text-[1.3rem] font-bold shadow-[0_14px_30px_rgba(31,107,72,.18)] focus:outline-none focus:ring-4 focus:ring-[#F2A06B] ${light ? "bg-white text-[#184C36]" : "bg-[#1F6B48] text-white"} ${className}`}
     >
       가족과 시작하기 <ArrowRight size={24} aria-hidden />
     </Link>
