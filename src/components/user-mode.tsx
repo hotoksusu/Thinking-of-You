@@ -340,7 +340,23 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
             <details className="group mt-4 border-t border-[#DCE5DC] pt-2"><summary className="flex min-h-14 cursor-pointer list-none items-center justify-between text-lg font-semibold text-[#315B3D] [&::-webkit-details-marker]:hidden">어떻게 살펴보나요? <ChevronRight className="transition-transform group-open:rotate-90" size={22}/></summary><p className="typo-support-readable pb-2">하루의 변화만 보지 않고 여러 생활 흐름을 함께 살펴봅니다.</p></details>
           </section>
 
-          {moments[0] ? <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white"><div className="p-6"><div className="flex flex-wrap items-center gap-2"><h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>{moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-base font-black text-[#4F6056]">체험 예시</span> : null}</div><p className="mt-4 text-lg font-black leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p></div>{moments[0].imageUrl ? <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="block w-full" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain bg-[#F4F1E9]" /></button> : null}<div className="p-5"><button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white">{familyContentAction(moments[0])}</button></div></section> : null}
+          {moments[0] ? (
+            <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white">
+              <div className="p-6">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>
+                  {moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-base font-black text-[#4F6056]">체험 예시</span> : null}
+                </div>
+                <p className="mt-4 text-lg font-semibold leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p>
+              </div>
+              {moments[0].imageUrl ? <img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full bg-[#F4F1E9] object-contain" /> : null}
+              <div className="p-5 text-center">
+                <p className="text-lg font-medium leading-8 text-[#52635C]">사진은 이미 도착했어요.</p>
+                <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="mt-3 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-bold text-white">사진 크게 보기</button>
+                <p className="mt-3 text-lg font-medium text-[#52635C]">지금은 더 하실 일이 없어요.</p>
+              </div>
+            </section>
+          ) : null}
         </div>
       </section>
       {openMoment ? <FamilyContentDialog moment={openMoment} onClose={() => setOpenMoment(null)} /> : null}
@@ -376,7 +392,7 @@ function formatFamilyTime(createdAt: string) {
 }
 
 function FamilyContentDialog({ moment, onClose }: { moment: FamilyTrace; onClose: () => void }) {
-  return <div className="fixed inset-0 z-[80] flex items-end bg-black/55 p-3 sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="family-content-title" className="mx-auto max-h-[90dvh] w-full max-w-[620px] overflow-y-auto rounded-[28px] bg-white p-5" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between gap-4"><h2 id="family-content-title" className="text-2xl font-black">{withSubject(moment.sender)} 보낸 {familyContentLabel(moment)}</h2><button type="button" onClick={onClose} aria-label="닫기" className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF2EC]"><X size={26} /></button></div>{moment.imageUrl ? <img src={moment.imageUrl} alt={`${withSubject(moment.sender)} 보낸 ${familyContentLabel(moment)}`} className="mt-5 max-h-[55dvh] w-full rounded-2xl bg-[#F4F1E9] object-contain" /> : null}<p className="mt-5 text-xl font-black leading-[1.65]">{moment.source === "summary" ? moment.title : `“${moment.title}”`}</p>{moment.source === "summary" ? <p className="mt-3 text-base font-bold text-[#69756D]">오늘안부가 정리한 내용입니다.</p> : null}<button type="button" onClick={onClose} className="mt-6 min-h-[56px] w-full rounded-2xl bg-[#2F6B46] text-lg font-black text-white">다 봤어요</button></section></div>;
+  return <div className="fixed inset-0 z-[80] flex items-end bg-black/55 p-3 sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="family-content-title" className="mx-auto max-h-[90dvh] w-full max-w-[620px] overflow-y-auto rounded-[28px] bg-white p-5" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between gap-4"><h2 id="family-content-title" className="text-2xl font-black">{withSubject(moment.sender)} 보낸 {familyContentLabel(moment)}</h2><button type="button" onClick={onClose} aria-label="사진 닫기" className="flex min-h-[56px] shrink-0 items-center gap-1 rounded-2xl bg-[#EEF2EC] px-4 text-lg font-bold text-[#2C4437]"><X size={24} /> 닫기</button></div>{moment.imageUrl ? <img src={moment.imageUrl} alt={`${withSubject(moment.sender)} 보낸 ${familyContentLabel(moment)}`} className="mt-5 max-h-[55dvh] w-full rounded-2xl bg-[#F4F1E9] object-contain" /> : null}<p className="mt-5 text-xl font-semibold leading-[1.65]">{moment.source === "summary" ? moment.title : `“${moment.title}”`}</p>{moment.source === "summary" ? <p className="mt-3 text-base font-bold text-[#69756D]">오늘안부가 정리한 내용입니다.</p> : null}<button type="button" onClick={onClose} className="mt-6 min-h-[68px] w-full rounded-2xl bg-[#2F6B46] px-5 text-xl font-bold text-white">오늘 화면으로 돌아가기</button></section></div>;
 }
 
 function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: MoodKey | null; onSelect: (mood: MoodKey) => void; onDone: () => void }) {
