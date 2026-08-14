@@ -16,40 +16,40 @@ export default function SimpleLandingPage() {
     <main className="min-h-screen overflow-x-hidden bg-[#FFF9F0] text-[#17251F]">
       <Header />
 
-      <section className="mx-auto grid min-h-[calc(100svh-76px)] w-full max-w-[1180px] items-center gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[1.03fr_.97fr] lg:gap-16 lg:py-16">
+      <section className="mx-auto grid w-full max-w-[1240px] items-center gap-8 px-5 py-8 sm:px-8 sm:py-10 lg:grid-cols-[.92fr_1.08fr] lg:gap-12 lg:py-12 xl:gap-16 xl:py-14">
         <div className="text-center lg:text-left">
-          <p className="text-lg font-black text-[#347052] sm:text-xl">부모님을 위한 편안한 안부</p>
-          <h1 className="mt-5 text-[clamp(2.7rem,8.6vw,4.8rem)] font-black leading-[1.08] tracking-[-.045em]">
+          <p className="text-xl font-black text-[#347052]">부모님을 위한 편안한 안부</p>
+          <h1 className="mt-4 text-[clamp(2.65rem,7vw,4.55rem)] font-black leading-[1.09] tracking-[-.045em]">
             부모님은<br />평소처럼 생활하세요.
           </h1>
-          <p className="mx-auto mt-6 max-w-[620px] text-[1.28rem] font-bold leading-[1.65] text-[#43564D] sm:text-[1.55rem] lg:mx-0">
+          <p className="mx-auto mt-5 max-w-[620px] text-[1.28rem] font-bold leading-[1.6] text-[#43564D] sm:text-[1.5rem] lg:mx-0">
             걷기와 휴대전화 사용 같은<br />생활 변화를 자동으로 살펴봅니다.
           </p>
-          <p className="mt-5 text-[1.35rem] font-black text-[#D95823] sm:text-[1.6rem]">매일 기록하지 않아도 됩니다.</p>
+          <p className="mt-4 text-[1.35rem] font-black text-[#D95823] sm:text-[1.55rem]">매일 기록하지 않아도 됩니다.</p>
           <MainCta className="lg:mx-0" />
         </div>
 
-        <div className="mx-auto w-full max-w-[560px] overflow-hidden rounded-[32px] bg-[#EAF3E5] shadow-[0_22px_58px_rgba(48,76,58,.15)]">
+        <div className="mx-auto w-full max-w-[640px] overflow-hidden rounded-[28px] bg-[#EAF3E5] shadow-[0_18px_46px_rgba(48,76,58,.14)]">
           <Image
             src="/illustrations/oneul-anbu-ai-hero.png"
             alt="평소처럼 생활하는 부모님과 소식을 확인하는 가족"
             width={1728}
             height={910}
             priority
-            className="aspect-[1.08/1] h-auto w-full object-cover"
+            className="block h-auto w-full object-contain"
           />
         </div>
       </section>
 
-      <section className="border-y border-[#DFE7DE] bg-[#F1F7EE] px-5 py-16 sm:px-8 sm:py-24">
+      <section className="border-y border-[#DFE7DE] bg-[#F1F7EE] px-5 py-14 sm:px-8 sm:py-[72px] lg:py-20">
         <div className="mx-auto max-w-[880px] text-center">
-          <p className="text-lg font-black text-[#D95823]">가족에게 보이는 내용</p>
+          <p className="text-xl font-black text-[#D95823]">가족에게 보이는 내용</p>
           <h2 className="mt-3 text-[clamp(2.25rem,7vw,3.6rem)] font-black leading-[1.15] tracking-[-.035em]">평소와 다를 때 알려드려요.</h2>
 
-          <article className="mx-auto mt-10 max-w-[680px] rounded-[30px] border-2 border-[#D4E1D5] bg-white p-6 text-left shadow-[0_18px_48px_rgba(50,79,60,.1)] sm:p-9">
+          <article className="mx-auto mt-8 max-w-[680px] rounded-[28px] border-2 border-[#D4E1D5] bg-white p-6 text-left shadow-[0_14px_38px_rgba(50,79,60,.09)] sm:p-8">
             <div className="flex items-center justify-between gap-4">
-              <span className="rounded-full bg-[#EAF4E9] px-4 py-2 text-base font-black text-[#286141]">오늘의 생활</span>
-              <span className="text-base font-bold text-[#627269]">오전 9시 확인</span>
+              <span className="rounded-full bg-[#EAF4E9] px-4 py-2 text-lg font-black text-[#286141]">오늘의 생활</span>
+              <span className="text-lg font-bold text-[#52635B]">오전 9시 확인</span>
             </div>
             <div className="mt-7 flex items-start gap-4">
               <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-[#EAF4E9] text-[#2D6C48]">
@@ -70,14 +70,14 @@ export default function SimpleLandingPage() {
         </div>
       </section>
 
-      <section className="px-5 py-16 sm:px-8 sm:py-24">
+      <section className="px-5 py-14 sm:px-8 sm:py-[72px] lg:py-20">
         <div className="mx-auto max-w-[940px]">
           <div className="text-center">
-            <p className="text-lg font-black text-[#D95823]">사용 방법</p>
+            <p className="text-xl font-black text-[#D95823]">사용 방법</p>
             <h2 className="mt-3 text-[clamp(2.25rem,7vw,3.6rem)] font-black leading-[1.15] tracking-[-.035em]">부모님도, 가족도 어렵지 않아요.</h2>
           </div>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
             <RoleCard
               icon={<UserRound size={38} aria-hidden />}
               title="부모님"
@@ -94,7 +94,7 @@ export default function SimpleLandingPage() {
         </div>
       </section>
 
-      <section className="bg-[#184C36] px-5 py-16 text-center text-white sm:px-8 sm:py-20">
+      <section className="bg-[#184C36] px-5 py-14 text-center text-white sm:px-8 sm:py-[72px]">
         <div className="mx-auto max-w-[720px]">
           <HeartHandshake className="mx-auto text-[#BDE1C8]" size={48} aria-hidden />
           <h2 className="mt-5 text-[clamp(2rem,7vw,3.2rem)] font-black leading-[1.25]">
@@ -126,7 +126,7 @@ export default function SimpleLandingPage() {
 function Header() {
   return (
     <header className="border-b border-[#E4E8E2] bg-[#FFF9F0]/95">
-      <div className="mx-auto flex min-h-[76px] max-w-[1180px] items-center justify-between px-5 sm:px-8">
+      <div className="mx-auto flex min-h-[70px] max-w-[1240px] items-center justify-between px-5 sm:px-8">
         <Link href="/" className="flex min-h-12 items-center gap-3 text-xl font-black" aria-label="오늘안부 홈">
           <Image src="/brand/oneul-anbu-icon.png" alt="" width={44} height={44} className="rounded-xl" />오늘안부
         </Link>
@@ -140,7 +140,7 @@ function MainCta({ light = false, className = "" }: { light?: boolean; className
   return (
     <Link
       href="/start"
-      className={`mx-auto mt-8 flex min-h-[68px] w-full max-w-[360px] items-center justify-center gap-2 rounded-2xl px-7 text-[1.3rem] font-black shadow-[0_16px_34px_rgba(31,107,72,.2)] focus:outline-none focus:ring-4 focus:ring-[#F2A06B] ${light ? "bg-white text-[#184C36]" : "bg-[#1F6B48] text-white"} ${className}`}
+      className={`mx-auto mt-7 flex min-h-[70px] w-full max-w-[380px] items-center justify-center gap-2 rounded-2xl px-7 text-[1.3rem] font-black shadow-[0_14px_30px_rgba(31,107,72,.18)] focus:outline-none focus:ring-4 focus:ring-[#F2A06B] ${light ? "bg-white text-[#184C36]" : "bg-[#1F6B48] text-white"} ${className}`}
     >
       우리 가족 시작하기 <ArrowRight size={24} aria-hidden />
     </Link>
