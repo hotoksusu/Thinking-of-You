@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, ChevronDown, Clock3, LockKeyhole, Menu, ShieldCheck, Smartphone, X } from "lucide-react";
+import SimpleLandingPage from "./simple-landing";
 
 type Role = "family" | "parent";
 type State = { currentStep:number; concernType?:string; dataCardIndex:number; parentAnswer?:string; role?:Role };
@@ -15,7 +16,7 @@ const dataCards = [
   {title:"생활 데이터 연결",text:"걸음과 움직임, 휴대폰 사용 패턴 등 자동 생활 데이터도 순차적으로 연결합니다.",soon:["걸음 수","움직임 변화","휴대폰 사용 패턴","추가 생활 데이터"]},
 ];
 
-export default function LandingPage(){
+function LegacyLandingPage(){
   const [state,setState]=useState<State>(initial);
   const [details,setDetails]=useState(false);
   const [answered,setAnswered]=useState(false);
@@ -95,3 +96,5 @@ function FinalStartStep({state,selectRole,restart,details,toggleDetails}:{state:
   return <section><StepTitle eyebrow="준비됐습니다" title={"부모님의 생활을\n바꾸지 않아도 됩니다."} desc="오늘안부가 평소와 다른 흐름을 살펴보고 가족에게 필요한 순간을 알려드립니다."/><div className="mt-9 rounded-[28px] border border-[#DDE5E1] bg-white p-6"><h2 className="text-xl font-black">어떤 화면으로 시작할까요?</h2><div className="mt-5 grid gap-3"><button aria-pressed={state.role==="family"} onClick={()=>selectRole("family")} className={`min-h-[64px] rounded-2xl border-2 px-5 text-left font-black ${state.role==="family"?"border-[#397057] bg-[#EDF5F0]":"border-[#DDE4E0]"}`}>부모님을 위해 알아보는 가족</button><button aria-pressed={state.role==="parent"} onClick={()=>selectRole("parent")} className={`min-h-[64px] rounded-2xl border-2 px-5 text-left font-black ${state.role==="parent"?"border-[#397057] bg-[#EDF5F0]":"border-[#DDE4E0]"}`}>직접 사용하실 부모님</button></div>{state.role&&<Link href={href} className="mt-6 flex min-h-[56px] items-center justify-center rounded-2xl bg-[#17372B] px-5 text-[17px] font-black text-white">{state.role==="family"?"부모님과 연결 시작하기":"부모님 화면 시작하기"}<ArrowRight className="ml-2" size={19}/></Link>}</div><button onClick={restart} className="mt-5 w-full text-center text-sm font-black text-[#5C6C64] underline underline-offset-4">처음부터 다시 보기</button><ExpandableDetails open={details} toggle={toggleDetails}/></section>
 }
 function ExpandableDetails({open,toggle}:{open:boolean;toggle:()=>void}){return <div className="mt-10 border-t border-[#DEE5E1] pt-5"><button onClick={toggle} aria-expanded={open} className="flex min-h-[52px] w-full items-center justify-between text-left font-black">서비스를 더 자세히 알아보기<ChevronDown className={open?"rotate-180":""}/></button>{open&&<div className="onboarding-step mt-4 grid gap-3 text-sm font-semibold leading-6 text-[#5E6C65]"><p>오늘안부는 응답 여부와 시간대, 반복되는 답변의 변화를 바탕으로 생활 흐름을 안내합니다.</p><p>걸음 수, 움직임 변화, 휴대폰 사용 패턴 등은 동의 기반으로 순차 연결할 예정입니다.</p><p>부모님은 질문이 있는 날에만 짧게 답하고, 가족은 필요한 변화와 권장 행동을 확인합니다.</p><p>연결 정보는 부모님이 직접 확인하고 언제든 해제할 수 있습니다.</p><p className="rounded-xl bg-[#EEF2F0] p-4 font-black">오늘안부는 의료 진단이나 응급 구조 서비스가 아닙니다. 생활 흐름의 변화를 참고 정보로 안내합니다.</p><div className="flex flex-wrap gap-4"><Link href="/privacy-simple" className="underline">개인정보 상세 설명</Link><Link href="/help" className="underline">자주 묻는 질문</Link><Link href="/technology" className="underline">기술 설명</Link></div></div>}</div>}
+
+export default SimpleLandingPage;

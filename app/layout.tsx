@@ -7,11 +7,11 @@ import "./onboarding.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://oneul-anbu.yos1015.chatgpt.site"),
   applicationName: "오늘안부",
-  title: "오늘안부 — 부모님의 평소와 다른 날을 먼저 알려드립니다",
-  description: "매일 기록하거나 전화하지 않아도 괜찮습니다. 오늘안부가 생활 흐름의 변화를 살펴보고 필요한 날만 가족에게 알려드립니다.",
+  title: "오늘안부 — 부모님은 평소처럼 생활하세요",
+  description: "걷기와 휴대전화 사용 같은 생활 변화를 살펴보고, 평소와 다른 변화가 이어질 때 가족에게 알려드립니다. 매일 기록하지 않아도 됩니다.",
   openGraph: {
     title: "오늘안부",
-    description: "AI가 부모님의 평소 생활 속 변화를 조용히 감지해 가족에게 알려주는 안심 서비스",
+    description: "부모님은 평소처럼 생활하세요. 오늘안부가 생활 변화를 살펴보고 필요한 날 가족에게 알려드립니다.",
     images: [{ url: "/illustrations/oneul-anbu-ai-hero.png", width: 1728, height: 910, alt: "평소처럼 생활하는 부모님과 안부를 확인하는 가족" }],
   },
   manifest: "/manifest.json",
