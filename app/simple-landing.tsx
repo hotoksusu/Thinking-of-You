@@ -13,19 +13,19 @@ import {
 
 export default function SimpleLandingPage() {
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#FFF9F0] text-[#17251F]">
+    <main className="landing-typography min-h-screen overflow-x-hidden bg-[#FFF9F0] text-[#17251F]">
       <Header />
 
       <section className="mx-auto grid w-full max-w-[1240px] items-center gap-8 px-5 py-8 sm:px-8 sm:py-10 lg:grid-cols-[.92fr_1.08fr] lg:gap-12 lg:py-12 xl:gap-16 xl:py-14">
         <div className="text-center lg:text-left">
-          <p className="text-xl font-black text-[#347052]">부모님을 위한 편안한 안부</p>
-          <h1 className="mt-4 text-[clamp(2.65rem,7vw,4.55rem)] font-black leading-[1.09] tracking-[-.045em]">
-            부모님은<br />평소처럼 생활하세요.
+          <p className="typo-label font-semibold text-[#286141]">부모님을 위한 편안한 안부</p>
+          <h1 className="typo-display mt-3">
+            부모님은<br /><span className="whitespace-nowrap">평소처럼 생활하세요.</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-[620px] text-[1.28rem] font-bold leading-[1.6] text-[#43564D] sm:text-[1.5rem] lg:mx-0">
-            걷기와 휴대전화 사용 같은<br />생활 변화를 자동으로 살펴봅니다.
+          <p className="typo-body-readable mx-auto mt-4 lg:mx-0">
+            <strong className="font-semibold text-[#24382F]">생활의 변화를 자동으로 살펴봅니다.</strong><br />걷기와 휴대전화 사용 같은 평소 생활을 기준으로 확인해요.
           </p>
-          <p className="mt-4 text-[1.35rem] font-black text-[#D95823] sm:text-[1.55rem]">매일 기록하지 않아도 됩니다.</p>
+          <p className="mt-4 text-[1.25rem] font-semibold leading-8 text-[#C64F20] sm:text-[1.35rem]">매일 기록하지 않아도 됩니다.</p>
           <MainCta className="lg:mx-0" />
         </div>
 
@@ -43,29 +43,31 @@ export default function SimpleLandingPage() {
 
       <section className="border-y border-[#DFE7DE] bg-[#F1F7EE] px-5 py-14 sm:px-8 sm:py-[72px] lg:py-20">
         <div className="mx-auto max-w-[880px] text-center">
-          <p className="text-xl font-black text-[#D95823]">가족에게 보이는 내용</p>
-          <h2 className="mt-3 text-[clamp(2.25rem,7vw,3.6rem)] font-black leading-[1.15] tracking-[-.035em]">평소와 다를 때 알려드려요.</h2>
+          <p className="typo-label font-semibold text-[#C64F20]">가족에게 보이는 내용</p>
+          <h2 className="typo-section-title mt-3">평소와 다를 때 알려드려요.</h2>
 
           <article className="mx-auto mt-8 max-w-[680px] rounded-[28px] border-2 border-[#D4E1D5] bg-white p-6 text-left shadow-[0_14px_38px_rgba(50,79,60,.09)] sm:p-8">
             <div className="flex items-center justify-between gap-4">
-              <span className="rounded-full bg-[#EAF4E9] px-4 py-2 text-lg font-black text-[#286141]">오늘의 생활</span>
-              <span className="text-lg font-bold text-[#52635B]">오전 9시 확인</span>
+              <span className="rounded-full bg-[#EAF4E9] px-4 py-2 text-lg font-semibold text-[#286141]">오늘 상태</span>
+              <span className="text-[1.05rem] font-medium text-[#4B5C53]">오전 9시 확인</span>
             </div>
             <div className="mt-7 flex items-start gap-4">
               <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-[#EAF4E9] text-[#2D6C48]">
                 <Check size={30} strokeWidth={3} aria-hidden />
               </span>
               <div>
-                <h3 className="text-[1.7rem] font-black leading-tight sm:text-[2rem]">오늘은 평소와 비슷해요.</h3>
-                <p className="mt-3 text-[1.18rem] font-bold leading-8 text-[#52635B] sm:text-[1.3rem]">
-                  걷기와 휴대전화 사용 등<br />평소 생활과 큰 차이가 없어요.
-                </p>
+                <h3 className="typo-state">오늘은 평소와 비슷해요.</h3>
+                <p className="typo-body-readable mt-2">특별히 확인할 변화가 없어요.</p>
               </div>
             </div>
+            <details className="group mt-5 border-t border-[#DFE7DE] pt-3">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between text-lg font-semibold text-[#315B3D] [&::-webkit-details-marker]:hidden">생활 변화 자세히 보기 <ChevronDown className="transition-transform group-open:rotate-180" size={22} /></summary>
+              <p className="typo-support-readable mt-2">걷기 · 움직임 · 휴대전화 사용이 평소 범위에 있어요.</p>
+            </details>
           </article>
 
-          <p className="mt-6 text-[1.15rem] font-bold leading-8 text-[#52635B] sm:text-xl">
-            변화가 이어지면 가족에게<br className="sm:hidden" /> 한번 연락해보시도록 알려드려요.
+          <p className="typo-body-readable mx-auto mt-5">
+            평소와 다른 변화가 이어지면 가족에게 알려드려요.
           </p>
         </div>
       </section>
@@ -73,8 +75,8 @@ export default function SimpleLandingPage() {
       <section className="px-5 py-14 sm:px-8 sm:py-[72px] lg:py-20">
         <div className="mx-auto max-w-[940px]">
           <div className="text-center">
-            <p className="text-xl font-black text-[#D95823]">사용 방법</p>
-            <h2 className="mt-3 text-[clamp(2.25rem,7vw,3.6rem)] font-black leading-[1.15] tracking-[-.035em]">부모님도, 가족도 어렵지 않아요.</h2>
+            <p className="typo-label font-semibold text-[#C64F20]">사용 방법</p>
+            <h2 className="typo-section-title mt-3">부모님도, 가족도 어렵지 않아요.</h2>
           </div>
 
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
@@ -97,7 +99,7 @@ export default function SimpleLandingPage() {
       <section className="bg-[#184C36] px-5 py-14 text-center text-white sm:px-8 sm:py-[72px]">
         <div className="mx-auto max-w-[720px]">
           <HeartHandshake className="mx-auto text-[#BDE1C8]" size={48} aria-hidden />
-          <h2 className="mt-5 text-[clamp(2rem,7vw,3.2rem)] font-black leading-[1.25]">
+          <h2 className="typo-section-title mt-5 text-white">
             부모님의 평소 생활,<br />오늘안부가 조용히 살펴봅니다.
           </h2>
           <MainCta light />
@@ -142,7 +144,7 @@ function MainCta({ light = false, className = "" }: { light?: boolean; className
       href="/start"
       className={`mx-auto mt-7 flex min-h-[70px] w-full max-w-[380px] items-center justify-center gap-2 rounded-2xl px-7 text-[1.3rem] font-black shadow-[0_14px_30px_rgba(31,107,72,.18)] focus:outline-none focus:ring-4 focus:ring-[#F2A06B] ${light ? "bg-white text-[#184C36]" : "bg-[#1F6B48] text-white"} ${className}`}
     >
-      우리 가족 시작하기 <ArrowRight size={24} aria-hidden />
+      가족과 시작하기 <ArrowRight size={24} aria-hidden />
     </Link>
   );
 }
@@ -152,9 +154,9 @@ function RoleCard({ icon, title, items, tone }: { icon: React.ReactNode; title: 
     <article className={`rounded-[28px] border-2 p-6 sm:p-8 ${tone}`}>
       <div className="flex items-center gap-4">
         <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-white/70">{icon}</span>
-        <h3 className="text-[1.8rem] font-black text-[#17251F] sm:text-[2rem]">{title}</h3>
+        <h3 className="text-[1.65rem] font-bold text-[#17251F] sm:text-[1.85rem]">{title}</h3>
       </div>
-      <ul className="mt-7 grid gap-4 text-[1.2rem] font-black leading-8 text-[#33483E] sm:text-[1.35rem]">
+      <ul className="mt-5 grid gap-3 text-[1.18rem] font-medium leading-8 text-[#33483E] sm:text-[1.25rem]">
         {items.map((item) => <li key={item} className="flex items-start gap-3"><Check className="mt-1 shrink-0 text-[#367153]" size={24} strokeWidth={3} aria-hidden />{item}</li>)}
       </ul>
     </article>
