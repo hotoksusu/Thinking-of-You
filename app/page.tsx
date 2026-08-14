@@ -56,7 +56,7 @@ function LegacyLandingPage(){
 }
 
 function Header({compact}:{compact:boolean}){
-  return <header className="border-b border-[#E5EAE7] bg-white/95"><div className={`mx-auto flex min-h-[70px] items-center justify-between px-5 ${compact?"max-w-[760px]":"max-w-[1180px]"}`}><Link href="/" className="flex items-center gap-3 text-xl font-black"><Image src="/brand/brand-icon.png" alt="" width={40} height={40} className="rounded-xl"/>오늘안부</Link><nav className="hidden items-center gap-7 text-sm font-black text-[#56645D] md:flex"><Link href="/about">서비스 소개</Link><Link href="/privacy-simple">개인정보</Link><Link href="/family">로그인</Link></nav><Link href="/family" className="text-sm font-black text-[#3F6553] md:hidden">가족 화면</Link><button className="hidden" aria-label="메뉴 열기"><Menu/></button></div></header>
+  return <header className="border-b border-[#E5EAE7] bg-white/95"><div className={`mx-auto flex min-h-[70px] items-center justify-between px-5 ${compact?"max-w-[760px]":"max-w-[1180px]"}`}><Link href="/" className="flex items-center gap-3 text-xl font-black"><Image src="/brand/oneul-anbu-icon.png" alt="" width={40} height={40} className="rounded-xl"/>오늘안부</Link><nav className="hidden items-center gap-7 text-sm font-black text-[#56645D] md:flex"><Link href="/about">서비스 소개</Link><Link href="/privacy-simple">개인정보</Link><Link href="/family">로그인</Link></nav><Link href="/family" className="text-sm font-black text-[#3F6553] md:hidden">가족 화면</Link><button className="hidden" aria-label="메뉴 열기"><Menu/></button></div></header>
 }
 
 function LandingHero({start}:{start:()=>void}){

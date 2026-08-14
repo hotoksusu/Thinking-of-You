@@ -128,7 +128,7 @@ function Header() {
     <header className="border-b border-[#E4E8E2] bg-[#FFF9F0]/95">
       <div className="mx-auto flex min-h-[76px] max-w-[1180px] items-center justify-between px-5 sm:px-8">
         <Link href="/" className="flex min-h-12 items-center gap-3 text-xl font-black" aria-label="오늘안부 홈">
-          <Image src="/brand/brand-icon.png" alt="" width={44} height={44} className="rounded-xl" />오늘안부
+          <Image src="/brand/oneul-anbu-icon.png" alt="" width={44} height={44} className="rounded-xl" />오늘안부
         </Link>
         <Link href="/about" className="flex min-h-12 items-center px-2 text-base font-black text-[#40554B] sm:text-lg">사용 방법</Link>
       </div>

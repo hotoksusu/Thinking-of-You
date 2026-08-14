@@ -17,9 +17,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: { capable: true, title: "오늘안부", statusBarStyle: "default" },
   icons: {
-    shortcut: [{ url: "/icons/favicon-ansimi.ico" }],
-    icon: [{ url: "/icons/favicon-ansimi.ico", sizes: "64x64", type: "image/x-icon" },{ url: "/icons/ansimi-icon-192.png", sizes: "192x192", type: "image/png" },{ url: "/icons/ansimi-icon-512.png", sizes: "512x512", type: "image/png" }],
-    apple: [{ url: "/icons/ansimi-apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: [{ url: "/icons/favicon-v2.ico" }],
+    icon: [{ url: "/icons/favicon-v2.ico", sizes: "64x64", type: "image/x-icon" },{ url: "/icons/oneul-anbu-icon-192.png", sizes: "192x192", type: "image/png" },{ url: "/icons/oneul-anbu-icon-512.png", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/icons/oneul-anbu-apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
