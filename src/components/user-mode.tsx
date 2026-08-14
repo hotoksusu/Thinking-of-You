@@ -13,6 +13,7 @@ import {
   Footprints,
   HeartHandshake,
   Home,
+  HelpCircle,
   ImagePlus,
   Images,
   Leaf,
@@ -22,7 +23,6 @@ import {
   ShieldCheck,
   Sprout,
   TrendingUp,
-  UserRound,
   UsersRound,
   X,
 } from "lucide-react";
@@ -142,6 +142,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   const [familyConsent, setFamilyConsent] = useState<"undecided" | "sent" | "declined">("undecided");
   const [openMoment, setOpenMoment] = useState<FamilyTrace | null>(null);
   const [characterMotion, setCharacterMotion] = useState<AnsimiMotion>("subtle");
+  const [questionPending, setQuestionPending] = useState(false);
   const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
 
   useEffect(() => {
@@ -151,6 +152,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
       setTodayMood(history.find((item) => item.date === today)?.mood ?? null);
       setHasAnsweredToday(initialAnswered || readQuestionHistory().some((item) => item.answeredAt.slice(0, 10) === today));
       setCharacterMotion((window.localStorage.getItem(ANSIMI_MOTION_KEY) as AnsimiMotion | null) ?? "subtle");
+      setQuestionPending(window.localStorage.getItem("oneul-anbu-parent-question-pending") === "true");
     } catch {
       setTodayMood(null);
     }
@@ -331,10 +333,11 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
       <section className="px-5 pb-36">
         <div className="mx-auto max-w-[560px]">
           <section className="py-7">
-            <p className="text-lg font-black text-[#477052]">정희 어머니, 안녕하세요.</p>
-            <div className="mt-4 flex items-center gap-4"><AnsimiCharacter state={hasAnsweredToday ? "noTask" : "question"} motion="once" size="small" ariaLabel={hasAnsweredToday ? "편안히 쉬며 오늘 할 일이 없음을 안내하는 안심이" : "휴대폰으로 질문 하나를 안내하는 안심이"}/><h1 className="text-[1.75rem] font-black leading-[1.35]">{hasAnsweredToday ? "오늘은 하실 일이 없어요." : "오늘은 질문 하나만 부탁드릴게요."}</h1></div>
-            <p className="mt-3 text-lg font-bold leading-8 text-[#596A60]">{hasAnsweredToday ? "평소처럼 편안하게 하루를 보내세요." : "편한 답 하나를 눌러 주세요."}</p>
-            {!hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-4 text-lg font-bold leading-8 text-[#6B766F]">오늘은 답하지 않아도 괜찮습니다.</p></> : null}
+            <p className="text-lg font-black text-[#477052]">오늘안부</p>
+            <div className="mt-4 flex items-center gap-4"><AnsimiCharacter state={questionPending && !hasAnsweredToday ? "question" : "noTask"} motion="once" size="small" ariaLabel={questionPending && !hasAnsweredToday ? "질문 하나를 안내하는 안심이" : "평소처럼 생활해도 된다고 안내하는 안심이"}/><h1 className="text-[2rem] font-black leading-[1.3]">{questionPending && !hasAnsweredToday ? "오늘은 질문 하나만 부탁드릴게요." : "오늘도 평소처럼 잘 지내고 계세요."}</h1></div>
+            <p className="mt-3 text-xl font-bold leading-9 text-[#596A60]">{questionPending && !hasAnsweredToday ? "편한 답 하나를 눌러 주세요." : "따로 하실 일은 없습니다. 평소처럼 생활하시면 됩니다."}</p>
+            {questionPending && !hasAnsweredToday ? <><Link href="/app?role=parent&view=record" className="mt-6 flex min-h-[76px] items-center justify-center rounded-[24px] bg-[#2F6B46] px-7 text-[1.45rem] font-black text-white shadow-[0_18px_40px_rgba(47,107,70,0.24)] active:scale-[0.98]">질문에 답하기</Link><p className="mt-4 text-lg font-bold leading-8 text-[#6B766F]">오늘은 답하지 않아도 괜찮습니다.</p></> : <div className="mt-6 rounded-[24px] bg-[#EAF3E5] p-5"><p className="text-xl font-black text-[#285F3A]">가족과 연결되어 있어요.</p><p className="mt-2 text-lg font-bold leading-8 text-[#52635C]">필요한 변화가 있을 때만 가족이 확인할 수 있도록 도와드립니다.</p></div>}
+            <p className="mt-5 text-lg font-bold leading-8 text-[#6B766F]">하루 덜 걸었다고 바로 가족에게 알리지 않습니다. 여러 생활 변화를 함께 살펴봅니다.</p>
           </section>
 
           {moments[0] ? <section className="mt-3 overflow-hidden rounded-[28px] border border-[#DDE6DC] bg-white"><div className="p-6"><div className="flex flex-wrap items-center gap-2"><h2 className="text-[1.35rem] font-black">{withSubject(moments[0].sender)} {familyContentLabel(moments[0])}을 보냈어요.</h2>{moments[0].demo ? <span className="rounded-full bg-[#F1F3EF] px-3 py-1 text-base font-black text-[#4F6056]">체험 예시</span> : null}</div><p className="mt-4 text-lg font-black leading-8 text-[#37483E]">{moments[0].source === "summary" ? moments[0].title : `“${moments[0].title}”`}</p></div>{moments[0].imageUrl ? <button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="block w-full" aria-label={`${withSubject(moments[0].sender)} 보낸 사진 보기`}><img src={moments[0].imageUrl} alt={`${withSubject(moments[0].sender)} 보낸 사진`} className="aspect-[16/10] w-full object-contain bg-[#F4F1E9]" /></button> : null}<div className="p-5"><button type="button" onClick={() => { setOpenMoment(moments[0]); recordAnsimiEvent("family_content_opened", { kind: moments[0].kind }); }} className="flex min-h-[64px] w-full items-center justify-center rounded-2xl bg-[#2F6B46] px-5 text-xl font-black text-white">{familyContentAction(moments[0])}</button></div></section> : null}
@@ -660,11 +663,11 @@ function ServiceGuide({ role }: { role: ExperienceRole }) {
 }
 
 function ParentTopHeader() {
-  return <header className="border-b border-[#E1E8E0] bg-white/90 px-5 py-3"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-3"><img src="/brand/brand-icon.png?v=10" alt="" className="size-10 rounded-xl"/><div><p className="text-sm font-black text-[#68756D]">오늘안부</p><p className="text-lg font-black text-[#2F6B46]">오늘</p></div></div></header>;
+  return <header className="border-b border-[#E1E8E0] bg-white/90 px-5 py-3"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-2.5"><img src="/brand/oneul-anbu-icon.png" alt="" className="size-8 object-contain"/><div><p className="text-sm font-black text-[#68756D]">오늘안부</p><p className="text-lg font-black text-[#2F6B46]">오늘</p></div></div></header>;
 }
 
 function ParentSectionHeader({ title, topLevel = false, backHref = "/app?role=parent", backLabel = "오늘 화면으로" }: { title: string; topLevel?: boolean; backHref?: string; backLabel?: string }) {
-  return <header className="sticky top-0 z-20 border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 py-4 backdrop-blur"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-3">{topLevel ? <img src="/brand/brand-icon.png?v=10" alt="" className="size-10 rounded-xl"/> : <Link href={backHref} aria-label={backLabel} className="flex size-12 shrink-0 items-center justify-center rounded-full border border-[#D7E0D6] bg-white text-[#2F3D34] shadow-sm"><ArrowLeft size={25} /></Link>}<div><p className="text-sm font-black text-[#68756D]">오늘안부</p><h1 className="text-[1.45rem] font-black text-[#17221B]">{title}</h1></div></div></header>;
+  return <header className="sticky top-0 z-20 border-b border-[#DCE5DC] bg-[#F7F9F6]/95 px-5 py-4 backdrop-blur"><div className="mx-auto flex min-h-12 max-w-[560px] items-center gap-2.5">{topLevel ? <img src="/brand/oneul-anbu-icon.png" alt="" className="size-8 object-contain"/> : <Link href={backHref} aria-label={backLabel} className="flex size-12 shrink-0 items-center justify-center rounded-full border border-[#D7E0D6] bg-white text-[#2F3D34] shadow-sm"><ArrowLeft size={25} /></Link>}<div><p className="text-sm font-black text-[#68756D]">오늘안부</p><h1 className="text-[1.45rem] font-black text-[#17221B]">{title}</h1></div></div></header>;
 }
 
 function FamilySectionHeader({ title }: { title: string }) {
@@ -692,9 +695,9 @@ function ParentBottomNavigation({ active }: { active: ParentView }) {
   const tabs = [
     { id: "home" as const, label: "오늘", href: "/app?role=parent", icon: Home },
     { id: "photos" as const, label: "가족", href: "/app?role=parent&view=photos", icon: Images },
-    { id: "profile" as const, label: "설정", href: "/app?role=parent&view=profile", icon: UserRound },
+    { id: "guide" as const, label: "도움", href: "/app?role=parent&view=guide", icon: HelpCircle },
   ];
-  return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-3 gap-2">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home") || (active === "guide" && tab.id === "home") || (active === "farm" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-lg font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={28} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
+  return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-3 gap-2">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home") || (active === "farm" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-lg font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={28} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
 }
 
 function FamilyBottomNavigation({ active }: { active: FamilyView }) {

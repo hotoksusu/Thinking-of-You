@@ -38,7 +38,7 @@ export default function FamilyOnboardingPage() {
 
   return (
     <main className="onboarding-page bg-[#F7F9F6] px-5 text-[#17251F]">
-      <header className="mx-auto flex min-h-16 w-full max-w-[560px] shrink-0 items-center justify-center gap-2 border-b border-[#E1E8E1] text-xl font-black text-[#48634F]"><Image src="/brand/brand-icon.png" alt="" width={34} height={34} className="rounded-xl" />오늘안부 가족</header>
+      <header className="mx-auto flex min-h-16 w-full max-w-[560px] shrink-0 items-center justify-center gap-2 border-b border-[#E1E8E1] text-xl font-black text-[#48634F]"><Image src="/brand/oneul-anbu-icon.png" alt="" width={32} height={32} className="object-contain" />오늘안부 가족</header>
       <section className="mx-auto flex min-h-0 w-full max-w-[560px] flex-1 flex-col pt-4">
         <div className="shrink-0"><p className="text-sm font-black tracking-[0.08em] text-[#2F6B46]">STEP {step}</p><p className="mt-1 text-lg font-bold text-[#52635C]">{current.label}</p></div>
         <div key={step} className="completion-slide flex min-h-0 flex-1 flex-col items-center justify-center py-5 text-center">

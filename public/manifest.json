@@ -10,13 +10,13 @@
   "background_color": "#FFF9F0",
   "icons": [
     {
-      "src": "/icons/ansimi-icon-192.png",
+      "src": "/icons/oneul-anbu-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/ansimi-icon-512.png",
+      "src": "/icons/oneul-anbu-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

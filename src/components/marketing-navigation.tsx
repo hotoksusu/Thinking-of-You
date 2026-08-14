@@ -19,7 +19,7 @@ export function MarketingHeader({ compact = false }: { compact?: boolean }) {
     <header className={`sticky top-0 z-50 shrink-0 border-b border-[#E5E8E1] bg-[#FFF9F0]/95 backdrop-blur ${compact ? "onboarding-header" : ""}`}>
       <div className={`mx-auto flex w-full max-w-[1200px] items-center justify-between px-5 sm:px-8 ${compact ? "min-h-14 gap-3 sm:min-h-16" : "min-h-20 gap-5"}`}>
         <Link href="/" className={`flex shrink-0 items-center font-black text-[#52725B] ${compact ? "min-h-11 gap-2 text-xl" : "min-h-14 gap-3 text-2xl"}`}>
-          <Image src="/brand/brand-icon.png" alt="" width={compact ? 34 : 44} height={compact ? 34 : 44} className="rounded-xl" />
+          <Image src="/brand/oneul-anbu-icon.png" alt="" width={compact ? 30 : 34} height={compact ? 30 : 34} className="object-contain" />
           오늘안부
         </Link>
 

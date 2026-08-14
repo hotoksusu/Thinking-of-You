@@ -102,7 +102,7 @@ function OnboardingFlow() {
           </div>
           <div key={`${role}-${step}`} className="completion-slide mt-4">
             <div className="flex items-start gap-3">
-              <img src="/brand/brand-icon.png?v=10" alt="" className="size-12 rounded-2xl object-cover" />
+              <img src="/brand/oneul-anbu-icon.png" alt="" className="size-9 object-contain" />
               <div className="rounded-[6px_22px_22px_22px] bg-[#EEF4EA] px-5 py-4 text-lg font-black text-[#315B3D]">하나씩 알려드릴게요.</div>
             </div>
             {role === "parent" ? <ParentStep step={step} invited={invited} onNext={next} onFinish={finish} /> : <FamilyStep step={step} purposes={purposes} relation={relation} method={method} onTogglePurpose={togglePurpose} onRelation={setRelation} onMethod={setMethod} onNext={next} onFinish={finish} />}
