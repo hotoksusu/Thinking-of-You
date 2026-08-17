@@ -14,10 +14,10 @@ import {
   HeartHandshake,
   Hospital,
   Home,
-  HelpCircle,
   ImagePlus,
   Images,
   Leaf,
+  MoreHorizontal,
   PackageOpen,
   Phone,
   Settings,
@@ -36,8 +36,9 @@ import { experienceCopy, type ExperienceMode } from "@/lib/experience-mode";
 import { readQuestionHistory } from "@/lib/daily-questions";
 import { ANSIMI_MOTION_KEY, moodDialogue, recordAnsimiEvent, type AnsimiMotion } from "@/lib/ansimi-dialogue";
 import { PRODUCT_COPY } from "@/lib/product-copy";
+import { HospitalMode } from "@/components/hospital-mode";
 
-type ExperienceRole = "parent" | "family";
+type ExperienceRole = "parent" | "family" | "hospital";
 type MoodKey = "good" | "okay" | "tired" | "difficult";
 type MoodResponse = {
   icon: string;
@@ -56,6 +57,16 @@ type MoodResponse = {
 };
 type ParentView = "home" | "record" | "photos" | "farm" | "profile" | "guide";
 type FamilyView = "home" | "reassurance" | "changes" | "compose" | "farm" | "profile" | "guide";
+type ParentReaction = {
+  event: "parent_reaction";
+  family_message_seen: true;
+  moment_id: string;
+  sender: string;
+  parent_reaction: "heart";
+  reaction_at: string;
+};
+
+const PARENT_REACTION_KEY = "oneul-anbu-parent-reaction";
 
 const moodResponses: Record<MoodKey, MoodResponse> = {
   good: { icon: "😊", label: "좋아요", title: "오늘 기분이 좋으셨군요.", description: "좋은 하루를 알려주셔서 고마워요.", tone: "bg-[#FFF8E8]", iconTone: "bg-[#FFF0C7]", farmMessage: ["토마토가 따뜻한 햇빛을 받았어요."], primaryLabel: "오늘 자란 농장 보기", primaryTarget: "/farm", familyNotifyMode: "none", animation: "farm-seed-pop" },
@@ -84,19 +95,23 @@ export function UserMode({
   initialRole,
   initialParentView = "home",
   initialFamilyView = "home",
+  initialHospitalView = "dashboard",
+  initialPatientId,
   initialAnswered = false,
 }: {
   initialRegistered: boolean;
   initialRole?: ExperienceRole;
   initialParentView?: ParentView;
   initialFamilyView?: FamilyView;
+  initialHospitalView?: "dashboard" | "patient";
+  initialPatientId?: string;
   initialAnswered?: boolean;
 }) {
   const [role, setRole] = useState<ExperienceRole | null>(initialRole ?? null);
   const [moments, setMoments] = useState<FamilyTrace[]>(familyTraces);
 
   if (!role) return <RoleSelect onSelect={setRole} />;
-  return role === "parent" ? (
+  return role === "hospital" ? <HospitalMode view={initialHospitalView} patientId={initialPatientId} /> : role === "parent" ? (
     <ParentHome moments={moments} initialView={initialParentView} initialAnswered={initialAnswered} />
   ) : (
     <FamilyHome moments={moments} initialView={initialFamilyView} onAddMoment={(moment) => setMoments((current) => [moment, ...current])} />
@@ -112,9 +127,10 @@ function RoleSelect({ onSelect }: { onSelect: (role: ExperienceRole) => void }) 
           <h1 className="text-[2.15rem] font-black leading-tight sm:text-5xl">누가 시작하시나요?</h1>
           <p className="mt-3 text-lg font-semibold text-[#657069]">사용할 화면을 선택해 주세요.</p>
         </section>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <RoleCard icon={<Leaf />} role="부모님" description="평소처럼 생활하고 가족 소식과 농장을 확인해요." actionLabel="부모님으로 시작하기" onClick={() => onSelect("parent")} />
+        <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <RoleCard icon={<Leaf />} role="퇴원환자" description="평소처럼 생활하며 필요한 안내만 확인해요." actionLabel="환자 화면 시작" onClick={() => onSelect("parent")} />
           <RoleCard icon={<HeartHandshake />} role="가족" description="오늘의 안심과 생활 변화를 확인하고 소식을 남겨요." actionLabel="가족으로 시작하기" onClick={() => onSelect("family")} />
+          <RoleCard icon={<ShieldCheck />} role="병원" description="확인이 필요한 퇴원환자를 먼저 살펴봐요." actionLabel="병원 화면 시작" onClick={() => onSelect("hospital")} />
         </div>
       </div>
     </main>
@@ -144,6 +160,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   const [openMoment, setOpenMoment] = useState<FamilyTrace | null>(null);
   const [characterMotion, setCharacterMotion] = useState<AnsimiMotion>("subtle");
   const [questionPending, setQuestionPending] = useState(false);
+  const [parentReaction, setParentReaction] = useState<ParentReaction | null>(null);
   const response = selectedMood ? moodResponses[selectedMood] : moodResponses.okay;
 
   useEffect(() => {
@@ -154,6 +171,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
       setHasAnsweredToday(initialAnswered || readQuestionHistory().some((item) => item.answeredAt.slice(0, 10) === today));
       setCharacterMotion((window.localStorage.getItem(ANSIMI_MOTION_KEY) as AnsimiMotion | null) ?? "subtle");
       setQuestionPending(window.localStorage.getItem("oneul-anbu-parent-question-pending") === "true");
+      setParentReaction(JSON.parse(window.localStorage.getItem(PARENT_REACTION_KEY) ?? "null") as ParentReaction | null);
     } catch {
       setTodayMood(null);
     }
@@ -188,6 +206,20 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
     setCharacterMotion(next);
     window.dispatchEvent(new Event("ansimi-motion-change"));
     recordAnsimiEvent("ansimi_motion_preference_changed", { mode: next });
+  }
+
+  function sendHeart(moment: FamilyTrace) {
+    const reaction: ParentReaction = {
+      event: "parent_reaction",
+      family_message_seen: true,
+      moment_id: moment.id,
+      sender: moment.sender,
+      parent_reaction: "heart",
+      reaction_at: new Date().toISOString(),
+    };
+    window.localStorage.setItem(PARENT_REACTION_KEY, JSON.stringify(reaction));
+    setParentReaction(reaction);
+    recordAnsimiEvent("parent_reaction", { momentId: moment.id, reaction: "heart" });
   }
 
   if (checkInStep === "done") {
@@ -234,6 +266,11 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
             <div className="flex items-center gap-4"><AnsimiCharacter state="familyPhoto" motion="once" size="small" ariaLabel="가족 사진이 도착했음을 안내하는 안심이"/><p className="text-xl font-black leading-8 text-[#37433D]">지은이가 보낸 사진과 말을<br />편하게 보세요.</p></div>
+            <section className="mt-6 flex items-center gap-4 rounded-[24px] bg-[#EAF3E5] p-5">
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-white text-2xl" aria-hidden>👩</span>
+              <div className="min-w-0 flex-1"><h2 className="text-xl font-bold">지은</h2><p className="mt-1 text-lg font-medium text-[#52635C]">딸</p></div>
+              <a href="tel:" className="flex min-h-[60px] items-center gap-2 rounded-2xl bg-[#2F6B46] px-5 text-lg font-bold text-white"><Phone size={22} /> 전화하기</a>
+            </section>
             <div className="mt-6 grid gap-6">
               {moments.map((moment, index) => (
                 <article key={moment.id} className="overflow-hidden rounded-[30px] border border-[#DDE6DC] bg-white">
@@ -269,18 +306,19 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
   if (initialView === "profile") {
     return (
       <AppFrame role="parent" active="profile">
-        <ParentSectionHeader title="설정" topLevel />
+        <ParentSectionHeader title="더보기" topLevel />
         <section className="px-5 pb-36 pt-7">
           <div className="mx-auto max-w-[560px]">
             <section className="rounded-[28px] bg-white p-6 shadow-[0_16px_42px_rgba(49,78,58,0.08)]">
               <div className="flex items-center gap-4"><span className="flex size-20 items-center justify-center rounded-full bg-[#FFF0E6] text-[2.5rem]">👩</span><div><p className="text-[1.55rem] font-black">김정희님</p><p className="mt-2 text-lg font-bold text-[#69736D]">오늘안부를 사용 중이에요</p></div></div>
             </section>
             <div className="mt-5 grid gap-4">
-              <SettingLink href="/settings/privacy" icon={<ShieldCheck />} title="내 정보는 내가 정합니다" description="연결 정보와 공유 내용을 확인해요." tone="parent" />
-              <SettingLink href="/family/members" icon={<UsersRound />} title="가족 연결" description="연결된 가족을 보거나 해제해요." tone="parent" />
-              <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 시간" description="질문을 받을 시간을 정해요." tone="parent" />
+              <SettingLink href="tel:" icon={<Phone />} title="가족 연락하기" description="연결된 가족에게 전화해요." tone="parent" />
+              <SettingLink href="/app?role=parent&view=guide" icon={<Leaf />} title="오늘안부 사용방법" description="사용 방법을 다시 확인해요." tone="parent" />
+              <SettingLink href="/permissions" icon={<UsersRound />} title="연결 상태" description="가족과 생활 정보 연결을 확인해요." tone="parent" />
+              <SettingLink href="/settings/notifications" icon={<Bell />} title="알림 설정" description="알림 받을 시간을 정해요." tone="parent" />
+              <SettingLink href="/settings/privacy" icon={<ShieldCheck />} title="개인정보 및 데이터 안내" description="연결 정보와 공유 내용을 확인해요." tone="parent" />
               <button type="button" role="switch" aria-checked={characterMotion === "static"} onClick={toggleCharacterMotion} className="flex min-h-[88px] items-center gap-4 rounded-[22px] bg-white p-5 text-left shadow-[0_10px_30px_rgba(49,78,58,0.06)]"><span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#EAF3E9] text-[#2F6B46]"><Leaf /></span><span className="min-w-0 flex-1"><strong className="block text-lg">캐릭터 움직임 줄이기</strong><small className="mt-1 block font-semibold leading-5 text-[#737C75]">{characterMotion === "static" ? "움직임을 줄이고 있어요." : "필요한 순간에 한 번만 움직여요."}</small></span><span className={`h-8 w-14 rounded-full p-1 ${characterMotion === "static" ? "bg-[#2F6B46]" : "bg-[#C9D2C9]"}`} aria-hidden><span className={`block size-6 rounded-full bg-white transition-transform ${characterMotion === "static" ? "translate-x-6" : ""}`}/></span></button>
-              <SettingLink href="/app?role=parent&view=guide" icon={<Leaf />} title="오늘안부 이용 안내" description="주요 서비스를 다시 볼 수 있어요." tone="parent" />
               <SettingLink href="mailto:hello@oneulanbu.kr" icon={<Phone />} title="문의하기" description="궁금한 점을 물어보세요." tone="parent" />
             </div>
           </div>
@@ -291,7 +329,7 @@ function ParentHome({ moments, initialView, initialAnswered }: { moments: Family
 
   if (initialView === "guide") {
     return (
-      <AppFrame role="parent" active="home">
+      <AppFrame role="parent" active="profile">
         <ParentSectionHeader title="오늘안부 이용 안내" backHref="/app?role=parent&view=profile" backLabel="설정으로" />
         <ServiceGuide role="parent" />
       </AppFrame>
@@ -349,7 +387,7 @@ function formatFamilyTime(createdAt: string) {
 }
 
 function FamilyContentDialog({ moment, onClose }: { moment: FamilyTrace; onClose: () => void }) {
-  return <div className="fixed inset-0 z-[80] flex items-end bg-black/55 p-3 sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="family-content-title" className="mx-auto max-h-[90dvh] w-full max-w-[620px] overflow-y-auto rounded-[28px] bg-white p-5" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between gap-4"><h2 id="family-content-title" className="text-2xl font-black">{withSubject(moment.sender)} 보낸 {familyContentLabel(moment)}</h2><button type="button" onClick={onClose} aria-label="닫기" className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#EEF2EC]"><X size={26} /></button></div>{moment.imageUrl ? <img src={moment.imageUrl} alt={`${withSubject(moment.sender)} 보낸 ${familyContentLabel(moment)}`} className="mt-5 max-h-[55dvh] w-full rounded-2xl bg-[#F4F1E9] object-contain" /> : null}<p className="mt-5 text-xl font-black leading-[1.65]">{moment.source === "summary" ? moment.title : `“${moment.title}”`}</p>{moment.source === "summary" ? <p className="mt-3 text-base font-bold text-[#69756D]">오늘안부가 정리한 내용입니다.</p> : null}<button type="button" onClick={onClose} className="mt-6 min-h-[56px] w-full rounded-2xl bg-[#2F6B46] text-lg font-black text-white">다 봤어요</button></section></div>;
+  return <div className="fixed inset-0 z-[80] flex items-end bg-black/55 p-3 sm:items-center" onClick={onClose}><section role="dialog" aria-modal="true" aria-labelledby="family-content-title" className="mx-auto max-h-[90dvh] w-full max-w-[620px] overflow-y-auto rounded-[28px] bg-white p-5" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between gap-4"><h2 id="family-content-title" className="text-2xl font-black">{withSubject(moment.sender)} 보낸 {familyContentLabel(moment)}</h2><button type="button" onClick={onClose} aria-label="사진 닫기" className="flex min-h-[56px] shrink-0 items-center gap-1 rounded-2xl bg-[#EEF2EC] px-4 text-lg font-bold text-[#2C4437]"><X size={24} /> 닫기</button></div>{moment.imageUrl ? <img src={moment.imageUrl} alt={`${withSubject(moment.sender)} 보낸 ${familyContentLabel(moment)}`} className="mt-5 max-h-[55dvh] w-full rounded-2xl bg-[#F4F1E9] object-contain" /> : null}<p className="mt-5 text-xl font-semibold leading-[1.65]">{moment.source === "summary" ? moment.title : `“${moment.title}”`}</p>{moment.source === "summary" ? <p className="mt-3 text-base font-bold text-[#69756D]">오늘안부가 정리한 내용입니다.</p> : null}<button type="button" onClick={onClose} className="mt-6 min-h-[68px] w-full rounded-2xl bg-[#2F6B46] px-5 text-xl font-bold text-white">오늘 화면으로 돌아가기</button></section></div>;
 }
 
 function MoodPicker({ selectedMood, onSelect, onDone }: { selectedMood: MoodKey | null; onSelect: (mood: MoodKey) => void; onDone: () => void }) {
@@ -380,6 +418,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
   const [questionSummary, setQuestionSummary] = useState<{ title: string; detail: string; weekly: string[] } | null>(null);
   const [demoState, setDemoState] = useState<"usual" | "change" | "learning">("usual");
   const [showCallConfirm, setShowCallConfirm] = useState(false);
+  const [parentReaction, setParentReaction] = useState<ParentReaction | null>(null);
   const experienceMode: ExperienceMode = demoState === "learning" ? "learning" : "demo";
   const experience = experienceCopy[experienceMode];
   const demoView = demoState === "usual"
@@ -392,6 +431,7 @@ function FamilyHome({ moments, initialView, onAddMoment }: { moments: FamilyTrac
     try {
       const saved = JSON.parse(window.localStorage.getItem("oneul-anbu-family-gentle-alert") ?? "null") as { message?: string } | null;
       setFamilyMoodAlert(saved?.message ?? null);
+      setParentReaction(JSON.parse(window.localStorage.getItem(PARENT_REACTION_KEY) ?? "null") as ParentReaction | null);
       const answers = readQuestionHistory().filter((answer) => !answer.skipped);
       const today = new Date().toISOString().slice(0, 10);
       const todayAnswer = [...answers].reverse().find((answer) => answer.answeredAt.slice(0, 10) === today);
@@ -668,7 +708,7 @@ function ParentBottomNavigation({ active }: { active: ParentView }) {
   const tabs = [
     { id: "home" as const, label: "오늘", href: "/app?role=parent", icon: Home },
     { id: "photos" as const, label: "가족", href: "/app?role=parent&view=photos", icon: Images },
-    { id: "guide" as const, label: "도움", href: "/app?role=parent&view=guide", icon: HelpCircle },
+    { id: "profile" as const, label: "더보기", href: "/app?role=parent&view=profile", icon: MoreHorizontal },
   ];
   return <nav aria-label="부모님 메뉴" className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[720px] border-t border-[#D8E2D8] bg-white/95 px-2 pb-[max(0.65rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(55,72,55,0.1)] backdrop-blur"><div className="grid grid-cols-3 gap-2">{tabs.map((tab) => { const Icon = tab.icon; const selected = active === tab.id || (active === "record" && tab.id === "home") || (active === "farm" && tab.id === "home"); return <Link key={tab.id} href={tab.href} aria-current={selected ? "page" : undefined} className={`flex min-h-[72px] flex-col items-center justify-center gap-1 rounded-2xl px-1 text-lg font-black leading-tight ${selected ? "bg-[#FFF0E6] text-[#D95423]" : "text-[#526059]"}`}><Icon size={28} strokeWidth={selected ? 2.8 : 2.2} /><span className="whitespace-nowrap">{tab.label}</span></Link>; })}</div></nav>;
 }
@@ -711,5 +751,5 @@ function Brand() {
 }
 
 function AppFrame({ children, role, active, hideNavigation = false }: { children: React.ReactNode; role: ExperienceRole; active: ParentView | FamilyView; hideNavigation?: boolean }) {
-  return <main className={`app-frame min-h-screen bg-[#F7F9F6] text-[#17221B] ${hideNavigation ? "" : "has-bottom-nav"}`}>{children}{hideNavigation ? null : role === "parent" ? <ParentBottomNavigation active={active as ParentView} /> : <FamilyBottomNavigation active={active as FamilyView} />}</main>;
+  return <main className={`app-frame min-h-screen bg-[#F7F9F6] text-[#17221B] ${role === "parent" ? "senior-parent-mode" : ""} ${hideNavigation ? "" : "has-bottom-nav"}`}>{children}{hideNavigation ? null : role === "parent" ? <ParentBottomNavigation active={active as ParentView} /> : <FamilyBottomNavigation active={active as FamilyView} />}</main>;
 }

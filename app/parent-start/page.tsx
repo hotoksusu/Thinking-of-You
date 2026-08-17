@@ -24,7 +24,7 @@ export default function ParentStartPage() {
     router.push("/app?role=parent&answered=1");
   }
 
-  return <main className="min-h-[100dvh] bg-[#FFF9F0] text-[#1D2D27]">
+  return <main className="senior-parent-mode min-h-[100dvh] bg-[#FFF9F0] text-[#1D2D27]">
     <header className="border-b border-[#DFE6DC] bg-white">
       <div className="mx-auto flex min-h-[72px] max-w-[680px] items-center gap-3 px-4">
         <Link href="/" className="flex min-h-12 items-center gap-2 text-xl font-black text-[#315B3D]"><Home size={22} /> 오늘안부</Link>

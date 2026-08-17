@@ -98,6 +98,99 @@
   --background: var(--color-background);
   --foreground: var(--color-text);
   --onboarding-vh: 100svh;
+  --font-display: clamp(2rem, 4.1vw, 3.5rem);
+  --font-section-title: clamp(1.75rem, 3.2vw, 2.5rem);
+  --font-state: clamp(1.65rem, 3vw, 2rem);
+  --font-body-readable: clamp(1.19rem, 1.5vw, 1.31rem);
+  --font-support-readable: clamp(1.06rem, 1.2vw, 1.13rem);
+  --touch-target-senior: 60px;
+}
+
+.typo-display {
+  max-width: 800px;
+  font-size: var(--font-display);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.typo-section-title {
+  font-size: var(--font-section-title);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.typo-state {
+  font-size: var(--font-state);
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.typo-body-readable {
+  max-width: 640px;
+  font-size: var(--font-body-readable);
+  font-weight: 500;
+  line-height: 1.6;
+  color: #364940;
+}
+
+.typo-support-readable {
+  font-size: var(--font-support-readable);
+  font-weight: 500;
+  line-height: 1.55;
+  color: #4b5c53;
+}
+
+.typo-label {
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.senior-parent-mode {
+  --font-body-senior: 1.25rem;
+  --font-label-senior: 1.125rem;
+  --touch-target-senior: 64px;
+}
+
+.senior-parent-mode :where(p, li) {
+  color: #43544b;
+}
+
+.senior-parent-mode :where(.text-sm, .text-xs, small) {
+  font-size: var(--font-label-senior);
+  line-height: 1.5;
+}
+
+.senior-parent-mode :where(.text-base) {
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+.senior-parent-mode :where(.text-lg) {
+  font-size: var(--font-body-senior);
+  line-height: 1.6;
+}
+
+.senior-parent-mode :where(button, a) {
+  min-height: var(--touch-target-senior);
+}
+
+@media (max-width: 430px) {
+  :root {
+    --font-display: clamp(2rem, 8.9vw, 2.25rem);
+    --font-section-title: clamp(1.72rem, 7.5vw, 1.9rem);
+    --font-state: clamp(1.55rem, 6.8vw, 1.78rem);
+  }
+
+  .typo-display {
+    line-height: 1.25;
+  }
 }
 
 .onboarding-page {
