@@ -6,11 +6,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://oneul-anbu.yos1015.chatgpt.site"),
   applicationName: "오늘안부",
-  title: "오늘안부 Care | 퇴원 후 생활변화 모니터링",
-  description: "퇴원한 고령자의 생활 변화를 개인의 평소와 비교하고 가족 확인과 Care Report로 연결합니다.",
+  title: "오늘안부 Care | 정형외과 퇴원환자 Pilot",
+  description: "정형외과 수술 후 퇴원환자의 활동과 생활 변화를 기록해 병원의 관리 우선순위 판단을 지원합니다.",
   openGraph: {
     title: "오늘안부 Care",
-    description: "퇴원 후 집에서의 생활 변화까지 살펴봅니다.",
+    description: "퇴원 후 생활 변화를 확인하고, 먼저 살펴볼 환자를 알려드립니다.",
     images: [{ url: "/og-brand-v3.png", width: 1200, height: 630, alt: "매일 연락하지 못해도 평소와 다른 변화는 놓치지 않도록, 오늘안부" }],
   },
   manifest: "/manifest.json",
