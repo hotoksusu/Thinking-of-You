@@ -1,2 +1,2 @@
-import { PatientApp } from "@/components/platform-demo";
-export default function Page(){return <PatientApp/>}
+import { PatientJourneyApp } from "@/components/patient-journey-app";
+export default function Page(){return <PatientJourneyApp/>}
