@@ -7,11 +7,11 @@ import "./onboarding.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://oneul-anbu.yos1015.chatgpt.site"),
   applicationName: "오늘안부",
-  title: "오늘안부 Care | 정형외과 퇴원환자 Pilot",
-  description: "정형외과 수술 후 퇴원환자의 활동과 생활 변화를 기록해 병원의 관리 우선순위 판단을 지원합니다.",
+  title: "오늘안부 | AI Patient Journey Platform",
+  description: "진료와 다음 진료 사이의 Patient Care Gap을 연결하는 병원용 AI Patient Journey Platform입니다.",
   openGraph: {
-    title: "오늘안부 Care",
-    description: "퇴원 후 생활 변화를 확인하고, 먼저 살펴볼 환자를 알려드립니다.",
+    title: "오늘안부 · AI Patient Journey Platform",
+    description: "치료는 병원 밖에서도 계속됩니다. 환자에게는 오늘 할 일을, 병원에는 오늘 볼 환자를 알려드립니다.",
     images: [{ url: "/og-brand-v3.png", width: 1200, height: 630, alt: "매일 연락하지 못해도 평소와 다른 변화는 놓치지 않도록, 오늘안부" }],
   },
   manifest: "/manifest.json",
