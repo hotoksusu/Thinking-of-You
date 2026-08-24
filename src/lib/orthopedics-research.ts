@@ -8,6 +8,7 @@ export type ResearchResponse = {
   workflowPainPoints: string[]; patientUxScore?: number; checkinUsefulnessScore?: number;
   unnecessaryQuestions: string[]; missingQuestions?: string; caseResponses: CaseResponse[]; importantSignals: string[];
   dashboardFirstFocus?: string; dashboardPriorityScore?: number; dashboardReasonScore?: number; dashboardMissingInfo?: string;
+  painDecisionPriority?: string; painScaleAppropriateness?: number; importantConcerns?: string[]; trendUsefulnessScore?: number;
   followupAdequacy?: string; followupMissing?: string; handlerVisibility?: string; doctorEscalation?: string;
   expectedOperator?: string; manageableAlerts?: string; acceptableHandlingTime?: string;
   adoptionReasons: string[]; nonAdoptionReason?: string; pilotInterest?: string;
@@ -39,7 +40,7 @@ export const SEED_RESPONSES:ResearchResponse[]=Array.from({length:10},(_,i)=>({
   currentWorkflow:["예정된 외래에서 확인","병원에서 전화"],contactFrequency:i%2?"가끔 있다":"거의 없다",criticalPeriod:"퇴원 후 1~3일",
   workflowPainPoints:["모든 환자에게 연락하기 어렵다","누가 먼저 확인이 필요한지 알기 어렵다"],patientUxScore:3+(i%3),checkinUsefulnessScore:4+(i%2),unnecessaryQuestions:i%4===0?["추가 불편"]:[],missingQuestions:i%3===0?"수술부위 상태":"",
   caseResponses:CASES.map((c,j)=>({caseId:c.id,displayOrder:j+1,decision:decisions[i%4][j],reason:j===1?"통증과 움직임 변화가 함께 보여 확인이 필요합니다.":"퇴원 경과와 변화 추이를 함께 봅니다."})),
-  importantSignals:["통증 변화","수술부위 상태","부종"].slice(0,2+(i%2)),dashboardFirstFocus:i%2?"오늘 확인 필요 환자":"미응답 환자",dashboardPriorityScore:4+(i%2),dashboardReasonScore:3+(i%3),dashboardMissingInfo:i%3===0?"이전 기록과의 변화":"",
+  importantSignals:["통증 변화","수술부위 상태","부종"].slice(0,2+(i%2)),dashboardFirstFocus:i%2?"오늘 확인 필요 환자":"미응답 환자",dashboardPriorityScore:4+(i%2),dashboardReasonScore:3+(i%3),dashboardMissingInfo:i%3===0?"이전 기록과의 변화":"",painDecisionPriority:["통증 절대값","전일 대비 변화","최근 며칠간 추세"][i%3],painScaleAppropriateness:4+(i%2),importantConcerns:["붓기","수술부위","보행"],trendUsefulnessScore:4+(i%2),
   followupAdequacy:i%3===0?"일부 수정이 필요하다":"충분하다",followupMissing:i%3===0?"담당자와 다음 확인 예정일":"",handlerVisibility:"반드시 필요",doctorEscalation:i%2?"반드시 필요":"있으면 좋음",
   expectedOperator:["외래 간호사","코디네이터","별도 환자관리 담당자"][i%3],manageableAlerts:["1~5명","6~10명","11~15명"][i%3],acceptableHandlingTime:"1~3분",
   adoptionReasons:["확인이 필요한 환자 선별","전화업무 효율화"],nonAdoptionReason:i%2?"EMR과 별도 업무가 생길 수 있습니다.":"담당 인력을 정하기 어렵습니다.",pilotInterest:["관심 있음","조금 더 알아보고 싶음","현재는 관심 없음"][i%3]
