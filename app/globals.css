@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .primary { @apply mt-7 flex min-h-[64px] w-full items-center justify-center gap-2 rounded-2xl bg-[#315E50] px-5 text-center text-xl font-black text-white; }
+  .secondary { @apply mt-4 flex min-h-[60px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-[#315E50] px-5 text-center text-lg font-black text-[#315E50]; }
+}
+
 .senior-landing { min-height: 100vh; min-height: 100dvh; background: #fffaf2; color: #17251f; word-break: keep-all; overflow-wrap: break-word; }
 .senior-landing :where(h1,h2,h3) { text-wrap: balance; overflow-wrap: normal; }
 .senior-header { border-bottom: 1px solid #dfe5dc; background: rgba(255,250,242,.96); }

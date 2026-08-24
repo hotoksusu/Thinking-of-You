@@ -1,1 +1,2 @@
-export { default } from "../../care/patient/page";
+import { PatientCareMvp } from "@/components/patient-care-mvp";
+export default function Page(){return <PatientCareMvp mode="home"/>}

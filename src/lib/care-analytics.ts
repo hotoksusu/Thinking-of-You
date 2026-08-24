@@ -1,0 +1,2 @@
+export type CareEvent = "patient_invited"|"patient_onboarding_started"|"patient_onboarding_completed"|"checkin_started"|"checkin_completed"|"patient_status_changed"|"hospital_patient_opened"|"followup_started"|"followup_completed";
+export function trackCareEvent(name:CareEvent,properties:Record<string,unknown>={}){if(typeof window==="undefined")return;window.dispatchEvent(new CustomEvent("todayanbu:analytics",{detail:{name,...properties,at:new Date().toISOString()}}));}
