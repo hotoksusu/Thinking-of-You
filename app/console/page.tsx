@@ -1,3 +1,2 @@
-import { HospitalConsole } from "@/components/platform-demo";
-import Link from "next/link";
-export default function Page(){return <><HospitalConsole/><nav aria-label="Care CRM 빠른 메뉴" className="fixed bottom-5 right-5 z-[70] hidden gap-2 xl:flex"><Link href="/care/hospital/register" className="rounded-xl bg-white px-4 py-3 text-sm font-black text-[#315E50] shadow-lg">환자 등록</Link><Link href="/care/protocols" className="rounded-xl bg-white px-4 py-3 text-sm font-black text-[#315E50] shadow-lg">회복관리</Link><Link href="/care/management" className="rounded-xl bg-[#315E50] px-4 py-3 text-sm font-black text-white shadow-lg">병원 성과</Link></nav></>}
+import { HospitalMvp } from "@/components/hospital-mvp";
+export default function Page(){return <HospitalMvp/>}
