@@ -90,6 +90,7 @@ function AdminDashboard() {
             <span className="rounded-full bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800">
               데모 데이터
             </span>
+            <Link href="/admin/analytics" className="rounded-xl bg-teal-700 px-4 py-3 text-sm font-black text-white">Care 운영 지표</Link>
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
