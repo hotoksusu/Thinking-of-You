@@ -2,7 +2,7 @@ import type {Metadata} from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {Activity,ArrowDown,ArrowRight,Building2,CheckCircle2,ClipboardCheck,Database,HeartPulse,ShieldCheck,Stethoscope,UserRound} from "lucide-react";
-export const metadata:Metadata={title:"오늘안부 Care | 정형외과 퇴원환자 회복관리 플랫폼",description:"정형외과 수술환자의 퇴원 후 회복 변화를 기록하고, 병원이 먼저 확인할 환자를 찾도록 돕는 퇴원환자 관리 플랫폼 오늘안부 Care.",openGraph:{title:"오늘안부 Care | 정형외과 퇴원환자 회복관리 플랫폼",description:"수술 Context부터 퇴원 후 회복 변화와 병원 후속조치까지 연결합니다.",images:[{url:"/og.png",width:1200,height:630,alt:"오늘안부 Care"}]}};
+export const metadata:Metadata={title:"오늘안부 Care | 병원경영을 위한 퇴원환자 관리 Workflow",description:"퇴원 후 환자 상태 확인부터 병원의 후속관리까지 하나의 흐름으로 연결하는 B2B SaaS입니다.",openGraph:{title:"오늘안부 Care | 퇴원환자 관리 Workflow",description:"환자 상태 변화와 병원의 실제 후속관리를 하나의 흐름으로 연결합니다.",images:[{url:"/og.png",width:1200,height:630,alt:"오늘안부 Care"}]}};
 const contact="mailto:pilot@oneulanbu.kr?subject=%EC%98%A4%EB%8A%98%EC%95%88%EB%B6%80%20%EB%B3%91%EC%9B%90%20%EB%8F%84%EC%9E%85%20%EB%AC%B8%EC%9D%98";
 const flow=["병원에서 수술 Context 등록","환자가 매일 약 1분 Check-in","시간에 따른 변화 구조화","확인 필요 환자 우선 확인","Follow-up 및 결과 기록"];
 export default function Company(){return <main className="bg-[#F7F4EC] text-[#1D2923] [font-size:17px]"><Header/>
