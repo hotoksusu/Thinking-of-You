@@ -1,0 +1,6 @@
+export type PatientRetentionEvent="patient_invited"|"patient_link_opened"|"patient_onboarding_started"|"patient_onboarding_completed"|"patient_permission_allowed"|"patient_first_response"|"patient_day3_return"|"patient_day7_return"|"patient_day14_return"|"patient_hospital_checked_viewed"|"patient_appointment_viewed"|"patient_help_clicked";
+export interface PatientRetentionRecord { event:PatientRetentionEvent; hospitalId:string; patientIdHash:string; occurredAt:string; variant?:"A"|"B"; }
+export interface HospitalBrandConfig { hospitalId:string; name:string; shortName:string; logoUrl?:string; representativePhone:string; careTeamName:string; outpatientGuide?:string; careProgramLabel:string; invitationMessage:string; }
+export const demoHospital:HospitalBrandConfig={hospitalId:"seoul-on",name:"서울온정형외과",shortName:"서울온정형외과",representativePhone:"02-000-0000",careTeamName:"퇴원환자 관리팀",careProgramLabel:"무릎 수술 후 Care",invitationMessage:"서울온정형외과에서 퇴원 후 회복관리 안내를 보냈습니다."};
+export const firstWeekCopy=["집에 잘 도착하셨나요? 오늘은 편히 쉬세요.","오늘도 평소처럼 생활하시면 됩니다.","최근 움직임을 함께 살펴보고 있어요.","불편한 점이 있다면 간단히 알려주세요.","최근 며칠간의 변화를 확인하고 있어요.","다음 외래 일정도 여기에서 확인할 수 있어요.","퇴원 후 첫 일주일을 함께 확인했어요."] as const;
+export const retentionFunnel=["병원 등록","문자 발송","링크 열기","가입 시작","가입 완료","첫 상태 확인","Day 3 재방문","Day 7 재방문"] as const;
