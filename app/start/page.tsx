@@ -1,21 +1,20 @@
 import Link from "next/link";
-import { ArrowLeft, ChevronRight, HeartHandshake, Home, Smile } from "lucide-react";
-import { PRODUCT_COPY } from "@/lib/product-copy";
+import { ArrowLeft, ChevronRight, HeartHandshake, Home, UserRound } from "lucide-react";
 
 const roles = [
   {
-    label: "제가 부모입니다",
-    text: "질문이 오면 간단히 답합니다.",
-    href: "/onboarding?role=parent",
-    icon: Smile,
+    label: "환자",
+    text: "병원에서 퇴원 후 회복관리를 안내받았습니다.",
+    href: "/care/onboarding?role=patient",
+    icon: UserRound,
     tone: "bg-[#FFF0E4] border-[#F6C9A7]",
     iconTone: "bg-[#FFE2CC] text-[#D85B24]",
     arrowTone: "text-[#D85B24]",
   },
   {
-    label: "부모님의 가족입니다",
-    text: "평소와 다른 날을 확인합니다.",
-    href: "/onboarding?role=family",
+    label: "보호자",
+    text: "가족의 회복 상태를 함께 확인합니다.",
+    href: "/care/onboarding?role=guardian",
     icon: HeartHandshake,
     tone: "bg-[#EEF4FF] border-[#BFD2F5]",
     iconTone: "bg-[#DCE8FF] text-[#315FA8]",
@@ -46,9 +45,9 @@ export default function StartPage() {
 
         <section className="flex min-h-0 flex-1 flex-col justify-center py-5">
           <div className="text-center">
-            <p className="text-lg font-black text-[#6B7A72]">생활이 안심이 되는 하루</p>
+            <p className="text-lg font-black text-[#1D6B5B]">퇴원 후에도 병원과 함께</p>
             <h1 className="mt-4 text-[2.25rem] font-black leading-[1.16] tracking-[-0.01em] text-[#162720] sm:text-[2.75rem]">
-              누가 사용하시나요?
+              누구로 시작하시나요?
             </h1>
             <p className="mt-4 text-xl font-bold text-[#5E6A65]">아래에서 골라 주세요.</p>
           </div>
@@ -86,7 +85,7 @@ export default function StartPage() {
           </div>
         </section>
 
-        <p className="shrink-0 pb-2 text-center text-base font-bold leading-7 text-[#68756F]">필요한 날에만 함께합니다.</p>
+        <div className="shrink-0 pb-2 text-center"><Link href="/care/hospital" className="inline-flex min-h-12 items-center justify-center font-black text-[#1D6B5B] underline underline-offset-4">병원 담당자 로그인</Link><p className="text-sm font-bold leading-7 text-[#68756F]">기존 가족 안부 기능은 보호자 Care로 계속 이용할 수 있습니다.</p></div>
       </div>
     </main>
   );

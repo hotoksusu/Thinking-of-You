@@ -6,13 +6,13 @@ import "./onboarding.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://oneul-anbu.yos1015.chatgpt.site"),
-  applicationName: "오늘안부",
-  title: "오늘안부 | AI Patient Journey Platform",
-  description: "진료와 다음 진료 사이의 Patient Care Gap을 연결하는 병원용 AI Patient Journey Platform입니다.",
+  applicationName: "오늘안부 Care",
+  title: "오늘안부 Care | 퇴원 후 회복·안심관리",
+  description: "퇴원 후 환자의 일상 변화를 살펴보고 필요한 순간 병원과 환자를 다시 연결합니다.",
   openGraph: {
-    title: "오늘안부 · AI Patient Journey Platform",
-    description: "치료는 병원 밖에서도 계속됩니다. 환자에게는 오늘 할 일을, 병원에는 오늘 볼 환자를 알려드립니다.",
-    images: [{ url: "/og-brand-v3.png", width: 1200, height: 630, alt: "매일 연락하지 못해도 평소와 다른 변화는 놓치지 않도록, 오늘안부" }],
+    title: "오늘안부 Care · 퇴원 후에도 병원과 함께",
+    description: "퇴원 후 사라지는 병원과 환자의 연결을 이어갑니다.",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "퇴원 후에도 병원과 함께, 오늘안부 Care" }],
   },
   manifest: "/manifest.json",
   appleWebApp: { capable: true, title: "오늘안부", statusBarStyle: "default" },
