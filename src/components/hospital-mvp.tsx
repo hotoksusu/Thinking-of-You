@@ -4,11 +4,14 @@ import { useEffect,useMemo,useState } from "react";
 import { Check,ClipboardCheck,Copy,HeartPulse,Search,UserPlus,X } from "lucide-react";
 import { daysSince,getInviteUrl,loadCareState,mobilityLabels,painLabels,saveCareState,statusLabels,type CareState,type Patient,type StatusLevel,type SurgeryType } from "@/lib/care-mvp";
 import { trackCareEvent } from "@/lib/care-analytics";
+import { AccessGuard } from "@/components/access-guard";
+import { audit,canFollowUp,canManagePatient,createInvitation,demoHospitalUsers,type HospitalSession } from "@/lib/demo-auth";
 
 const order:StatusLevel[]=["needs_attention","watch","no_response","stable"];
-export function HospitalMvp(){
+export function HospitalMvp(){return <AccessGuard area="hospital">{session=><HospitalInner session={session as HospitalSession}/>}</AccessGuard>}
+function HospitalInner({session}:{session:HospitalSession}){
   const [state,setState]=useState<CareState|null>(null),[filter,setFilter]=useState<StatusLevel|"all">("all"),[surgery,setSurgery]=useState<SurgeryType|"all">("all"),[search,setSearch]=useState(""),[register,setRegister]=useState(false),[selected,setSelected]=useState<Patient|null>(null),[toast,setToast]=useState("");
-  useEffect(()=>{const sync=()=>setState(loadCareState());sync();window.addEventListener("storage",sync);window.addEventListener("todayanbu:care-updated",sync);return()=>{window.removeEventListener("storage",sync);window.removeEventListener("todayanbu:care-updated",sync)}},[]);
+  useEffect(()=>{const sync=()=>{const all=loadCareState(),ids=new Set(all.patients.filter(p=>p.hospitalId===session.hospitalId).map(p=>p.id));setState({...all,hospitals:all.hospitals.filter(h=>h.id===session.hospitalId),patients:all.patients.filter(p=>ids.has(p.id)),checkIns:all.checkIns.filter(c=>ids.has(c.patientId)),statuses:all.statuses.filter(s=>ids.has(s.patientId)),followUps:all.followUps.filter(f=>f.hospitalId===session.hospitalId)})};sync();window.addEventListener("storage",sync);window.addEventListener("todayanbu:care-updated",sync);return()=>{window.removeEventListener("storage",sync);window.removeEventListener("todayanbu:care-updated",sync)}},[session.hospitalId]);
   const rows=useMemo(()=>state?.patients.filter(p=>(filter==="all"||state.statuses.find(s=>s.patientId===p.id)?.level===filter)&&(surgery==="all"||p.surgeryType===surgery)&&p.name.includes(search)).sort((a,b)=>order.indexOf(state.statuses.find(s=>s.patientId===a.id)?.level||"stable")-order.indexOf(state.statuses.find(s=>s.patientId===b.id)?.level||"stable"))||[],[state,filter,surgery,search]);
   if(!state)return <main className="min-h-screen bg-[#F3F5F3] p-10 text-center font-bold">환자 정보를 불러오고 있습니다.</main>;
   const counts=Object.fromEntries(order.map(level=>[level,state.statuses.filter(s=>s.level===level).length])) as Record<StatusLevel,number>;

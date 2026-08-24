@@ -1,4 +1,6 @@
+"use client";
 import Link from "next/link";
+import { AccessGuard } from "@/components/access-guard";
 import {
   BarChart3,
   Building2,
@@ -48,7 +50,8 @@ const hospitals = [
   },
 ];
 
-export default function AdminPage() {
+export default function AdminPage(){return <AccessGuard area="operator">{()=> <AdminDashboard/>}</AccessGuard>}
+function AdminDashboard() {
   return (
     <main className="min-h-screen bg-slate-100 text-slate-950">
       <div className="mx-auto flex min-h-screen max-w-[1600px]">

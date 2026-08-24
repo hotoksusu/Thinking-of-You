@@ -1,6 +1,6 @@
 export type StatusLevel = "stable" | "watch" | "needs_attention" | "no_response";
 export type SurgeryType = "인공관절" | "척추" | "골절" | "기타";
-export type Hospital = { id:string; name:string; status:"active"|"inactive" };
+export type Hospital = { id:string; name:string; status:"active"|"pilot"|"inactive" };
 export type Patient = { id:string; hospitalId:string; name:string; phone:string; age:number; surgeryType:SurgeryType; dischargeDate:string; createdAt:string; status:"invited"|"onboarded" };
 export type CheckIn = { id:string; patientId:string; date:string; pain:number; mobility:number; hasConcern:boolean; concernText:string; createdAt:string };
 export type PatientStatus = { patientId:string; level:StatusLevel; reason:string; updatedAt:string };
@@ -24,6 +24,7 @@ export function evaluatePatientStatus(current:CheckIn, previous?:CheckIn):Patien
 }
 
 const hospital:Hospital={id:"hospital_001",name:"서울온정형외과",status:"active"};
+const hospitalB:Hospital={id:"hospital_002",name:"해온정형외과",status:"pilot"};
 const raw:[string,string,number,SurgeryType,string,StatusLevel,string][] = [
   ["patient_001","김OO",68,"인공관절","2026-08-16","needs_attention","통증과 움직임이 함께 불편함"],
   ["patient_002","박OO",72,"척추","2026-08-14","needs_attention","추가 불편 응답: 붓기가 있어요"],
@@ -39,16 +40,20 @@ const raw:[string,string,number,SurgeryType,string,StatusLevel,string][] = [
   ["patient_012","장OO",60,"기타","2026-08-21","stable","오늘 응답에서 별도 확인이 필요한 변화 없음"],
 ];
 export function createSeedState():CareState {
-  const patients=raw.map(([id,name,age,surgeryType,dischargeDate])=>({id,hospitalId:hospital.id,name,phone:"010-0000-0000",age,surgeryType,dischargeDate,createdAt:"2026-08-20T09:00:00+09:00",status:"onboarded" as const}));
+  const patients=raw.map(([id,name,age,surgeryType,dischargeDate],index)=>({id,hospitalId:index<9?hospital.id:hospitalB.id,name,phone:"010-0000-0000",age,surgeryType,dischargeDate,createdAt:"2026-08-20T09:00:00+09:00",status:"onboarded" as const}));
   const statuses=raw.map(([patientId,,,,,level,reason])=>({patientId,level,reason,updatedAt:"2026-08-24T09:32:00+09:00"}));
   const checkIns:CheckIn[]=patients.filter(p=>!statuses.find(s=>s.patientId===p.id&&s.level==="no_response")).flatMap((p,i)=>[
     {id:`check_prev_${i}`,patientId:p.id,date:"2026-08-23",pain:i<2?1:0,mobility:i<4?1:0,hasConcern:false,concernText:"",createdAt:"2026-08-23T09:20:00+09:00"},
     {id:`check_today_${i}`,patientId:p.id,date:TODAY,pain:i===0?3:i===1?2:i<5?2:1,mobility:i===0?2:i===1?1:i<4?2:1,hasConcern:i===1,concernText:i===1?"붓기가 있어요":"",createdAt:"2026-08-24T09:32:00+09:00"}
   ]);
-  return {hospitals:[hospital],patients,checkIns,statuses,followUps:[]};
+  return {hospitals:[hospital,hospitalB],patients,checkIns,statuses,followUps:[]};
 }
 
 export function loadCareState():CareState { if(typeof window==="undefined") return createSeedState(); try{const raw=localStorage.getItem(CARE_STORE_KEY); return raw?JSON.parse(raw):createSeedState()}catch{return createSeedState()} }
 export function saveCareState(state:CareState){localStorage.setItem(CARE_STORE_KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent("todayanbu:care-updated"));}
-export function getInviteUrl(patientId:string){return `/patient/onboarding?id=${encodeURIComponent(patientId)}`}
+export function getInviteUrl(patientId:string){
+  if(typeof window==="undefined") return "/i";
+  const state=loadCareState(),patient=state.patients.find(p=>p.id===patientId);if(!patient)return "/i";
+  const key="oneul-anbu:demo:invitations";const list=JSON.parse(localStorage.getItem(key)||"[]");const token=`demo_${crypto.randomUUID?.().replaceAll("-","")||Date.now()}`;const invitation={id:`invite_${Date.now()}`,patientId,hospitalId:patient.hospitalId,token,status:"pending",createdAt:new Date().toISOString(),expiresAt:new Date(Date.now()+7*86400000).toISOString()};localStorage.setItem(key,JSON.stringify([...list,invitation]));return `/i?token=${encodeURIComponent(token)}`;
+}
 export function daysSince(date:string){return Math.max(0,Math.floor((new Date(`${TODAY}T12:00:00+09:00`).getTime()-new Date(`${date}T12:00:00+09:00`).getTime())/86400000));}
