@@ -1,3 +1,5 @@
+import { audit,getHospitalSession } from "@/lib/demo-auth";
+export { evaluatePatientStatus } from "@/lib/status-rules";
 export type StatusLevel = "stable" | "watch" | "needs_attention" | "no_response";
 export type SurgeryType = "인공관절" | "척추" | "골절" | "기타";
 export type Hospital = { id:string; name:string; status:"active"|"pilot"|"inactive" };
@@ -12,16 +14,6 @@ export const TODAY = "2026-08-24";
 export const statusLabels:Record<StatusLevel,string> = { needs_attention:"오늘 확인 필요", watch:"관찰 필요", no_response:"체크인 미응답", stable:"안정적으로 회복 중" };
 export const painLabels = ["거의 없어요","조금 있어요","많이 아파요","매우 아파요"];
 export const mobilityLabels = ["평소보다 잘 움직였어요","비슷했어요","조금 힘들었어요","많이 힘들었어요"];
-
-export function evaluatePatientStatus(current:CheckIn, previous?:CheckIn):PatientStatus {
-  const worse = previous && (current.pain > previous.pain || current.mobility > previous.mobility);
-  if(current.pain===3 || current.mobility===3 || (current.pain>=2 && current.mobility>=2) || current.hasConcern){
-    const reasons=[current.pain===3?"통증 응답 확인 필요":"",current.mobility===3?"움직임 응답 확인 필요":"",current.pain>=2&&current.mobility>=2?"통증과 움직임이 함께 불편함":"",current.hasConcern?`추가 불편 응답${current.concernText?`: ${current.concernText}`:""}`:""] .filter(Boolean);
-    return {patientId:current.patientId,level:"needs_attention",reason:reasons.join(" · "),updatedAt:current.createdAt};
-  }
-  if(current.pain===2 || current.mobility===2 || worse) return {patientId:current.patientId,level:"watch",reason:worse?"이전 응답보다 한 단계 불편해짐":current.pain===2?"통증을 많이 느낀다고 응답함":"움직임이 조금 힘들다고 응답함",updatedAt:current.createdAt};
-  return {patientId:current.patientId,level:"stable",reason:"오늘 응답에서 별도 확인이 필요한 변화 없음",updatedAt:current.createdAt};
-}
 
 const hospital:Hospital={id:"hospital_001",name:"서울온정형외과",status:"active"};
 const hospitalB:Hospital={id:"hospital_002",name:"해온정형외과",status:"pilot"};
@@ -50,10 +42,15 @@ export function createSeedState():CareState {
 }
 
 export function loadCareState():CareState { if(typeof window==="undefined") return createSeedState(); try{const raw=localStorage.getItem(CARE_STORE_KEY); return raw?JSON.parse(raw):createSeedState()}catch{return createSeedState()} }
-export function saveCareState(state:CareState){localStorage.setItem(CARE_STORE_KEY,JSON.stringify(state));window.dispatchEvent(new CustomEvent("todayanbu:care-updated"));}
+export function saveCareState(state:CareState){
+  // DEMO ONLY: merge tenant-scoped writes so one hospital cannot erase another hospital's records.
+  const current=loadCareState(),ids=new Set(state.hospitals.map(h=>h.id)),scoped=ids.size<current.hospitals.length,created=state.patients.filter(p=>!current.patients.some(x=>x.id===p.id));
+  const merged=scoped?{...current,patients:[...current.patients.filter(p=>!ids.has(p.hospitalId)),...state.patients],checkIns:[...current.checkIns.filter(c=>!state.patients.some(p=>p.id===c.patientId)),...state.checkIns],statuses:[...current.statuses.filter(s=>!state.patients.some(p=>p.id===s.patientId)),...state.statuses],followUps:[...current.followUps.filter(f=>!ids.has(f.hospitalId)),...state.followUps]}:state;
+  localStorage.setItem(CARE_STORE_KEY,JSON.stringify(merged));const hs=getHospitalSession();if(hs)created.forEach(p=>audit({actorType:"hospital_user",actorId:hs.userId,hospitalId:hs.hospitalId,action:"patient_created",resourceType:"patient",resourceId:p.id}));window.dispatchEvent(new CustomEvent("todayanbu:care-updated"));
+}
 export function getInviteUrl(patientId:string){
   if(typeof window==="undefined") return "/i";
   const state=loadCareState(),patient=state.patients.find(p=>p.id===patientId);if(!patient)return "/i";
-  const key="oneul-anbu:demo:invitations";const list=JSON.parse(localStorage.getItem(key)||"[]");const token=`demo_${crypto.randomUUID?.().replaceAll("-","")||Date.now()}`;const invitation={id:`invite_${Date.now()}`,patientId,hospitalId:patient.hospitalId,token,status:"pending",createdAt:new Date().toISOString(),expiresAt:new Date(Date.now()+7*86400000).toISOString()};localStorage.setItem(key,JSON.stringify([...list,invitation]));return `/i?token=${encodeURIComponent(token)}`;
+  const key="oneul-anbu:demo:invitations";const list=JSON.parse(localStorage.getItem(key)||"[]");const existing=list.find((i:{patientId:string;status:string;expiresAt:string})=>i.patientId===patientId&&i.status==="pending"&&Date.parse(i.expiresAt)>Date.now());if(existing)return `/i?token=${encodeURIComponent(existing.token)}`;const token=`demo_${crypto.randomUUID?.().replaceAll("-","")||Date.now()}`;const invitation={id:`invite_${Date.now()}`,patientId,hospitalId:patient.hospitalId,token,status:"pending",createdAt:new Date().toISOString(),expiresAt:new Date(Date.now()+7*86400000).toISOString()};localStorage.setItem(key,JSON.stringify([...list,invitation]));const hs=getHospitalSession();if(hs)audit({actorType:"hospital_user",actorId:hs.userId,hospitalId:hs.hospitalId,action:"patient_invitation_created",resourceType:"patient_invitation",resourceId:invitation.id});return `/i?token=${encodeURIComponent(token)}`;
 }
 export function daysSince(date:string){return Math.max(0,Math.floor((new Date(`${TODAY}T12:00:00+09:00`).getTime()-new Date(`${date}T12:00:00+09:00`).getTime())/86400000));}

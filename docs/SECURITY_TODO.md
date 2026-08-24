@@ -13,3 +13,9 @@ The current authentication and persistence implementation is **DEMO ONLY**. Befo
 - Secure secrets management, encryption and incident response procedures
 
 Never treat browser storage, client route guards, or Demo credentials as production security controls.
+
+## Readiness labels
+
+- **PRODUCTION READY:** Public Gateway copy and route separation only.
+- **DEMO ONLY:** Authentication, browser sessions, mock patient data, invitation storage, status rule and audit storage.
+- **PRODUCTION BEFORE PILOT REQUIRED:** Every security, privacy, persistence and clinical-validation item above.
