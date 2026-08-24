@@ -46,7 +46,11 @@ writeFileSync(
       : [\`\${url.pathname}.html\`, \`\${url.pathname}/index.html\`];
 
     for (const pathname of candidates) {
-      response = await env.ASSETS.fetch(new Request(new URL(pathname, url), request));
+      const assetUrl = new URL(pathname, url);
+      response = await env.ASSETS.fetch(new Request(assetUrl.toString(), {
+        method: "GET",
+        headers: request.headers,
+      }));
       if (response.status !== 404) return response;
     }
 
