@@ -1,4 +1,4 @@
-export type DataSource="patient"|"hospital_staff"|"system"|"wearable"|"emr";
+export type DataSource="patient"|"guardian"|"hospital_staff"|"system"|"wearable"|"emr";
 export type ConcernStatus="none"|"reported"|"unanswered";
 export type ActionType="phone_call"|"additional_monitoring"|"visit_recommended"|"no_action_needed"|"other";
 export type OutcomeCategory="no_issue"|"continue_monitoring"|"visit_guidance"|"escalated_to_clinician"|"unreachable"|"other";
