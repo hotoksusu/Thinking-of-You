@@ -20,6 +20,7 @@ import {
   painLabels,
   saveCareState,
   savePublicDemoCareState,
+  resetPublicDemoCareState,
   statusLabels,
   TODAY,
   type CareState,
@@ -28,6 +29,7 @@ import {
   type SurgeryType,
 } from "@/lib/care-mvp";
 import { trackCareEvent } from "@/lib/care-analytics";
+import { clearDemoAnalyticsEvents } from "@/lib/care-analytics";
 import { AccessGuard } from "@/components/access-guard";
 import { RecoveryTrend } from "@/components/recovery-trend";
 import {
@@ -67,6 +69,7 @@ function queueRank(state: CareState, patientId: string) {
   const follow = queueFollowUp(state, patientId);
   return !follow ? 0 : follow.status === "scheduled" ? 1 : 2;
 }
+function latestCareTask(state:CareState,patientId:string){return state.careTasks?.filter(task=>task.patientId===patientId).sort((a,b)=>b.createdAt.localeCompare(a.createdAt))[0]}
 function reasonLabel(
   state: CareState,
   patientId: string,
@@ -114,12 +117,17 @@ export function HospitalMvp({ demo = false }: { demo?: boolean }) {
 function HospitalInner({ session, demo = false }: { session: HospitalSession; demo?: boolean }) {
   const [state, setState] = useState<CareState | null>(null),
     [filter, setFilter] = useState<StatusLevel | "all">("all"),
+    [assignment, setAssignment] = useState<"all" | "mine" | "unassigned" | "other">("all"),
+    [queueView, setQueueView] = useState<"active"|"completed">("active"),
+    [guided, setGuided] = useState(false),
     [surgery, setSurgery] = useState<SurgeryType | "all">("all"),
     [search, setSearch] = useState(""),
     [register, setRegister] = useState(false),
     [selected, setSelected] = useState<Patient | null>(null),
     [toast, setToast] = useState("");
   useEffect(() => {
+    const routeParams=new URLSearchParams(location.search);setGuided(demo&&routeParams.has("guided"));
+    if(routeParams.get("filter"))setFilter(routeParams.get("filter") as typeof filter);if(routeParams.get("surgery"))setSurgery(routeParams.get("surgery") as SurgeryType|"all");if(routeParams.get("assignment"))setAssignment(routeParams.get("assignment") as typeof assignment);if(routeParams.get("queueView"))setQueueView(routeParams.get("queueView") as typeof queueView);if(routeParams.get("search"))setSearch(routeParams.get("search")||"");
     const sync = () => {
       const all = demo ? loadPublicDemoCareState() : loadCareState(),
         ids = new Set(
@@ -151,10 +159,12 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
       state?.patients
         .filter(
           (p) =>
+            (queueView === "completed" ? p.careStatus === "completed" || latestCareTask(state,p.id)?.status === "done" : p.careStatus !== "completed" && latestCareTask(state,p.id)?.status !== "done") &&
             (filter === "all" ||
               state.statuses.find((s) => s.patientId === p.id)?.level ===
                 filter) &&
             (surgery === "all" || p.surgeryType === surgery) &&
+            (assignment === "all" || (assignment === "mine" ? p.assignedNurse === "박간호사" : assignment === "unassigned" ? !p.assignedNurse : Boolean(p.assignedNurse) && p.assignedNurse !== "박간호사")) &&
             p.name.includes(search),
         )
         .sort((a, b) => {
@@ -171,7 +181,7 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
             )
           );
         }) || [],
-    [state, filter, surgery, search],
+    [state, filter, surgery, search, assignment, queueView],
   );
   if (!state)
     return (
@@ -182,9 +192,11 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
   const counts = Object.fromEntries(
     order.map((level) => [
       level,
-      state.statuses.filter((s) => s.level === level).length,
+      state.statuses.filter((s) => s.level === level && latestCareTask(state,s.patientId)?.status !== "done").length,
     ]),
   ) as Record<StatusLevel, number>;
+  const followUpCount = state.followUps.filter(f => f.status === "scheduled").length;
+  const unassignedCount = state.patients.filter(p => !p.assignedNurse).length;
   return (
     <main className="min-h-screen bg-[#F3F5F3] text-[#1E2923] lg:flex">
       <aside className="hidden w-[220px] shrink-0 bg-[#29483D] p-5 text-white lg:block">
@@ -218,9 +230,10 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
             className="flex min-h-12 items-center gap-2 rounded-xl bg-[#315E50] px-4 font-black text-white"
           >
             <UserPlus size={19} /> 환자 등록
-          </button> : <span className="rounded-full bg-[#E8F1EA] px-3 py-2 text-sm font-black text-[#315E50]">병원 데모</span>}
+          </button> : <div className="flex items-center gap-2"><span className="rounded-full bg-[#E8F1EA] px-3 py-2 text-sm font-black text-[#315E50]">Demo Simulation</span><button onClick={()=>{clearDemoAnalyticsEvents();setState(resetPublicDemoCareState())}} className="min-h-10 rounded-xl border px-3 text-sm font-black">데모 데이터 초기화</button></div>}
         </header>
         <div className="mx-auto max-w-[1400px] p-5 lg:p-8">
+          {guided ? <div className="mb-5 rounded-2xl border border-teal-200 bg-teal-50 p-4"><p className="font-black text-teal-800">의료진 체험 · 1/6 오늘 확인할 환자 찾기</p><p className="mt-1 text-sm font-semibold text-teal-900/70">오늘 먼저 확인해야 할 환자를 선택해보세요.</p></div> : null}
           <section
             aria-labelledby="morning-summary-title"
             className="rounded-[24px] border border-[#DCE5DF] bg-white p-5 shadow-sm lg:p-7"
@@ -241,25 +254,31 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
               환자 응답 변화를 기준으로 확인 우선순위를 정리합니다. 최종 판단은
               의료진이 합니다.
             </p>
-            <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4">
-              {order.map((level) => (
+            <div className="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-5">
+              {[
+                { label: "관리 중 환자", value: state.patients.length, filter: "all" as const },
+                { label: "오늘 확인 필요", value: counts.needs_attention + counts.watch, filter: "needs_attention" as const },
+                { label: "Follow-up 예정", value: followUpCount, filter: "all" as const },
+                { label: "체크인 미응답", value: counts.no_response, filter: "no_response" as const },
+                { label: "미배정 Care", value: unassignedCount, filter: "all" as const },
+              ].map((item) => (
                 <button
-                  key={level}
-                  onClick={() => setFilter(filter === level ? "all" : level)}
-                  aria-pressed={filter === level}
-                  className={`rounded-[20px] border p-5 text-left transition-colors ${filter === level ? "border-[#315E50] bg-[#315E50] text-white" : "border-[#DCE5DF] bg-white hover:border-[#B9C9BF]"}`}
+                  key={item.label}
+                  onClick={() => { setFilter(item.filter); if (item.label === "미배정 Care") setAssignment("unassigned"); }}
+                  aria-pressed={item.filter !== "all" && filter === item.filter}
+                  className={`rounded-[20px] border p-5 text-left transition-colors ${item.filter !== "all" && filter === item.filter ? "border-[#315E50] bg-[#315E50] text-white" : "border-[#DCE5DF] bg-white hover:border-[#B9C9BF]"}`}
                 >
-                  <p className="text-sm font-bold opacity-70">
-                    {statusLabels[level]}
-                  </p>
+                  <p className="text-sm font-bold opacity-70">{item.label}</p>
                   <strong className="mt-2 block text-3xl">
-                    {counts[level]}명
+                    {item.value}명
                   </strong>
                 </button>
               ))}
             </div>
           </section>
+          {session.role === "owner" ? <section className="mt-5 rounded-[24px] border bg-white p-5"><h2 className="text-xl font-black">운영 현황</h2><div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4"><Kpi label="체크인 참여율" value={`${Math.round(state.patients.filter(p => state.checkIns.some(c => c.patientId === p.id)).length / Math.max(1,state.patients.length) * 100)}%`} /><Kpi label="Care Signal 발생률" value={`${Math.round((state.careSignals?.length || 0) / Math.max(1,state.patients.length) * 100)}%`} /><Kpi label="Action 처리" value={`${state.careActions?.filter(action => action.completedAt).length || 0}건`} /><Kpi label="Follow-up 완료율" value={`${Math.round(state.followUps.filter(f => f.status === "completed").length / Math.max(1,state.followUps.length) * 100)}%`} /></div></section> : null}
           <div className="mt-7 flex flex-col gap-3 lg:flex-row">
+            <div className="flex rounded-xl border bg-white p-1"><button onClick={()=>setQueueView("active")} className={`min-h-10 rounded-lg px-3 font-black ${queueView==="active"?"bg-[#315E50] text-white":""}`}>오늘 할 일</button><button onClick={()=>setQueueView("completed")} className={`min-h-10 rounded-lg px-3 font-black ${queueView==="completed"?"bg-[#315E50] text-white":""}`}>관리 완료</button></div>
             <label className="flex min-h-12 flex-1 items-center gap-2 rounded-xl border bg-white px-4">
               <Search size={19} />
               <input
@@ -280,6 +299,9 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
               {["인공관절", "척추", "골절", "기타"].map((x) => (
                 <option key={x}>{x}</option>
               ))}
+            </select>
+            <select value={assignment} onChange={e => setAssignment(e.target.value as typeof assignment)} className="min-h-12 rounded-xl border bg-white px-4 font-bold">
+              <option value="all">전체 담당자</option><option value="mine">내 담당 환자</option><option value="unassigned">미배정</option><option value="other">다른 담당자</option>
             </select>
             <button
               onClick={() => setFilter("all")}
@@ -329,6 +351,7 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
                       <p className="mt-1 text-sm font-bold text-[#68766F]">
                         {p.surgeryType} · 퇴원 {daysSince(p.dischargeDate)}일차
                       </p>
+                      <p className="mt-2 text-sm font-black text-[#315E50]">담당: {p.assignedNurse || "미배정"} · 주치의: {p.assignedDoctor || "미지정"}</p>
                     </div>
                     <div>
                       <p
@@ -339,6 +362,7 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
                           {reasonLabel(state, p.id, level, status?.reason)}
                         </span>
                       </p>
+                      {p.nextAppointment ? <p className="mt-2 text-sm font-bold text-[#596A62]">다음 외래 {new Date(`${p.nextAppointment}T12:00:00`).toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}</p> : null}
                       <p className="mt-2 text-sm font-semibold text-[#66736C]">
                         {last
                           ? `${last.date} ${new Date(last.createdAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })} 체크`
@@ -359,7 +383,8 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
                         trackCareEvent("hospital_patient_opened", {
                           patientId: p.id,
                         });
-                        window.location.href = demo ? `/demo/hospital/patient?patientId=${encodeURIComponent(p.id)}` : `/care/hospital/kim?patientId=${encodeURIComponent(p.id)}`;
+                        const listQuery=new URLSearchParams({filter,surgery,assignment,queueView,search}),returnTo=`${demo?"/demo/hospital":"/hospital/dashboard"}?${listQuery.toString()}`;
+                        window.location.href = demo ? `/demo/hospital/patient?patientId=${encodeURIComponent(p.id)}&returnTo=${encodeURIComponent(returnTo)}${guided?"&guided=2":""}` : `/care/hospital/kim?patientId=${encodeURIComponent(p.id)}&returnTo=${encodeURIComponent(returnTo)}`;
                       }}
                       className="min-h-12 rounded-xl bg-[#315E50] px-5 font-black text-white"
                     >
@@ -412,6 +437,7 @@ function HospitalInner({ session, demo = false }: { session: HospitalSession; de
     </main>
   );
 }
+function Kpi({label,value}:{label:string;value:string}) { return <div className="rounded-2xl bg-[#F3F6F3] p-4"><p className="text-sm font-bold text-[#68766F]">{label}</p><p className="mt-1 text-2xl font-black text-[#315E50]">{value}</p></div>; }
 function RegisterModal({
   state,
   close,

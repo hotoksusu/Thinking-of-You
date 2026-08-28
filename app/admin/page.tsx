@@ -91,6 +91,11 @@ function AdminDashboard() {
               데모 데이터
             </span>
             <Link href="/admin/analytics" className="rounded-xl bg-teal-700 px-4 py-3 text-sm font-black text-white">Care 운영 지표</Link>
+            <Link href="/admin/pilot" className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white">Pilot Readiness</Link>
+            <Link href="/admin/pilot-operations" className="rounded-xl bg-amber-400 px-4 py-3 text-sm font-black text-slate-950">Pilot Operations</Link>
+            <Link href="/admin/issues" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-800">Issue Inbox</Link>
+            <Link href="/admin/data-integrity" className="rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-900">Data Integrity</Link>
+            <Link href="/validation" className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-black">의료진 Validation</Link>
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

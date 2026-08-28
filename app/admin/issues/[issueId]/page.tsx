@@ -1,0 +1,1 @@
+import {PilotIssueDetail} from "@/components/pilot-issue-inbox";export function generateStaticParams(){return[{issueId:"sample"}]}export default async function Page({params}:{params:Promise<{issueId:string}>}){const{issueId}=await params;return <PilotIssueDetail issueId={issueId}/>}

@@ -1,13 +1,16 @@
 "use client";
-export type HospitalRole="owner"|"doctor"|"nurse"|"staff";
+export type HospitalRole="owner"|"doctor"|"nurse"|"staff"|"coordinator"|"hospital_admin";
 export type HospitalUser={id:string;hospitalId:string;name:string;email:string;phone:string;role:HospitalRole;status:"active"|"invited"|"disabled";createdAt:string;updatedAt:string;lastLoginAt?:string};
 export type OperatorUser={id:string;name:string;email:string;role:"super_admin"|"operator"|"support";status:"active"|"disabled";createdAt:string;lastLoginAt?:string};
-export type HospitalSession={kind:"hospital";sessionId:string;userId:string;hospitalId:string;role:HospitalRole;expiresAt:string};
+export type HospitalSession={kind:"hospital";sessionId:string;userId:string;staffId?:string;staffName?:string;hospitalId:string;hospitalName?:string;role:HospitalRole;expiresAt:string};
+export type HospitalPermission="VIEW_PATIENT"|"VIEW_CHECKIN"|"CREATE_CARE_ACTION"|"EDIT_CARE_ACTION"|"CREATE_FOLLOWUP"|"EDIT_FOLLOWUP"|"CREATE_PATIENT_INVITE"|"MANAGE_STAFF"|"VIEW_ANALYTICS"|"VIEW_AUDIT_LOG";
+const rolePermissions:Record<HospitalRole,HospitalPermission[]>={doctor:["VIEW_PATIENT","VIEW_CHECKIN","CREATE_CARE_ACTION","EDIT_CARE_ACTION","CREATE_FOLLOWUP","EDIT_FOLLOWUP"],nurse:["VIEW_PATIENT","VIEW_CHECKIN","CREATE_CARE_ACTION","EDIT_CARE_ACTION","CREATE_FOLLOWUP","EDIT_FOLLOWUP","CREATE_PATIENT_INVITE"],coordinator:["VIEW_PATIENT","VIEW_CHECKIN","CREATE_CARE_ACTION","EDIT_CARE_ACTION","CREATE_FOLLOWUP","EDIT_FOLLOWUP","CREATE_PATIENT_INVITE"],hospital_admin:["VIEW_PATIENT","VIEW_CHECKIN","CREATE_PATIENT_INVITE","MANAGE_STAFF","VIEW_ANALYTICS","VIEW_AUDIT_LOG"],owner:["VIEW_PATIENT","VIEW_CHECKIN","CREATE_PATIENT_INVITE","MANAGE_STAFF","VIEW_ANALYTICS","VIEW_AUDIT_LOG"],staff:["VIEW_PATIENT","VIEW_CHECKIN","CREATE_PATIENT_INVITE"]};
+export function hasHospitalPermission(role:HospitalRole,permission:HospitalPermission){return rolePermissions[role]?.includes(permission)||false}
 export type PatientSession={kind:"patient";sessionId:string;patientId:string;hospitalId:string;expiresAt:string};
 export type OperatorSession={kind:"operator";sessionId:string;userId:string;role:OperatorUser["role"];expiresAt:string;mfaVerified:boolean};
 export type PatientInvitation={id:string;patientId:string;hospitalId:string;token:string;status:"pending"|"used"|"expired"|"revoked";createdAt:string;expiresAt:string;usedAt?:string};
-export type AuditAction="hospital_login"|"operator_login"|"patient_created"|"patient_invitation_created"|"patient_record_viewed"|"followup_started"|"followup_completed"|"hospital_user_created"|"patient_session_created"|"checkin_completed"|"patient_status_changed";
-export type AuditLog={id:string;actorType:"hospital_user"|"operator"|"patient";actorId:string;hospitalId?:string;action:AuditAction;resourceType:string;resourceId:string;createdAt:string};
+export type AuditAction="hospital_login"|"operator_login"|"patient_created"|"patient_invitation_created"|"patient_invited"|"patient_record_viewed"|"care_task_assigned"|"care_action_created"|"care_action_updated"|"followup_started"|"followup_created"|"followup_updated"|"followup_completed"|"care_completed"|"patient_care_extended"|"pilot_config_updated"|"permission_changed"|"hospital_user_created"|"patient_session_created"|"checkin_completed"|"patient_status_changed";
+export type AuditLog={id:string;actorType:"hospital_user"|"operator"|"patient";actorId:string;actorRole?:string;hospitalId?:string;action:AuditAction;resourceType:string;resourceId:string;metadata?:Record<string,unknown>;createdAt:string};
 const keys={hospital:"oneul-anbu:demo:hospital-session",patient:"oneul-anbu:demo:patient-session",operator:"oneul-anbu:demo:operator-session",invites:"oneul-anbu:demo:invitations",audit:"oneul-anbu:demo:audit"};
 export const demoHospitalUsers:HospitalUser[]=[
  {id:"hu_a_owner",hospitalId:"hospital_001",name:"김현정",email:"owner@seoulon.demo",phone:"010-****-1001",role:"owner",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
@@ -23,7 +26,7 @@ function expiry(hours:number){return new Date(Date.now()+hours*3600000).toISOStr
 export function getHospitalSession(){return typeof window==="undefined"?null:read<HospitalSession>(keys.hospital)}
 export function getPatientSession(){return typeof window==="undefined"?null:read<PatientSession>(keys.patient)}
 export function getOperatorSession(){return typeof window==="undefined"?null:read<OperatorSession>(keys.operator)}
-export function loginHospital(email:string,password:string){const user=demoHospitalUsers.find(u=>u.email===email&&u.status==="active");if(!user||password!=="demo1234")return null;const s:HospitalSession={kind:"hospital",sessionId:sessionId(),userId:user.id,hospitalId:user.hospitalId,role:user.role,expiresAt:expiry(8)};localStorage.setItem(keys.hospital,JSON.stringify(s));audit({actorType:"hospital_user",actorId:user.id,hospitalId:user.hospitalId,action:"hospital_login",resourceType:"session",resourceId:s.sessionId});return s}
+export function loginHospital(email:string,password:string){const user=demoHospitalUsers.find(u=>u.email===email&&u.status==="active");if(!user||password!=="demo1234")return null;const hospitalName=user.hospitalId==="hospital_001"?"서울온정형외과":"해온병원",s:HospitalSession={kind:"hospital",sessionId:sessionId(),userId:user.id,staffId:user.id,staffName:user.name,hospitalId:user.hospitalId,hospitalName,role:user.role,expiresAt:expiry(8)};localStorage.setItem(keys.hospital,JSON.stringify(s));audit({actorType:"hospital_user",actorId:user.id,actorRole:user.role,hospitalId:user.hospitalId,action:"hospital_login",resourceType:"session",resourceId:s.sessionId});return s}
 export function loginOperator(email:string,password:string){if(email!==demoOperator.email||password!=="admin1234")return null;const s:OperatorSession={kind:"operator",sessionId:sessionId(),userId:demoOperator.id,role:demoOperator.role,expiresAt:expiry(2),mfaVerified:false};localStorage.setItem(keys.operator,JSON.stringify(s));audit({actorType:"operator",actorId:demoOperator.id,action:"operator_login",resourceType:"session",resourceId:s.sessionId});return s}
 export function logout(kind:"hospital"|"patient"|"operator"){localStorage.removeItem(keys[kind])}
 export function createInvitation(patientId:string,hospitalId:string){const list=read<PatientInvitation[]>(keys.invites)||[];const inv:PatientInvitation={id:`invite_${Date.now()}`,patientId,hospitalId,token:`demo_${crypto.randomUUID?.().replaceAll("-","")||Date.now()}`,status:"pending",createdAt:new Date().toISOString(),expiresAt:expiry(24*7)};localStorage.setItem(keys.invites,JSON.stringify([...list,inv]));return inv}
@@ -32,5 +35,8 @@ export function verifyPatientIdentity(token:string){const list=read<PatientInvit
 export function canAccessPatient(session:HospitalSession,patient:{id:string;hospitalId:string}){return session.hospitalId===patient.hospitalId}
 export function canManagePatient(role:HospitalRole){return role==="owner"||role==="nurse"}
 export function canFollowUp(role:HospitalRole){return role!=="staff"}
+export function canPerformCareAction(role:HospitalRole){return hasHospitalPermission(role,"CREATE_CARE_ACTION")}
+export function canViewPilotAnalytics(role:HospitalRole){return role==="owner"}
+export function canManageHospitalSettings(role:HospitalRole){return role==="owner"}
 export function canManageHospitalUsers(role:HospitalRole){return role==="owner"}
 export function audit(entry:Omit<AuditLog,"id"|"createdAt">){const list=read<AuditLog[]>(keys.audit)||[];localStorage.setItem(keys.audit,JSON.stringify([...list,{...entry,id:`audit_${Date.now()}_${list.length}`,createdAt:new Date().toISOString()}]))}

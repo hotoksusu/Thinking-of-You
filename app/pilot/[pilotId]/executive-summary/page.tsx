@@ -1,0 +1,1 @@
+import {PilotExecutiveSummary} from "@/components/pilot-executive-summary";export function generateStaticParams(){return[{pilotId:"pilot_hospital_001"},{pilotId:"pilot_hospital_002"}]}export default async function Page({params}:{params:Promise<{pilotId:string}>}){const{pilotId}=await params;return <PilotExecutiveSummary pilotId={pilotId}/>}

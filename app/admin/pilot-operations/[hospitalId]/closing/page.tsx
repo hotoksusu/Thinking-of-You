@@ -1,0 +1,1 @@
+import {PilotClosingChecklist} from "@/components/pilot-closing-checklist";export function generateStaticParams(){return[{hospitalId:"hospital_001"},{hospitalId:"hospital_002"}]}export default async function Page({params}:{params:Promise<{hospitalId:string}>}){const{hospitalId}=await params;return <PilotClosingChecklist hospitalId={hospitalId} pilotId={`pilot_${hospitalId}`}/>}

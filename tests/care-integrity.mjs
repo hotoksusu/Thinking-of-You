@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import {careDaySince,dailyCheckinKey,hasDailyCheckin,inspectCareIntegrity,mergeTenantCareState,scopeCareState} from "../src/lib/care-integrity.ts";
+import {canAccessPatient,canManageHospitalSettings,canPerformCareAction} from "../src/lib/demo-auth.ts";
+const hospital=id=>({id,name:id,status:"active"}),patient=(id,hospitalId)=>({id,hospitalId,name:id,phone:"",age:60,surgeryType:"기타",surgeryDate:"2026-08-20",dischargeDate:"2026-08-21",createdAt:"2026-08-20",status:"onboarded",careStatus:"active"}),check=(id,patientId,date)=>({id,patientId,date,checkInDate:date,pain:0,mobility:0,hasConcern:false,concernText:"",createdAt:`${date}T01:00:00Z`});
+const base={hospitals:[hospital("a"),hospital("b")],patients:[patient("pa","a"),patient("pb","b")],episodes:[{id:"ea",patientId:"pa",hospitalId:"a"},{id:"eb",patientId:"pb",hospitalId:"b"}],checkIns:[check("ca","pa","2026-08-28"),check("cb","pb","2026-08-28")],statuses:[],careSignals:[],careTasks:[],careActions:[],signalFeedback:[],careRules:[],followUps:[],outcomes:[],careCompletions:[],decisions:[]};
+assert.equal(careDaySince("2026-08-20","2026-08-28"),8,"Seoul care day must be stable");
+assert.equal(canAccessPatient({hospitalId:"a"},{id:"pb",hospitalId:"b"}),false);assert.equal(canPerformCareAction("nurse"),true);assert.equal(canPerformCareAction("owner"),false);assert.equal(canManageHospitalSettings("owner"),true);
+assert.equal(dailyCheckinKey(base.checkIns[0]),"pa:2026-08-28");assert.equal(hasDailyCheckin(base,"pa","2026-08-28"),true);
+const scoped=scopeCareState(base,"a");assert.deepEqual(scoped.patients.map(x=>x.id),["pa"]);assert.deepEqual(scoped.checkIns.map(x=>x.id),["ca"]);
+const incoming={...scoped,careSignals:[{id:"sa",patientId:"pa",type:"other",severity:"check",reason:"x",detectedAt:"2026-08-28",sourceCheckInIds:["ca"],status:"open"}],careTasks:[{id:"ta",patientId:"pa",signalIds:["sa"],priority:"normal",status:"assigned",createdAt:"2026-08-28"}],careActions:[{id:"aa",patientId:"pa",careTaskId:"ta",actionType:"phone",createdAt:"2026-08-28"}]};
+const merged=mergeTenantCareState(base,incoming,"a");assert.equal(merged.patients.some(x=>x.id==="pb"),true,"other tenant patient preserved");assert.equal(merged.careSignals?.length,1,"tenant signals merged");assert.equal(merged.careTasks?.length,1,"tenant tasks merged");assert.equal(merged.careActions?.length,1,"tenant actions merged");
+const duplicate={...base,checkIns:[...base.checkIns,check("ca2","pa","2026-08-28")]};assert.equal(inspectCareIntegrity(duplicate).find(x=>x.type==="duplicate_daily_checkin")?.count,1);
+const orphan={...base,careSignals:[{id:"bad",patientId:"pa",type:"other",severity:"check",reason:"x",detectedAt:"",sourceCheckInIds:["missing"],status:"open"}]};assert.equal(inspectCareIntegrity(orphan).some(x=>x.type==="signal_without_source"),true);
+console.log("PASS care integrity: timezone, idempotency, tenant scope, merge, monitor");

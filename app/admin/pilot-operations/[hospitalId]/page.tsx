@@ -1,0 +1,1 @@
+import {PilotDetail} from "@/components/pilot-operations-dashboard";export function generateStaticParams(){return[{hospitalId:"hospital_001"},{hospitalId:"hospital_002"}]}export default async function Page({params}:{params:Promise<{hospitalId:string}>}){const{hospitalId}=await params;return <PilotDetail hospitalId={hospitalId}/>}
