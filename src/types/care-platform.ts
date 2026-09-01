@@ -1,6 +1,12 @@
 export type DepartmentCode = "orthopedics" | "rehabilitation" | "neurosurgery" | "internal_medicine" | "other";
 export type CareProgramCode = "orthopedic_discharge" | "rehabilitation_discharge" | "neurology_followup";
-export type HospitalRole = "hospital_owner" | "medical_staff" | "desk";
+export type HospitalRole = "nurse" | "care_coordinator" | "doctor" | "hospital_owner" | "hospital_admin" | "desk";
+export type CareWorkflowState = "new"|"needs_review"|"nurse_reviewing"|"contact_required"|"doctor_review_requested"|"doctor_reviewing"|"follow_up_scheduled"|"ongoing"|"completed";
+export interface HospitalUser { id:string; name:string; hospitalId:string; roles:HospitalRole[]; department?:string; title?:string; }
+export interface PatientCareAssignment { patientId:string; primaryDoctorId:string; careCoordinatorId?:string; }
+export interface CareTask { id:string; patientId:string; type:"check_in_review"|"no_response"|"phone_call"|"doctor_review"|"follow_up"; priority:"urgent"|"high"|"normal"; assigneeId?:string; status:"open"|"in_progress"|"completed"; dueAt:string; createdAt:string; completedAt?:string; }
+export interface CareEscalation { id:string; patientId:string; requestedBy:string; requestedTo:string; reason:string; status:"requested"|"reviewing"|"resolved"; decision?:"monitor"|"phone_call"|"earlier_visit"|"visit_required"|"other"; createdAt:string; resolvedAt?:string; }
+export interface CareActivity { id:string; patientId:string; actorId:string; actorRole:HospitalRole; action:string; previousState?:CareWorkflowState; nextState:CareWorkflowState; note?:string; timestamp:string; }
 export type PlatformRole = "platform_admin";
 export type CareEventType = "discharged" | "program_started" | "response" | "activity_signal" | "hospital_contact" | "outpatient_scheduled" | "outpatient_visited";
 

@@ -1,6 +1,6 @@
 "use client";
 export type HospitalRole="owner"|"doctor"|"nurse"|"staff"|"coordinator"|"hospital_admin";
-export type HospitalUser={id:string;hospitalId:string;name:string;email:string;phone:string;role:HospitalRole;status:"active"|"invited"|"disabled";createdAt:string;updatedAt:string;lastLoginAt?:string};
+export type HospitalUser={id:string;hospitalId:string;name:string;email:string;phone:string;role:HospitalRole;roles?:HospitalRole[];department?:string;title?:string;status:"active"|"invited"|"disabled";createdAt:string;updatedAt:string;lastLoginAt?:string};
 export type OperatorUser={id:string;name:string;email:string;role:"super_admin"|"operator"|"support";status:"active"|"disabled";createdAt:string;lastLoginAt?:string};
 export type HospitalSession={kind:"hospital";sessionId:string;userId:string;staffId?:string;staffName?:string;hospitalId:string;hospitalName?:string;role:HospitalRole;expiresAt:string};
 export type HospitalPermission="VIEW_PATIENT"|"VIEW_CHECKIN"|"CREATE_CARE_ACTION"|"EDIT_CARE_ACTION"|"CREATE_FOLLOWUP"|"EDIT_FOLLOWUP"|"CREATE_PATIENT_INVITE"|"MANAGE_STAFF"|"VIEW_ANALYTICS"|"VIEW_AUDIT_LOG";
@@ -13,8 +13,10 @@ export type AuditAction="hospital_login"|"operator_login"|"patient_created"|"pat
 export type AuditLog={id:string;actorType:"hospital_user"|"operator"|"patient";actorId:string;actorRole?:string;hospitalId?:string;action:AuditAction;resourceType:string;resourceId:string;metadata?:Record<string,unknown>;createdAt:string};
 const keys={hospital:"oneul-anbu:demo:hospital-session",patient:"oneul-anbu:demo:patient-session",operator:"oneul-anbu:demo:operator-session",invites:"oneul-anbu:demo:invitations",audit:"oneul-anbu:demo:audit"};
 export const demoHospitalUsers:HospitalUser[]=[
- {id:"hu_a_owner",hospitalId:"hospital_001",name:"김현정",email:"owner@seoulon.demo",phone:"010-****-1001",role:"owner",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
- {id:"hu_a_nurse",hospitalId:"hospital_001",name:"박간호",email:"nurse@seoulon.demo",phone:"010-****-1002",role:"nurse",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
+ {id:"hu_a_owner",hospitalId:"hospital_001",name:"이정형",email:"owner@seoulon.demo",phone:"010-****-1001",role:"owner",roles:["doctor","owner"],department:"정형외과",title:"원장",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
+ {id:"hu_a_nurse",hospitalId:"hospital_001",name:"박간호",email:"nurse@seoulon.demo",phone:"010-****-1002",role:"nurse",roles:["nurse"],department:"정형외과",title:"Care 담당 간호사",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
+ {id:"hu_a_doctor",hospitalId:"hospital_001",name:"최정형",email:"doctor@seoulon.demo",phone:"010-****-1004",role:"doctor",roles:["doctor"],department:"정형외과",title:"전문의",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
+ {id:"hu_a_admin",hospitalId:"hospital_001",name:"김관리",email:"admin@seoulon.demo",phone:"010-****-1005",role:"hospital_admin",roles:["hospital_admin","owner"],department:"경영지원",title:"병원 관리자",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
  {id:"hu_a_staff",hospitalId:"hospital_001",name:"이원무",email:"staff@seoulon.demo",phone:"010-****-1003",role:"staff",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
  {id:"hu_b_owner",hospitalId:"hospital_002",name:"최원장",email:"owner@haeon.demo",phone:"010-****-2001",role:"owner",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
  {id:"hu_b_nurse",hospitalId:"hospital_002",name:"정간호",email:"nurse@haeon.demo",phone:"010-****-2002",role:"nurse",status:"active",createdAt:"2026-08-01",updatedAt:"2026-08-01"},
@@ -33,10 +35,10 @@ export function createInvitation(patientId:string,hospitalId:string){const list=
 export function findInvitation(token:string){return (read<PatientInvitation[]>(keys.invites)||[]).find(i=>i.token===token&&i.status!=="revoked"&&Date.parse(i.expiresAt)>Date.now())||null}
 export function verifyPatientIdentity(token:string){const list=read<PatientInvitation[]>(keys.invites)||[];const inv=list.find(i=>i.token===token&&i.status!=="revoked"&&Date.parse(i.expiresAt)>Date.now());if(!inv)return null;const now=new Date().toISOString();localStorage.setItem(keys.invites,JSON.stringify(list.map(i=>i.id===inv.id?{...i,status:"used",usedAt:now}:i)));const s:PatientSession={kind:"patient",sessionId:sessionId(),patientId:inv.patientId,hospitalId:inv.hospitalId,expiresAt:expiry(24*30)};localStorage.setItem(keys.patient,JSON.stringify(s));audit({actorType:"patient",actorId:inv.patientId,hospitalId:inv.hospitalId,action:"patient_session_created",resourceType:"session",resourceId:s.sessionId});return s}
 export function canAccessPatient(session:HospitalSession,patient:{id:string;hospitalId:string}){return session.hospitalId===patient.hospitalId}
-export function canManagePatient(role:HospitalRole){return role==="owner"||role==="nurse"}
+export function canManagePatient(role:HospitalRole){return role==="owner"||role==="nurse"||role==="coordinator"}
 export function canFollowUp(role:HospitalRole){return role!=="staff"}
 export function canPerformCareAction(role:HospitalRole){return hasHospitalPermission(role,"CREATE_CARE_ACTION")}
 export function canViewPilotAnalytics(role:HospitalRole){return role==="owner"}
-export function canManageHospitalSettings(role:HospitalRole){return role==="owner"}
-export function canManageHospitalUsers(role:HospitalRole){return role==="owner"}
+export function canManageHospitalSettings(role:HospitalRole){return role==="owner"||role==="hospital_admin"}
+export function canManageHospitalUsers(role:HospitalRole){return role==="owner"||role==="hospital_admin"}
 export function audit(entry:Omit<AuditLog,"id"|"createdAt">){const list=read<AuditLog[]>(keys.audit)||[];localStorage.setItem(keys.audit,JSON.stringify([...list,{...entry,id:`audit_${Date.now()}_${list.length}`,createdAt:new Date().toISOString()}]))}
