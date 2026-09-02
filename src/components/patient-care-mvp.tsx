@@ -444,7 +444,7 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
       <PatientShell>
         <header className="py-5">
           <Link
-            href="/app/patient"
+            href={demo?"/demo/patient":"/app/patient"}
             className="flex items-center gap-2 font-black text-[#315E50]"
           >
             <ArrowLeft /> 홈
@@ -497,7 +497,7 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
       <header className="flex items-center gap-2 py-5 text-xl font-black text-[#315E50]">
         <HeartPulse /> 오늘안부 Care
       </header>
-      <section className="mt-2 rounded-[28px] bg-white p-6">
+      <section className="mt-2 rounded-[28px] bg-white p-6 sm:p-8">
         <p className="flex items-center gap-2 text-lg font-black text-[#315E50]">
           <Hospital size={21} />
           {hospital?.name}와 함께하는 회복 확인
@@ -505,34 +505,32 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
         <div className="mx-auto mt-3 w-[120px]">
           <CareCompanion state={todayCheck ? "completed" : "welcome"} compact />
         </div>
-        <h1 className="mt-3 text-[2.05rem] font-black leading-tight">
-          오늘 회복은 어떤가요?
-        </h1>
+        <p className="mt-4 text-lg font-black text-[#315E50]">수술 후 {daysSince(patient.surgeryDate || patient.dischargeDate)}일째</p>
+        <h1 className="mt-2 text-[2.05rem] font-black leading-tight">나의 회복 상황</h1>
+        {history.length ? <div className="mt-5 border-y border-[#DCE5E0] py-5"><p className="text-lg font-black">회복 흐름 <span className="float-right text-[#315E50]">{history[0].dayComparison === "worse" ? "조금 더 살펴볼게요" : "좋아지고 있어요 ↑"}</span></p><p className="mt-3 text-lg font-black">통증 <span className="float-right text-[#315E50]">{history.slice(0,4).reverse().map(painValue).join(" → ")}</span></p><p className="mt-3 text-lg font-black">움직임 <span className="float-right text-[#315E50]">{history[0].mobilityScore === 0 ? "조금씩 편해지고 있어요" : "꾸준히 기록 중이에요"}</span></p></div> : null}
         {todayCheck ? (
           <>
             <div className="mt-5 rounded-2xl bg-[#E8F1EA] p-5">
               <p className="text-xl font-black text-[#315E50]">
-                오늘 확인을 마쳤어요.
+                오늘 기록 완료
               </p>
               <p className="mt-2 text-lg font-bold text-[#46574F]">
-                알려주셔서 감사합니다.
+                오늘 입력한 상태가 회복 기록에 쌓였어요.
               </p>
             </div>
-            <Link href="/app/patient/history" className="secondary">
-              지난 기록 보기 <ChevronRight />
+            <Link href={demo?"/demo/patient?mode=history":"/app/patient/history"} className="secondary">
+              오늘 기록과 회복 흐름 보기 <ChevronRight />
             </Link>
           </>
         ) : (
           <>
             <p className="mt-3 text-xl font-bold leading-8 text-[#46574F]">
-              수술 후 {daysSince(patient.surgeryDate || patient.dischargeDate)}일째
-              <br />
-              어제와 비교해서 달라진 점을 알려주세요. 1분이면 끝나요.
+              어제와 비교해서 달라진 점을 알려주세요.
             </p>
-            <Link href="/app/patient/checkin" className="primary">
-              오늘 회복 기록하기 <ChevronRight />
+            <Link href={demo?"/demo/patient?mode=checkin":"/app/patient/checkin"} className="primary">
+              오늘 상태 알려주기 · 약 1분 <ChevronRight />
             </Link>
-            <p className="mt-4 text-center text-base font-semibold text-[#66736C]">매일 남긴 기록으로 회복 변화를 확인할 수 있어요.</p>
+            <p className="mt-4 text-center text-base font-bold leading-7 text-[#526159]">오늘 상태를 기록하면 병원에서 회복 흐름을 확인할 수 있어요. 다음 진료 때도 함께 볼 수 있습니다.</p>
           </>
         )}
       </section>
@@ -617,22 +615,24 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo }: {
   const stepNumber = Math.max(1, steps.indexOf(step) + 1), totalSteps = steps.length;
   const ready = step === "pain" ? painScore !== null : step === "painContext" ? Boolean(painContext) : step === "mobility" ? mobility !== null : step === "movement" ? Boolean(movementDifficulty) : step === "comparison" ? dayComparison !== null : Boolean(concern) && (concern !== "other" || Boolean(customConcern.trim()));
   function nextStep() { trackCareEvent("checkin_question_answered",{patientId:patient.id,hospitalId:patient.hospitalId,question:step,elapsedSeconds:Math.max(1,Math.round((Date.now()-Date.parse(startedAt))/1000)),adaptive:["painContext","movement"].includes(step),unsureSelected:step==="painContext"&&painContext==="unsure",demo});if (step === "pain") setStep(needsPainContext ? "painContext" : "mobility"); else if (step === "painContext") setStep("mobility"); else if (step === "mobility") setStep(mobility === 2 ? "movement" : "comparison"); else if (step === "movement") setStep("comparison"); else if (step === "comparison") setStep("concern"); else if (mobility !== null) finish(mobility); }
-  return <PatientShell demo={demo}><div className="flex min-h-[100dvh] flex-col py-5">{guardianMode ? <p className="mb-3 rounded-xl bg-white p-3 text-lg font-black text-[#315E50]">보호자 대리 입력 · {patient.name}님</p> : null}<p className="text-lg font-black text-[#315E50]">{stepNumber} / {totalSteps}</p><div className="mt-4 h-2 rounded-full bg-[#DDE5E0]"><div className="h-full rounded-full bg-[#315E50] transition-all" style={{ width: `${stepNumber / totalSteps * 100}%` }} /></div>
-    <h1 className="mt-9 text-[2rem] font-black leading-tight">{step === "pain" ? "지금 통증은 어느 정도인가요?" : step === "painContext" ? "어떤 때 가장 아픈가요?" : step === "mobility" ? "오늘 움직이는 것은 어땠나요?" : step === "movement" ? "어떤 움직임이 가장 불편했나요?" : step === "comparison" ? "어제와 비교하면 전반적으로 어떠세요?" : "오늘 새롭게 달라진 점이 있나요?"}</h1>
-    {step === "pain" ? <><div className="mt-8 grid grid-cols-6 gap-2">{Array.from({ length: 11 }, (_, i) => <button key={i} onClick={() => setPainScore(i)} className={`min-h-[58px] rounded-xl border-2 text-xl font-black ${painScore === i ? "border-[#315E50] bg-[#315E50] text-white" : "border-[#C8D3CD] bg-white"}`}>{i}</button>)}</div><div className="mt-5 rounded-2xl bg-white p-4 text-lg font-bold leading-8 text-[#596A62]"><p>0 통증 없음 · 5 꽤 불편함 · 10 견디기 매우 힘듦</p>{previousPain !== null ? <p className="mt-2 text-[#315E50]">어제는 <strong>{previousPain}점</strong>이었어요.{painScore !== null && painScore !== previousPain ? ` 오늘은 ${Math.abs(painScore - previousPain)}점 ${painScore > previousPain ? "높아요" : "낮아요"}.` : ""}</p> : null}</div></> : null}
+  const stepLabel=step==="pain"?"통증":step==="painContext"?"통증 확인":step==="mobility"?"움직임":step==="movement"?"불편한 움직임":step==="comparison"?"오늘 상태":"증상";
+  const painMeaning=painScore===null?"숫자를 눌러 알려주세요":painScore===0?"통증이 없어요":painScore<=3?"조금 불편해요":painScore<=6?"움직일 때 꽤 불편해요":painScore<10?"많이 아파요":"견디기 어려워요";
+  return <PatientShell demo={demo}><div className="py-6 sm:py-10">{guardianMode ? <p className="mb-3 rounded-xl bg-white p-3 text-lg font-black text-[#315E50]">보호자 대리 입력 · {patient.name}님</p> : null}<p className="text-base font-black text-[#315E50]">오늘 회복 체크 · 약 1분</p><div className="mt-3 flex items-center justify-between gap-3"><p className="text-lg font-black">{stepNumber}/{totalSteps} · {stepLabel}</p><p className="hidden text-base font-bold text-[#5B6D64] sm:block">통증 · 움직임 · 증상 · 오늘 상태</p></div><div className="mt-3 h-2 rounded-full bg-[#DDE5E0]"><div className="h-full rounded-full bg-[#315E50] transition-all" style={{ width: `${stepNumber / totalSteps * 100}%` }} /></div>
+    <h1 className="mt-7 text-[clamp(1.75rem,6vw,2.15rem)] font-black leading-tight">{step === "pain" ? "지금 통증은 어느 정도인가요?" : step === "painContext" ? "어떤 때 가장 아픈가요?" : step === "mobility" ? "오늘 움직이는 것은 어땠나요?" : step === "movement" ? "어떤 움직임이 가장 불편했나요?" : step === "comparison" ? "어제와 비교하면 전반적으로 어떠세요?" : "오늘 새롭게 달라진 점이 있나요?"}</h1>
+    {step === "pain" ? <><div className="mt-7 grid grid-cols-6 gap-2">{Array.from({ length: 11 }, (_, i) => <button aria-label={`통증 ${i}점`} aria-pressed={painScore===i} key={i} onClick={() => setPainScore(i)} className={`min-h-[60px] rounded-xl border-2 text-xl font-black ${painScore === i ? "border-[#315E50] bg-[#315E50] text-white" : "border-[#C8D3CD] bg-white"}`}>{i}</button>)}</div><div className="mt-4 grid grid-cols-5 gap-1 text-center text-[13px] font-bold leading-5 text-[#526159]"><span>0<br/>통증 없음</span><span>1~3<br/>조금 불편</span><span>4~6<br/>움직일 때 힘듦</span><span>7~9<br/>많이 아픔</span><span>10<br/>견디기 어려움</span></div><div aria-live="polite" className="mt-5 rounded-2xl bg-white p-5 text-lg font-bold leading-8 text-[#46574F]"><p className="text-xl font-black text-[#315E50]">{painScore===null?painMeaning:`${painScore}점 · ${painMeaning}`}</p>{previousPain !== null&&painScore!==null ? <p className="mt-2">어제 {previousPain}점 → 오늘 {painScore}점 {painScore<previousPain?"↓":painScore>previousPain?"↑":"→"}<br/><span className="text-[#315E50]">{painScore<previousPain?"어제보다 통증이 줄었어요.":painScore>previousPain?"어제보다 조금 더 불편하시군요. 몇 가지만 더 확인할게요.":"어제와 비슷해요."}</span></p> : null}</div></> : null}
     {step === "painContext" ? <div className="mt-8 grid gap-3">{painContextLabels.map(([id,label]) => <button key={id} onClick={() => setPainContext(id)} className={`min-h-[64px] rounded-2xl border-2 px-5 text-left text-xl font-black ${painContext === id ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}>{label}</button>)}</div> : null}
     {step === "mobility" ? <div className="mt-8 grid gap-3">{recoveryMobilityLabels.map((label, i) => <button key={label} onClick={() => setMobility(i)} className={`min-h-[72px] rounded-2xl border-2 px-5 text-left text-xl font-black ${mobility === i ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}>{label}</button>)}</div> : null}
     {step === "movement" ? <div className="mt-8 grid grid-cols-2 gap-3">{pathwayMovementLabels(patient).map(label => <button key={label} onClick={() => setMovementDifficulty(label)} className={`min-h-[68px] rounded-2xl border-2 px-4 text-left text-lg font-black ${movementDifficulty === label ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}>{label}</button>)}</div> : null}
     {step === "comparison" ? <div className="mt-8 grid gap-4">{Object.entries(comparisonLabels).map(([id, label]) => <button key={id} onClick={() => setDayComparison(id as DayComparison)} className={`min-h-[72px] rounded-2xl border-2 bg-white px-5 text-left text-xl font-black ${dayComparison === id ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD]"}`}>{label}</button>)}</div> : null}
     {step === "concern" ? <><div className="mt-8 grid gap-3">{adaptiveConcerns.map(([id, label]) => <button key={id} onClick={() => setConcern(id)} className={`min-h-[64px] rounded-2xl border-2 px-5 text-left text-lg font-black ${concern === id ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}>{label}</button>)}</div>{concern === "other" ? <textarea value={customConcern} onChange={e => setCustomConcern(e.target.value)} maxLength={100} placeholder="불편한 점을 짧게 알려주세요." className="mt-4 min-h-24 w-full rounded-2xl border-2 border-[#C8D3CD] bg-white p-4 text-lg" /> : null}</> : null}
-    <div className={`mt-auto grid ${step === "pain" ? "grid-cols-1" : "grid-cols-[auto_1fr]"} gap-3 pt-8`}>{step !== "pain" ? <button onClick={goBack} className="min-h-[60px] rounded-2xl border-2 border-[#315E50] px-5 text-lg font-black text-[#315E50]"><ArrowLeft className="mr-2 inline" />이전</button> : null}<button disabled={!ready||isSaving} onClick={nextStep} className="min-h-[60px] rounded-2xl bg-[#315E50] px-5 text-xl font-black text-white disabled:bg-[#B7C2BC]">{isSaving?"저장 중...":step === "concern" ? "오늘 기록 마치기" : "다음"}</button></div>
+    <div className={`mt-7 grid ${step === "pain" ? "grid-cols-1" : "grid-cols-[auto_1fr]"} gap-3`}>{step !== "pain" ? <button onClick={goBack} className="min-h-[60px] rounded-2xl border-2 border-[#315E50] px-5 text-lg font-black text-[#315E50]"><ArrowLeft className="mr-2 inline" />이전</button> : null}<button disabled={!ready||isSaving} onClick={nextStep} className="min-h-[60px] rounded-2xl bg-[#315E50] px-5 text-xl font-black text-white disabled:bg-[#B7C2BC]">{isSaving?"저장 중...":step === "concern" ? "오늘 기록 마치기" : "다음"}</button></div>
   </div></PatientShell>;
 }
 
 function PatientShell({ children, demo = false }: { children: React.ReactNode; demo?: boolean }) {
   return (
     <main className="min-h-[100dvh] bg-[#F1F0E9] px-5 text-[#202923] [font-size:18px]">
-      <div className="mx-auto max-w-[520px]">{demo ? <div className="pt-4 text-center"><span className="inline-flex rounded-full bg-white px-3 py-1 text-sm font-black text-[#587066]">오늘안부 데모</span></div> : null}{children}</div>
+      <div className="mx-auto max-w-[640px]">{demo ? <div className="pt-4 text-center"><span className="inline-flex rounded-full bg-white px-3 py-1 text-base font-black text-[#587066]">오늘안부 데모</span></div> : null}{children}</div>
     </main>
   );
 }
