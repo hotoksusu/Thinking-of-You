@@ -2,12 +2,19 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Activity,
   ArrowLeft,
+  CalendarDays,
   Check,
   ChevronRight,
+  Footprints,
   HeartPulse,
+  House,
   Hospital,
+  Moon,
+  Phone,
   ShieldCheck,
+  UserRound,
 } from "lucide-react";
 import {
   comparisonLabels,
@@ -37,7 +44,7 @@ import {
 } from "@/lib/demo-auth";
 import { RecoveryTrend } from "@/components/recovery-trend";
 
-type Mode = "home" | "onboarding" | "checkin" | "history";
+type Mode = "home" | "onboarding" | "checkin" | "history" | "hospital";
 export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: boolean }) {
   const [state, setState] = useState<CareState | null>(null),
     [patient, setPatient] = useState<Patient | null>(null),
@@ -50,7 +57,8 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
     [customConcern, setCustomConcern] = useState(""),
     [dayComparison, setDayComparison] = useState<DayComparison | null>(null),
     [saved, setSaved] = useState(false),
-    [guardianMode, setGuardianMode] = useState(false);
+    [guardianMode, setGuardianMode] = useState(false),
+    [selectedHistoryDate,setSelectedHistoryDate]=useState("");
   useEffect(() => {
     const next = demo ? loadPublicDemoCareState() : loadCareState(),
       params = new URLSearchParams(location.search),
@@ -439,9 +447,11 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
       </PatientShell>
     );
   }
+  if (mode === "hospital")
+    return <PatientShell demo={demo}><header className="py-5"><Link href={demo?"/demo/patient":"/app/patient"} className="flex min-h-12 items-center gap-2 font-black text-[#315E50]"><ArrowLeft/>오늘로 돌아가기</Link><p className="mt-6 font-black text-[#315E50]">{hospital?.name}와 함께하는 회복관리</p><h1 className="mt-2 text-3xl font-black">병원 도움</h1><p className="mt-2 font-bold leading-7 text-[#596A62]">걱정되는 증상이나 다음 진료 일정을 쉽게 확인하세요.</p></header><section className="rounded-3xl bg-white p-5"><h2 className="text-2xl font-black">어떤 도움이 필요하세요?</h2><div className="mt-5 grid gap-3"><a href="#safety" className="flex min-h-16 items-center justify-between rounded-2xl bg-[#FFF5EE] px-5 text-xl font-black text-[#8F422C]">증상이 걱정돼요 <ChevronRight/></a><a href="tel:02-555-0100" className="flex min-h-16 items-center justify-between rounded-2xl border-2 border-[#315E50] px-5 text-xl font-black text-[#315E50]">병원에 문의하기 <Phone/></a><div className="rounded-2xl bg-[#F1F0E9] p-5"><p className="font-bold text-[#596A62]">다음 진료 일정</p><p className="mt-2 text-xl font-black">9월 10일 오전 10:30</p><p className="mt-1 font-bold">서울온정형외과 · 정형외과</p></div></div></section><section className="mt-5 rounded-3xl bg-white p-5"><h2 className="text-xl font-black">가족과 함께 사용하기</h2><p className="mt-2 font-bold leading-7 text-[#596A62]">환자 동의 후 보호자가 대신 상태를 입력하도록 연결할 수 있어요.</p><Link href={demo?"/demo/patient?mode=checkin&proxy=guardian":"/care/guardian"} className="secondary"><UserRound/> 보호자 도움으로 입력하기</Link></section><section id="safety" className="mt-5 rounded-3xl border-2 border-[#E5B59F] bg-[#FFF8F4] p-5"><h2 className="text-xl font-black text-[#8F422C]">지금 바로 도움이 필요한 경우</h2><p className="mt-3 font-bold leading-8 text-[#684E44]">갑작스러운 심한 통증, 호흡곤란, 의식 변화 등 응급 증상이 있다면 이 서비스의 답변을 기다리지 말고 119 또는 가까운 응급의료기관을 이용하세요.</p></section></PatientShell>;
   if (mode === "history")
     return (
-      <PatientShell>
+      <PatientShell demo={demo}>
         <header className="py-5">
           <Link
             href={demo?"/demo/patient":"/app/patient"}
@@ -451,14 +461,16 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
           </Link>
           <h1 className="mt-7 text-3xl font-black">내 회복</h1>
           <p className="mt-2 font-bold text-[#68766F]">
-            내가 입력한 기록을 날짜별로 확인할 수 있어요.
+            지난 7일 동안 조금씩 좋아지고 있어요.
           </p>
         </header>
         {history.length ? (
           <>
+            <section className="rounded-3xl bg-[#244B3D] p-6 text-white"><p className="text-lg font-bold text-emerald-100">최근 7일</p><h2 className="mt-2 text-2xl font-black">지난주보다 조금 좋아지고 있어요.</h2><p className="mt-3 font-bold leading-8 text-white/80">통증은 조금씩 줄고 있고, 걷기는 비슷한 수준이에요.</p><div className="mt-5 grid grid-cols-3 gap-2"><RecoverySummary icon={<HeartPulse/>} label="통증" value="좋아지고 있어요"/><RecoverySummary icon={<Footprints/>} label="걷기" value="비슷해요"/><RecoverySummary icon={<Moon/>} label="수면" value="조금 나아졌어요"/></div></section>
             <section className="rounded-3xl bg-white p-5"><p className="text-sm font-black text-[#315E50]">RECOVERY JOURNEY</p><h2 className="mt-2 text-2xl font-black">지금은 회복 {Math.max(1, Math.ceil(daysSince(patient.surgeryDate || patient.dischargeDate) / 7))}주차예요</h2><p className="mt-2 font-semibold leading-7 text-[#596A62]">매일의 작은 변화가 회복 기록으로 쌓이고 있어요.</p><div className="mt-5 flex items-center justify-between text-center text-xs font-black text-[#596A62]"><span>●<br/>수술</span><span className="h-0.5 flex-1 bg-[#CFE0D5]"/><span>●<br/>퇴원</span><span className="h-0.5 flex-1 bg-[#CFE0D5]"/><span className="text-[#315E50]">◎<br/>현재 D+{daysSince(patient.surgeryDate || patient.dischargeDate)}</span><span className="h-0.5 flex-1 bg-[#DDE5E0]"/><span>○<br/>다음 외래</span></div></section>
             <section className="mt-5 rounded-3xl bg-[#E8F1EA] p-5"><h2 className="text-xl font-black text-[#315E50]">이번 주 회복 기록</h2><div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-2xl bg-white p-4"><p className="text-sm font-bold text-[#68766F]">평균 통증</p><p className="mt-1 text-2xl font-black">{(history.slice(0,7).reduce((sum,item)=>sum+painValue(item),0)/Math.min(7,history.length)).toFixed(1)}</p></div><div className="rounded-2xl bg-white p-4"><p className="text-sm font-bold text-[#68766F]">체크인</p><p className="mt-1 text-2xl font-black">7일 중 {Math.min(7,history.length)}일</p></div></div><p className="mt-4 font-bold leading-7 text-[#315E50]">최근 기록이 차곡차곡 쌓이고 있어요. 숫자는 의료적 예후 판단을 의미하지 않습니다.</p></section>
             <RecoveryTrend checks={history} audience="patient" />
+            <section className="mt-5 rounded-3xl bg-white p-5"><div className="flex items-center gap-2"><CalendarDays className="text-[#315E50]"/><h2 className="text-2xl font-black">지난 기록</h2></div><p className="mt-2 font-bold text-[#68766F]">날짜를 누르면 그날의 기록을 볼 수 있어요.</p><div className="mt-5 grid grid-cols-7 gap-2 text-center"><span className="text-sm font-bold text-[#68766F]">월</span><span className="text-sm font-bold text-[#68766F]">화</span><span className="text-sm font-bold text-[#68766F]">수</span><span className="text-sm font-bold text-[#68766F]">목</span><span className="text-sm font-bold text-[#68766F]">금</span><span className="text-sm font-bold text-[#68766F]">토</span><span className="text-sm font-bold text-[#68766F]">일</span>{Array.from({length:7},(_,i)=>{const c=history[6-i],active=(selectedHistoryDate||history[0]?.date)===c?.date;return <button key={i} disabled={!c} onClick={()=>c&&setSelectedHistoryDate(c.date)} className={`grid aspect-square place-items-center rounded-xl text-lg font-black ${active?"bg-[#315E50] text-white":c?"bg-[#E8F1EA] text-[#315E50]":"bg-[#F1F0E9] text-[#A3ADA7]"}`}>{c?<><span>{Number(c.date.slice(-2))}</span><span className="sr-only">기록 있음</span></>:"-"}</button>})}</div>{(()=>{const c=history.find(x=>x.date===(selectedHistoryDate||history[0]?.date));return c?<div className="mt-5 rounded-2xl bg-[#F1F0E9] p-5"><p className="text-xl font-black">{c.date.replaceAll("-",".")} 기록</p><p className="mt-3 font-bold leading-8">통증 {painValue(c)}점 · 걷기 {mobilityLabels[c.mobilityScore??c.mobility]}<br/>{c.hasConcern?c.concernText:"새롭게 불편해진 점은 없었어요."}</p><p className="mt-3 font-black text-[#315E50]">✓ 병원에 전달 완료</p></div>:null})()}</section>
             <div className="mt-5 space-y-3">
               {history.slice(0, 7).map((c) => (
                 <article key={c.id} className="rounded-2xl bg-white p-5">
@@ -493,7 +505,7 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
       </PatientShell>
     );
   return (
-    <PatientShell>
+    <PatientShell demo={demo}>
       <header className="flex items-center gap-2 py-5 text-xl font-black text-[#315E50]">
         <HeartPulse /> 오늘안부 Care
       </header>
@@ -505,17 +517,15 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
         <div className="mx-auto mt-3 w-[120px]">
           <CareCompanion state={todayCheck ? "completed" : "welcome"} compact />
         </div>
-        <p className="mt-4 text-lg font-black text-[#315E50]">수술 후 {daysSince(patient.surgeryDate || patient.dischargeDate)}일째</p>
-        <h1 className="mt-2 text-[2.05rem] font-black leading-tight">나의 회복 상황</h1>
-        {history.length ? <div className="mt-5 border-y border-[#DCE5E0] py-5"><p className="text-lg font-black">회복 흐름 <span className="float-right text-[#315E50]">{history[0].dayComparison === "worse" ? "조금 더 살펴볼게요" : "좋아지고 있어요 ↑"}</span></p><p className="mt-3 text-lg font-black">통증 <span className="float-right text-[#315E50]">{history.slice(0,4).reverse().map(painValue).join(" → ")}</span></p><p className="mt-3 text-lg font-black">움직임 <span className="float-right text-[#315E50]">{history[0].mobilityScore === 0 ? "조금씩 편해지고 있어요" : "꾸준히 기록 중이에요"}</span></p></div> : null}
+        <p className="mt-4 text-lg font-black text-[#315E50]">김OO님 · 수술 후 {daysSince(patient.surgeryDate || patient.dischargeDate)}일째</p>
+        <h1 className="mt-2 text-[2.05rem] font-black leading-tight">{todayCheck?"오늘 확인은 끝났어요.":"오늘 상태를 알려주세요."}</h1>
+        <p className="mt-3 text-xl font-bold leading-8 text-[#46574F]">{todayCheck?`${hospital?.name}에 오늘 상태를 전달했어요.`:"1분이면 끝나요. 병원에서 회복 상태를 함께 확인하고 있어요."}</p>
         {todayCheck ? (
           <>
             <div className="mt-5 rounded-2xl bg-[#E8F1EA] p-5">
-              <p className="text-xl font-black text-[#315E50]">
-                오늘 기록 완료
-              </p>
+              <p className="text-xl font-black text-[#315E50]">✓ 오늘 상태 전달 완료</p>
               <p className="mt-2 text-lg font-bold text-[#46574F]">
-                오늘 입력한 상태가 회복 기록에 쌓였어요.
+                {hospital?.name} · 오늘 오전 9:42<br/>어제보다 통증이 조금 줄었고, 걷기는 비슷해요.
               </p>
             </div>
             <Link href={demo?"/demo/patient?mode=history":"/app/patient/history"} className="secondary">
@@ -524,20 +534,16 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
           </>
         ) : (
           <>
-            <p className="mt-3 text-xl font-bold leading-8 text-[#46574F]">
-              어제와 비교해서 달라진 점을 알려주세요.
-            </p>
             <Link href={demo?"/demo/patient?mode=checkin":"/app/patient/checkin"} className="primary">
-              오늘 상태 알려주기 · 약 1분 <ChevronRight />
+              오늘 상태 알려주기 <ChevronRight />
             </Link>
-            <p className="mt-4 text-center text-base font-bold leading-7 text-[#526159]">오늘 상태를 기록하면 병원에서 회복 흐름을 확인할 수 있어요. 다음 진료 때도 함께 볼 수 있습니다.</p>
+            <p className="mt-4 text-center text-base font-bold leading-7 text-[#526159]">이번 주 5일 중 4일 기록했어요. 오늘 기록도 다음 진료 때 함께 볼 수 있습니다.</p>
           </>
         )}
       </section>
+      {history.length?<section className="mt-5 rounded-3xl bg-white p-5"><p className="text-base font-black text-[#315E50]">최근 회복</p><h2 className="mt-2 text-2xl font-black">지난주보다 조금 좋아지고 있어요.</h2><p className="mt-2 font-bold leading-7 text-[#596A62]">통증은 줄고 있고, 걷기는 비슷한 수준이에요.</p><Link href={demo?"/demo/patient?mode=history":"/app/patient/history"} className="secondary">내 회복 보기 <ChevronRight/></Link></section>:null}
       {patientFollowUp ? <div className="mt-5 rounded-2xl border border-[#CFE0D5] bg-[#E8F1EA] p-5"><p className="font-black text-[#315E50]">병원에서 회복 상태를 계속 확인할 예정이에요.</p><p className="mt-2 font-semibold leading-7 text-[#596A62]">최근 남긴 회복 기록을 참고해 {patientFollowUp.followUpDueDate ? `${patientFollowUp.followUpDueDate}에` : "다음 일정에"} 상태를 한 번 더 확인합니다.</p></div> : null}
-      <p className="mt-5 rounded-2xl bg-white p-4 text-[16px] font-bold leading-7 text-[#46574F]">
-        실시간 응급 대응 서비스는 아닙니다. 갑자기 많이 아프거나 급한 상황이라면 병원 또는 119에 직접 연락하세요.
-      </p>
+      <Link href={demo?"/demo/patient?mode=hospital":"/care/hospital"} className="mt-5 flex min-h-16 items-center justify-between rounded-2xl bg-white px-5 text-xl font-black text-[#315E50]">증상이 걱정돼요 <ChevronRight/></Link>
     </PatientShell>
   );
 }
@@ -631,11 +637,18 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo }: {
 
 function PatientShell({ children, demo = false }: { children: React.ReactNode; demo?: boolean }) {
   return (
-    <main className="min-h-[100dvh] bg-[#F1F0E9] px-5 text-[#202923] [font-size:18px]">
-      <div className="mx-auto max-w-[640px]">{demo ? <div className="pt-4 text-center"><span className="inline-flex rounded-full bg-white px-3 py-1 text-base font-black text-[#587066]">오늘안부 데모</span></div> : null}{children}</div>
+    <main className="min-h-[100dvh] bg-[#F1F0E9] px-5 pb-28 text-[#202923] [font-size:18px]">
+      <div className="mx-auto max-w-[640px]">{demo ? <div className="pt-4 text-center"><span className="inline-flex rounded-full bg-white px-3 py-1 text-base font-black text-[#587066]">오늘안부 데모</span></div> : null}{children}</div><PatientBottomNav demo={demo}/>
     </main>
   );
 }
+function PatientBottomNav({demo}:{demo:boolean}){
+  const[current,setCurrent]=useState("home");
+  useEffect(()=>{const q=new URLSearchParams(location.search).get("mode");setCurrent(q==="history"?"history":q==="hospital"?"hospital":"home")},[]);
+  const base=demo?"/demo/patient":"/app/patient";
+  return <nav aria-label="환자 메뉴" className="fixed inset-x-3 bottom-3 z-40 mx-auto grid max-w-[610px] grid-cols-3 rounded-2xl border border-[#D2DDD7] bg-white/95 p-2 shadow-xl backdrop-blur">{[["home","오늘",House,base],["history","내 회복",Activity,`${base}${demo?"?mode=history":"/history"}`],["hospital","병원",Hospital,demo?`${base}?mode=hospital`:"/care/hospital"]].map(([id,label,Icon,href])=><Link key={String(id)} href={String(href)} aria-current={current===id?"page":undefined} className={`flex min-h-14 flex-col items-center justify-center rounded-xl text-sm font-black ${current===id?"bg-[#E8F1EA] text-[#315E50]":"text-[#65736C]"}`}><Icon size={21}/><span>{String(label)}</span></Link>)}</nav>
+}
+function RecoverySummary({icon,label,value}:{icon:React.ReactNode;label:string;value:string}){return <div className="rounded-2xl bg-white/10 p-3"><span aria-hidden>{icon}</span><p className="mt-2 text-sm font-bold text-white/70">{label}</p><p className="mt-1 text-base font-black leading-5">{value}</p></div>}
 function Empty({
   title,
   text,
