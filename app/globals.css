@@ -385,8 +385,26 @@ main:has(> aside) .text-\[11px\] {
 }
 
 main:has(> aside) .text-sm {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
+}
+
+@media (min-width: 1024px) {
+  main:has(> aside) { font-size: 17px; }
+  main:has(> aside) > aside { width: 300px; padding: 28px; }
+  main:has(> aside) button,
+  main:has(> aside) select,
+  main:has(> aside) input { font-size: 16px; }
+  main:has(> aside) aside nav button { font-size: 17px; min-height: 54px; }
+  main:has(> aside) article { font-size: 16px; line-height: 1.55; }
+  main:has(> aside) article .text-\[17px\] { font-size: 19px; }
+  main:has(> aside) article .text-\[15px\] { font-size: 16px; }
+  main:has(> aside) article > div { min-width: 0; }
+  main:has(> aside) .max-w-\[1460px\] {
+    max-width: 1600px;
+    padding: 40px 48px 96px;
+  }
+  main:has(> aside) header > div:first-child { min-height: 82px; }
 }
 
 @media (max-width: 640px) {
