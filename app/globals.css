@@ -377,6 +377,18 @@ a {
   .ansimi-character, .ansimi-effect, .ansimi-hero-once { animation: none !important; transform: none !important; }
 }
 
+/* Hospital work surfaces prioritize scanability at 100% desktop zoom. */
+main:has(> aside) .text-xs,
+main:has(> aside) .text-\[11px\] {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+main:has(> aside) .text-sm {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
 @media (max-width: 640px) {
   .ansimi-size-large .ansimi-character { width: min(13rem, 56vw); height: min(13rem, 56vw); }
   .ansimi-hero-once { animation-duration: .9s; }
