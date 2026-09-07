@@ -377,6 +377,51 @@ a {
   .ansimi-character, .ansimi-effect, .ansimi-hero-once { animation: none !important; transform: none !important; }
 }
 
+/* Hospital patient detail: desktop clinical-reading hierarchy. */
+.hospital-patient-detail {
+  font-size: 15px;
+  line-height: 1.55;
+}
+.hospital-patient-detail .patient-identity h1 { font-size: 22px; }
+.hospital-patient-detail .patient-context,
+.hospital-patient-detail .metric-value { font-size: 16px; }
+.hospital-patient-detail .section-title { font-size: 20px; line-height: 1.35; }
+.hospital-patient-detail .metric-emphasis { font-size: 24px; }
+.hospital-patient-detail .metric-label { font-size: 14px; }
+.hospital-patient-detail .secondary {
+  display: block;
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  text-align: left;
+  color: inherit;
+  font-size: 14px;
+}
+.hospital-patient-detail .eyebrow { font-size: 13px; letter-spacing: .04em; }
+.hospital-patient-detail .status-badge,
+.hospital-patient-detail button,
+.hospital-patient-detail a,
+.hospital-patient-detail select,
+.hospital-patient-detail input,
+.hospital-patient-detail textarea { font-size: 15px; }
+.hospital-patient-detail #hospital-action button,
+.hospital-patient-detail #hospital-action select,
+.hospital-patient-detail #hospital-action input { min-height: 48px; }
+.hospital-patient-detail #hospital-action textarea { font-size: 15px; line-height: 1.55; }
+@media (min-width: 1440px) {
+  .hospital-patient-detail { font-size: 16px; }
+  .hospital-patient-detail .patient-identity h1 { font-size: 24px; }
+  .hospital-patient-detail .patient-context,
+  .hospital-patient-detail .metric-value { font-size: 17px; }
+  .hospital-patient-detail .section-title { font-size: 21px; }
+  .hospital-patient-detail .metric-emphasis { font-size: 26px; }
+  .hospital-patient-detail .metric-label,
+  .hospital-patient-detail .secondary { font-size: 15px; }
+  .hospital-patient-detail #hospital-action .action-grid button { min-height: 52px; font-size: 16px; }
+}
+
 /* Hospital work surfaces prioritize scanability at 100% desktop zoom. */
 main:has(> aside) .text-xs,
 main:has(> aside) .text-\[11px\] {
