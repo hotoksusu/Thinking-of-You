@@ -150,9 +150,9 @@ export default function SelfContactsPage() {
               />
             </div>
 
-            <Button className="w-full text-lg">
+            <Button disabled title="기능 준비 중" className="w-full text-lg">
               <Plus size={22} aria-hidden />
-              추가하기
+              추가하기 · 준비 중
             </Button>
           </Card>
         </form>

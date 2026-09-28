@@ -12,3 +12,5 @@ pnpm-debug.log*
 *.tsbuildinfo
 work/
 outputs/
+
+qa/*.log

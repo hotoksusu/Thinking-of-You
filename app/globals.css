@@ -4,6 +4,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Shared interaction affordances; disabled controls always expose their reason in text. */
+@layer base {
+  button:not(:disabled), a[href], summary, select:not(:disabled) { cursor: pointer; }
+  button:not(:disabled):hover, a[href]:hover { filter: brightness(.96); }
+  button:not(:disabled):active, a[href]:active { filter: brightness(.90); }
+  button:disabled, select:disabled, input:disabled { cursor: not-allowed; opacity: .6; }
+  :where(button, a, input, select, textarea, summary):focus-visible { outline: 3px solid #4D826F; outline-offset: 3px; }
+}
+@media print {
+  body:has(.care-report) aside, body:has(.care-report) header:not(.care-report header) { display: none; }
+  .care-report { color: #18251F; }
+  .care-report article { box-shadow: none; }
+}
+
 @layer components {
   .primary { @apply mt-7 flex min-h-[64px] w-full items-center justify-center gap-2 rounded-2xl bg-[#315E50] px-5 text-center text-xl font-black text-white; }
   .secondary { @apply mt-4 flex min-h-[60px] w-full items-center justify-center gap-2 rounded-2xl border-2 border-[#315E50] px-5 text-center text-lg font-black text-[#315E50]; }

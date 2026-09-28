@@ -1,0 +1,92 @@
+[
+  {
+    "file": "app\\care\\hospital\\bulk\\page.tsx",
+    "line": 3,
+    "label": "46명 등록하기"
+  },
+  {
+    "file": "app\\care\\hospital\\page.tsx",
+    "line": 7,
+    "label": "퇴원환자 등록"
+  },
+  {
+    "file": "app\\care\\hospital\\page.tsx",
+    "line": 7,
+    "label": "확인 필요도순 ↓"
+  },
+  {
+    "file": "app\\care\\hospital\\page.tsx",
+    "line": 7,
+    "label": "연락 기록"
+  },
+  {
+    "file": "app\\care\\management\\page.tsx",
+    "line": 3,
+    "label": "일정 확인 Queue"
+  },
+  {
+    "file": "app\\care\\protocols\\page.tsx",
+    "line": 3,
+    "label": "{i===1?<><Check className=\"mr-2 inline\"/>사용 중</>:\"선택하고 시작\"}"
+  },
+  {
+    "file": "app\\care\\settings\\page.tsx",
+    "line": 3,
+    "label": "선택한 기준 저장"
+  },
+  {
+    "file": "src\\components\\hospital-mode.tsx",
+    "line": 31,
+    "label": "퇴원환자 등록"
+  },
+  {
+    "file": "src\\components\\patient-experience.tsx",
+    "line": 3,
+    "label": "<Images/> 사진 보기"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 21,
+    "label": "<Search size={18}/> 환자 찾기"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 23,
+    "label": "+ 기록 추가"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 26,
+    "label": "환자 요약 보기"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 40,
+    "label": "<span className=\"[&>svg]:size-[21px]\">{icon}</span> <span>{label}</span>"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 43,
+    "label": "<Plus size={18}/> 병원 등록"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 43,
+    "label": "전체 Stage"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 43,
+    "label": "<Search className=\"mr-1 inline\" size={14}/> 검색"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 43,
+    "label": "담당자 확인"
+  },
+  {
+    "file": "src\\components\\platform-demo.tsx",
+    "line": 44,
+    "label": "+ Action"
+  }
+]

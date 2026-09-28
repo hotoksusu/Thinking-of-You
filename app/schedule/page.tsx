@@ -149,7 +149,7 @@ export default function ConsumerSchedulePage() {
               <ScheduleEmptyState
                 title="오늘 예정된 일정은 없어요."
                 description="가볍게 안부만 확인해도 좋아요."
-                actionLabel="일정 추가하기"
+                actionLabel="일정 추가하기 · 준비 중"
                 onAction={focusForm}
               />
             )}
@@ -343,7 +343,7 @@ export default function ConsumerSchedulePage() {
               placeholder="메모"
             />
 
-            <Button className="w-full">
+            <Button disabled title="기능 준비 중" className="w-full">
               <Plus size={18} aria-hidden />
               일정 추가하기
             </Button>

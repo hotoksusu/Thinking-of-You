@@ -16,7 +16,7 @@ export default function AdminContentPage() {
               className={`${inputClassName} mt-3 min-h-28 py-3`}
               defaultValue={template.value}
             />
-            <Button className="mt-3">수정 저장</Button>
+            <Button disabled title="기능 준비 중" className="mt-3">수정 저장 · 준비 중</Button>
           </Card>
         ))}
       </div>
