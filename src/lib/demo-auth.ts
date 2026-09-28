@@ -26,14 +26,27 @@ function read<T>(key:string):T|null{try{const v=localStorage.getItem(key);if(!v)
 function sessionId(){return `session_${crypto.randomUUID?.()||Date.now()}`}
 function expiry(hours:number){return new Date(Date.now()+hours*3600000).toISOString()}
 export function getHospitalSession(){return typeof window==="undefined"?null:read<HospitalSession>(keys.hospital)}
-export function getPatientSession(){return typeof window==="undefined"?null:read<PatientSession>(keys.patient)}
+export function inspectPatientSession(): { session: PatientSession | null; error?: "missingSession" | "sessionExpired" | "storageError" } {
+ if(typeof window==="undefined")return {session:null,error:"missingSession"};
+ try {const raw=localStorage.getItem(keys.patient);if(!raw)return {session:null,error:"missingSession"};const session=JSON.parse(raw) as PatientSession;
+ if(session?.kind!=="patient"||!session.patientId||!session.hospitalId||!Number.isFinite(Date.parse(session.expiresAt)))return {session:null,error:"storageError"};
+ if(Date.parse(session.expiresAt)<=Date.now())return {session:null,error:"sessionExpired"};return {session};
+ }catch{return {session:null,error:"storageError"};}
+}
+export function getPatientSession(){return inspectPatientSession().session}
+export function inspectPatientInvitation(token:string): { invitation: PatientInvitation | null; error?: "invalidInvite" | "expiredInvite" | "storageError" } {
+ try {const list=JSON.parse(localStorage.getItem(keys.invites)||"[]");if(!Array.isArray(list))return {invitation:null,error:"storageError"};const invitation=list.find((i:PatientInvitation)=>i.token===token);
+ if(!invitation||invitation.status==="revoked")return {invitation:null,error:"invalidInvite"};
+ if(invitation.status==="expired"||!Number.isFinite(Date.parse(invitation.expiresAt))||Date.parse(invitation.expiresAt)<=Date.now())return {invitation:null,error:"expiredInvite"};return {invitation};
+ }catch{return {invitation:null,error:"storageError"};}
+}
 export function getOperatorSession(){return typeof window==="undefined"?null:read<OperatorSession>(keys.operator)}
 export function loginHospital(email:string,password:string){const user=demoHospitalUsers.find(u=>u.email===email&&u.status==="active");if(!user||password!=="demo1234")return null;const hospitalName=user.hospitalId==="hospital_001"?"서울온정형외과":"해온병원",s:HospitalSession={kind:"hospital",sessionId:sessionId(),userId:user.id,staffId:user.id,staffName:user.name,hospitalId:user.hospitalId,hospitalName,role:user.role,expiresAt:expiry(8)};localStorage.setItem(keys.hospital,JSON.stringify(s));audit({actorType:"hospital_user",actorId:user.id,actorRole:user.role,hospitalId:user.hospitalId,action:"hospital_login",resourceType:"session",resourceId:s.sessionId});return s}
 export function loginOperator(email:string,password:string){if(email!==demoOperator.email||password!=="admin1234")return null;const s:OperatorSession={kind:"operator",sessionId:sessionId(),userId:demoOperator.id,role:demoOperator.role,expiresAt:expiry(2),mfaVerified:false};localStorage.setItem(keys.operator,JSON.stringify(s));audit({actorType:"operator",actorId:demoOperator.id,action:"operator_login",resourceType:"session",resourceId:s.sessionId});return s}
 export function logout(kind:"hospital"|"patient"|"operator"){localStorage.removeItem(keys[kind])}
 export function createInvitation(patientId:string,hospitalId:string){const list=read<PatientInvitation[]>(keys.invites)||[];const inv:PatientInvitation={id:`invite_${Date.now()}`,patientId,hospitalId,token:`demo_${crypto.randomUUID?.().replaceAll("-","")||Date.now()}`,status:"pending",createdAt:new Date().toISOString(),expiresAt:expiry(24*7)};localStorage.setItem(keys.invites,JSON.stringify([...list,inv]));return inv}
-export function findInvitation(token:string){return (read<PatientInvitation[]>(keys.invites)||[]).find(i=>i.token===token&&i.status!=="revoked"&&Date.parse(i.expiresAt)>Date.now())||null}
-export function verifyPatientIdentity(token:string){const list=read<PatientInvitation[]>(keys.invites)||[];const inv=list.find(i=>i.token===token&&i.status!=="revoked"&&Date.parse(i.expiresAt)>Date.now());if(!inv)return null;const now=new Date().toISOString();localStorage.setItem(keys.invites,JSON.stringify(list.map(i=>i.id===inv.id?{...i,status:"used",usedAt:now}:i)));const s:PatientSession={kind:"patient",sessionId:sessionId(),patientId:inv.patientId,hospitalId:inv.hospitalId,expiresAt:expiry(24*30)};localStorage.setItem(keys.patient,JSON.stringify(s));audit({actorType:"patient",actorId:inv.patientId,hospitalId:inv.hospitalId,action:"patient_session_created",resourceType:"session",resourceId:s.sessionId});return s}
+export function findInvitation(token:string){return inspectPatientInvitation(token).invitation}
+export function verifyPatientIdentity(token:string){const list=read<PatientInvitation[]>(keys.invites)||[];const inv=list.find(i=>i.token===token&&i.status!=="revoked"&&i.status!=="expired"&&Date.parse(i.expiresAt)>Date.now());if(!inv)return null;const now=new Date().toISOString();localStorage.setItem(keys.invites,JSON.stringify(list.map(i=>i.id===inv.id?{...i,status:"used",usedAt:now}:i)));const s:PatientSession={kind:"patient",sessionId:sessionId(),patientId:inv.patientId,hospitalId:inv.hospitalId,expiresAt:expiry(24*30)};localStorage.setItem(keys.patient,JSON.stringify(s));audit({actorType:"patient",actorId:inv.patientId,hospitalId:inv.hospitalId,action:"patient_session_created",resourceType:"session",resourceId:s.sessionId});return s}
 export function canAccessPatient(session:HospitalSession,patient:{id:string;hospitalId:string}){return session.hospitalId===patient.hospitalId}
 export function canManagePatient(role:HospitalRole){return role==="owner"||role==="nurse"||role==="coordinator"}
 export function canFollowUp(role:HospitalRole){return role!=="staff"}

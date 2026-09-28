@@ -1,0 +1,92 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {chromium} from 'playwright';
+const origin=process.env.TEST_BASE_URL || 'http://127.0.0.1:3200';
+const demoKey='oneul-anbu:public-demo:care-mvp:v5', careKey='oneul-anbu:care-mvp:v1', sessionKey='oneul-anbu:demo:patient-session';
+async function answer(page,score=1){
+  await page.getByRole('button',{name:`통증 ${score}점`,exact:true}).click();
+  await page.getByRole('button',{name:'다음',exact:true}).click();
+  await page.getByRole('button',{name:'어제와 비슷해요',exact:true}).click();
+  await page.getByRole('button',{name:'다음',exact:true}).click();
+  await page.getByRole('button',{name:'비슷해요',exact:true}).click();
+  await page.getByRole('button',{name:'다음',exact:true}).click();
+  await page.getByRole('button',{name:'새롭게 불편해진 점은 없어요',exact:true}).click();
+  await page.getByRole('button',{name:'오늘 기록 마치기',exact:true}).click();
+  await page.getByRole('heading',{name:'오늘 회복 기록을 남겼어요'}).waitFor();
+}
+for(const width of [1440,390]) test(`journey ${width}: demo, real session, back, reload, edit, recovery`,{timeout:180000},async()=>{
+  const browser=await chromium.launch({headless:true,channel:'msedge'});
+  const context=await browser.newContext({viewport:{width,height:900},serviceWorkers:'block'}),page=await context.newPage();
+  const failures=[];page.on('pageerror',e=>failures.push(String(e)));page.on('response',r=>{if(r.status()===404)failures.push('404 '+r.url());});
+  // Detect the original transient bug even if the wrong nav only appears for one frame.
+  await page.addInitScript(()=>{window.__realLinks=[];new MutationObserver(()=>{if(location.pathname.startsWith('/demo/patient'))for(const a of document.querySelectorAll('a[href^="/app/patient"]'))window.__realLinks.push(a.getAttribute('href'));}).observe(document,{childList:true,subtree:true});});
+  try {
+    await page.goto(origin);await page.getByRole('link',{name:'환자 화면 미리보기',exact:true}).click();
+    await page.getByRole('heading',{name:'오늘 회복 상태를 알려주세요.'}).waitFor();
+    const seed=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),demoKey);
+    await page.getByRole('link',{name:'회복 기록',exact:true}).click();
+    await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();
+    assert.ok(page.url().includes('mode=history'));
+    await page.getByRole('link',{name:/^\d{4}\.\d{2}\.\d{2} 기록$/}).first().click();
+    await page.waitForURL(/recordId=/);const detail=page.url();await page.reload();assert.equal(page.url(),detail);
+    await page.getByRole('button',{name:'회복 기록',exact:true}).click();
+    await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();
+    await page.getByRole('button',{name:'오늘',exact:true}).click();
+    await page.getByRole('heading',{name:'오늘 회복 상태를 알려주세요.'}).waitFor();
+    await page.getByRole('link',{name:'병원 안내',exact:true}).click();
+    await page.getByRole('heading',{name:'병원 안내',exact:true}).waitFor();
+    await page.getByRole('button',{name:'오늘',exact:true}).click();
+    await page.getByRole('link',{name:'오늘 상태 입력하기',exact:true}).click();await answer(page);
+    await page.getByRole('link',{name:'오늘 기록 수정하기',exact:true}).click();await answer(page,2);
+    await page.getByRole('link',{name:'오늘 기록 수정하기',exact:true}).click();await answer(page,3);
+    const checks=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).checkIns.filter(c=>c.patientId==='patient_001').sort((a,b)=>(b.updatedAt||b.createdAt).localeCompare(a.updatedAt||a.createdAt)),demoKey);
+    assert.equal(checks[0].painScore,3);assert.equal(checks.length,seed.checkIns.filter(c=>c.patientId==='patient_001').length+1);
+    assert.equal(await page.evaluate(k=>localStorage.getItem(k),careKey),null);
+    assert.equal(await page.evaluate(k=>localStorage.getItem(k),sessionKey),null);
+    assert.deepEqual(await page.evaluate(()=>window.__realLinks),[]);
+    // Direct demo URL with patient/proxy context must preserve it in every destination.
+    await page.goto(origin+'/demo/patient?patientId=patient_002&proxy=guardian&mode=history');
+    await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();
+    await page.getByRole('button',{name:'오늘',exact:true}).click();
+    assert.ok(page.url().includes('patientId=patient_002'));assert.ok(page.url().includes('proxy=guardian'));
+    await page.getByRole('link',{name:'병원 안내',exact:true}).click();await page.reload();
+    assert.ok(page.url().includes('patientId=patient_002'));
+    // Synthetic real-patient invite has its own data and session, separate from demo.
+    await page.evaluate(({seed,careKey})=>{localStorage.setItem(careKey,JSON.stringify(seed));localStorage.setItem('oneul-anbu:demo:invitations',JSON.stringify([{id:'qa',patientId:'patient_001',hospitalId:'hospital_001',token:'qa',status:'pending',expiresAt:'2999-01-01'}]));},{seed,careKey});
+    await page.goto(origin+'/i?token=qa');await page.getByRole('button',{name:'오늘 상태 알려주기 →'}).click();await page.getByRole('button',{name:'오늘 상태 입력하기',exact:true}).click();
+    await page.waitForURL('**/app/patient');await page.getByRole('heading',{name:'오늘 회복 상태를 알려주세요.'}).waitFor();
+    assert.equal(await page.getByText('오늘안부 데모',{exact:true}).count(),0);
+    await page.getByRole('link',{name:'오늘 상태 입력하기',exact:true}).click();await answer(page);
+    await page.getByRole('link',{name:'회복 추이 보기',exact:true}).click();
+    await page.getByRole('link',{name:/^\d{4}\.\d{2}\.\d{2} 기록$/}).first().click();await page.waitForURL(/recordId=/);await page.reload();
+    await page.getByRole('button',{name:'회복 기록',exact:true}).click();
+    await page.getByRole('link',{name:'병원 안내',exact:true}).click();await page.getByRole('heading',{name:'병원 안내',exact:true}).waitFor();
+    await page.evaluate(key=>{const s=JSON.parse(localStorage.getItem(key));s.expiresAt='2000-01-01';localStorage.setItem(key,JSON.stringify(s));},sessionKey);
+    await page.goto(origin+'/app/patient/history');await page.getByRole('heading',{name:'다시 연결이 필요해요.'}).waitFor();
+    assert.equal(await page.getByRole('navigation',{name:'환자 메뉴'}).count(),0);
+    await page.getByRole('button',{name:'다시 시도하기',exact:true}).click();await page.getByRole('heading',{name:'다시 연결이 필요해요.'}).waitFor();
+    await page.getByRole('button',{name:'병원 안내 보기',exact:true}).click();await page.getByRole('heading',{name:'병원에서 받은 링크 찾기'}).waitFor();
+    await page.screenshot({path:`qa/patient-error-${width}.png`,fullPage:true});
+    await page.getByRole('button',{name:'이전 화면',exact:true}).click();await page.waitForURL('**/patient');
+    await page.goto(origin+'/i?token=invalid');await page.getByRole('heading',{name:'초대 링크를 확인할 수 없어요'}).waitFor();
+    await page.evaluate(()=>localStorage.setItem('oneul-anbu:demo:invitations',JSON.stringify([{token:'expired',status:'expired',expiresAt:'2999-01-01'}])));
+    await page.goto(origin+'/i?token=expired');await page.getByRole('heading',{name:'초대 링크의 이용 시간이 지났어요.'}).waitFor();
+    // Corrupt demo data offers retry instead of producing real patient links.
+    await page.evaluate(key=>localStorage.setItem(key,'{broken'),demoKey);await page.goto(origin+'/demo/patient');
+    await page.getByRole('heading',{name:'이 기기의 저장 정보를 읽지 못했어요.'}).waitFor();
+    await page.evaluate(({key,seed})=>localStorage.setItem(key,JSON.stringify(seed)),{key:demoKey,seed});await page.getByRole('button',{name:'다시 시도하기',exact:true}).click();
+    await page.getByRole('heading',{name:'오늘 회복 상태를 알려주세요.'}).waitFor();
+    await page.evaluate(({key,seed})=>{seed.checkIns=seed.checkIns.filter(c=>c.patientId!=='patient_001');localStorage.setItem(key,JSON.stringify(seed));},{key:demoKey,seed:structuredClone(seed)});
+    await page.goto(origin+'/demo/patient?mode=history');await page.getByRole('heading',{name:'아직 회복 기록이 없어요.'}).waitFor();
+    await page.getByRole('link',{name:'오늘 상태 입력하기',exact:true}).click();assert.ok(page.url().includes('/demo/patient'));
+    await page.evaluate(({key,seed})=>{seed.patients.find(p=>p.id==='patient_001').careStatus='completed';localStorage.setItem(key,JSON.stringify(seed));},{key:demoKey,seed:structuredClone(seed)});
+    await page.goto(origin+'/demo/patient');await page.getByRole('heading',{name:'회복 기록 프로그램을 완료했어요'}).waitFor();
+    await page.getByRole('link',{name:'내 회복 기록 보기',exact:true}).click();await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();
+    assert.ok(page.url().includes('/demo/patient'));assert.deepEqual(await page.evaluate(()=>window.__realLinks),[]);
+    await page.evaluate(key=>localStorage.removeItem(key),sessionKey);await page.goto(origin+'/app/patient/history');
+    await page.getByRole('heading',{name:'환자 연결이 필요해요.'}).waitFor();
+    assert.equal(await page.getByRole('navigation',{name:'환자 메뉴'}).count(),0);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    assert.deepEqual(failures,[]);
+  } finally {await browser.close();}
+});

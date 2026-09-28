@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PatientLink as Link } from "@/components/patient-navigation";
 import { CalendarDays, Check, ChevronRight, HeartPulse, Hospital } from "lucide-react";
 import type { CareState, Patient } from "@/lib/care-mvp";
 import { getPatientHome } from "@/lib/patient-home";

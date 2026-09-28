@@ -1,6 +1,8 @@
 "use client";
-import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { PatientLink as Link, PatientNavigation, PatientBack, usePatientNavigation } from "@/components/patient-navigation";
+import { PatientError, type PatientErrorType } from "@/components/patient-error";
 import {
   Activity,
   ArrowLeft,
@@ -14,7 +16,6 @@ import {
 } from "lucide-react";
 import {
   comparisonLabels,
-  concernLabels,
   daysSince,
   demoPainBucket,
   loadCareState,
@@ -33,8 +34,9 @@ import {
 import { prioritizationProvider } from "@/services/prioritization";
 import { trackCareEvent } from "@/lib/care-analytics";
 import {
-  findInvitation,
   getPatientSession,
+  inspectPatientSession,
+  inspectPatientInvitation,
   verifyPatientIdentity,
 } from "@/lib/demo-auth";
 import { RecoveryTrend } from "@/components/recovery-trend";
@@ -44,31 +46,39 @@ import { PatientPreviewLoading } from "@/components/patient-preview-loading";
 
 type Mode = "home" | "onboarding" | "checkin" | "history" | "hospital";
 export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: boolean }) {
+  return <Suspense fallback={<PatientPreviewLoading demo={demo}/>}><PatientNavigation><PatientCareContent mode={mode} demo={demo}/></PatientNavigation></Suspense>;
+}
+function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
+  const params = useSearchParams(), nav = usePatientNavigation();
+  const token = params.get("token"), demoPatientId = demo ? params.get("patientId") || "patient_001" : null;
+  const [error, setError] = useState<PatientErrorType | null>(null), [retry, setRetry] = useState(0);
   const [state, setState] = useState<CareState | null>(null),
     [patient, setPatient] = useState<Patient | null>(null),
-    [invalid, setInvalid] = useState(false),
     [onboardStep, setOnboardStep] = useState(0),
-    [question, setQuestion] = useState(0),
-    [painScore, setPainScore] = useState<number | null>(null),
-    [mobility, setMobility] = useState<number | null>(null),
-    [concerns, setConcerns] = useState<string[]>([]),
-    [customConcern, setCustomConcern] = useState(""),
-    [dayComparison, setDayComparison] = useState<DayComparison | null>(null),
-    [saved, setSaved] = useState(false),
-    [guardianMode, setGuardianMode] = useState(false),
-    [selectedHistoryDate,setSelectedHistoryDate]=useState("");
+    [guardianMode, setGuardianMode] = useState(false);
   useEffect(() => {
+    setError(null); setState(null); setPatient(null);
+    try {
+    // Demo never reads or changes actual patient authentication.
+    const access = demo ? null : inspectPatientSession();
+    const invite = !demo && token ? inspectPatientInvitation(token) : null;
+    if (!demo && token && !invite?.invitation) {setError(invite?.error || "invalidInvite");return;}
+    if (!demo && mode !== "onboarding" && (!access?.session || (invite?.invitation && (invite.invitation.patientId!==access.session.patientId || invite.invitation.hospitalId!==access.session.hospitalId)))) {
+      if (invite?.invitation) {location.replace(`/i?token=${encodeURIComponent(token!)}`);return;}
+      setError(access?.error || "missingSession");return;
+    }
+    if (!demo && mode === "onboarding" && !invite?.invitation) {setError("invalidInvite");return;}
+    const raw = localStorage.getItem(demo ? "oneul-anbu:public-demo:care-mvp:v5" : "oneul-anbu:care-mvp:v1");
+    if(raw){const parsed=JSON.parse(raw);if(!parsed || !["patients","hospitals","checkIns","statuses","followUps"].every(key=>Array.isArray(parsed[key]))) {setError("storageError");return;}}
     const next = demo ? loadPublicDemoCareState() : loadCareState(),
-      params = new URLSearchParams(location.search),
-      token = params.get("token"),
-      invitation = token ? findInvitation(token) : null,
-      session = getPatientSession();
+      invitation = invite?.invitation,
+      session = access?.session;
     if (!demo && mode === "onboarding" && invitation && session?.patientId === invitation.patientId && session.hospitalId === invitation.hospitalId) {
-      location.replace("/app/patient/checkin");
+      location.replace("/app/patient");
       return;
     }
     setGuardianMode(mode === "checkin" && params.get("proxy") === "guardian");
-    const id = demo ? "patient_001" : mode === "onboarding" ? invitation?.patientId : session?.patientId;
+    const id = demo ? demoPatientId : mode === "onboarding" ? invitation?.patientId : session?.patientId;
     const found = next.patients.find(
       (p) =>
         p.id === id &&
@@ -77,13 +87,23 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
     );
     setState(next);
     setPatient(found || null);
-    setInvalid(!found);
+    if (!found) setError("missingPatient");
     if (mode === "onboarding" && found){
       trackCareEvent("invite_opened", { patientId: found.id, hospitalId: found.hospitalId });trackCareEvent("registration_started", { patientId: found.id, hospitalId: found.hospitalId });trackCareEvent("patient_onboarding_started", { patientId: found.id });
     }
     if (mode === "checkin" && found)
       trackCareEvent("checkin_started", { patientId: found.id, hospitalId: found.hospitalId, demo });
-  }, [mode, demo]);
+    } catch { setError("storageError"); }
+  }, [mode, demo, token, demoPatientId, params, retry]);
+  useEffect(() => {
+    if(demo || mode==="onboarding")return;
+    const revalidate=()=>{const access=inspectPatientSession();if(access.error)setError(access.error);};
+    const access=inspectPatientSession();
+    const timer=access.session?window.setTimeout(revalidate,Math.min(2147483647,Math.max(0,Date.parse(access.session.expiresAt)-Date.now()+10))):undefined;
+    const storage=(event:StorageEvent)=>{if(event.key===null||event.key==="oneul-anbu:demo:patient-session")setRetry(v=>v+1);};
+    window.addEventListener("focus",revalidate);window.addEventListener("storage",storage);
+    return ()=>{window.clearTimeout(timer);window.removeEventListener("focus",revalidate);window.removeEventListener("storage",storage);};
+  },[demo,mode,retry]);
   const hospital = state?.hospitals.find((h) => h.id === patient?.hospitalId);
   const todayCheck = state?.checkIns.find(
     (c) => c.patientId === patient?.id && c.date === TODAY,
@@ -96,28 +116,11 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
     [state, patient],
   );
 
-  if (invalid)
-    return (
-      <PatientShell>
-        <Empty
-          title={
-            mode === "onboarding"
-              ? "초대 링크를 확인할 수 없어요"
-              : "다시 확인이 필요해요"
-          }
-          text={
-            mode === "onboarding"
-              ? "유효하지 않거나 만료된 안내 링크입니다. 병원에서 받은 링크를 다시 확인해 주세요."
-              : "병원에서 안내받은 링크로 다시 시작해 주세요."
-          }
-          recovery
-        />
-      </PatientShell>
-    );
+  if (error) return <PatientError type={error} retry={()=>setRetry(v=>v+1)}/>;
   if ((!state || !patient) && mode === "home") return <PatientPreviewLoading demo={demo}/>;
   if (!state || !patient)
     return (
-      <PatientShell>
+      <PatientShell demo={demo} hideNav>
         <p className="py-24 text-center text-lg font-bold">
           정보를 불러오고 있어요.
         </p>
@@ -125,12 +128,12 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
     );
   if (mode === "home" && patient.careStatus === "completed") {
     const ordered=[...history].sort((a,b)=>a.date.localeCompare(b.date)),first=ordered[0],last=ordered.at(-1),programDays=Math.max(1,daysSince(patient.dischargeDate)+1);
-    return <PatientShell><div className="py-10 text-center"><span className="mx-auto grid size-20 place-items-center rounded-full bg-[#DDEDE3] text-[#315E50]"><Check size={42}/></span><h1 className="mt-6 text-3xl font-black">회복 기록 프로그램을 완료했어요</h1><p className="mt-3 text-lg font-bold leading-8 text-[#596A62]">{programDays}일 동안 {history.length}번 회복 상태를 남겼어요.</p><div className="mt-6 rounded-3xl bg-white p-5 text-left"><p className="text-lg font-black">통증 <span className="float-right text-[#315E50]">{first?painValue(first):"-"} → {last?painValue(last):"-"}</span></p><p className="mt-4 text-lg font-black">체크인 <span className="float-right text-[#315E50]">{history.length} / {programDays}일</span></p></div><p className="mt-5 text-base font-semibold leading-7 text-[#68766F]">이는 오늘안부 Care 관리기간이 끝났다는 의미이며 의료적인 완치나 정상 판정을 뜻하지 않습니다.</p><Link href="/app/patient/history" className="primary">내 회복 기록 보기</Link></div></PatientShell>;
+    return <PatientShell demo={demo}><div className="py-10 text-center"><span className="mx-auto grid size-20 place-items-center rounded-full bg-[#DDEDE3] text-[#315E50]"><Check size={42}/></span><h1 className="mt-6 text-3xl font-black">회복 기록 프로그램을 완료했어요</h1><p className="mt-3 text-lg font-bold leading-8 text-[#596A62]">{programDays}일 동안 {history.length}번 회복 상태를 남겼어요.</p><div className="mt-6 rounded-3xl bg-white p-5 text-left"><p className="text-lg font-black">통증 <span className="float-right text-[#315E50]">{first?painValue(first):"-"} → {last?painValue(last):"-"}</span></p><p className="mt-4 text-lg font-black">체크인 <span className="float-right text-[#315E50]">{history.length} / {programDays}일</span></p></div><p className="mt-5 text-base font-semibold leading-7 text-[#68766F]">이는 오늘안부 Care 관리기간이 끝났다는 의미이며 의료적인 완치나 정상 판정을 뜻하지 않습니다.</p><Link href="/app/patient/history" className="primary">내 회복 기록 보기</Link></div></PatientShell>;
   }
   if (mode === "onboarding") {
     if (onboardStep === 0)
       return (
-        <PatientShell>
+        <PatientShell demo={demo} hideNav backLabel="이전 화면" backFallback="/patient">
           <div className="py-10">
             <Hospital className="text-[#315E50]" size={42} />
             <p className="mt-5 text-lg font-black text-[#315E50]">
@@ -153,7 +156,7 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
         </PatientShell>
       );
     return (
-      <PatientShell>
+      <PatientShell demo={demo} hideNav backLabel="이전 화면" onBack={()=>setOnboardStep(0)}>
         <div className="py-10">
           <ShieldCheck className="text-[#315E50]" size={44} />
           <h1 className="mt-5 text-3xl font-black">
@@ -167,9 +170,10 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
           <p className="mt-6 rounded-2xl bg-white p-4 text-base font-bold leading-7 text-[#596A62]">오늘안부 Care는 회복 기록을 병원과 공유하는 데 도움을 주는 서비스이며 실시간 응급 대응 서비스는 아닙니다. 갑작스러운 심한 증상은 병원 또는 응급의료기관에 직접 연락해주세요.</p>
           <button
             onClick={() => {
+              try {
               const token = new URLSearchParams(location.search).get("token");
               if (!token || !verifyPatientIdentity(token)) {
-                setInvalid(true);
+                setError("invalidInvite");
                 return;
               }
               const next = {
@@ -185,7 +189,8 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
                 patientId: patient.id,
               });
               trackCareEvent("registration_completed", {patientId:patient.id,hospitalId:patient.hospitalId});
-              location.href = "/app/patient/checkin";
+              location.replace("/app/patient");
+              } catch { setError("storageError"); }
             }}
             className="primary"
           >
@@ -196,264 +201,20 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
     );
   }
   if ((mode as Mode) === "checkin") {
-    return <AdaptiveCheckin patient={patient} todayCheck={todayCheck} history={history} guardianMode={guardianMode} demo={demo} />;
-  }
-  if ((mode as Mode) === "checkin") {
-    if (todayCheck || saved)
-      return (
-        <PatientShell>
-          <div className="py-12 text-center">
-            <span className="mx-auto grid size-20 place-items-center rounded-full bg-[#DDEDE3] text-[#315E50]">
-              <Check size={42} />
-            </span>
-            <h1 className="mt-6 text-3xl font-black">오늘 확인이 끝났어요.</h1>
-            <p className="mt-3 text-lg font-bold text-[#46574F]">
-              알려주셔서 감사합니다.
-            </p>
-            <Link href="/app/patient" className="primary">
-              홈으로
-            </Link>
-            <p className="mt-6 rounded-2xl bg-white p-4 text-left text-[16px] font-bold leading-7 text-[#46574F]">
-              갑자기 많이 아프거나 급한 상황이라면 오늘안부를 기다리지 말고
-              안내받은 병원 또는 119를 이용해주세요.
-            </p>
-          </div>
-        </PatientShell>
-      );
-    const concernOptions = Object.entries(concernLabels).filter(
-      ([id]) => id !== "none",
-    );
-    const valueReady =
-      question === 0
-        ? painScore !== null
-        : question === 1
-          ? mobility !== null
-          : question === 2
-            ? concerns.length > 0
-            : dayComparison !== null;
-    return (
-      <PatientShell>
-        <div className="flex min-h-[calc(100dvh-40px)] flex-col py-5">
-          <p className="text-base font-black text-[#315E50]">
-            {question + 1} / 4
-          </p>
-          <div className="mt-5 h-2 rounded-full bg-[#DDE5E0]">
-            <div
-              className="h-full rounded-full bg-[#315E50] transition-all"
-              style={{ width: `${(question + 1) * 25}%` }}
-            />
-          </div>
-          <h1 className="mt-9 text-3xl font-black leading-tight">
-            {question === 0
-              ? "오늘 통증은 어느 정도인가요?"
-              : question === 1
-                ? "오늘 움직이기는 어떠셨어요?"
-                : question === 2
-                  ? "오늘 새롭게 생겼거나 더 불편해진 점이 있나요?"
-                  : "어제와 비교하면 오늘은 어떠세요?"}
-          </h1>
-          {question === 0 ? (
-            <>
-              <div className="mt-7 grid grid-cols-6 gap-2">
-                {Array.from({ length: 11 }, (_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPainScore(i)}
-                    className={`min-h-[58px] rounded-xl border-2 text-xl font-black ${painScore === i ? "border-[#315E50] bg-[#315E50] text-white" : "border-[#C8D3CD] bg-white"}`}
-                  >
-                    {i}
-                  </button>
-                ))}
-              </div>
-              <div className="mt-5 rounded-2xl bg-white p-4">
-                <p className="text-sm font-bold text-[#68766F]">오늘 통증</p>
-                <p className="text-3xl font-black text-[#315E50]">
-                  {painScore === null ? "선택해주세요" : `${painScore} / 10`}
-                </p>
-                <p className="mt-2 text-sm font-bold text-[#68766F]">
-                  0 통증 없음 · 1~3 가벼운 통증 · 4~6 중간 정도 · 7~9 심한 통증
-                  · 10 가장 심한 통증
-                </p>
-              </div>
-            </>
-          ) : null}
-          {question === 1 ? (
-            <div className="mt-7 grid gap-3">
-              {mobilityLabels.map((label, i) => (
-                <button
-                  key={label}
-                  onClick={() => setMobility(i)}
-                  className={`min-h-[68px] rounded-2xl border-2 px-5 text-left text-lg font-black ${mobility === i ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          ) : null}
-          {question === 2 ? (
-            <>
-              <div className="mt-7 grid grid-cols-2 gap-3">
-                {concernOptions.map(([id, label]) => {
-                  const on = concerns.includes(id);
-                  return (
-                    <button
-                      key={id}
-                      onClick={() =>
-                        setConcerns((v) =>
-                          on
-                            ? v.filter((x) => x !== id)
-                            : [...v.filter((x) => x !== "none"), id],
-                        )
-                      }
-                      className={`min-h-[64px] rounded-2xl border-2 px-4 text-left font-black ${on ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-                <button
-                  onClick={() => setConcerns(["none"])}
-                  className={`col-span-2 min-h-[64px] rounded-2xl border-2 px-4 text-left font-black ${concerns.includes("none") ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}
-                >
-                  없음
-                </button>
-              </div>
-              {concerns.includes("other") ? (
-                <textarea
-                  value={customConcern}
-                  onChange={(e) => setCustomConcern(e.target.value)}
-                  placeholder="직접 알려주세요."
-                  maxLength={100}
-                  className="mt-4 min-h-24 w-full rounded-2xl border-2 border-[#C8D3CD] bg-white p-4 text-lg"
-                />
-              ) : null}
-            </>
-          ) : null}
-          {question === 3 ? (
-            <div className="mt-7 grid gap-3">
-              {Object.entries(comparisonLabels).map(([id, label]) => (
-                <button
-                  key={id}
-                  onClick={() => setDayComparison(id as DayComparison)}
-                  className={`min-h-[68px] rounded-2xl border-2 px-5 text-left text-lg font-black ${dayComparison === id ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          ) : null}
-          <div className="mt-auto flex gap-3 pt-8">
-            {question > 0 ? (
-              <button
-                onClick={() => setQuestion((q) => q - 1)}
-                className="min-h-[60px] rounded-2xl border-2 border-[#315E50] px-5 text-lg font-black"
-              >
-                <ArrowLeft />
-              </button>
-            ) : null}
-            <button
-              disabled={!valueReady}
-              onClick={() => {
-                if (question < 3) {
-                  setQuestion((q) => q + 1);
-                  return;
-                }
-                if (
-                  painScore === null ||
-                  mobility === null ||
-                  !concerns.length ||
-                  !dayComparison
-                )
-                  return;
-                const hasConcern = !concerns.includes("none"),
-                  concernText = hasConcern
-                    ? concerns
-                        .map((x) =>
-                          x === "other" ? customConcern : concernLabels[x],
-                        )
-                        .filter(Boolean)
-                        .join(" · ")
-                    : "",
-                  createdAt = new Date().toISOString(),
-                  episode = state.episodes.find(
-                    (e) => e.patientId === patient.id,
-                  );
-                const check: CheckIn = {
-                  id: `check_${Date.now()}`,
-                  episodeId: episode?.id,
-                  patientId: patient.id,
-                  date: TODAY,
-                  checkInDate: TODAY,
-                  pain: demoPainBucket(painScore),
-                  painScore,
-                  mobility,
-                  mobilityScore: mobility,
-                  hasConcern,
-                  concernStatus: hasConcern ? "reported" : "none",
-                  concernText,
-                  concerns: hasConcern ? concerns : [],
-                  customConcern,
-                  dayComparison,
-                  source: "patient",
-                  createdAt,
-                  updatedAt: createdAt,
-                };
-                const previous = history[0],
-                  priority = prioritizationProvider.evaluate({
-                    current: { ...check, painScore },
-                    previous: previous
-                      ? {
-                          ...previous,
-                          painScore: previous.painScore ?? undefined,
-                        }
-                      : undefined,
-                  }),
-                  status: PatientStatus = {
-                    patientId: patient.id,
-                    level: priority.level,
-                    reason: priority.explanation,
-                    reasonCodes: priority.reasonCodes,
-                    ruleVersion: priority.ruleVersion,
-                    source: "system",
-                    updatedAt: priority.createdAt,
-                  };
-                const next = {
-                  ...state,
-                  checkIns: [...state.checkIns, check],
-                  statuses: [
-                    ...state.statuses.filter((s) => s.patientId !== patient.id),
-                    status,
-                  ],
-                };
-                try {
-                  saveCareState(next);
-                  setState(next);
-                  setSaved(true);
-                  trackCareEvent("checkin_completed", {
-                    patientId: patient.id,
-                  });
-                  trackCareEvent("patient_status_changed", {
-                    patientId: patient.id,
-                    level: status.level,
-                  });
-                } catch {
-                  alert("저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
-                }
-              }}
-              className="min-h-[60px] flex-1 rounded-2xl bg-[#315E50] text-xl font-black text-white disabled:bg-[#B7C2BC]"
-            >
-              {question === 3 ? "오늘 확인 마치기" : "다음"}
-            </button>
-          </div>
-        </div>
-      </PatientShell>
-    );
+    return <AdaptiveCheckin key={`${patient.id}:${params.get("edit")}:${params.get("revision")}`} patient={patient} todayCheck={todayCheck} history={history} guardianMode={guardianMode} demo={demo} edit={params.get("edit")==="1"} />;
   }
   if (mode === "hospital")
-    return <PatientShell demo={demo} active="hospital"><header className="py-5"><p className="font-black text-[#315E50]">{hospital?.name}와 함께하는 회복관리</p><h1 className="mt-2 text-3xl font-black">병원 안내</h1><p className="mt-2 font-bold leading-7 text-[#596A62]">걱정되는 증상이나 다음 진료 일정을 쉽게 확인하세요.</p></header><section className="rounded-3xl bg-white p-5"><h2 className="text-2xl font-black">어떤 도움이 필요하세요?</h2><div className="mt-5 grid gap-3"><a href="#safety" className="flex min-h-16 items-center justify-between rounded-2xl bg-[#FFF5EE] px-5 text-xl font-black text-[#8F422C]">긴급 증상 안내 <ChevronRight/></a><p className="rounded-2xl border-2 border-[#315E50] p-5 text-lg font-bold leading-8 text-[#315E50]">병원에 문의하려면 퇴원 안내문이나 병원에서 받은 문자의 연락처를 확인해주세요.</p><div className="rounded-2xl bg-[#F1F0E9] p-5"><p className="font-bold text-[#596A62]">다음 진료 일정</p><p className="mt-2 text-xl font-black">{patient.nextAppointment || "등록된 진료 일정이 없어요."}</p><p className="mt-1 font-bold">{hospital?.name} · {patient.department || "진료 일정은 병원에 확인해주세요."}</p></div></div></section><section className="mt-5 rounded-3xl bg-white p-5"><h2 className="text-xl font-black">가족과 함께 사용하기</h2><p className="mt-2 font-bold leading-7 text-[#596A62]">환자 동의 후 보호자가 대신 상태를 입력하도록 연결할 수 있어요.</p><Link href={demo?"/demo/patient?mode=checkin&proxy=guardian":"/care/guardian"} className="secondary"><UserRound/> 보호자 도움으로 입력하기</Link></section><section id="safety" className="mt-5 rounded-3xl border-2 border-[#E5B59F] bg-[#FFF8F4] p-5"><h2 className="text-xl font-black text-[#8F422C]">지금 바로 도움이 필요한 경우</h2><p className="mt-3 font-bold leading-8 text-[#684E44]">갑작스러운 심한 통증, 호흡곤란, 의식 변화 등 응급 증상이 있다면 이 서비스의 답변을 기다리지 말고 119 또는 가까운 응급의료기관을 이용하세요.</p></section></PatientShell>;
+    return <PatientShell demo={demo} active="hospital" backLabel="오늘"><header className="py-5"><p className="font-black text-[#315E50]">{hospital?.name}와 함께하는 회복관리</p><h1 className="mt-2 text-3xl font-black">병원 안내</h1><p className="mt-2 font-bold leading-7 text-[#596A62]">걱정되는 증상이나 다음 진료 일정을 쉽게 확인하세요.</p></header><section className="rounded-3xl bg-white p-5"><h2 className="text-2xl font-black">어떤 도움이 필요하세요?</h2><div className="mt-5 grid gap-3"><a href="#safety" className="flex min-h-16 items-center justify-between rounded-2xl bg-[#FFF5EE] px-5 text-xl font-black text-[#8F422C]">긴급 증상 안내 <ChevronRight/></a><p className="rounded-2xl border-2 border-[#315E50] p-5 text-lg font-bold leading-8 text-[#315E50]">병원에 문의하려면 퇴원 안내문이나 병원에서 받은 문자의 연락처를 확인해주세요.</p><div className="rounded-2xl bg-[#F1F0E9] p-5"><p className="font-bold text-[#596A62]">다음 진료 일정</p><p className="mt-2 text-xl font-black">{patient.nextAppointment || "등록된 진료 일정이 없어요."}</p><p className="mt-1 font-bold">{hospital?.name} · {patient.department || "진료 일정은 병원에 확인해주세요."}</p></div></div></section><section className="mt-5 rounded-3xl bg-white p-5"><h2 className="text-xl font-black">가족과 함께 사용하기</h2><p className="mt-2 font-bold leading-7 text-[#596A62]">환자 동의 후 보호자가 대신 상태를 입력하도록 연결할 수 있어요.</p><Link href={demo?"/demo/patient?mode=checkin&proxy=guardian":"/care/guardian"} className="secondary"><UserRound/> 보호자 도움으로 입력하기</Link></section><section id="safety" className="mt-5 rounded-3xl border-2 border-[#E5B59F] bg-[#FFF8F4] p-5"><h2 className="text-xl font-black text-[#8F422C]">지금 바로 도움이 필요한 경우</h2><p className="mt-3 font-bold leading-8 text-[#684E44]">갑작스러운 심한 통증, 호흡곤란, 의식 변화 등 응급 증상이 있다면 이 서비스의 답변을 기다리지 말고 119 또는 가까운 응급의료기관을 이용하세요.</p></section></PatientShell>;
+  if (mode === "history" && params.get("recordId")) {
+    const record = history.find(c=>c.id===params.get("recordId"));
+    return <PatientShell demo={demo} active="history" backLabel="회복 기록" backFallback={nav.href("history")}>
+      <section className="mt-6 rounded-3xl bg-white p-6"><h1 className="text-3xl font-black">{record ? record.date.replaceAll("-",".")+" 기록" : "기록을 찾을 수 없어요."}</h1>
+      {record ? <><p className="mt-5 text-xl font-bold leading-9">통증 {painValue(record)}점<br/>움직임: {mobilityLabels[record.mobilityScore??record.mobility]}</p><p className="mt-4 text-lg leading-8">{record.hasConcern ? record.concernText : "새롭게 불편해진 점은 없었어요."}</p><p className="mt-4 text-lg font-bold text-[#315E50]">✓ 기록 저장 완료</p>{record.date===TODAY ? <Link href={nav.href("checkin",{edit:"1"})} className="secondary">오늘 기록 수정하기</Link> : null}</> : <Link href={nav.href("history")} className="primary">회복 기록으로 돌아가기</Link>}
+      </section></PatientShell>;
+  }
   if (mode === "history")
     return (
-      <PatientShell demo={demo} active="history">
+      <PatientShell demo={demo} active="history" backLabel="오늘">
         <header className="py-5">
           <h1 className="text-3xl font-black">회복 기록</h1>
           <p className="mt-2 font-bold text-[#68766F]">
@@ -466,12 +227,12 @@ export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: bool
             <section className="mt-5 py-3"><p className="text-lg font-black text-[#315E50]">나의 회복 과정</p><h2 className="mt-2 text-2xl font-black">지금은 회복 {Math.max(1, Math.ceil(daysSince(patient.surgeryDate || patient.dischargeDate) / 7))}주차예요</h2><p className="mt-2 font-semibold leading-7 text-[#596A62]">퇴원 후 매일의 변화가 회복 과정으로 이어지고 있어요.</p><div className="mt-5 flex items-center justify-between text-center text-sm font-black text-[#596A62]"><span>●<br/>수술</span><span className="h-0.5 flex-1 bg-[#CFE0D5]"/><span>●<br/>퇴원</span><span className="h-0.5 flex-1 bg-[#CFE0D5]"/><span className="rounded-xl bg-[#E8F1EA] px-2 py-1 text-[#315E50]">◎<br/>현재 D+{daysSince(patient.surgeryDate || patient.dischargeDate)}</span><span className="h-0.5 flex-1 bg-[#DDE5E0]"/><span>○<br/>다음 외래</span></div></section>
             <section className="mt-5 border-y border-[#CBD8D1] py-6"><h2 className="text-2xl font-black">지난 7일 기록</h2><div className="mt-4 grid gap-5 sm:grid-cols-2"><div><p className="text-lg font-bold text-[#596A62]">지난 7일 평균 통증</p><p className="mt-1 text-3xl font-black text-[#315E50]">{(history.slice(0,7).reduce((sum,item)=>sum+painValue(item),0)/Math.min(7,history.length)).toFixed(1)} / 10</p></div><div><p className="text-lg font-bold text-[#596A62]">이번 주 기록</p><p className="mt-1 text-2xl font-black text-[#315E50]">{getPatientHome({patient, checks: history, today: TODAY}).weeklyDays}일 기록했어요.</p><p className="mt-1 font-bold">꾸준히 상태를 알려주셨어요.</p></div></div></section>
             <RecoveryTrend checks={history} audience="patient" />
-            <section className="mt-5 rounded-3xl bg-white p-5"><div className="flex items-center gap-2"><CalendarDays className="text-[#315E50]"/><h2 className="text-2xl font-black">지난 기록</h2></div><p className="mt-2 font-bold text-[#68766F]">날짜를 누르면 그날의 기록을 볼 수 있어요.</p><div className="mt-5 grid grid-cols-7 gap-2 text-center"><span className="text-sm font-bold text-[#68766F]">월</span><span className="text-sm font-bold text-[#68766F]">화</span><span className="text-sm font-bold text-[#68766F]">수</span><span className="text-sm font-bold text-[#68766F]">목</span><span className="text-sm font-bold text-[#68766F]">금</span><span className="text-sm font-bold text-[#68766F]">토</span><span className="text-sm font-bold text-[#68766F]">일</span>{Array.from({length:7},(_,i)=>{const c=history[6-i],active=(selectedHistoryDate||history[0]?.date)===c?.date;return <button key={i} disabled={!c} onClick={()=>c&&setSelectedHistoryDate(c.date)} className={`grid aspect-square place-items-center rounded-xl text-lg font-black ${active?"bg-[#315E50] text-white":c?"bg-[#E8F1EA] text-[#315E50]":"bg-[#F1F0E9] text-[#A3ADA7]"}`}>{c?<><span>{Number(c.date.slice(-2))}</span><span className="sr-only">기록 있음</span></>:"-"}</button>})}</div>{(()=>{const c=history.find(x=>x.date===(selectedHistoryDate||history[0]?.date));return c?<div className="mt-5 rounded-2xl bg-[#F1F0E9] p-5"><p className="text-xl font-black">{c.date.replaceAll("-",".")} 기록</p><p className="mt-3 font-bold leading-8">통증 {painValue(c)}점 · 걷기 {mobilityLabels[c.mobilityScore??c.mobility]}<br/>{c.hasConcern?c.concernText:"새롭게 불편해진 점은 없었어요."}</p><p className="mt-3 font-black text-[#315E50]">✓ 병원에 전달 완료</p></div>:null})()}</section>
+            <section className="mt-5 rounded-3xl bg-white p-5"><h2 className="flex items-center gap-2 text-xl font-black"><CalendarDays/>지난 기록</h2><p className="mt-2 text-lg leading-7">날짜를 누르면 그날의 기록을 볼 수 있어요.</p><div className="mt-4 grid gap-3">{history.map(c=><Link key={c.id} href={nav.href("history",{recordId:c.id})} className="flex min-h-16 items-center justify-between gap-3 rounded-2xl bg-[#F1F0E9] p-4 text-lg font-bold"><span>{c.date.replaceAll("-",".")} 기록</span><ChevronRight aria-hidden/></Link>)}</div></section>
           </>
         ) : (
           <Empty
-            title="아직 회복 기록이 없습니다"
-            text="오늘 상태를 알려주시면 여기에 기록됩니다."
+            title="아직 회복 기록이 없어요."
+            text="오늘 상태를 입력하면 변화가 쌓이기 시작해요."
             action={demo ? "/demo/patient?mode=checkin" : "/app/patient/checkin"}
           />
         )}
@@ -499,28 +260,30 @@ function pathwayMovementLabels(patient: Patient) {
   return ["일어나기", "걷기", "계단", "무릎 굽히기", "앉았다 일어나기", "기타"];
 }
 
-function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo }: { patient: Patient; todayCheck?: CheckIn; history: CheckIn[]; guardianMode: boolean; demo: boolean }) {
+function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edit = false }: { patient: Patient; todayCheck?: CheckIn; history: CheckIn[]; guardianMode: boolean; demo: boolean; edit?: boolean }) {
+  const nav = usePatientNavigation();
+  const [saveError, setSaveError] = useState("");
   const [startedAt] = useState(() => new Date().toISOString());
   const [step, setStep] = useState<AdaptiveStep>("pain");
-  const [dayComparison, setDayComparison] = useState<DayComparison | null>(null);
-  const [concern, setConcern] = useState<(typeof adaptiveConcerns)[number][0] | null>(null);
-  const [customConcern, setCustomConcern] = useState("");
-  const [painScore, setPainScore] = useState<number | null>(null);
-  const [painContext, setPainContext] = useState<CheckIn["painContext"]>();
-  const [mobility, setMobility] = useState<number | null>(null);
-  const [movementDifficulty, setMovementDifficulty] = useState("");
-  const [savedCheck, setSavedCheck] = useState<CheckIn | null>(todayCheck || null);
+  const [dayComparison, setDayComparison] = useState<DayComparison | null>(edit ? todayCheck?.dayComparison || null : null);
+  const [concern, setConcern] = useState<(typeof adaptiveConcerns)[number][0] | null>(edit && todayCheck ? adaptiveConcerns.find(([id])=>id===todayCheck.concerns?.[0])?.[0] || (todayCheck.hasConcern ? "other" : "none") : null);
+  const [customConcern, setCustomConcern] = useState(edit ? todayCheck?.customConcern || todayCheck?.concernText || "" : "");
+  const [painScore, setPainScore] = useState<number | null>(edit && todayCheck ? painValue(todayCheck) : null);
+  const [painContext, setPainContext] = useState<CheckIn["painContext"]>(edit ? todayCheck?.painContext : undefined);
+  const [mobility, setMobility] = useState<number | null>(edit && todayCheck ? todayCheck.mobilityScore ?? todayCheck.mobility : null);
+  const [movementDifficulty, setMovementDifficulty] = useState(edit ? todayCheck?.movementDifficulty || "" : "");
+  const [savedCheck, setSavedCheck] = useState<CheckIn | null>(edit ? null : todayCheck || null);
   const [isSaving,setIsSaving]=useState(false),submitLock=useRef(false);
 
-  const currentCheck = savedCheck || todayCheck;
+  const currentCheck = savedCheck || (!edit ? todayCheck : null);
   if (currentCheck || step === "complete") {
     const comparison = currentCheck?.dayComparison || dayComparison || "same", previous = history.find(item => item.id !== currentCheck?.id), currentPain = currentCheck ? painValue(currentCheck) : painScore, streak = Math.min(7, history.length + (todayCheck ? 0 : 1));
-    return <PatientShell demo={demo}><div className="py-10 text-center"><span className="mx-auto grid size-20 place-items-center rounded-full bg-[#DDEDE3] text-[#315E50]"><Check size={42} /></span><h1 className="mt-6 text-[2rem] font-black leading-tight">오늘 회복 기록을 남겼어요</h1>{currentCheck?.source === "guardian" ? <p className="mt-3 text-lg font-black text-[#315E50]">보호자 대리 입력으로 저장했습니다.</p> : null}<div className="mt-5 rounded-3xl bg-white p-5 text-left"><p className="text-lg font-black text-[#315E50]">어제와 비교</p><p className="mt-2 text-xl font-bold leading-8">통증 {previous ? `${painValue(previous)} → ` : ""}{currentPain ?? "-"}점<br/>움직임은 {recoveryMobilityLabels[currentCheck?.mobilityScore ?? mobility ?? 1]}.</p><p className="mt-4 rounded-2xl bg-[#F1F0E9] p-4 font-black">수술 후 {daysSince(patient.surgeryDate || patient.dischargeDate)}일째 · {streak}일 연속 기록</p></div><p className="mt-4 rounded-2xl bg-white p-5 text-left text-lg font-bold leading-8 text-[#46574F]">전반적으로 어제보다 {comparisonLabels[comparison]}.</p>{currentCheck?.hasConcern ? <p className="mt-3 rounded-2xl bg-white p-5 text-left text-lg font-bold leading-8 text-[#46574F]">오늘 남긴 변화: {currentCheck.concernText}</p> : null}<div className="mt-4 rounded-2xl border border-[#CFE0D5] bg-[#E8F1EA] p-5 text-left"><p className="font-black text-[#315E50]">병원과 함께 보는 회복 기록</p><p className="mt-2 font-semibold leading-7 text-[#596A62]">매일 남긴 기록은 회복 변화를 확인하는 데 활용됩니다. 필요한 경우 의료진이 최근 변화와 체크인 기록을 확인할 수 있습니다.</p></div>{demo ? <><Link href="/demo/patient?mode=history" className="primary">회복 추이 보기</Link><Link href="/demo/patient" className="secondary">오늘 화면으로</Link><Link href="/demo/hospital" className="mt-4 inline-flex min-h-12 items-center font-bold text-[#315E50]">병원 데모 보기</Link></> : <Link href={guardianMode ? "/care/guardian" : "/app/patient/history"} className="primary">{guardianMode ? "보호자 화면으로" : "회복 추이 보기"}</Link>}</div></PatientShell>;
+    return <PatientShell demo={demo}><div className="py-10 text-center"><span className="mx-auto grid size-20 place-items-center rounded-full bg-[#DDEDE3] text-[#315E50]"><Check size={42} /></span><h1 className="mt-6 text-[2rem] font-black leading-tight">오늘 회복 기록을 남겼어요</h1>{currentCheck?.source === "guardian" ? <p className="mt-3 text-lg font-black text-[#315E50]">보호자 대리 입력으로 저장했습니다.</p> : null}<div className="mt-5 rounded-3xl bg-white p-5 text-left"><p className="text-lg font-black text-[#315E50]">어제와 비교</p><p className="mt-2 text-xl font-bold leading-8">통증 {previous ? `${painValue(previous)} → ` : ""}{currentPain ?? "-"}점<br/>움직임은 {recoveryMobilityLabels[currentCheck?.mobilityScore ?? mobility ?? 1]}.</p><p className="mt-4 rounded-2xl bg-[#F1F0E9] p-4 font-black">수술 후 {daysSince(patient.surgeryDate || patient.dischargeDate)}일째 · {streak}일 연속 기록</p></div><p className="mt-4 rounded-2xl bg-white p-5 text-left text-lg font-bold leading-8 text-[#46574F]">전반적으로 어제보다 {comparisonLabels[comparison]}.</p>{currentCheck?.hasConcern ? <p className="mt-3 rounded-2xl bg-white p-5 text-left text-lg font-bold leading-8 text-[#46574F]">오늘 남긴 변화: {currentCheck.concernText}</p> : null}<div className="mt-4 rounded-2xl border border-[#CFE0D5] bg-[#E8F1EA] p-5 text-left"><p className="font-black text-[#315E50]">병원과 함께 보는 회복 기록</p><p className="mt-2 font-semibold leading-7 text-[#596A62]">매일 남긴 기록은 회복 변화를 확인하는 데 활용됩니다. 필요한 경우 의료진이 최근 변화와 체크인 기록을 확인할 수 있습니다.</p></div><Link href={nav.href("checkin",{edit:"1",revision:currentCheck?.updatedAt || currentCheck?.id || "new"})} className="secondary">오늘 기록 수정하기</Link>{demo ? <><Link href="/demo/patient?mode=history" className="primary">회복 추이 보기</Link><Link href="/demo/patient" className="secondary">오늘 화면으로</Link><Link href="/demo/hospital" className="mt-4 inline-flex min-h-12 items-center font-bold text-[#315E50]">병원 데모 보기</Link></> : <Link href={guardianMode ? "/care/guardian" : "/app/patient/history"} className="primary">{guardianMode ? "보호자 화면으로" : "회복 추이 보기"}</Link>}</div></PatientShell>;
   }
 
   function goBack() {
     if (step === "painContext") setStep("pain");
-    else if (step === "mobility") setStep(painScore !== null && (painScore >= 6 || (history[0] && painScore - painValue(history[0]) >= 2)) ? "painContext" : "pain");
+    else if (step === "mobility") setStep(painScore !== null && (painScore >= 6 || (history.find(check => check.date < TODAY) && painScore - painValue(history.find(check => check.date < TODAY)!) >= 2)) ? "painContext" : "pain");
     else if (step === "movement") setStep("mobility");
     else if (step === "comparison") setStep(mobility === 2 ? "movement" : "mobility");
     else if (step === "concern") setStep("comparison");
@@ -528,27 +291,38 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo }: {
 
   function finish(selectedMobility: number) {
     if (painScore === null || !dayComparison) return;
+    if(!demo){const access=getPatientSession();if(!access||access.patientId!==patient.id||access.hospitalId!==patient.hospitalId){setSaveError("환자 연결이 만료되었어요. 병원에서 받은 링크를 다시 열어주세요. 입력한 내용은 이 화면에 남아 있어요.");return;}}
     if(submitLock.current)return;submitLock.current=true;setIsSaving(true);
+    setSaveError("");
+    try {
     const currentState = demo ? loadPublicDemoCareState() : loadCareState();
     const existingToday = currentState.checkIns.find(check => check.patientId === patient.id && (check.checkInDate || check.date) === TODAY);
-    if (existingToday) { setSavedCheck(existingToday); setStep("complete"); setIsSaving(false); return; }
+    if (existingToday && !edit) { setSavedCheck(existingToday); setStep("complete"); setIsSaving(false); return; }
     const hasConcern = concern !== null && concern !== "none";
     const storedConcerns = hasConcern ? [concern] : [];
     const concernText = !hasConcern ? "" : concern === "other" ? customConcern.trim() || "기타" : adaptiveConcerns.find(item => item[0] === concern)?.[1] || "변화 있음";
     const createdAt = new Date().toISOString();
     const episode = currentState.episodes.find(e => e.patientId === patient.id);
     const check: CheckIn = { id: `check_${Date.now()}`, episodeId: episode?.id, patientId: patient.id, date: TODAY, checkInDate: TODAY, pain: demoPainBucket(painScore), painScore, painContext, mobility: selectedMobility, mobilityScore: selectedMobility, mobilityComparison: selectedMobility === 0 ? "better" : selectedMobility === 2 ? "worse" : "same", movementDifficulty: movementDifficulty || undefined, hasConcern, concernStatus: hasConcern ? "reported" : "none", concernText, concerns: storedConcerns, swellingChange: concern === "swelling" ? "more" : undefined, warmth: concern === "fever" ? "clear" : undefined, woundChange: concern === "incision_discomfort" ? "redder" : undefined, sleep: concern === "sleep" ? "often" : undefined, customConcern: concern === "other" ? customConcern.trim() : "", dayComparison, source: guardianMode ? "guardian" : "patient",submittedByType:guardianMode?"guardian":"patient",submittedById:patient.id, createdAt, updatedAt: createdAt };
-    const previous = currentState.checkIns.filter(item => item.patientId === patient.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] || history[0];
+    if(edit && existingToday){check.id=existingToday.id;check.createdAt=existingToday.createdAt;}
+    const previous = currentState.checkIns.filter(item => item.patientId === patient.id && item.date < TODAY).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
     const priority = prioritizationProvider.evaluate({ current: { ...check, painScore }, previous: previous ? { ...previous, painScore: previous.painScore ?? undefined } : undefined });
     const status: PatientStatus = { patientId: patient.id, level: priority.level, reason: priority.explanation, reasonCodes: priority.reasonCodes, ruleVersion: priority.ruleVersion, source: "system", updatedAt: priority.createdAt };
     const signal = status.level === "stable" ? null : { id: `signal_${Date.now()}`, patientId: patient.id, type: concern === "swelling" ? "new_swelling" as const : concern === "fever" ? "new_warmth" as const : concern === "incision_discomfort" ? "wound_change" as const : previous && painScore - painValue(previous) >= 3 ? "pain_jump" as const : "other" as const, severity: status.level === "needs_attention" ? "priority" as const : "check" as const, reason: status.reason, detectedAt: createdAt, sourceCheckInIds: [check.id, ...(previous ? [previous.id] : [])], status: "open" as const };
     const task = signal ? { id: `task_${Date.now()}`, patientId: patient.id, signalIds: [signal.id], priority: signal.severity === "priority" ? "high" as const : "normal" as const, status: patient.assignedNurse ? "assigned" as const : "unassigned" as const, assignedTo: patient.assignedNurse, assignedAt: patient.assignedNurse ? createdAt : undefined, dueAt: `${TODAY}T18:00:00+09:00`, createdAt } : null;
-    const next = { ...currentState, checkIns: [...currentState.checkIns, check], statuses: [...currentState.statuses.filter(s => s.patientId !== patient.id), status], careSignals: signal ? [...(currentState.careSignals || []).filter(item => item.patientId !== patient.id || item.status !== "open"), signal] : currentState.careSignals, careTasks: task ? [...(currentState.careTasks || []).filter(item => item.patientId !== patient.id || item.status === "done"), task] : currentState.careTasks };
-    try { (demo ? savePublicDemoCareState : saveCareState)(next); setMobility(selectedMobility); setSavedCheck(check); setStep("complete"); const durationSeconds=Math.max(1,Math.round((Date.now()-Date.parse(startedAt))/1000));trackCareEvent("checkin_completed", { patientId: patient.id, hospitalId: patient.hospitalId, source: check.source, checkInActor:guardianMode?"guardian_assisted":"patient", startedAt, completedAt: createdAt, durationSeconds, adaptiveQuestion: Boolean(painContext||movementDifficulty), unsureSelected: painContext==="unsure", demo });if(!previous)trackCareEvent("first_checkin_completed",{patientId:patient.id,hospitalId:patient.hospitalId,demo}); trackCareEvent("patient_status_changed", { patientId: patient.id, level: status.level, demo }); if(signal)trackCareEvent("care_signal_created",{patientId:patient.id,hospitalId:patient.hospitalId,careSignalId:signal.id,careTaskId:task?.id,signalType:signal.type,ruleVersion:status.ruleVersion,demo}); }
-    catch { submitLock.current=false;setIsSaving(false);alert("저장하지 못했어요. 다시 시도해주세요."); }
+    // A patient edit must never mark a clinician's outstanding work completed.
+    const signals = currentState.careSignals || [];
+    const tasks = currentState.careTasks || [];
+    const next = { ...currentState, checkIns: [...currentState.checkIns.filter(c=>c.id!==check.id), check], statuses: [...currentState.statuses.filter(s => s.patientId !== patient.id), status], careSignals: signal ? [...signals,signal] : signals, careTasks: task ? [...tasks,task] : tasks };
+    (demo ? savePublicDemoCareState : saveCareState)(next); setMobility(selectedMobility); setSavedCheck(check); setStep("complete"); setIsSaving(false);
+    const durationSeconds=Math.max(1,Math.round((Date.now()-Date.parse(startedAt))/1000));trackCareEvent("checkin_completed", { patientId: patient.id, hospitalId: patient.hospitalId, source: check.source, startedAt, completedAt: createdAt, durationSeconds, demo, edited:edit, checkInActor:guardianMode?"guardian_assisted":"patient", adaptiveQuestion:Boolean(painContext||movementDifficulty), unsureSelected:painContext==="unsure" });
+    if(!previous&&!edit)trackCareEvent("first_checkin_completed",{patientId:patient.id,hospitalId:patient.hospitalId,demo});
+    trackCareEvent("patient_status_changed",{patientId:patient.id,level:status.level,demo});
+    if(signal)trackCareEvent("care_signal_created",{patientId:patient.id,hospitalId:patient.hospitalId,careSignalId:signal.id,careTaskId:task?.id,signalType:signal.type,ruleVersion:status.ruleVersion,demo});
+    } catch { submitLock.current=false;setIsSaving(false);setSaveError("저장하지 못했어요. 입력한 내용은 이 화면에 남아 있어요. 다시 눌러 저장해주세요."); }
   }
 
-  const previousPain = history[0] ? painValue(history[0]) : null;
+    const previousPain = history.find(c=>c.date<TODAY) ? painValue(history.find(c=>c.date<TODAY)!) : null;
   const needsPainContext = painScore !== null && (painScore >= 6 || (previousPain !== null && painScore - previousPain >= 2));
   const steps = ["pain", ...(needsPainContext ? ["painContext"] : []), "mobility", ...(mobility === 2 ? ["movement"] : []), "comparison", "concern"] as AdaptiveStep[];
   const stepNumber = Math.max(1, steps.indexOf(step) + 1), totalSteps = steps.length;
@@ -556,7 +330,7 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo }: {
   function nextStep() { trackCareEvent("checkin_question_answered",{patientId:patient.id,hospitalId:patient.hospitalId,question:step,elapsedSeconds:Math.max(1,Math.round((Date.now()-Date.parse(startedAt))/1000)),adaptive:["painContext","movement"].includes(step),unsureSelected:step==="painContext"&&painContext==="unsure",demo});if (step === "pain") setStep(needsPainContext ? "painContext" : "mobility"); else if (step === "painContext") setStep("mobility"); else if (step === "mobility") setStep(mobility === 2 ? "movement" : "comparison"); else if (step === "movement") setStep("comparison"); else if (step === "comparison") setStep("concern"); else if (mobility !== null) finish(mobility); }
   const stepLabel=step==="pain"?"통증":step==="painContext"?"통증 확인":step==="mobility"?"움직임":step==="movement"?"불편한 움직임":step==="comparison"?"오늘 상태":"증상";
   const painMeaning=painScore===null?"숫자를 눌러 알려주세요":painScore===0?"통증이 없어요":painScore<=3?"조금 불편해요":painScore<=6?"움직일 때 꽤 불편해요":painScore<10?"많이 아파요":"견디기 어려워요";
-  return <PatientShell demo={demo}><div className="py-6 sm:py-10">{guardianMode ? <p className="mb-3 rounded-xl bg-white p-3 text-lg font-black text-[#315E50]">보호자 대리 입력 · {patient.name}님</p> : null}<p className="text-base font-black text-[#315E50]">오늘 회복 체크 · 약 1분</p><div className="mt-3 flex items-center justify-between gap-3"><p className="text-lg font-black">{stepNumber}/{totalSteps} · {stepLabel}</p><p className="hidden text-base font-bold text-[#5B6D64] sm:block">통증 · 움직임 · 증상 · 오늘 상태</p></div><div className="mt-3 h-2 rounded-full bg-[#DDE5E0]"><div className="h-full rounded-full bg-[#315E50] transition-all" style={{ width: `${stepNumber / totalSteps * 100}%` }} /></div>
+  return <PatientShell demo={demo} backLabel="이전 화면" backFallback={nav.href()} onBack={step!=="pain" ? goBack : undefined}><div className="py-6 sm:py-10">{edit ? <p className="mb-3 text-lg font-black text-[#315E50]">오늘 기록 수정</p> : null}{saveError ? <div role="alert" className="mb-4 rounded-2xl border border-[#D6A086] bg-white p-5 text-lg leading-8"><p>{saveError}</p>{!demo&&!getPatientSession()?<Link href="/patient" className="secondary">다시 연결하는 방법</Link>:null}</div> : null}{guardianMode ? <p className="mb-3 rounded-xl bg-white p-3 text-lg font-black text-[#315E50]">보호자 대리 입력 · {patient.name}님</p> : null}<p className="text-base font-black text-[#315E50]">오늘 회복 체크 · 약 1분</p><div className="mt-3 flex items-center justify-between gap-3"><p className="text-lg font-black">{stepNumber}/{totalSteps} · {stepLabel}</p><p className="hidden text-base font-bold text-[#5B6D64] sm:block">통증 · 움직임 · 증상 · 오늘 상태</p></div><div className="mt-3 h-2 rounded-full bg-[#DDE5E0]"><div className="h-full rounded-full bg-[#315E50] transition-all" style={{ width: `${stepNumber / totalSteps * 100}%` }} /></div>
     <h1 className="mt-7 text-[clamp(1.75rem,6vw,2.15rem)] font-black leading-tight">{step === "pain" ? "지금 통증은 어느 정도인가요?" : step === "painContext" ? "어떤 때 가장 아픈가요?" : step === "mobility" ? "오늘 움직이는 것은 어땠나요?" : step === "movement" ? "어떤 움직임이 가장 불편했나요?" : step === "comparison" ? "어제와 비교하면 전반적으로 어떠세요?" : "오늘 새롭게 달라진 점이 있나요?"}</h1>
     {step === "pain" ? <><div className="mt-7 grid grid-cols-6 gap-2">{Array.from({ length: 11 }, (_, i) => <button aria-label={`통증 ${i}점`} aria-pressed={painScore===i} key={i} onClick={() => setPainScore(i)} className={`min-h-[60px] rounded-xl border-2 text-xl font-black ${painScore === i ? "border-[#315E50] bg-[#315E50] text-white" : "border-[#C8D3CD] bg-white"}`}>{i}</button>)}</div><div className="mt-4 grid grid-cols-5 gap-1 text-center text-[13px] font-bold leading-5 text-[#526159]"><span>0<br/>통증 없음</span><span>1~3<br/>조금 불편</span><span>4~6<br/>움직일 때 힘듦</span><span>7~9<br/>많이 아픔</span><span>10<br/>견디기 어려움</span></div><div aria-live="polite" className="mt-5 rounded-2xl bg-white p-5 text-lg font-bold leading-8 text-[#46574F]"><p className="text-xl font-black text-[#315E50]">{painScore===null?painMeaning:`${painScore}점 · ${painMeaning}`}</p>{previousPain !== null&&painScore!==null ? <p className="mt-2">어제 {previousPain}점 → 오늘 {painScore}점 {painScore<previousPain?"↓":painScore>previousPain?"↑":"→"}<br/><span className="text-[#315E50]">{painScore<previousPain?"어제보다 통증이 줄었어요.":painScore>previousPain?"어제보다 조금 더 불편하시군요. 몇 가지만 더 확인할게요.":"어제와 비슷해요."}</span></p> : null}</div></> : null}
     {step === "painContext" ? <div className="mt-8 grid gap-3">{painContextLabels.map(([id,label]) => <button key={id} onClick={() => setPainContext(id)} className={`min-h-[64px] rounded-2xl border-2 px-5 text-left text-xl font-black ${painContext === id ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}>{label}</button>)}</div> : null}
@@ -568,10 +342,10 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo }: {
   </div></PatientShell>;
 }
 
-function PatientShell({ children, demo = false, active = "home" }: { children: React.ReactNode; demo?: boolean; active?: "home" | "history" | "hospital" }) {
+function PatientShell({ children, demo, active = "home", backLabel, backFallback, onBack, hideNav = false }: { children: React.ReactNode; demo: boolean; active?: "home" | "history" | "hospital"; backLabel?: string; backFallback?: string; onBack?:()=>void; hideNav?:boolean }) {
   return (
     <main className="min-h-[100dvh] bg-[#F1F0E9] px-5 pb-28 text-[#202923] [font-size:18px]">
-      <div className="mx-auto max-w-[640px]">{demo ? <div className="pt-4 text-center"><span className="inline-flex rounded-full bg-white px-3 py-1 text-base font-black text-[#587066]">오늘안부 데모</span></div> : null}{children}</div><PatientBottomNav demo={demo} current={active}/>
+      <div className="mx-auto max-w-[640px]">{demo ? <div className="pt-4 text-center"><span className="inline-flex rounded-full bg-white px-3 py-1 text-base font-black text-[#587066]">오늘안부 데모</span></div> : null}{backLabel ? <header className="flex items-center justify-between border-b border-[#D5DED7] py-3"><PatientBack label={backLabel} fallback={backFallback} onBack={onBack}/><span className="text-lg font-black text-[#315E50]">오늘안부 Care</span></header> : null}{children}</div>{!hideNav ? <PatientBottomNav demo={demo} current={active}/> : null}
     </main>
   );
 }
@@ -596,7 +370,7 @@ function Empty({
       <p className="mt-3 text-lg text-[#617069]">{text}</p>
       {action ? (
         <Link href={action} className="primary">
-          오늘 상태 확인하기
+          오늘 상태 입력하기
         </Link>
       ) : null}
       {recovery ? <p className="mt-6 text-base font-bold text-[#617069]">병원에서 받은 링크를 다시 열어주세요. 링크가 만료되었다면 병원에 문의해주세요.</p> : null}
