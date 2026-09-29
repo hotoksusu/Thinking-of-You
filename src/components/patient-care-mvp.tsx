@@ -7,11 +7,9 @@ import {
   Activity,
   ArrowLeft,
   Check,
-  ChevronRight,
   House,
   Hospital,
   ShieldCheck,
-  UserRound,
 } from "lucide-react";
 import {
   comparisonLabels,
@@ -37,6 +35,7 @@ import {
   inspectPatientInvitation,
   verifyPatientIdentity,
 } from "@/lib/demo-auth";
+import { PatientHospitalGuide } from "@/components/patient-hospital-guide";
 import { PatientHistory, RecordFacts } from "@/components/patient-history";
 import { PatientHome } from "@/components/patient-home";
 
@@ -200,8 +199,7 @@ function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
   if ((mode as Mode) === "checkin") {
     return <AdaptiveCheckin key={`${patient.id}:${params.get("edit")}:${params.get("revision")}`} patient={patient} todayCheck={todayCheck} history={history} guardianMode={guardianMode} demo={demo} edit={params.get("edit")==="1"} />;
   }
-  if (mode === "hospital")
-    return <PatientShell demo={demo} careStage={patientCareStage(patient)} active="hospital" backLabel="오늘"><header className="py-5"><p className="font-black text-[#315E50]">{hospital?.name}와 함께하는 회복관리</p><h1 className="mt-2 text-3xl font-black">병원 안내</h1><p className="mt-2 font-bold leading-7 text-[#596A62]">걱정되는 증상이나 다음 진료 일정을 쉽게 확인하세요.</p></header><section className="rounded-3xl bg-white p-5"><h2 className="text-2xl font-black">어떤 도움이 필요하세요?</h2><div className="mt-5 grid gap-3"><a href="#safety" className="flex min-h-16 items-center justify-between rounded-2xl bg-[#FFF5EE] px-5 text-xl font-black text-[#8F422C]">긴급 증상 안내 <ChevronRight/></a><p className="rounded-2xl border-2 border-[#315E50] p-5 text-lg font-bold leading-8 text-[#315E50]">병원에 문의하려면 퇴원 안내문이나 병원에서 받은 문자의 연락처를 확인해주세요.</p><div className="rounded-2xl bg-[#F1F0E9] p-5"><p className="font-bold text-[#596A62]">다음 진료 일정</p><p className="mt-2 text-xl font-black">{patient.nextAppointment || "등록된 진료 일정이 없어요."}</p><p className="mt-1 font-bold">{hospital?.name} · {patient.department || "진료 일정은 병원에 확인해주세요."}</p></div></div></section><section className="mt-5 rounded-3xl bg-white p-5"><h2 className="text-xl font-black">가족과 함께 사용하기</h2><p className="mt-2 font-bold leading-7 text-[#596A62]">환자 동의 후 보호자가 대신 상태를 입력하도록 연결할 수 있어요.</p><Link href={demo?"/demo/patient?mode=checkin&proxy=guardian":"/care/guardian"} className="secondary"><UserRound/> 보호자 도움으로 입력하기</Link></section><section id="safety" className="mt-5 rounded-3xl border-2 border-[#E5B59F] bg-[#FFF8F4] p-5"><h2 className="text-xl font-black text-[#8F422C]">지금 바로 도움이 필요한 경우</h2><p className="mt-3 font-bold leading-8 text-[#684E44]">갑작스러운 심한 통증, 호흡곤란, 의식 변화 등 응급 증상이 있다면 이 서비스의 답변을 기다리지 말고 119 또는 가까운 응급의료기관을 이용하세요.</p></section></PatientShell>;
+  if (mode === "hospital") return <PatientShell demo={demo} careStage={patientCareStage(patient)} active="hospital" backLabel="오늘"><PatientHospitalGuide hospital={hospital} patient={patient}/></PatientShell>;
   if (mode === "history" && params.get("recordId")) {
     const record = history.find(c=>c.id===params.get("recordId"));
     return <PatientShell demo={demo} careStage={patientCareStage(patient)} active="history" backLabel="회복 기록" backFallback={nav.href("history")}>
