@@ -1,5 +1,8 @@
 # Patient hospital guide QA
 
+## Three-block information structure
+Hospital guide now contains exactly three main sections: contact, appointment and collapsed emergency guidance. Removed the duplicate recovery-history area; bottom navigation provides history access. Extracted guardian consent/help into a shared home component for both active and completed-care patients. Hospital demo labeling appears once inside contact information, not again in the shell. Reduced card padding/gaps and retained the 640px desktop limit and safe-area clearance.
+
 ## Compact-detail follow-up
 Urgent symptoms and previous appointment details default collapsed. Removed the duplicated expanded emergency footer. Appointment, hospital contact, visit preparation and family help are separate sections. Desktop contact fields use two columns within the existing 640px shell; bottom padding now includes safe-area in addition to navigation clearance.
 

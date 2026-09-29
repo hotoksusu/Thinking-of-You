@@ -17,14 +17,18 @@ for(const width of [1440,390])test(`hospital guide ${width}`,{timeout:120000},as
  const browser=await chromium.launch({headless:true,channel:'msedge'}),page=await browser.newPage({viewport:{width,height:900}});
  try{
   await page.goto('http://127.0.0.1:3200/demo/patient?mode=hospital');
-  await page.getByRole('heading',{name:'어떤 도움이 필요하세요?'}).waitFor();
+  await page.getByRole('heading',{name:'긴급한 증상이 있나요?'}).waitFor();
   assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'병원 안내');
-  await page.getByText('데모용 예시 정보 · 실제 병원 연락처가 아닙니다.',{exact:true}).waitFor();
+  await page.getByText('Demo · 아래 정보는 예시입니다.',{exact:true}).waitFor();
   assert.equal(await page.getByRole('link',{name:'119 전화하기'}).count(),0);
   await page.getByRole('button',{name:'전화하기',exact:true}).click();await page.getByRole('status').waitFor();
-  await page.getByRole('button',{name:'긴급한 증상이 있어요'}).click();
+  await page.getByRole('button',{name:'긴급 증상 안내'}).click();
   assert.equal(await page.getByRole('link',{name:'119 전화하기'}).getAttribute('href'),'tel:119');
-  await page.getByRole('button',{name:'긴급한 증상이 있어요'}).click();assert.equal(await page.getByRole('link',{name:'119 전화하기'}).count(),0);
+  await page.getByRole('button',{name:'긴급 증상 안내'}).click();assert.equal(await page.getByRole('link',{name:'119 전화하기'}).count(),0);
+  assert.equal(await page.getByRole('button',{name:'보호자 도움 안내'}).count(),0);
+  assert.equal(await page.locator('main section').count(),3);
+  assert.equal(await page.getByText('오늘안부 데모',{exact:true}).count(),0);
+  await page.getByRole('link',{name:'오늘',exact:true}).click();
   await page.getByRole('button',{name:'보호자 도움 안내'}).click();
   assert.equal(await page.getByRole('link',{name:'이 기기에서 함께 입력하기 →'}).count(),0);
   await page.getByRole('checkbox').check();
@@ -37,7 +41,7 @@ for(const width of [1440,390])test(`hospital guide ${width}`,{timeout:120000},as
   assert.equal(await page.locator('#past-appointment').count(),0);await page.getByRole('button',{name:'지난 진료 보기'}).click();await page.locator('#past-appointment').waitFor();await page.getByRole('button',{name:'지난 진료 접기'}).click();
   assert.equal(await page.getByRole('link',{name:'전화하기',exact:true}).getAttribute('href'),'tel:020000000');
   assert.match(await page.getByRole('link',{name:'길찾기 · 새 창 →'}).getAttribute('href'),/^https:\/\/www.google.com\/maps\/dir/);
-  await page.getByRole('link',{name:'병원에 문의하기'}).click();assert.ok(page.url().endsWith('#hospital-contact'));
+  await page.getByRole('link',{name:'병원에 일정 문의하기 →'}).click();assert.ok(page.url().endsWith('#hospital-contact'));
   for(const [value,heading] of [[new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new Date()),'오늘 진료가 있어요'],['2999-10-08','다음 진료'],['','예정된 다음 진료가 없어요.']]){
    await page.evaluate(value=>{const k='oneul-anbu:public-demo:care-mvp:v5',s=JSON.parse(localStorage.getItem(k));s.patients.find(p=>p.id==='patient_001').nextAppointment=value;localStorage.setItem(k,JSON.stringify(s));},value);
    await page.reload();await page.getByText(heading,{exact:true}).waitFor();
@@ -46,13 +50,13 @@ for(const width of [1440,390])test(`hospital guide ${width}`,{timeout:120000},as
   await page.evaluate(()=>window.scrollTo(0,document.body.scrollHeight));
   const boxes=await page.evaluate(()=>({nav:document.querySelector('nav').getBoundingClientRect().top,last:document.querySelector('main section:last-of-type').getBoundingClientRect().bottom,width:document.querySelector('main>div').getBoundingClientRect().width}));assert.ok(boxes.last<=boxes.nav);if(width===1440)assert.equal(boxes.width,640);
   await page.screenshot({path:`qa/patient-hospital-${width}.png`,fullPage:true});
-  await page.getByRole('link',{name:'회복 기록 보기 →',exact:true}).click();
+  await page.getByRole('link',{name:'회복 기록',exact:true}).click();
   await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();
   await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('oneul-anbu:public-demo:care-mvp:v5'));delete s.hospitals.find(h=>h.id==='hospital_001').phone;localStorage.setItem('oneul-anbu:care-mvp:v1',JSON.stringify(s));localStorage.setItem('oneul-anbu:demo:patient-session',JSON.stringify({kind:'patient',patientId:'patient_001',hospitalId:'hospital_001',expiresAt:'2999-01-01'}));});
   await page.goto('http://127.0.0.1:3200/app/patient/hospital');
   await page.getByRole('button',{name:'병원 연락처 찾는 방법 →'}).click();
   assert.match(await page.getByRole('link',{name:'병원 공식 연락처 검색 · 새 창 →'}).getAttribute('href'),/^https:\/\/www.google.com\/search/);
-  assert.equal(await page.getByText('데모용 예시 정보 · 실제 병원 연락처가 아닙니다.',{exact:true}).count(),0);
+  assert.equal(await page.getByText('Demo · 아래 정보는 예시입니다.',{exact:true}).count(),0);
   // Manager registration must persist to the patient-visible hospital data.
   await page.goto('http://127.0.0.1:3200/demo/hospital');
   await page.getByLabel('역할 전환').selectOption('owner');

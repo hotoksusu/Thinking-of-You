@@ -1,0 +1,6 @@
+"use client";
+import {useState} from "react";
+import {PatientLink,usePatientNavigation} from "@/components/patient-navigation";
+export function PatientFamilyHelp(){const nav=usePatientNavigation(),[family,setFamily]=useState(false),[consent,setConsent]=useState(false);const action="flex min-h-12 items-center justify-between text-lg font-bold text-[#315E50]";return (<section className="mt-5 rounded-2xl border border-[#D9E1DC] p-5"><h2 className="text-2xl font-black">가족과 함께 사용하기</h2><p className="mt-3 text-lg leading-8">환자 동의 후 이 기기에서 함께 입력할 수 있어요.</p><button className={action+" mt-4 w-full"} aria-expanded={family} onClick={()=>setFamily(v=>!v)}>보호자 도움 안내 <span aria-hidden>→</span></button>
+      {family ? <div className="mt-4 space-y-3 text-lg leading-8"><p>보호자는 환자 이름과 회복 기록을 볼 수 있고, 오늘 상태를 대신 입력할 수 있어요. 입력 내용은 보호자 대리 기록으로 저장돼요.</p><p>현재는 환자가 연결된 기기에서 함께 사용하는 기능이에요. 별도 보호자 전용 링크 발송과 연결 해제 기능은 아직 지원하지 않아요.</p><p>공용 기기에서는 사용을 피해주세요. 환자 동의 없이 화면이나 초대 링크를 공유하지 마세요.</p><label className="flex min-h-14 items-start gap-3 rounded-xl bg-[#F1F0E9] p-4"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)} className="mt-2 size-5 shrink-0"/>환자가 정보 확인과 보호자의 대리 입력에 동의했어요.</label>{consent ? <PatientLink href={nav.href("checkin",{proxy:"guardian"})} className={action}>이 기기에서 함께 입력하기 →</PatientLink> : null}</div> : null}
+    </section>);}

@@ -1,4 +1,5 @@
 "use client";
+import {PatientFamilyHelp} from "@/components/patient-family-help";
 import { Check } from "lucide-react";
 import { PatientLink, usePatientNavigation } from "@/components/patient-navigation";
 import { painValue, type CareState, type Patient } from "@/lib/care-mvp";
@@ -43,5 +44,6 @@ export function PatientCareEnded({ patient, state }: { patient: Patient; state: 
       <h2 className="text-lg font-black">관리기간 종료 ≠ 치료 종료</h2>
       <p className="mt-2 text-base leading-7">오늘안부 이용기간이 끝난 것이며, 의료적인 완치나 정상 판정을 의미하지 않습니다.</p>
     </aside>
+    <PatientFamilyHelp/>
   </div>;
 }

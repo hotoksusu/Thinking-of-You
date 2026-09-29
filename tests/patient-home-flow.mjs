@@ -44,7 +44,7 @@ for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`pa
   await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();
   assert.equal(await page.getByRole('link',{name:'회복 기록',exact:true}).getAttribute('aria-current'),'page');
   await page.getByRole('link',{name:'병원 안내',exact:true}).click();
-  await page.getByRole('heading',{name:'어떤 도움이 필요하세요?',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'긴급한 증상이 있나요?',exact:true}).waitFor();
   assert.equal(await page.getByRole('link',{name:'병원 안내',exact:true}).getAttribute('aria-current'),'page');
   // Reuse only synthetic demo data to exercise the existing authenticated patient flow.
   await page.evaluate(key=>{const s=JSON.parse(localStorage.getItem(key));const p=s.patients.find(p=>p.id==='patient_001');p.name='테스트환자';const next=new Date();next.setDate(next.getDate()+1);p.nextAppointment=next.toLocaleDateString('sv-SE',{timeZone:'Asia/Seoul'});localStorage.setItem('oneul-anbu:care-mvp:v1',JSON.stringify(s));localStorage.setItem('oneul-anbu:demo:patient-session',JSON.stringify({kind:'patient',patientId:p.id,hospitalId:p.hospitalId,sessionId:'qa',expiresAt:'2999-01-01'}));},key);
@@ -53,7 +53,7 @@ for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`pa
   assert.equal(await page.getByText('오늘안부 데모',{exact:true}).count(),0);
   await page.getByRole('heading',{name:'내일 진료가 있어요.'}).waitFor();
   await page.getByRole('link',{name:'병원 도움받기',exact:true}).click();
-  await page.waitForURL('**/app/patient/hospital');await page.getByRole('heading',{name:'어떤 도움이 필요하세요?',exact:true}).waitFor();
+  await page.waitForURL('**/app/patient/hospital');await page.getByRole('heading',{name:'긴급한 증상이 있나요?',exact:true}).waitFor();
   assert.equal(await page.getByText('오늘안부 데모',{exact:true}).count(),0);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
  }finally{await browser.close();}

@@ -40,7 +40,7 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     await page.getByRole('button',{name:'오늘',exact:true}).click();
     await page.getByRole('heading',{name:'오늘 회복 상태를 알려주세요.'}).waitFor();
     await page.getByRole('link',{name:'병원 안내',exact:true}).click();
-    await page.getByRole('heading',{name:'어떤 도움이 필요하세요?',exact:true}).waitFor();
+    await page.getByRole('heading',{name:'긴급한 증상이 있나요?',exact:true}).waitFor();
     assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'병원 안내');
     await page.getByRole('button',{name:'오늘',exact:true}).click();
     await page.getByRole('link',{name:'오늘 상태 입력하기',exact:true}).click();await answer(page);
@@ -69,7 +69,7 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'회복 기록');
     await page.getByRole('link',{name:/^\d{4}\.\d{2}\.\d{2} 기록$/}).first().click();await page.waitForURL(/recordId=/);await page.reload();
     await page.getByRole('button',{name:'회복 기록',exact:true}).click();
-    await page.getByRole('link',{name:'병원 안내',exact:true}).click();await page.getByRole('heading',{name:'어떤 도움이 필요하세요?',exact:true}).waitFor();
+    await page.getByRole('link',{name:'병원 안내',exact:true}).click();await page.getByRole('heading',{name:'긴급한 증상이 있나요?',exact:true}).waitFor();
     await page.evaluate(key=>{const s=JSON.parse(localStorage.getItem(key));s.expiresAt='2000-01-01';localStorage.setItem(key,JSON.stringify(s));},sessionKey);
     await page.goto(origin+'/app/patient/history');await page.getByRole('heading',{name:'다시 연결이 필요해요.'}).waitFor();
     assert.equal(await page.getByRole('navigation',{name:'환자 메뉴'}).count(),0);
@@ -96,7 +96,7 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.screenshot({path:`qa/patient-care-ended-${width}.png`,fullPage:true});
     await page.getByRole('link',{name:'병원 안내 보기 →',exact:true}).click();
-    await page.getByRole('heading',{name:'어떤 도움이 필요하세요?',exact:true}).waitFor();
+    await page.getByRole('heading',{name:'긴급한 증상이 있나요?',exact:true}).waitFor();
     await page.getByRole('button',{name:'홈',exact:true}).click();
     await page.getByRole('heading',{name:'오늘안부 관리기간이 종료되었어요'}).waitFor();
     await page.getByRole('link',{name:'지난 회복 기록 보기',exact:true}).click();await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();

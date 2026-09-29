@@ -1,4 +1,5 @@
 import { PatientLink as Link } from "@/components/patient-navigation";
+import { PatientFamilyHelp } from "@/components/patient-family-help";
 import { CalendarDays, Check, ChevronRight, HeartPulse, Hospital } from "lucide-react";
 import type { CareState, Patient } from "@/lib/care-mvp";
 import { getPatientHome } from "@/lib/patient-home";
@@ -41,5 +42,6 @@ export function PatientHome({ patient, state, today, demo }: { patient: Patient;
     </section>)}
     {followUp ? <section className="mt-5 rounded-2xl bg-white p-5"><h2 className="text-xl font-black">병원에서 다시 확인할 예정이에요.</h2><p className="mt-2 text-lg leading-8">{followUp.followUpDueDate ? `${followUp.followUpDueDate}에` : "다음 일정에"} 회복 상태를 한 번 더 확인합니다.</p></section> : null}
     {!home.todayCheck && home.weeklyDays > 0 ? <aside className="mt-5 flex items-center gap-4 p-2"><CareCompanion compact state="welcome"/><p className="text-lg font-bold leading-8 text-[#40554A]">하루 한 번,<br/>회복 기록을 이어가세요.</p></aside> : null}
+    <PatientFamilyHelp/>
   </div>;
 }
