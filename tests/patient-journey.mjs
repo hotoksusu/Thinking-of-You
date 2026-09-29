@@ -26,15 +26,22 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     const seed=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),demoKey);
     await page.getByRole('link',{name:'회복 기록',exact:true}).click();
     await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();
+    assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'회복 기록');
+    await page.getByRole('heading',{name:'나의 회복 기록',exact:true}).waitFor();
+    await page.getByRole('heading',{name:'최근 기록 변화',exact:true}).waitFor();
+    await page.screenshot({path:`qa/patient-history-${width}.png`,fullPage:true});
     assert.ok(page.url().includes('mode=history'));
     await page.getByRole('link',{name:/^\d{4}\.\d{2}\.\d{2} 기록$/}).first().click();
     await page.waitForURL(/recordId=/);const detail=page.url();await page.reload();assert.equal(page.url(),detail);
+    await page.getByText('붓기',{exact:true}).waitFor();
+    assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'회복 기록');
     await page.getByRole('button',{name:'회복 기록',exact:true}).click();
     await page.getByRole('heading',{name:'회복 기록',exact:true}).waitFor();
     await page.getByRole('button',{name:'오늘',exact:true}).click();
     await page.getByRole('heading',{name:'오늘 회복 상태를 알려주세요.'}).waitFor();
     await page.getByRole('link',{name:'병원 안내',exact:true}).click();
     await page.getByRole('heading',{name:'병원 안내',exact:true}).waitFor();
+    assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'병원 안내');
     await page.getByRole('button',{name:'오늘',exact:true}).click();
     await page.getByRole('link',{name:'오늘 상태 입력하기',exact:true}).click();await answer(page);
     await page.getByRole('link',{name:'오늘 기록 수정하기',exact:true}).click();await answer(page,2);
@@ -58,6 +65,8 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     assert.equal(await page.getByText('오늘안부 데모',{exact:true}).count(),0);
     await page.getByRole('link',{name:'오늘 상태 입력하기',exact:true}).click();await answer(page);
     await page.getByRole('link',{name:'회복 추이 보기',exact:true}).click();
+    await page.getByRole('heading',{name:'나의 회복 기록',exact:true}).waitFor();
+    assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'회복 기록');
     await page.getByRole('link',{name:/^\d{4}\.\d{2}\.\d{2} 기록$/}).first().click();await page.waitForURL(/recordId=/);await page.reload();
     await page.getByRole('button',{name:'회복 기록',exact:true}).click();
     await page.getByRole('link',{name:'병원 안내',exact:true}).click();await page.getByRole('heading',{name:'병원 안내',exact:true}).waitFor();
@@ -97,5 +106,16 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     assert.equal(await page.getByRole('navigation',{name:'환자 메뉴'}).count(),0);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     assert.deepEqual(failures,[]);
+    // More than seven records are expandable; zero pain and missing swelling stay factual.
+    await page.evaluate(({key,seed})=>{
+      const base=seed.checkIns.find(c=>c.patientId==='patient_001');
+      seed.checkIns=Array.from({length:10},(_,i)=>({...base,id:`history_${i}`,date:`2026-01-${String(i+1).padStart(2,'0')}`,createdAt:`2026-01-${String(i+1).padStart(2,'0')}T12:00:00Z`,painScore:i===0?0:8,swellingChange:undefined,concerns:[]}));
+      localStorage.setItem(key,JSON.stringify(seed));
+    },{key:demoKey,seed:structuredClone(seed)});
+    await page.goto(origin+'/demo/patient?mode=history');
+    await page.getByText('첫 기록 0점 → 최근 기록 8점',{exact:true}).waitFor();
+    assert.equal(await page.getByRole('link',{name:/^\d{4}\.\d{2}\.\d{2} 기록$/}).count(),7);
+    await page.getByRole('button',{name:'전체 기록 보기 (10회)'}).click();
+    assert.equal(await page.getByRole('link',{name:/^\d{4}\.\d{2}\.\d{2} 기록$/}).count(),10);
   } finally {await browser.close();}
 });

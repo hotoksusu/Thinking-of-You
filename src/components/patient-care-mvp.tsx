@@ -6,7 +6,6 @@ import { PatientError, type PatientErrorType } from "@/components/patient-error"
 import {
   Activity,
   ArrowLeft,
-  CalendarDays,
   Check,
   ChevronRight,
   House,
@@ -20,7 +19,6 @@ import {
   demoPainBucket,
   loadCareState,
   loadPublicDemoCareState,
-  mobilityLabels,
   painValue,
   saveCareState,
   savePublicDemoCareState,
@@ -39,9 +37,9 @@ import {
   inspectPatientInvitation,
   verifyPatientIdentity,
 } from "@/lib/demo-auth";
-import { RecoveryTrend } from "@/components/recovery-trend";
+import { PatientHistory, RecordFacts } from "@/components/patient-history";
 import { PatientHome } from "@/components/patient-home";
-import { getPatientHome } from "@/lib/patient-home";
+
 import { PatientPreviewLoading } from "@/components/patient-preview-loading";
 
 import { PatientCareEnded, patientCareStage, type CareStage } from "@/components/patient-care-ended";
@@ -122,7 +120,7 @@ function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
   if ((!state || !patient) && mode === "home") return <PatientPreviewLoading demo={demo}/>;
   if (!state || !patient)
     return (
-      <PatientShell demo={demo} careStage={patientCareStage(patient)} hideNav>
+      <PatientShell demo={demo} careStage={patientCareStage(patient)} active={mode === "history" ? "history" : mode === "hospital" ? "hospital" : "home"} backLabel={mode === "home" ? undefined : "이전 화면"} hideNav>
         <p className="py-24 text-center text-lg font-bold">
           정보를 불러오고 있어요.
         </p>
@@ -208,35 +206,10 @@ function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
     const record = history.find(c=>c.id===params.get("recordId"));
     return <PatientShell demo={demo} careStage={patientCareStage(patient)} active="history" backLabel="회복 기록" backFallback={nav.href("history")}>
       <section className="mt-6 rounded-3xl bg-white p-6"><h1 className="text-3xl font-black">{record ? record.date.replaceAll("-",".")+" 기록" : "기록을 찾을 수 없어요."}</h1>
-      {record ? <><p className="mt-5 text-xl font-bold leading-9">통증 {painValue(record)}점<br/>움직임: {mobilityLabels[record.mobilityScore??record.mobility]}</p><p className="mt-4 text-lg leading-8">{record.hasConcern ? record.concernText : "새롭게 불편해진 점은 없었어요."}</p><p className="mt-4 text-lg font-bold text-[#315E50]">✓ 기록 저장 완료</p>{record.date===TODAY ? <Link href={nav.href("checkin",{edit:"1"})} className="secondary">오늘 기록 수정하기</Link> : null}</> : <Link href={nav.href("history")} className="primary">회복 기록으로 돌아가기</Link>}
+      {record ? <><div className="mt-5"><RecordFacts record={record}/><p className="mt-4 text-base leading-7 text-[#40554A]">통증은 0~10점 중 높을수록 심한 점수예요.</p></div><p className="mt-4 text-lg font-bold text-[#315E50]">✓ 기록 저장 완료</p>{record.date===TODAY ? <Link href={nav.href("checkin",{edit:"1"})} className="secondary">오늘 기록 수정하기</Link> : null}</> : <Link href={nav.href("history")} className="primary">회복 기록으로 돌아가기</Link>}
       </section></PatientShell>;
   }
-  if (mode === "history")
-    return (
-      <PatientShell demo={demo} careStage={patientCareStage(patient)} active="history" backLabel="오늘">
-        <header className="py-5">
-          <h1 className="text-3xl font-black">회복 기록</h1>
-          <p className="mt-2 font-bold text-[#68766F]">
-            {getPatientHome({patient, checks: history, signals: state.careSignals, today: TODAY}).recoverySummary}
-          </p>
-        </header>
-        {history.length ? (
-          <>
-            <section className="rounded-3xl bg-[#244B3D] p-6 text-white"><h2 className="text-2xl font-black">최근 7일 회복 기록</h2><p className="mt-3 text-lg font-semibold leading-8">{getPatientHome({patient, checks: history, signals: state.careSignals, today: TODAY}).recoverySummary}</p></section>
-            <section className="mt-5 py-3"><p className="text-lg font-black text-[#315E50]">나의 회복 과정</p><h2 className="mt-2 text-2xl font-black">지금은 회복 {Math.max(1, Math.ceil(daysSince(patient.surgeryDate || patient.dischargeDate) / 7))}주차예요</h2><p className="mt-2 font-semibold leading-7 text-[#596A62]">퇴원 후 매일의 변화가 회복 과정으로 이어지고 있어요.</p><div className="mt-5 flex items-center justify-between text-center text-sm font-black text-[#596A62]"><span>●<br/>수술</span><span className="h-0.5 flex-1 bg-[#CFE0D5]"/><span>●<br/>퇴원</span><span className="h-0.5 flex-1 bg-[#CFE0D5]"/><span className="rounded-xl bg-[#E8F1EA] px-2 py-1 text-[#315E50]">◎<br/>현재 D+{daysSince(patient.surgeryDate || patient.dischargeDate)}</span><span className="h-0.5 flex-1 bg-[#DDE5E0]"/><span>○<br/>다음 외래</span></div></section>
-            <section className="mt-5 border-y border-[#CBD8D1] py-6"><h2 className="text-2xl font-black">지난 7일 기록</h2><div className="mt-4 grid gap-5 sm:grid-cols-2"><div><p className="text-lg font-bold text-[#596A62]">지난 7일 평균 통증</p><p className="mt-1 text-3xl font-black text-[#315E50]">{(history.slice(0,7).reduce((sum,item)=>sum+painValue(item),0)/Math.min(7,history.length)).toFixed(1)} / 10</p></div><div><p className="text-lg font-bold text-[#596A62]">이번 주 기록</p><p className="mt-1 text-2xl font-black text-[#315E50]">{getPatientHome({patient, checks: history, today: TODAY}).weeklyDays}일 기록했어요.</p><p className="mt-1 font-bold">꾸준히 상태를 알려주셨어요.</p></div></div></section>
-            <RecoveryTrend checks={history} audience="patient" />
-            <section className="mt-5 rounded-3xl bg-white p-5"><h2 className="flex items-center gap-2 text-xl font-black"><CalendarDays/>지난 기록</h2><p className="mt-2 text-lg leading-7">날짜를 누르면 그날의 기록을 볼 수 있어요.</p><div className="mt-4 grid gap-3">{history.map(c=><Link key={c.id} href={nav.href("history",{recordId:c.id})} className="flex min-h-16 items-center justify-between gap-3 rounded-2xl bg-[#F1F0E9] p-4 text-lg font-bold"><span>{c.date.replaceAll("-",".")} 기록</span><ChevronRight aria-hidden/></Link>)}</div></section>
-          </>
-        ) : (
-          <Empty
-            title="아직 회복 기록이 없어요."
-            text="오늘 상태를 입력하면 변화가 쌓이기 시작해요."
-            action={demo ? "/demo/patient?mode=checkin" : "/app/patient/checkin"}
-          />
-        )}
-      </PatientShell>
-    );
+  if (mode === "history") return <PatientShell demo={demo} careStage={patientCareStage(patient)} active="history" backLabel="오늘"><PatientHistory key={patient.id} patient={patient} state={state}/></PatientShell>;
   return <PatientShell demo={demo} careStage={patientCareStage(patient)}><PatientHome patient={patient} state={state} today={TODAY} demo={demo}/></PatientShell>;
 }
 
@@ -351,28 +324,4 @@ function PatientShell({ children, demo, active = "home", backLabel, backFallback
 function PatientBottomNav({demo,current,careStage}:{demo:boolean;current:"home"|"history"|"hospital";careStage:CareStage}){
  const base=demo?"/demo/patient":"/app/patient";
  return <nav aria-label="환자 메뉴" className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 mx-auto grid max-w-[610px] grid-cols-3 rounded-2xl border border-[#D2DDD7] bg-white/95 p-2 shadow-xl backdrop-blur">{[["home",careStage === "completedCare" ? "홈" : "오늘",House,base],["history","회복 기록",Activity,base+(demo?"?mode=history":"/history")],["hospital","병원 안내",Hospital,base+(demo?"?mode=hospital":"/hospital")]].map(([id,label,Icon,href])=><Link key={String(id)} href={String(href)} prefetch onClick={()=>window.scrollTo({top:0,behavior:"auto"})} aria-current={current===id?"page":undefined} className={"flex min-h-14 flex-col items-center justify-center rounded-xl text-base font-black "+(current===id?"bg-[#315E50] text-white shadow-sm":"text-[#40554A]")}><Icon size={21} aria-hidden/><span>{String(label)}</span></Link>)}</nav>;
-}
-function Empty({
-  title,
-  text,
-  action,
-  recovery = false,
-}: {
-  title: string;
-  text: string;
-  action?: string;
-  recovery?: boolean;
-}) {
-  return (
-    <div className="rounded-3xl bg-white p-8 text-center">
-      <h1 className="text-2xl font-black">{title}</h1>
-      <p className="mt-3 text-lg text-[#617069]">{text}</p>
-      {action ? (
-        <Link href={action} className="primary">
-          오늘 상태 입력하기
-        </Link>
-      ) : null}
-      {recovery ? <p className="mt-6 text-base font-bold text-[#617069]">병원에서 받은 링크를 다시 열어주세요. 링크가 만료되었다면 병원에 문의해주세요.</p> : null}
-    </div>
-  );
 }
