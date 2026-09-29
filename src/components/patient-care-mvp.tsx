@@ -314,7 +314,7 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edi
 
 function PatientShell({ children, demo, active = "home", backLabel, backFallback, onBack, hideNav = false, careStage = "activeCare" }: { children: React.ReactNode; demo: boolean; active?: "home" | "history" | "hospital"; backLabel?: string; backFallback?: string; onBack?:()=>void; hideNav?:boolean; careStage?:CareStage }) {
   return (
-    <main className="min-h-[100dvh] bg-[#F1F0E9] px-5 pb-28 text-[#202923] [font-size:18px]">
+    <main className="min-h-[100dvh] bg-[#F1F0E9] px-5 pb-[calc(7rem+env(safe-area-inset-bottom))] text-[#202923] [font-size:18px]">
       <div className="mx-auto max-w-[640px]">{demo ? <div className="pt-4 text-center"><span className="inline-flex rounded-full bg-white px-3 py-1 text-base font-black text-[#587066]">오늘안부 데모</span></div> : null}{backLabel ? <header className="flex items-center justify-between border-b border-[#D5DED7] py-3"><PatientBack label={backLabel === "오늘" && careStage === "completedCare" ? "홈" : backLabel} fallback={backFallback} onBack={onBack}/><span className="text-lg font-black text-[#315E50]">오늘안부 Care</span></header> : null}{children}</div>{!hideNav ? <PatientBottomNav demo={demo} current={active} careStage={careStage}/> : null}
     </main>
   );
