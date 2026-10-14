@@ -1,0 +1,2 @@
+import {chromium} from 'playwright';
+const b=await chromium.launch({channel:'msedge',headless:true});try{for(const width of [390,1440]){const p=await b.newPage({viewport:{width,height:844}});await p.goto('http://localhost:3100');await p.getByRole('heading',{name:'오늘 몸은 어떠세요?'}).waitFor();await p.screenshot({path:`qa/redesign-landing-${width}.png`,fullPage:true});await p.keyboard.press('Tab');if(!await p.locator(':focus').count())throw Error('keyboard focus missing');await p.close();}}finally{await b.close()}

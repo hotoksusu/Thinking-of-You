@@ -26,7 +26,7 @@ test('all demo roles: navigation, report generation/empty/error/print and permis
       await page.getByText('선택한 기간에 관리한 환자가 없습니다.').waitFor();
       await page.getByLabel('리포트 기간').fill('2999-01');
       await page.getByRole('button', {name: '월간 리포트 생성', exact: true}).click();
-      await page.getByRole('alert').waitFor();
+      await page.locator('main [role="alert"]').waitFor();
       await page.goto(origin + '/demo/hospital/patient?patientId=patient_001');
       await page.getByRole('heading', {name: '다음 조치', exact: true}).waitFor();
       const readOnly = ['owner', 'hospital_admin'].includes(role);
@@ -81,6 +81,6 @@ test('authenticated role cannot switch permissions and registration validates mi
     assert.equal(await page.getByLabel('역할 전환').isDisabled(), true);
     await page.goto(origin + '/care/hospital/register');
     await page.getByRole('button', {name: '환자 등록하기'}).click();
-    await page.getByRole('alert').waitFor();
+    await page.locator('main [role="alert"]').waitFor();
   } finally {await browser.close();}
 });

@@ -7,7 +7,7 @@ export function PatientEntryRedirect() {
  useEffect(() => {
   const token = new URLSearchParams(window.location.search).get("token");
   if (token) router.replace("/i?token=" + encodeURIComponent(token));
-  else if (getPatientSession()) router.replace("/app/patient/checkin");
+  else if (getPatientSession()) router.replace("/app/patient");
  }, [router]);
  return null;
 }
