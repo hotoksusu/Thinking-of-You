@@ -34,6 +34,8 @@ for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
    await page.goto(origin+'/i?token=qa-valid');
    await page.waitForURL('**/app/patient');
    await page.goto(origin);
+   await page.getByRole('heading',{name:'오늘 몸은 어떠세요?'}).waitFor();
+   await page.getByRole('link',{name:'오늘 안부 시작하기'}).click();
    await page.waitForURL('**/app/patient');
    await page.goto(origin+'/i?token=missing');
    await page.getByRole('heading',{name:'초대 링크를 확인할 수 없어요'}).waitFor();
