@@ -1,0 +1,769 @@
+{
+  "branch": "codex/care-predeploy-review-20261026",
+  "baseCommit": "15974edaaac7be2e3851bc74f791335b5f2f9929",
+  "scope": "staged blobs; generated report excluded from self hash",
+  "files": 150,
+  "findings": [],
+  "automaticDeploymentGuard": {
+    "vercelGitDeploymentEnabled": false,
+    "githubWorkflowsPresent": false,
+    "sitesPublishInvoked": false
+  },
+  "limitations": [
+    "Pattern scan and manual source review; not a complete secret/PII certification.",
+    "Synthetic QA screenshots were reviewed separately.",
+    "External repository administration/webhooks are not completely inventoried by this scanner."
+  ],
+  "manifest": [
+    {
+      "path": ".env.example",
+      "bytes": 452,
+      "sha256": "4544edd191527a17bef3908f3eaacf72bfc8fc4b84d8e95e5201621f1bb6aae6"
+    },
+    {
+      "path": ".openai/hosting.json",
+      "bytes": 77,
+      "sha256": "f7033208de205608651f7511914c894f9d85354a7b4f0d1eecc304ce084c6c18"
+    },
+    {
+      "path": "app/admin/login/page.tsx",
+      "bytes": 1921,
+      "sha256": "add0ae092a30498e70635d477d6f8190327dc50dcb54154e00812938415b2350"
+    },
+    {
+      "path": "app/care/guardian/page.tsx",
+      "bytes": 3694,
+      "sha256": "b68b7fc493dac25314085cb5e40e1052861c5f5ad9f26c7ecd07b0db63d0be45"
+    },
+    {
+      "path": "app/care/privacy/page.tsx",
+      "bytes": 2050,
+      "sha256": "25f54b6d697d296e160c55290411cf69b05f0b894ca00764b6905ca7203725a8"
+    },
+    {
+      "path": "app/care/server/page.tsx",
+      "bytes": 13984,
+      "sha256": "ffbda1cc77d7bcec4f6a7c8928e4d23773175bdbe0498ed0ea85e53bc0253e43"
+    },
+    {
+      "path": "app/company/page.tsx",
+      "bytes": 17817,
+      "sha256": "0d4a87fb7b2bd543d205bbe4fffc1f22ded849d3f5a74d484bcc5f82cecfca9c"
+    },
+    {
+      "path": "app/demo/layout.tsx",
+      "bytes": 1160,
+      "sha256": "b852e81cfad61405d82cd026220676c01c9115325ef4df05ab3dd2512a75370e"
+    },
+    {
+      "path": "app/demo/patient/layout.tsx",
+      "bytes": 106,
+      "sha256": "8f9a87fa343b78a3481e449fa24c45b63596d3eea9c5e0d13d44b66f502451e7"
+    },
+    {
+      "path": "app/globals.css",
+      "bytes": 27960,
+      "sha256": "a5c5990d8960de5ee12a7e97af66c85b881d7bfd78a26a636154cb81b69c2091"
+    },
+    {
+      "path": "app/hospital/login/page.tsx",
+      "bytes": 3929,
+      "sha256": "3357eea510671fa0baaeca3fd79da75db9adf3fbb7a6b521410b51fe8b2f2a77"
+    },
+    {
+      "path": "app/hospital/page.tsx",
+      "bytes": 9023,
+      "sha256": "3f196493d13a8c5cb7cf0bc711a1b9c86b4c4a1e5be5aa7e7e5442fbeb3820b2"
+    },
+    {
+      "path": "app/layout.tsx",
+      "bytes": 1760,
+      "sha256": "e68b2e79ccf8d02de12a1018fc13b2d0cd3045ca885ff607ee8e5006725cd394"
+    },
+    {
+      "path": "app/page.tsx",
+      "bytes": 4188,
+      "sha256": "09dca9514dd03cf7417be163ec445996cbc333b3907f52015cb373c6662e72b0"
+    },
+    {
+      "path": "app/pilot/page.tsx",
+      "bytes": 3475,
+      "sha256": "ee43d5624b480669628c79f03e16f789737d6ce42244e3200d11fccb55a13a2d"
+    },
+    {
+      "path": "docs/care-commercial-server.md",
+      "bytes": 7163,
+      "sha256": "3d5a718c13ccc1cc3ab0fd3002d562301a01eaa285788088e3f46bc544a3758e"
+    },
+    {
+      "path": "docs/care-pilot-operations.md",
+      "bytes": 8289,
+      "sha256": "b649f8296ee1cc2d7577977919a64c255f2e451d086b1bf2403f9dc9b9b4e7a3"
+    },
+    {
+      "path": "docs/care-server-operations.md",
+      "bytes": 7253,
+      "sha256": "97856ffa6da873855c4c32dd7db05b3e9c6711e0eba1f606847fd541e4b363cb"
+    },
+    {
+      "path": "docs/commercialization-audit.md",
+      "bytes": 2486,
+      "sha256": "c365b58aab3739da3be2aa5a7c027d4e62fefb690e3b58b44e7fa2babecc8410"
+    },
+    {
+      "path": "drizzle/0000_care_server.sql",
+      "bytes": 1626,
+      "sha256": "63ced4430e0841272b1b5b2a5c6d50ed39e2fd3a5d966e78a0ede96a58a40da6"
+    },
+    {
+      "path": "drizzle/0001_care_operations.sql",
+      "bytes": 2543,
+      "sha256": "fb00752913db6d29687e6e8c8210024b21c415b1aa7cebf555d3c6901318b7d2"
+    },
+    {
+      "path": "drizzle/0002_care_sms.sql",
+      "bytes": 574,
+      "sha256": "b6bd643be531147467d3217359954f8dd713334d8547ab5bb7d5039fdf7f70f1"
+    },
+    {
+      "path": "drizzle/meta/_journal.json",
+      "bytes": 481,
+      "sha256": "29b8e5db30d38972f4a847609253b1efd7b8a8996f8de26a8c13fa523e066a7e"
+    },
+    {
+      "path": "package.json",
+      "bytes": 868,
+      "sha256": "eb6cc9a726b05b3ddc5026cea4a718fee103ec9a019ac3e657e530f1eec62448"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "bytes": 131844,
+      "sha256": "bdd386643abf9ac2b8c28d1566b69e30be1e9c83f87ca1e1c32000b4bbb324aa"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "bytes": 354,
+      "sha256": "8ff2362e539c34652bf3118e501bc3faa063ef2fcfb73a5e1c318a6b74953514"
+    },
+    {
+      "path": "qa/capture-premium.mjs",
+      "bytes": 1478,
+      "sha256": "2330eeb5088db61d802b1cb752b95466adaa740bc48cc54efdcee0215547af3d"
+    },
+    {
+      "path": "qa/commercial-pilot-390.png",
+      "bytes": 72484,
+      "sha256": "f718b39d0ee2243fb541db152e1f6ef445f3acd94cb2b4079bc26067ed958d45"
+    },
+    {
+      "path": "qa/commercial-report-1440.png",
+      "bytes": 198239,
+      "sha256": "7a9e1bc5d9b3fce96c1b0206bf2f53298cd720b2e5e11fae2cdf4da81c2bb2b3"
+    },
+    {
+      "path": "qa/commercial-work-1440.png",
+      "bytes": 242069,
+      "sha256": "e82975f46079513475ae8f5a3a19008a364035a4dfb8293ea6b94729478f8864"
+    },
+    {
+      "path": "qa/commercialization-dependency-audit-after.json",
+      "bytes": 280,
+      "sha256": "5df3fafce987d075a45acdac93015f040a0ce4846bb7766e56015b7a335f525d"
+    },
+    {
+      "path": "qa/commercialization-dependency-audit.json",
+      "bytes": 105389,
+      "sha256": "adf9889ca2fb39f531d21a1adcd890054e4318688ad2392bb54c919ee1953989"
+    },
+    {
+      "path": "qa/commercialization-report.md",
+      "bytes": 11075,
+      "sha256": "612e4c2993551b1e33a859cad502f446b77c652743199e93fdc5506f215b71c6"
+    },
+    {
+      "path": "qa/demo-production-blocked-390.png",
+      "bytes": 24500,
+      "sha256": "109152b3fa21eef4cbb9e5e5aa09c4e089ede9b17ddf7345cfb04b3e49a93f2b"
+    },
+    {
+      "path": "qa/entry-1440.png",
+      "bytes": 87131,
+      "sha256": "bce6c3c4005db68ffd82c34cb77d25b7c6c961f75a9d073338d5b4f8553afaa6"
+    },
+    {
+      "path": "qa/entry-390.png",
+      "bytes": 77763,
+      "sha256": "38a3b95709d23505cc5faac605f981c15b6d15320c43276e6d2411d4c474af4b"
+    },
+    {
+      "path": "qa/hospital-entry-1440.png",
+      "bytes": 41504,
+      "sha256": "ee1f1241dd5c545d1b61d4a25da1bc9af35ec432d39b787e534c90e06c440542"
+    },
+    {
+      "path": "qa/hospital-entry-360.png",
+      "bytes": 37252,
+      "sha256": "8fceba5e925da23e7a381ba5928b631290bf001859429d331f0363ac6103322b"
+    },
+    {
+      "path": "qa/hospital-entry-375.png",
+      "bytes": 37455,
+      "sha256": "12f15fa4fc8f62c18fa0642eed74503b04bf1d7f758d0794a580c022f771f9c2"
+    },
+    {
+      "path": "qa/hospital-entry-390.png",
+      "bytes": 37466,
+      "sha256": "56c1e817fb4b2088b9d537259158286c282e297e75f4f6c83ae77c4a1ee97194"
+    },
+    {
+      "path": "qa/hospital-entry-430.png",
+      "bytes": 37262,
+      "sha256": "e26da560081861f8c4e54cb2ac9dd947c70b012e3b5fb3d99d577e370d7b1d3a"
+    },
+    {
+      "path": "qa/hospital-entry-768.png",
+      "bytes": 39066,
+      "sha256": "adf11566a72df74a7b2ed91460fc85d581d20b097e1f20919505c8c156826fae"
+    },
+    {
+      "path": "qa/hospital-entry-report.md",
+      "bytes": 6923,
+      "sha256": "d811bc9489813186345f6d54530280cada41f2a772e73de757259551ed48e466"
+    },
+    {
+      "path": "qa/patient-care-ended-1440.png",
+      "bytes": 96620,
+      "sha256": "d45f2c20a925e2dcf370b8562288d0c1716a7ec72373f5ff11e7f015793d4288"
+    },
+    {
+      "path": "qa/patient-care-ended-390.png",
+      "bytes": 92213,
+      "sha256": "14b4a49e85018a18483988a5363d0c879bd5354dbb3fc64f558eb4cab3a127b9"
+    },
+    {
+      "path": "qa/patient-error-1440.png",
+      "bytes": 76766,
+      "sha256": "f27f197d83b002f4f9d7e5eba0765639ae505effe6e2598be5b6c96876844235"
+    },
+    {
+      "path": "qa/patient-error-390.png",
+      "bytes": 71395,
+      "sha256": "2b0f80c09764e93f4150c18a210d116051620154372f3c1403f3f0da121a0036"
+    },
+    {
+      "path": "qa/patient-history-1440.png",
+      "bytes": 110125,
+      "sha256": "3748b7f0cf5a241527020c30eedb8b3d578f5141478b4ed0ddfe0b27ba8b8f49"
+    },
+    {
+      "path": "qa/patient-history-390.png",
+      "bytes": 95292,
+      "sha256": "c566eb6182dbab53d0084f94b40c5627afa38d2bea92c4b0e00b44b60217069a"
+    },
+    {
+      "path": "qa/predeployment-final-report.md",
+      "bytes": 8516,
+      "sha256": "79126ae55e7989487a181af596d10276e68f252acfc73a683fbc8c30f2ca15cd"
+    },
+    {
+      "path": "qa/premium-accessibility.json",
+      "bytes": 614,
+      "sha256": "bfe7ce4110fc9fa62bcc731931b7d2061fe7ffd150ec92206d5fba52e075e08f"
+    },
+    {
+      "path": "qa/premium-after-entry-1440.png",
+      "bytes": 41504,
+      "sha256": "ee1f1241dd5c545d1b61d4a25da1bc9af35ec432d39b787e534c90e06c440542"
+    },
+    {
+      "path": "qa/premium-after-entry-360.png",
+      "bytes": 37477,
+      "sha256": "7ec4d718e317b789c5b1bc1597535ca47f2bcbd70b1daf540d1d6fd616dc3d69"
+    },
+    {
+      "path": "qa/premium-after-entry-390.png",
+      "bytes": 37690,
+      "sha256": "baf25d8d91e0348196e62157a4c2f7f0bd93ee95f385491c8645ab4c032a13ed"
+    },
+    {
+      "path": "qa/premium-after-entry-430.png",
+      "bytes": 37488,
+      "sha256": "c540dfeb9286593acba07b04df9fcbc2119ddeeaf03da44dfb7a0b6dd49aac0b"
+    },
+    {
+      "path": "qa/premium-after-entry-768.png",
+      "bytes": 39066,
+      "sha256": "adf11566a72df74a7b2ed91460fc85d581d20b097e1f20919505c8c156826fae"
+    },
+    {
+      "path": "qa/premium-after-history-1440.png",
+      "bytes": 106821,
+      "sha256": "93b1192758b3fdcc4c573fb4f33c3566da6ed54c1f96d4351cecf8d7816d2bc2"
+    },
+    {
+      "path": "qa/premium-after-history-360.png",
+      "bytes": 88404,
+      "sha256": "e4027dad22985c82ad6b9f3b3f2be8edaa033f89717e6c2ba0c456bb73cb7132"
+    },
+    {
+      "path": "qa/premium-after-history-390.png",
+      "bytes": 93243,
+      "sha256": "d7b78aae215e78c75a4ccc00f9116c5eca10a8795cbc57ec07d519893ec801a0"
+    },
+    {
+      "path": "qa/premium-after-history-430.png",
+      "bytes": 93229,
+      "sha256": "55e64eac34d24d7a4b8aeb375d37f60103b1645b44443eb27c29736e28381ddc"
+    },
+    {
+      "path": "qa/premium-after-history-768.png",
+      "bytes": 99688,
+      "sha256": "06d034cd8b895ec86fb6d1f469cc84ec5137c650d51db1180e3b532c9cfa5754"
+    },
+    {
+      "path": "qa/premium-after-hospital-1440.png",
+      "bytes": 120569,
+      "sha256": "e63222fa09b3015b25ef5029a748432c559b9ba8012607fb3d8380485d13eb35"
+    },
+    {
+      "path": "qa/premium-after-hospital-360.png",
+      "bytes": 109856,
+      "sha256": "226f878747e11b94951aa1daca137db6af1acdafe41db98f547b3965cc314dec"
+    },
+    {
+      "path": "qa/premium-after-hospital-390.png",
+      "bytes": 107508,
+      "sha256": "28811442d2cb2c9aeaf77be6af25974f287f1d0c9fc6de04fc9881118f4dcb5e"
+    },
+    {
+      "path": "qa/premium-after-hospital-430.png",
+      "bytes": 107561,
+      "sha256": "3b092104661bde0afc8ad67461e6430f59c6bbc9ed24af3fa38e6ba724274678"
+    },
+    {
+      "path": "qa/premium-after-hospital-768.png",
+      "bytes": 113140,
+      "sha256": "cf1d8cca3ab4118e6411a62f7cc85712cbe0bb910280334ca6b36a2828f39c2d"
+    },
+    {
+      "path": "qa/premium-after-landing-1440.png",
+      "bytes": 74363,
+      "sha256": "3355eb67a6fd298ec3228e1767bd6c1fdfbfb0316782d9991d00ec8ee7e14c9e"
+    },
+    {
+      "path": "qa/premium-after-landing-360.png",
+      "bytes": 53700,
+      "sha256": "a0048ad64c3b915572828b1d49b416360d78aa95dbe94a626708d03a1e04306a"
+    },
+    {
+      "path": "qa/premium-after-landing-390.png",
+      "bytes": 54084,
+      "sha256": "2bebf74b76c7eae30ea93487a816e171340bdab951d21f0f4912454fc0ba092e"
+    },
+    {
+      "path": "qa/premium-after-landing-430.png",
+      "bytes": 53922,
+      "sha256": "086de7a2ba643eec1130219bfe228722515e2871dd1cb3485f5a0eb360a80f27"
+    },
+    {
+      "path": "qa/premium-after-landing-768.png",
+      "bytes": 65579,
+      "sha256": "8fd61a174181fd9043627102d3c175ae735322acfaa9b29066c4ddbd9c7a6d93"
+    },
+    {
+      "path": "qa/premium-after-today-1440.png",
+      "bytes": 87071,
+      "sha256": "b4893c0aa077bcda005195d1cc86c305f00b2b13e812cf9cff954fc3e3e6fee5"
+    },
+    {
+      "path": "qa/premium-after-today-360.png",
+      "bytes": 83235,
+      "sha256": "cd2e214ea6d726be1a838efef5af2e2d746897936c5f0f1962deb71374c5aa38"
+    },
+    {
+      "path": "qa/premium-after-today-390.png",
+      "bytes": 83391,
+      "sha256": "4e392fc9ff971a381b3686f77baeb1908b7cde8cc200e9aacfc2aedf6e30033b"
+    },
+    {
+      "path": "qa/premium-after-today-430.png",
+      "bytes": 81029,
+      "sha256": "ac4d8fbd1e403ba7c9a5f3582034595287c60b0771a52331e3fa646f31feb97d"
+    },
+    {
+      "path": "qa/premium-after-today-768.png",
+      "bytes": 81835,
+      "sha256": "e1b4e0e34d2682decb98572a1f4343fa33fdacc013bc8ef13e8d2bcc861f5db9"
+    },
+    {
+      "path": "qa/premium-before-completed-390.png",
+      "bytes": 43534,
+      "sha256": "fba468b4e23a6ef1323e1156eb41554efdfc98a7d89e9123117a3c57fc3309c4"
+    },
+    {
+      "path": "qa/premium-before-entry-390.png",
+      "bytes": 61994,
+      "sha256": "feefc4176599d4eb38cd32cfbc8e1263db44e93d65a2855062cb8783288fdc86"
+    },
+    {
+      "path": "qa/premium-before-history-390.png",
+      "bytes": 182978,
+      "sha256": "9edede803a0fb38fc2f0bd9c34bd827ea6db64c9173e3652972c8cd0fb6dc3d4"
+    },
+    {
+      "path": "qa/premium-before-hospital-390.png",
+      "bytes": 101079,
+      "sha256": "aabd7db39cf1c1a4c310420e6d78b83c93691295835c14ac63c3405db35d19db"
+    },
+    {
+      "path": "qa/premium-before-landing-390.png",
+      "bytes": 40582,
+      "sha256": "87fdad207adb5ac7737801d6e2dfe737ba9938a38b449eadf5ded467e8233b6c"
+    },
+    {
+      "path": "qa/premium-before-today-390.png",
+      "bytes": 78273,
+      "sha256": "64e10ab673a88b4adda990da1a2995506980d8374b274ec9f409f8406f3a7102"
+    },
+    {
+      "path": "qa/premium-care-report.md",
+      "bytes": 11115,
+      "sha256": "caa2eb97d9939381f9a29e067d2651cd808ffbc56162ec0281c380627c0f3d59"
+    },
+    {
+      "path": "qa/premium-server-complete-390.png",
+      "bytes": 38910,
+      "sha256": "0f4de64790b4c18d13b2a241c5cbc3615213b571be04c7657b1b607d668fcae6"
+    },
+    {
+      "path": "qa/premium-server-history-390.png",
+      "bytes": 74620,
+      "sha256": "18f0632635437d7bf9d31dcd217286e34b79a570639d357fbbcbe1175fb6a503"
+    },
+    {
+      "path": "qa/premium-server-hospital-390.png",
+      "bytes": 88678,
+      "sha256": "5b18f1f2de12984dacf1e47dffd43468af4ca8a40aa57fcb959a388ecf0ed46e"
+    },
+    {
+      "path": "qa/redesign-completed-1440.png",
+      "bytes": 54427,
+      "sha256": "46f9f952beb06a033b77977548df1c7e6cfd649b55a9ae231fece393e26eb6f3"
+    },
+    {
+      "path": "qa/redesign-completed-360.png",
+      "bytes": 48300,
+      "sha256": "66f574b2f7f0e02bc338585b993c706e432681fad8b5e7a7f2e5cc2b69f7bc81"
+    },
+    {
+      "path": "qa/redesign-completed-375.png",
+      "bytes": 48239,
+      "sha256": "cf710b3583362f61c758d84ff18ddf76ae620e40704a958bddcc4bdf5d6ec81f"
+    },
+    {
+      "path": "qa/redesign-completed-390.png",
+      "bytes": 48398,
+      "sha256": "dbc9b121f7f5bd3f4e2f321ad2b51952a86d9e76072529fcf53675333f283405"
+    },
+    {
+      "path": "qa/redesign-completed-430.png",
+      "bytes": 48389,
+      "sha256": "ef94dd74156da12a567650d01b85c6a1edd66d91f576d4a2135694ca28b45bfa"
+    },
+    {
+      "path": "qa/redesign-completed-768.png",
+      "bytes": 50547,
+      "sha256": "6d797f886e4917d6e5934e23d34a0edbab8fc623e3feab3f7cfb7bc5b5ed59d8"
+    },
+    {
+      "path": "qa/redesign-hospital-1440.png",
+      "bytes": 120569,
+      "sha256": "e63222fa09b3015b25ef5029a748432c559b9ba8012607fb3d8380485d13eb35"
+    },
+    {
+      "path": "qa/redesign-hospital-360.png",
+      "bytes": 109856,
+      "sha256": "226f878747e11b94951aa1daca137db6af1acdafe41db98f547b3965cc314dec"
+    },
+    {
+      "path": "qa/redesign-hospital-375.png",
+      "bytes": 109993,
+      "sha256": "e08f0f99877eebf69d481f98f1dfab893db0e6ea81488886c235c5409f77e081"
+    },
+    {
+      "path": "qa/redesign-hospital-390.png",
+      "bytes": 107508,
+      "sha256": "28811442d2cb2c9aeaf77be6af25974f287f1d0c9fc6de04fc9881118f4dcb5e"
+    },
+    {
+      "path": "qa/redesign-hospital-430.png",
+      "bytes": 107561,
+      "sha256": "3b092104661bde0afc8ad67461e6430f59c6bbc9ed24af3fa38e6ba724274678"
+    },
+    {
+      "path": "qa/redesign-hospital-768.png",
+      "bytes": 113140,
+      "sha256": "cf1d8cca3ab4118e6411a62f7cc85712cbe0bb910280334ca6b36a2828f39c2d"
+    },
+    {
+      "path": "qa/redesign-landing-1440.png",
+      "bytes": 143793,
+      "sha256": "2d58e2953b6bca23a061144ec62f0b32b50e80ea8a77143b4fb08d4e084b8857"
+    },
+    {
+      "path": "qa/redesign-landing-360.png",
+      "bytes": 117817,
+      "sha256": "848e0dc63754a2aebb101198fd38f968aa1adb53ce7add42cae63586159693c7"
+    },
+    {
+      "path": "qa/redesign-landing-375.png",
+      "bytes": 116585,
+      "sha256": "02d1f8804268f850301f9336aa723525024a0e23101787ca98aa0a87f87f4eaa"
+    },
+    {
+      "path": "qa/redesign-landing-390.png",
+      "bytes": 117555,
+      "sha256": "59f7135f61f8336daf26c3a8471e23d0c0f86b4bf6a1b97ff2af0cd6eadcf9d8"
+    },
+    {
+      "path": "qa/redesign-landing-430.png",
+      "bytes": 118209,
+      "sha256": "595b2958f45c8a99e9cbc8d364db3d02b83f01d1070e85070f276ac4cbfc50d9"
+    },
+    {
+      "path": "qa/redesign-landing-768.png",
+      "bytes": 134580,
+      "sha256": "c61b6886c7547d2cc075ef9dd4ce04722df475876cf3b10dd8e492ffb3d48693"
+    },
+    {
+      "path": "qa/redesign-today-1440.png",
+      "bytes": 86839,
+      "sha256": "5d8c610a6b56d4160f6f9adcd65ac7cecaeac6ee4d5955452507b0eb5d50b77a"
+    },
+    {
+      "path": "qa/redesign-today-360.png",
+      "bytes": 82983,
+      "sha256": "70a3e79957dca348d4d5fc91f60b5d2799dd69d70142577952e0f648375d4aa1"
+    },
+    {
+      "path": "qa/redesign-today-375.png",
+      "bytes": 83147,
+      "sha256": "c93e1b6f8faa72cbf386c8f3de3f89c86aa9dbdf4375818ec4d4269a7563ea68"
+    },
+    {
+      "path": "qa/redesign-today-390.png",
+      "bytes": 83171,
+      "sha256": "bbfa5d35b30a0967df8aee3d25709dbac5e1c5a59281fe6a4efc6438ca59255d"
+    },
+    {
+      "path": "qa/redesign-today-430.png",
+      "bytes": 80670,
+      "sha256": "c7521ee051f117613e76802af1bf44a35e7b52d6d179ab8732839acf99972a19"
+    },
+    {
+      "path": "qa/redesign-today-768.png",
+      "bytes": 81466,
+      "sha256": "a57f53966d475a894dd939566cb5aa08427f18d9f8579f63190b6814058d9a3b"
+    },
+    {
+      "path": "scripts/care-backup.mjs",
+      "bytes": 1384,
+      "sha256": "b57b7188324a3ae20d81f8ebd3203536b5262a0b8f974a483ec9c0ef565cffa5"
+    },
+    {
+      "path": "scripts/prepare-sites-dist.mjs",
+      "bytes": 1812,
+      "sha256": "87fb20dd6d694b8d4b333b55adcaa046603ca9cf0dd5e12ae56f328ce17d4b9b"
+    },
+    {
+      "path": "scripts/prepush-review.mjs",
+      "bytes": 3389,
+      "sha256": "01038dbd846e5d5be1b643e846f595d3b9e7347a55921a3770cb95dfefcb857c"
+    },
+    {
+      "path": "server/care-api.mjs",
+      "bytes": 28918,
+      "sha256": "1b82ccaadcdff91385a74e5b54645b45a6472dd1a216b4d2d3938e1772b2f4c2"
+    },
+    {
+      "path": "server/care-operations.mjs",
+      "bytes": 23853,
+      "sha256": "f40fc426a0a6257bbda91be973efd933b92c434fe84544e591bfb8f278a16071"
+    },
+    {
+      "path": "server/care-sms.mjs",
+      "bytes": 4974,
+      "sha256": "d3aa0d7c02b181ce58e2ef60bd39b3fc2e62169ac4897a655636eefae2fe3eed"
+    },
+    {
+      "path": "server/worker.mjs",
+      "bytes": 1216,
+      "sha256": "4bb9fcaffe5896d46039d0dccb574e13f2393e3b2493968f57c0076380b90f38"
+    },
+    {
+      "path": "src/components/care-design.tsx",
+      "bytes": 2681,
+      "sha256": "9fb73c1ea8c8e5828fdcdce5dfc5d8eb76bc26c2dc964f01f8dc3861f3e33a30"
+    },
+    {
+      "path": "src/components/legacy-kakao-loader.tsx",
+      "bytes": 576,
+      "sha256": "cedb798cfc2d2554d0d0d52fc09e597697fbdfedf69d11aca54a50c1c2237f07"
+    },
+    {
+      "path": "src/components/patient-care-ended.tsx",
+      "bytes": 4497,
+      "sha256": "8f7a20c5aa37a55a8e23fd1dd72cb1123b188a4e6b7c180ad1b73b5280a07162"
+    },
+    {
+      "path": "src/components/patient-care-mvp.tsx",
+      "bytes": 37048,
+      "sha256": "6a1ac4fea7edffb142a2b33f75466c7aa2f9abae88f01b8f4aa026909228d143"
+    },
+    {
+      "path": "src/components/patient-entry.tsx",
+      "bytes": 5454,
+      "sha256": "fd07c97dba954b272fda80573aa7005fab184307d70ec3d9323fac0cfa13d02d"
+    },
+    {
+      "path": "src/components/patient-error.tsx",
+      "bytes": 5257,
+      "sha256": "b72a1e2a2aa0cf73811332544d9015d327553ef7c40efd5af86f277db6ccb4f9"
+    },
+    {
+      "path": "src/components/patient-history.tsx",
+      "bytes": 7723,
+      "sha256": "e9631c4312cfaf0e0b2a3a9515dfd992d5b1b56a9f053c0e0771fe2feec2aed3"
+    },
+    {
+      "path": "src/components/patient-home.tsx",
+      "bytes": 5477,
+      "sha256": "48ca8e31e10ee18b8da42ac72afb0b0cf04ace8c7602ed60cb2521f01b90c820"
+    },
+    {
+      "path": "src/components/patient-hospital-guide.tsx",
+      "bytes": 7600,
+      "sha256": "64b24820e13e45eaea274483e1c7dd590f6cffe7fd92b0f39fea59e8fc5306cf"
+    },
+    {
+      "path": "src/components/patient-preview-loading.tsx",
+      "bytes": 1179,
+      "sha256": "af32fca52875a24be92839e496e53cfdc54d5b0a22e22edfa68e21dac5b9f84a"
+    },
+    {
+      "path": "src/components/patient-server-gate.tsx",
+      "bytes": 9816,
+      "sha256": "debb52c48d4ebf9e32d5e00dc6d27b1608e734a02d69e783c330083bce1156c0"
+    },
+    {
+      "path": "src/components/server-operations.tsx",
+      "bytes": 27194,
+      "sha256": "70476b0b087ae2cb1f772c9285e62e3319df6cb0239fd012607ebe62e13c57bd"
+    },
+    {
+      "path": "src/hooks/use-care-day.ts",
+      "bytes": 462,
+      "sha256": "74286842ba15f809310a7587d1accf5f781edce01634feebb69291f9867653c1"
+    },
+    {
+      "path": "src/lib/care-server.ts",
+      "bytes": 1391,
+      "sha256": "1cebff359e90653f7250f880b1bc4b3494a08c40147da2908bd1b3fe19f3d0bb"
+    },
+    {
+      "path": "tests/admin-entry-smoke.mjs",
+      "bytes": 844,
+      "sha256": "189568c6e2ccc2a15b07e06213b3551fbcee9c7ef026177db25c5bb09168ef5c"
+    },
+    {
+      "path": "tests/care-backup.mjs",
+      "bytes": 1367,
+      "sha256": "6e435369b93402b49c37f1eb1ed449bec997a0080c282450f324e0dedb3b9db4"
+    },
+    {
+      "path": "tests/care-commercialization-ui.mjs",
+      "bytes": 3822,
+      "sha256": "780925ea23bf036b3a4947229835c2249e0a9b597fed189c1a03a488940e6d96"
+    },
+    {
+      "path": "tests/care-commercialization.mjs",
+      "bytes": 12046,
+      "sha256": "b8a52a1ee409aa7109f0fd1507377983f2611180dd62b0e656fff595b8fcaffd"
+    },
+    {
+      "path": "tests/care-server.mjs",
+      "bytes": 6658,
+      "sha256": "21807e1f961c65886d8c16ae3c0cba859cb7a82da648c5f40ffc9ccb2014ff8b"
+    },
+    {
+      "path": "tests/care-sms.mjs",
+      "bytes": 4690,
+      "sha256": "7db6fe10e3907af6d9223b95a1648e0f04716d7817c8cb24899a64303a0f235a"
+    },
+    {
+      "path": "tests/demo-production-access.mjs",
+      "bytes": 2845,
+      "sha256": "1cbb3774f390e863c95f55a9a27066bef8349f95a87fe4a270b23cdb23e7f423"
+    },
+    {
+      "path": "tests/helpers/care-http.mjs",
+      "bytes": 2121,
+      "sha256": "e5add360a10f72324a7b769ab3b7aa221e9156ae21f9e28130602bfed673f39e"
+    },
+    {
+      "path": "tests/helpers/care-server.mjs",
+      "bytes": 3095,
+      "sha256": "ed20e4380cbb499aa613e3de2def8a8bb3a7a28e3dd9a576da1a1b810b475016"
+    },
+    {
+      "path": "tests/landing-entry.mjs",
+      "bytes": 4477,
+      "sha256": "7811bb0015412e76134bbae33892bf3137cd5648d1dab6381fcf75f39cdb2109"
+    },
+    {
+      "path": "tests/legacy-server-transition.mjs",
+      "bytes": 3859,
+      "sha256": "44f03c254d6e9a32609b59376c91bdf3628bf67e2caed24243a0ee28e7456807"
+    },
+    {
+      "path": "tests/mobile-redesign.mjs",
+      "bytes": 6275,
+      "sha256": "2fd5c817f297b00789b6c5d77eba16990600db1de3ba33f8c3c7434752c2c21f"
+    },
+    {
+      "path": "tests/patient-entry.mjs",
+      "bytes": 6358,
+      "sha256": "aa3504d8bba5a020a03d51daf46e3800ab13985063635a9dd900ca8017a8498f"
+    },
+    {
+      "path": "tests/patient-home-flow.mjs",
+      "bytes": 5332,
+      "sha256": "ae0dec55ba36875fc3a2be3583f7e5314136a80a8037cd09fe55046e175ef736"
+    },
+    {
+      "path": "tests/patient-journey.mjs",
+      "bytes": 12628,
+      "sha256": "ca235edff89ef88f11aed8ca0400a40877cb7b84bc02934e3a84930014291983"
+    },
+    {
+      "path": "tests/predeployment-migrations.mjs",
+      "bytes": 4970,
+      "sha256": "6732162b447af68f9a4fab99e88e1a81f2da6c73fb2e128598fb8d1a2b010152"
+    },
+    {
+      "path": "tests/server-patient-flow.mjs",
+      "bytes": 7625,
+      "sha256": "b0c6d6dd04248b970030e92e6ae945f3914a5735f1ff0b99454f9c293f9393dd"
+    },
+    {
+      "path": "tests/server-staff-flow.mjs",
+      "bytes": 2190,
+      "sha256": "4c2f1a527f66e4d5295a0481bffcd849d5643cf51ac2403c6d5570ce7d5bfa31"
+    },
+    {
+      "path": "vercel.json",
+      "bytes": 243,
+      "sha256": "b857d9b96ba02e968fb1b6c0cb7c5a644155fbd15440b56c78256777d139a01a"
+    }
+  ]
+}

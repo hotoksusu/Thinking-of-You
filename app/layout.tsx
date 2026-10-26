@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
+import { Suspense } from "react";
+import { LegacyKakaoLoader } from "@/components/legacy-kakao-loader";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 import "./onboarding.css";
@@ -24,4 +25,4 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#FFFFFF" };
-export default function RootLayout({children}:Readonly<{children:React.ReactNode}>){return <html lang="ko"><body><Script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js" strategy="afterInteractive"/><PwaRegister/>{children}</body></html>}
+export default function RootLayout({children}:Readonly<{children:React.ReactNode}>){return <html lang="ko"><body><Suspense fallback={null}><LegacyKakaoLoader/></Suspense><PwaRegister/>{children}</body></html>}

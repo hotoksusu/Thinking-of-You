@@ -8,7 +8,7 @@ for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`pa
  const context=await browser.newContext({viewport,serviceWorkers:'block'});const page=await context.newPage();
  try{
   await page.goto(origin+'/demo/patient');
-  await page.getByRole('heading',{name:'오늘 컨디션은 어떠세요?'}).waitFor();
+  await page.getByRole('heading',{name:'오늘 몸은 좀 어떠세요?'}).waitFor();
   await page.getByRole('button',{name:'보통이에요',exact:true}).click();
   await page.getByRole('link',{name:'오늘 상태 기록하기 →',exact:true}).waitFor();
   const cards=await page.locator('section[aria-label]').evaluateAll(es=>es.map(e=>e.getAttribute('aria-label')));
@@ -21,9 +21,9 @@ for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`pa
   await page.getByRole('button',{name:'어제와 비슷해요',exact:true}).click();await page.getByRole('button',{name:'다음',exact:true}).click();
   await page.getByRole('button',{name:'비슷해요',exact:true}).click();await page.getByRole('button',{name:'다음',exact:true}).click();
   await page.getByRole('button',{name:'새롭게 불편해진 점은 없어요',exact:true}).click();await page.getByRole('button',{name:'오늘 기록 마치기',exact:true}).click();
-  await page.getByRole('heading',{name:'오늘 회복 기록을 남겼어요'}).waitFor();
+  await page.getByRole('heading',{name:'샘플 안부를 기록했어요.'}).waitFor();
   await page.getByRole('link',{name:'오늘 화면으로',exact:true}).click();
-  await page.getByRole('heading',{name:'오늘 기록을 완료했어요'}).waitFor();
+  await page.getByRole('heading',{name:'샘플 안부를 기록했어요.'}).waitFor();
   assert.equal(await page.getByRole('link',{name:'오늘 상태 기록하기 →',exact:true}).count(),0);
   const completedCards=await page.locator('section[aria-label]').evaluateAll(es=>es.map(e=>e.getAttribute('aria-label')));
   assert.ok(completedCards.includes('최근 회복'));
@@ -33,7 +33,7 @@ for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`pa
   await cold.addInitScript(({key,saved})=>{localStorage.setItem(key,saved);window.__cls=0;new PerformanceObserver(list=>{for(const e of list.getEntries())if(!e.hadRecentInput)window.__cls+=e.value;}).observe({type:'layout-shift',buffered:true});},{key,saved});
   const fresh=await cold.newPage();
   await fresh.goto(origin+'/demo/patient');
-  await fresh.getByRole('heading',{name:'오늘 기록을 완료했어요'}).waitFor();
+  await fresh.getByRole('heading',{name:'샘플 안부를 기록했어요.'}).waitFor();
   const cls=await fresh.evaluate(()=>window.__cls);assert.ok(cls<0.1,'CLS '+cls);console.log('Cold completed CLS',viewport.width,cls);
   await cold.close();
   await page.getByRole('link',{name:'지난 7일의 변화 확인 →',exact:true}).click();

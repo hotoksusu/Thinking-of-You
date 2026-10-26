@@ -683,3 +683,40 @@ main:has(> aside) .text-sm {
     animation-duration: 1ms;
   }
 }
+/* Warm Premium Healthcare: scoped to patient and marketing surfaces. */
+.care-ui{--care-green:#315D50;--care-ink:#25302B;--care-muted:#58665E;--care-paper:#F7F5EF;background:var(--care-paper);color:var(--care-ink);overflow-wrap:anywhere}
+.care-ui h1,.care-ui h2,.care-ui h3{letter-spacing:-.035em;text-wrap:balance}
+.care-ui :where(button,a,summary){-webkit-tap-highlight-color:transparent}
+.care-ui :where(button,a){transition:background-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.care-ui button:not(:disabled):active,.care-ui a:active{transform:translateY(1px)}
+.care-ui .care-surface{background:#fff;border:0;border-radius:28px;box-shadow:0 8px 28px #25302B07}
+.care-ui .primary,.care-primary{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;border-radius:18px;background:#315D50;color:white;padding:14px 20px;font-size:1.1rem;font-weight:750;text-align:center}
+.care-ui .secondary{border:1px solid #C9D7CD;min-height:52px;border-radius:18px;font-weight:700}
+.care-kicker{color:#315D50;font-size:.8rem;letter-spacing:.12em;font-weight:750}
+.care-subtext{color:#58665E;line-height:1.75;font-size:1rem}
+.care-record-illustration{display:block;width:100%;height:auto;max-width:400px;margin:auto}
+.care-connection{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:24px 0;position:relative}
+.care-connection:before{content:'';height:1px;background:#CADBCF;position:absolute;top:26px;left:15%;right:15%}
+.care-connection li{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;font-size:.85rem;font-weight:700;z-index:1}
+.care-step-icon{width:54px;height:54px;border-radius:20px;display:grid;place-items:center;background:#E6EEE6;color:#315D50;border:4px solid #F7F5EF}
+.care-connection small{display:block;font-size:.65rem;color:#66766B;letter-spacing:.1em;margin-bottom:3px}
+.care-condition{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:112px;border:1px solid #DFE7DE;border-radius:22px;padding:12px 4px;color:#315D50;background:#F9FAF6;font-size:1rem;font-weight:750;position:relative}
+.care-condition[aria-pressed=true]{border:2px solid #315D50;background:#E6F3EB;box-shadow:0 4px 12px #315D5010}
+.care-condition [data-selected]{position:absolute;right:7px;top:6px}
+.care-saved-mark{display:inline-grid;width:68px;height:68px;place-items:center;border-radius:24px;color:#315D50;background:#E6F3EB;box-shadow:0 0 0 8px #E6F3EB55;animation:care-arrive .24s ease-out both}
+.care-inline-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0;border-bottom:1px solid #E0E6DE}
+.care-history-days{margin-inline:-20px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.care-history-days button{min-height:54px;min-width:0;border-radius:14px;font-size:.85rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.care-history-days button[aria-pressed=true]{background:#315D50;color:white}
+.care-history-days button:disabled{opacity:1;color:#69736D;cursor:default}
+.care-skeleton{background:#E8EEE6;border-radius:16px;min-height:18px}
+.care-landing-hero{display:grid;align-items:center;gap:16px;padding:32px 0}
+.care-landing-hero h1{font-size:clamp(2.1rem,7vw,3.8rem);font-weight:800;line-height:1.2;margin-top:12px}
+.care-landing-art{order:-1;max-width:260px;width:100%;margin:0 auto}
+@keyframes care-arrive{from{opacity:.2;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@media(min-width:768px){.care-landing-hero{grid-template-columns:1.05fr 1fr;padding:70px 0;gap:36px}.care-landing-art{order:0;max-width:440px}.care-landing-hero h1{font-size:3.8rem}}
+@media(prefers-reduced-motion:reduce){.care-ui *,.care-ui *:before,.care-ui *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Server operations keep frequent switches and actions together on PC and mobile. */
+.care-ui .care-operation-tabs .secondary,.care-ui .care-range-shortcuts .secondary,.care-ui .care-work-actions .secondary{width:auto;margin-top:0;flex:1 1 80px;min-height:48px;padding:8px 10px;font-size:1rem}
+.care-ui .care-operation-tabs [aria-pressed="true"]{background:#E3EDE4;border-color:#315D50;color:#253F33}

@@ -2,12 +2,14 @@
 import { useState } from "react";
 import { HeartPulse, Link2Off } from "lucide-react";
 import { PatientBack, PatientLink, usePatientNavigation } from "@/components/patient-navigation";
-export type PatientErrorType = "sessionExpired" | "missingSession" | "invalidInvite" | "expiredInvite" | "missingPatient" | "storageError" | "networkError" | "unknownError";
+export type PatientErrorType = "sessionExpired" | "missingSession" | "invalidInvite" | "expiredInvite" | "missingPatient" | "accessDenied" | "storageError" | "networkError" | "unknownError" | "completedCare";
 const messages: Record<PatientErrorType, [string, string]> = {
+  completedCare: ["회복관리 연결이 종료되었어요.", "새 기록을 남길 수 없는 상태예요. 관리기간이나 재연결이 필요하면 안내받은 병원에 문의해주세요."],
   sessionExpired: ["다시 연결이 필요해요.", "이용 시간이 지나 환자 연결이 종료되었어요. 병원에서 받은 링크를 다시 열어주세요."],
   missingSession: ["환자 연결이 필요해요.", "이 기기에서 환자 연결 정보를 찾지 못했어요. 병원에서 받은 문자나 카카오톡의 링크를 열어주세요."],
   invalidInvite: ["초대 링크를 확인할 수 없어요", "올바르지 않거나 사용이 취소된 링크예요. 병원에서 받은 최신 링크를 확인해주세요."],
   expiredInvite: ["초대 링크의 이용 시간이 지났어요.", "병원에 새 회복관리 링크를 요청해주세요."],
+  accessDenied: ["이 환자의 기록에 접근할 수 없어요.", "현재 연결된 병원과 환자 정보가 일치하지 않아요. 병원에서 본인에게 보낸 원본 링크로 다시 연결해주세요."],
   missingPatient: ["회복관리 정보를 찾을 수 없어요.", "연결된 환자의 기록을 확인하지 못했어요. 다시 시도한 뒤에도 같다면 병원에 문의해주세요."],
   storageError: ["이 기기의 저장 정보를 읽지 못했어요.", "브라우저의 사이트 데이터 저장 설정을 확인하고 다시 시도해주세요. 기존 기록은 지우지 않았어요."],
   networkError: ["인터넷 연결을 확인해주세요.", "연결 상태를 확인한 뒤 다시 시도해주세요."],
@@ -17,11 +19,11 @@ export function PatientError({ type, retry }: { type: PatientErrorType; retry: (
   const linkError = type === "invalidInvite" || type === "expiredInvite";
   const nav = usePatientNavigation(), [help, setHelp] = useState(linkError), [attempted, setAttempted] = useState(false);
   const [title, description] = messages[type];
-  return <main className="min-h-[100dvh] bg-[#F1F0E9] px-5 pb-10 text-[#202923]">
+  return <main className="care-ui min-h-[100dvh] bg-[#F7F5EF] px-5 pb-10 text-[#202923]">
     <div className="mx-auto max-w-[640px]">
       <header className="flex min-h-20 flex-wrap items-center justify-between gap-2 border-b border-[#D5DED7]"><PatientBack fallback={nav.demo ? "/demo/patient" : "/patient"}/><span className="flex items-center gap-2 text-lg font-black text-[#315E50]"><HeartPulse size={21}/>오늘안부 Care</span></header>
       {nav.demo ? <p className="mt-4 font-bold text-[#315E50]">오늘안부 데모</p> : null}
-      <section aria-labelledby="patient-error-title" className="mt-[clamp(1.5rem,8vh,5rem)] rounded-[28px] bg-white p-6 sm:p-8">
+      <section aria-labelledby="patient-error-title" className="mt-[clamp(1.5rem,8vh,5rem)] care-surface p-6 sm:p-8">
         <Link2Off aria-hidden className="text-[#315E50]" size={36}/><h1 id="patient-error-title" className="mt-5 text-3xl font-black leading-tight">{title}</h1>
         <p className="mt-4 text-xl leading-8 text-[#40554A]">{description}</p>
         <button className="mt-7 flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#315E50] text-xl font-black text-white" onClick={() => { setAttempted(true); retry(); }}>다시 시도하기</button>

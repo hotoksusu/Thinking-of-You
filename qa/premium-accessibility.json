@@ -1,0 +1,29 @@
+{
+  "textPalette": [
+    {
+      "label": "본문",
+      "fg": "#25302B",
+      "bg": "#F7F5EF",
+      "contrast": 12.54
+    },
+    {
+      "label": "보조 설명",
+      "fg": "#58665E",
+      "bg": "#F7F5EF",
+      "contrast": 5.54
+    },
+    {
+      "label": "주요 버튼",
+      "fg": "#FFFFFF",
+      "bg": "#315D50",
+      "contrast": 7.47
+    },
+    {
+      "label": "선택 상태",
+      "fg": "#315D50",
+      "bg": "#E6F3EB",
+      "contrast": 6.54
+    }
+  ],
+  "scope": "주요 팔레트의 WCAG AA 일반 텍스트 기준. 전체 화면의 자동/수동 접근성 인증을 의미하지 않음."
+}

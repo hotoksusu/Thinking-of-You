@@ -1,8 +1,9 @@
 "use client";
 import {PatientFamilyHelp} from "@/components/patient-family-help";
+import { recordedPain } from "@/components/patient-history";
 import { Check } from "lucide-react";
 import { PatientLink, usePatientNavigation } from "@/components/patient-navigation";
-import { painValue, type CareState, type Patient } from "@/lib/care-mvp";
+import { type CareState, type Patient } from "@/lib/care-mvp";
 
 export type CareStage = "activeCare" | "completedCare" | "expiredCare" | "followUpNeeded";
 export function patientCareStage(patient?: Patient | null): CareStage {
@@ -18,7 +19,7 @@ export function PatientCareEnded({ patient, state }: { patient: Patient; state: 
   // Freeze duration at the recorded end date; never keep counting after care ended.
   const start = Date.parse(patient.dischargeDate.slice(0,10)), end = Date.parse(completion?.completedAt.slice(0,10) || "");
   const days = Number.isFinite(start) && Number.isFinite(end) && end >= start ? Math.floor((end-start)/86400000)+1 : null;
-  const firstPain = first ? painValue(first) : null, lastPain = last ? painValue(last) : null;
+  const firstPain = first ? recordedPain(first) : null, lastPain = last ? recordedPain(last) : null;
   return <div className="space-y-5 py-6 sm:py-8">
     <header>
       <span className="mb-4 grid size-12 place-items-center rounded-full bg-[#DDEDE3] text-[#315E50]"><Check aria-hidden size={28}/></span>
@@ -29,7 +30,7 @@ export function PatientCareEnded({ patient, state }: { patient: Patient; state: 
       <h2 id="care-summary-title" className="text-2xl font-black">나의 회복 기록</h2>
       <dl className="mt-5 space-y-5">
         <div><dt className="text-lg text-[#40554A]">남긴 회복 기록</dt><dd className="mt-1 text-2xl font-black">{records.length}회</dd></div>
-        <div className="border-t border-[#D5DED7] pt-4"><dt className="text-lg font-bold">통증</dt><dd className="mt-2 text-xl font-black leading-8">{records.length > 1 ? `첫 기록 ${firstPain}점 → 최근 기록 ${lastPain}점` : last ? `최근 기록 ${lastPain}점` : "남긴 통증 기록이 없어요."}</dd></div>
+        <div className="border-t border-[#D5DED7] pt-4"><dt className="text-lg font-bold">통증</dt><dd className="mt-2 text-xl font-black leading-8">{records.length > 1 && firstPain !== null && lastPain !== null ? `첫 기록 ${firstPain}점 → 최근 기록 ${lastPain}점` : lastPain !== null ? `최근 기록 ${lastPain}점` : "별도로 기록된 통증 점수가 없어요."}</dd></div>
       </dl>
       {last ? <p className="mt-2 text-base leading-7 text-[#40554A]">0~10점 중 높을수록 통증이 심한 점수예요.</p> : null}
       {records.length > 1 && firstPain !== null && lastPain !== null ? <p className="mt-3 text-lg leading-8">최근 기록의 통증 점수가 첫 기록보다 {lastPain > firstPain ? "높아요." : lastPain < firstPain ? "낮아요." : "같아요."}</p> : null}

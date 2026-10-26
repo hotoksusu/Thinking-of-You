@@ -1,4 +1,5 @@
 "use client";
+import {useCareDay} from "@/hooks/use-care-day";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PatientLink as Link, PatientNavigation, PatientBack, usePatientNavigation } from "@/components/patient-navigation";
@@ -19,7 +20,6 @@ import {
   painValue,
   saveCareState,
   savePublicDemoCareState,
-  TODAY,
   type CareState,
   type CheckIn,
   type DayComparison,
@@ -35,7 +35,10 @@ import {
   verifyPatientIdentity,
 } from "@/lib/demo-auth";
 import { PatientHospitalGuide } from "@/components/patient-hospital-guide";
-import { PatientHistory, RecordFacts } from "@/components/patient-history";
+import { PatientHistory, RecordFacts, recordedPain, painSummary } from "@/components/patient-history";
+import { CareServerError } from "@/lib/care-server";
+import { PatientServerGate } from "@/components/patient-server-gate";
+import { SavedMark } from "@/components/care-design";
 import { PatientHome } from "@/components/patient-home";
 
 import { PatientPreviewLoading } from "@/components/patient-preview-loading";
@@ -44,9 +47,10 @@ import { PatientCareEnded, patientCareStage, type CareStage } from "@/components
 
 type Mode = "home" | "onboarding" | "checkin" | "history" | "hospital";
 export function PatientCareMvp({ mode, demo = false }: { mode: Mode; demo?: boolean }) {
-  return <Suspense fallback={<PatientPreviewLoading demo={demo}/>}><PatientNavigation><PatientCareContent mode={mode} demo={demo}/></PatientNavigation></Suspense>;
+  return <Suspense fallback={<PatientPreviewLoading demo={demo}/>}><PatientNavigation><PatientServerGate mode={mode} demo={demo}><PatientCareContent mode={mode} demo={demo}/></PatientServerGate></PatientNavigation></Suspense>;
 }
 function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
+  const TODAY=useCareDay();
   const params = useSearchParams(), nav = usePatientNavigation();
   const token = params.get("token"), demoPatientId = demo ? params.get("patientId") || "patient_001" : null;
   const [error, setError] = useState<PatientErrorType | null>(null), [retry, setRetry] = useState(0);
@@ -85,7 +89,7 @@ function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
     );
     setState(next);
     setPatient(found || null);
-    if (!found) setError("missingPatient");
+    if (!found) setError(next.patients.some(p => p.id === id) ? "accessDenied" : "missingPatient");
     if (mode === "onboarding" && found){
       trackCareEvent("invite_opened", { patientId: found.id, hospitalId: found.hospitalId });trackCareEvent("registration_started", { patientId: found.id, hospitalId: found.hospitalId });trackCareEvent("patient_onboarding_started", { patientId: found.id });
     }
@@ -146,7 +150,7 @@ function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
             <button onClick={() => setOnboardStep(1)} className="primary">
               오늘 상태 알려주기 →
             </button>
-            <p className="mt-3 text-base font-bold text-[#617069]">약 1분 정도 걸려요 · 병원 의료진이 확인합니다.</p>
+            <p className="mt-3 text-base font-bold text-[#617069]">소요시간은 개인마다 달라요. 저장 방식과 병원 확인시간은 안내를 확인해주세요.</p>
           </div>
         </PatientShell>
       );
@@ -179,6 +183,8 @@ function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
                     : p,
                 ),
               };
+              localStorage.setItem("oneul-anbu:care-auth-source","legacy");
+              sessionStorage.removeItem("oneul-anbu:server-connected");
               saveCareState(next);
               trackCareEvent("patient_onboarding_completed", {
                 patientId: patient.id,
@@ -196,7 +202,7 @@ function PatientCareContent({ mode, demo }: { mode: Mode; demo: boolean }) {
     );
   }
   if ((mode as Mode) === "checkin") {
-    return <AdaptiveCheckin key={`${patient.id}:${params.get("edit")}:${params.get("revision")}`} patient={patient} todayCheck={todayCheck} history={history} guardianMode={guardianMode} demo={demo} edit={params.get("edit")==="1"} />;
+    return <AdaptiveCheckin key={`${patient.id}:${params.get("edit")}:${params.get("revision")}:${todayCheck?.updatedAt || todayCheck?.id || "pending"}`} patient={patient} todayCheck={todayCheck} history={history} guardianMode={guardianMode} demo={demo} edit={params.get("edit")==="1"} />;
   }
   if (mode === "hospital") return <PatientShell demo={demo} careStage={patientCareStage(patient)} active="hospital" backLabel="오늘"><PatientHospitalGuide hospital={hospital} patient={patient} records={history}/></PatientShell>;
   if (mode === "history" && params.get("recordId")) {
@@ -229,16 +235,18 @@ function pathwayMovementLabels(patient: Patient) {
   return ["일어나기", "걷기", "계단", "무릎 굽히기", "앉았다 일어나기", "기타"];
 }
 
-function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edit = false }: { patient: Patient; todayCheck?: CheckIn; history: CheckIn[]; guardianMode: boolean; demo: boolean; edit?: boolean }) {
+export function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edit = false, serverState, serverSave }: { patient: Patient; todayCheck?: CheckIn; history: CheckIn[]; guardianMode: boolean; demo: boolean; edit?: boolean; serverState?:CareState; serverSave?:(check:CheckIn,edit:boolean,existing?:CheckIn)=>Promise<CheckIn> }) {
   const nav = usePatientNavigation();
+  const TODAY=useCareDay();
   const condition = useSearchParams().get("condition");
   const [saveError, setSaveError] = useState("");
+  const [saveConflict,setSaveConflict]=useState(false);
   const [startedAt] = useState(() => new Date().toISOString());
   const [step, setStep] = useState<AdaptiveStep>("pain");
   const [dayComparison, setDayComparison] = useState<DayComparison | null>(edit ? todayCheck?.dayComparison || null : null);
   const [concern, setConcern] = useState<(typeof adaptiveConcerns)[number][0] | null>(edit && todayCheck ? adaptiveConcerns.find(([id])=>id===todayCheck.concerns?.[0])?.[0] || (todayCheck.hasConcern ? "other" : "none") : null);
   const [customConcern, setCustomConcern] = useState(edit ? todayCheck?.customConcern || todayCheck?.concernText || "" : "");
-  const [painScore, setPainScore] = useState<number | null>(edit && todayCheck ? painValue(todayCheck) : null);
+  const [painScore, setPainScore] = useState<number | null>(edit && todayCheck ? recordedPain(todayCheck) : null);
   const [painContext, setPainContext] = useState<CheckIn["painContext"]>(edit ? todayCheck?.painContext : undefined);
   const [mobility, setMobility] = useState<number | null>(edit && todayCheck ? todayCheck.mobilityScore ?? todayCheck.mobility : null);
   const [movementDifficulty, setMovementDifficulty] = useState(edit ? todayCheck?.movementDifficulty || "" : "");
@@ -270,24 +278,24 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edi
   const currentCheck = savedCheck || (!edit ? todayCheck : null);
   if (currentCheck || step === "complete") {
     const record=currentCheck;
-    return <PatientShell demo={demo} careStage={patientCareStage(patient)}><section role="status" className="my-6 rounded-3xl bg-white p-5"><Check className="text-[#315E50]" aria-hidden/><h1 className="mt-3 text-3xl font-black">오늘 회복 기록을 남겼어요</h1><p className="mt-3 leading-8">{record?.initialCondition ? record.initialCondition + ' · ' : ''}통증 {record ? painValue(record) : painScore}점 · {comparisonLabels[record?.dayComparison || dayComparison || 'same']}</p>{record?.source==='guardian'?<p className="mt-2 font-bold">보호자 대리 입력으로 저장했습니다.</p>:null}{record?.hasConcern?<div className="mt-3 rounded-xl bg-[#FFF5EE] p-4"><p>오늘 남긴 변화: {record.concernText}</p><Link href={nav.href('hospital')} className="inline-flex min-h-12 items-center font-bold underline">병원 안내 확인 →</Link></div>:null}<p className="mt-3 text-base leading-7 text-[#52645B]">최근 기록은 다음 진료에서 회복 변화를 확인하는 데 활용할 수 있어요.</p><Link href={nav.href('history')} className="primary">회복 추이 보기</Link><Link href={nav.href()} className="secondary">오늘 화면으로</Link><Link href={nav.href('checkin',{edit:'1',revision:record?.updatedAt || record?.id || 'new'})} className="secondary">오늘 기록 수정하기</Link>{guardianMode?<Link href="/care/guardian" className="secondary">보호자 화면으로</Link>:null}{demo?<Link href="/demo/hospital" className="inline-flex min-h-12 items-center font-bold text-[#315E50]">병원 데모 보기</Link>:null}</section></PatientShell>;
+    return <PatientShell demo={demo} careStage={patientCareStage(patient)}><section role="status" className="my-6 rounded-3xl bg-white p-5"><SavedMark/><h1 className="mt-3 text-3xl font-black">{serverSave?"오늘의 안부를 기록했어요.":demo?"샘플 안부를 기록했어요.":"이 기기에 안부를 저장했어요."}</h1><p className="care-subtext mt-3">{serverSave?"서버 저장을 확인했어요.":demo?"실제 환자 기록에 반영되지 않는 체험입니다.":"기존 기기 기록입니다. 서버에 전송되지 않았어요."}</p><p className="mt-3 leading-8">{record?.initialCondition ? record.initialCondition + ' · ' : ''}{record ? painSummary(record) : `통증 ${painScore}점`} · {comparisonLabels[record?.dayComparison || dayComparison || 'same']}</p>{record?.source==='guardian'?<p className="mt-2 font-bold">보호자 대리 입력으로 저장했습니다.</p>:null}{record?.hasConcern?<div className="mt-3 rounded-xl bg-[#FFF5EE] p-4"><p>오늘 남긴 변화: {record.concernText}</p><Link href={nav.href('hospital')} className="inline-flex min-h-12 items-center font-bold underline">병원 안내 확인 →</Link></div>:null}<p className="mt-3 text-base leading-7 text-[#52645B]">최근 기록은 다음 진료에서 회복 변화를 확인하는 데 활용할 수 있어요.</p><Link href={nav.href('history')} className="primary">회복 추이 보기</Link><Link href={nav.href()} className="secondary">오늘 화면으로</Link><Link href={nav.href('checkin',{edit:'1',revision:record?.updatedAt || record?.id || 'new'})} className="secondary">오늘 기록 수정하기</Link>{guardianMode?<Link href="/care/guardian" className="secondary">보호자 화면으로</Link>:null}{demo?<Link href="/demo/hospital" className="inline-flex min-h-12 items-center font-bold text-[#315E50]">병원 데모 보기</Link>:null}</section></PatientShell>;
   }
 
   function goBack() {
     if (step === "painContext") setStep("pain");
-    else if (step === "mobility") setStep(painScore !== null && (painScore >= 6 || (history.find(check => check.date < TODAY) && painScore - painValue(history.find(check => check.date < TODAY)!) >= 2)) ? "painContext" : "pain");
+    else if (step === "mobility") setStep(painScore !== null && (painScore >= 6 || (history.find(check => check.date < TODAY) && recordedPain(history.find(check => check.date < TODAY)!)!==null && painScore - recordedPain(history.find(check => check.date < TODAY)!)! >= 2)) ? "painContext" : "pain");
     else if (step === "movement") setStep("mobility");
     else if (step === "comparison") setStep(mobility === 2 ? "movement" : "mobility");
     else if (step === "concern") setStep("comparison");
   }
 
-  function finish(selectedMobility: number) {
+  async function finish(selectedMobility: number) {
     if (painScore === null || !dayComparison) return;
-    if(!demo){const access=getPatientSession();if(!access||access.patientId!==patient.id||access.hospitalId!==patient.hospitalId){setSaveError("환자 연결이 만료되었어요. 병원에서 받은 링크를 다시 열어주세요. 입력한 내용은 이 화면에 남아 있어요.");return;}}
+    if(!demo&&!serverSave){const access=getPatientSession();if(!access||access.patientId!==patient.id||access.hospitalId!==patient.hospitalId){setSaveError("환자 연결이 만료되었어요. 병원에서 받은 링크를 다시 열어주세요. 입력한 내용은 이 화면에 남아 있어요.");return;}}
     if(submitLock.current)return;submitLock.current=true;setIsSaving(true);
-    setSaveError("");
+    setSaveError("");setSaveConflict(false);
     try {
-    const currentState = demo ? loadPublicDemoCareState() : loadCareState();
+    const currentState = serverState || (demo ? loadPublicDemoCareState() : loadCareState());
     const existingToday = currentState.checkIns.find(check => check.patientId === patient.id && (check.checkInDate || check.date) === TODAY);
     if (existingToday && !edit) { setSavedCheck(existingToday); setStep("complete"); setIsSaving(false); return; }
     const hasConcern = concern !== null && concern !== "none";
@@ -297,10 +305,11 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edi
     const episode = currentState.episodes.find(e => e.patientId === patient.id);
     const check: CheckIn = { id: `check_${Date.now()}`, episodeId: episode?.id, patientId: patient.id, date: TODAY, checkInDate: TODAY, pain: demoPainBucket(painScore), painScore, painContext, mobility: selectedMobility, mobilityScore: selectedMobility, mobilityComparison: selectedMobility === 0 ? "better" : selectedMobility === 2 ? "worse" : "same", movementDifficulty: movementDifficulty || undefined, hasConcern, concernStatus: hasConcern ? "reported" : "none", concernText, concerns: storedConcerns, swellingChange: concern === "swelling" ? "more" : undefined, warmth: concern === "fever" ? "clear" : undefined, woundChange: concern === "incision_discomfort" ? "redder" : undefined, sleep: concern === "sleep" ? "often" : undefined, customConcern: concern === "other" ? customConcern.trim() : "", dayComparison, initialCondition: condition || existingToday?.initialCondition || undefined, source: guardianMode ? "guardian" : "patient",submittedByType:guardianMode?"guardian":"patient",submittedById:patient.id, createdAt, updatedAt: createdAt };
     if(edit && existingToday){check.id=existingToday.id;check.createdAt=existingToday.createdAt;}
+    if(serverSave){const stored=await serverSave(check,edit,existingToday);setMobility(selectedMobility);setSavedCheck(stored);setStep("complete");setIsSaving(false);return;}
     const previous = currentState.checkIns.filter(item => item.patientId === patient.id && item.date < TODAY).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
     const priority = prioritizationProvider.evaluate({ current: { ...check, painScore }, previous: previous ? { ...previous, painScore: previous.painScore ?? undefined } : undefined });
     const status: PatientStatus = { patientId: patient.id, level: priority.level, reason: priority.explanation, reasonCodes: priority.reasonCodes, ruleVersion: priority.ruleVersion, source: "system", updatedAt: priority.createdAt };
-    const signal = status.level === "stable" ? null : { id: `signal_${Date.now()}`, patientId: patient.id, type: concern === "swelling" ? "new_swelling" as const : concern === "fever" ? "new_warmth" as const : concern === "incision_discomfort" ? "wound_change" as const : previous && painScore - painValue(previous) >= 3 ? "pain_jump" as const : "other" as const, severity: status.level === "needs_attention" ? "priority" as const : "check" as const, reason: status.reason, detectedAt: createdAt, sourceCheckInIds: [check.id, ...(previous ? [previous.id] : [])], status: "open" as const };
+    const signal = status.level === "stable" ? null : { id: `signal_${Date.now()}`, patientId: patient.id, type: concern === "swelling" ? "new_swelling" as const : concern === "fever" ? "new_warmth" as const : concern === "incision_discomfort" ? "wound_change" as const : previous && recordedPain(previous)!==null && painScore - recordedPain(previous)! >= 3 ? "pain_jump" as const : "other" as const, severity: status.level === "needs_attention" ? "priority" as const : "check" as const, reason: status.reason, detectedAt: createdAt, sourceCheckInIds: [check.id, ...(previous ? [previous.id] : [])], status: "open" as const };
     const task = signal ? { id: `task_${Date.now()}`, patientId: patient.id, signalIds: [signal.id], priority: signal.severity === "priority" ? "high" as const : "normal" as const, status: patient.assignedNurse ? "assigned" as const : "unassigned" as const, assignedTo: patient.assignedNurse, assignedAt: patient.assignedNurse ? createdAt : undefined, dueAt: `${TODAY}T18:00:00+09:00`, createdAt } : null;
     // A patient edit must never mark a clinician's outstanding work completed.
     const signals = currentState.careSignals || [];
@@ -311,10 +320,10 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edi
     if(!previous&&!edit)trackCareEvent("first_checkin_completed",{patientId:patient.id,hospitalId:patient.hospitalId,demo});
     trackCareEvent("patient_status_changed",{patientId:patient.id,level:status.level,demo});
     if(signal)trackCareEvent("care_signal_created",{patientId:patient.id,hospitalId:patient.hospitalId,careSignalId:signal.id,careTaskId:task?.id,signalType:signal.type,ruleVersion:status.ruleVersion,demo});
-    } catch { submitLock.current=false;setIsSaving(false);setSaveError("저장하지 못했어요. 입력한 내용은 이 화면에 남아 있어요. 다시 눌러 저장해주세요."); }
+    } catch(error) { submitLock.current=false;setIsSaving(false);const conflict=error instanceof CareServerError&&['RECORD_CHANGED','CARE_COMPLETED'].includes(error.code);setSaveConflict(conflict);setSaveError(error instanceof CareServerError&&error.status===401?"환자 연결의 이용 시간이 지났어요. 입력한 내용은 남아 있습니다. 병원에서 받은 링크로 다시 연결해주세요.":conflict?(error.code==='CARE_COMPLETED'?'관리기간이 종료되어 새 기록을 저장할 수 없어요. 남긴 기록을 확인해주세요.':'다른 기기에서 기록이 변경됐어요. 입력은 이 화면에 남아 있습니다. 최신 기록을 확인한 뒤 수정해주세요.'):'저장하지 못했어요. 입력한 내용은 이 화면에 남아 있어요. 다시 눌러 저장해주세요.'); }
   }
 
-    const previousPain = history.find(c=>c.date<TODAY) ? painValue(history.find(c=>c.date<TODAY)!) : null;
+    const previousPain = history.find(c=>c.date<TODAY) ? recordedPain(history.find(c=>c.date<TODAY)!) : null;
   const needsPainContext = painScore !== null && (painScore >= 6 || (previousPain !== null && painScore - previousPain >= 2));
   const steps = ["pain", ...(needsPainContext ? ["painContext"] : []), "mobility", ...(mobility === 2 ? ["movement"] : []), "comparison", "concern"] as AdaptiveStep[];
   const stepNumber = Math.max(1, steps.indexOf(step) + 1), totalSteps = steps.length;
@@ -322,7 +331,7 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edi
   function nextStep() { trackCareEvent("checkin_question_answered",{patientId:patient.id,hospitalId:patient.hospitalId,question:step,elapsedSeconds:Math.max(1,Math.round((Date.now()-Date.parse(startedAt))/1000)),adaptive:["painContext","movement"].includes(step),unsureSelected:step==="painContext"&&painContext==="unsure",demo});if (step === "pain") setStep(needsPainContext ? "painContext" : "mobility"); else if (step === "painContext") setStep("mobility"); else if (step === "mobility") setStep(mobility === 2 ? "movement" : "comparison"); else if (step === "movement") setStep("comparison"); else if (step === "comparison") setStep("concern"); else if (mobility !== null) finish(mobility); }
   const stepLabel=step==="pain"?"통증":step==="painContext"?"통증 확인":step==="mobility"?"움직임":step==="movement"?"불편한 움직임":step==="comparison"?"오늘 상태":"증상";
   const painMeaning=painScore===null?"숫자를 눌러 알려주세요":painScore===0?"통증이 없어요":painScore<=3?"조금 불편해요":painScore<=6?"움직일 때 꽤 불편해요":painScore<10?"많이 아파요":"견디기 어려워요";
-  return <PatientShell demo={demo} careStage={patientCareStage(patient)} backLabel="이전 화면" backFallback={nav.href()} onBack={step!=="pain" ? goBack : undefined}><div className="py-6 sm:py-10">{edit ? <p className="mb-3 text-lg font-black text-[#315E50]">오늘 기록 수정</p> : null}{saveError ? <div role="alert" className="mb-4 rounded-2xl border border-[#D6A086] bg-white p-5 text-lg leading-8"><p>{saveError}</p>{!demo&&!getPatientSession()?<Link href="/patient" className="secondary">다시 연결하는 방법</Link>:null}</div> : null}{guardianMode ? <p className="mb-3 rounded-xl bg-white p-3 text-lg font-black text-[#315E50]">보호자 대리 입력 · {patient.name}님</p> : null}{condition ? <p className="mb-3 text-base font-bold text-[#315E50]">선택한 컨디션: {condition}</p> : null}<p className="text-base font-black text-[#315E50]">오늘 회복 체크 · 약 1분</p><div className="mt-3 flex items-center justify-between gap-3"><p className="text-lg font-black">{stepNumber}/{totalSteps} · {stepLabel}</p><p className="hidden text-base font-bold text-[#5B6D64] sm:block">통증 · 움직임 · 증상 · 오늘 상태</p></div><div className="mt-3 h-2 rounded-full bg-[#DDE5E0]"><div className="h-full rounded-full bg-[#315E50] transition-all" style={{ width: `${stepNumber / totalSteps * 100}%` }} /></div>
+  return <PatientShell demo={demo} careStage={patientCareStage(patient)} backLabel="이전 화면" backFallback={nav.href()} onBack={step!=="pain" ? goBack : undefined}><div className="py-6 sm:py-10">{edit ? <p className="mb-3 text-lg font-black text-[#315E50]">오늘 기록 수정</p> : null}{saveError ? <div role="alert" className="mb-4 rounded-2xl border border-[#D6A086] bg-white p-5 text-lg leading-8"><p>{saveError}</p>{saveConflict?<Link href={nav.href("history")} className="secondary">최신 기록 확인하기</Link>:null}{!demo&&(serverSave||!getPatientSession())?<Link href="/patient" className="secondary">다시 연결하는 방법</Link>:null}</div> : null}{guardianMode ? <p className="mb-3 rounded-xl bg-white p-3 text-lg font-black text-[#315E50]">보호자 대리 입력 · {patient.name}님</p> : null}{condition ? <p className="mb-3 text-base font-bold text-[#315E50]">선택한 컨디션: {condition}</p> : null}<p className="text-base font-black text-[#315E50]">오늘 회복 상태 기록</p><div className="mt-3 flex items-center justify-between gap-3"><p className="text-lg font-black">{stepNumber}/{totalSteps} · {stepLabel}</p><p className="hidden text-base font-bold text-[#5B6D64] sm:block">통증 · 움직임 · 증상 · 오늘 상태</p></div><div className="mt-3 h-2 rounded-full bg-[#DDE5E0]"><div className="h-full rounded-full bg-[#315E50] transition-all" style={{ width: `${stepNumber / totalSteps * 100}%` }} /></div>
     <h1 className="mt-7 text-[clamp(1.75rem,6vw,2.15rem)] font-black leading-tight">{step === "pain" ? "지금 통증은 어느 정도인가요?" : step === "painContext" ? "어떤 때 가장 아픈가요?" : step === "mobility" ? "오늘 움직이는 것은 어땠나요?" : step === "movement" ? "어떤 움직임이 가장 불편했나요?" : step === "comparison" ? "어제와 비교하면 전반적으로 어떠세요?" : "오늘 새롭게 달라진 점이 있나요?"}</h1>
     {step === "pain" ? <><div className="mt-7 grid grid-cols-6 gap-2">{Array.from({ length: 11 }, (_, i) => <button aria-label={`통증 ${i}점`} aria-pressed={painScore===i} key={i} onClick={() => setPainScore(i)} className={`min-h-[60px] rounded-xl border-2 text-xl font-black ${painScore === i ? "border-[#315E50] bg-[#315E50] text-white" : "border-[#C8D3CD] bg-white"}`}>{i}</button>)}</div><div className="mt-4 grid grid-cols-5 gap-1 text-center text-[13px] font-bold leading-5 text-[#526159]"><span>0<br/>통증 없음</span><span>1~3<br/>조금 불편</span><span>4~6<br/>움직일 때 힘듦</span><span>7~9<br/>많이 아픔</span><span>10<br/>견디기 어려움</span></div><div aria-live="polite" className="mt-5 rounded-2xl bg-white p-5 text-lg font-bold leading-8 text-[#46574F]"><p className="text-xl font-black text-[#315E50]">{painScore===null?painMeaning:`${painScore}점 · ${painMeaning}`}</p>{previousPain !== null&&painScore!==null ? <p className="mt-2">어제 {previousPain}점 → 오늘 {painScore}점 {painScore<previousPain?"↓":painScore>previousPain?"↑":"→"}<br/><span className="text-[#315E50]">{painScore<previousPain?"어제보다 통증이 줄었어요.":painScore>previousPain?"어제보다 조금 더 불편하시군요. 몇 가지만 더 확인할게요.":"어제와 비슷해요."}</span></p> : null}</div></> : null}
     {step === "painContext" ? <div className="mt-8 grid gap-3">{painContextLabels.map(([id,label]) => <button key={id} onClick={() => setPainContext(id)} className={`min-h-[64px] rounded-2xl border-2 px-5 text-left text-xl font-black ${painContext === id ? "border-[#315E50] bg-[#E8F1EA]" : "border-[#C8D3CD] bg-white"}`}>{label}</button>)}</div> : null}
@@ -334,9 +343,9 @@ function AdaptiveCheckin({ patient, todayCheck, history, guardianMode, demo, edi
   </div></PatientShell>;
 }
 
-function PatientShell({ children, demo, active = "home", backLabel, backFallback, onBack, hideNav = false, careStage = "activeCare" }: { children: React.ReactNode; demo: boolean; active?: "home" | "history" | "hospital"; backLabel?: string; backFallback?: string; onBack?:()=>void; hideNav?:boolean; careStage?:CareStage }) {
+export function PatientShell({ children, demo, active = "home", backLabel, backFallback, onBack, hideNav = false, careStage = "activeCare" }: { children: React.ReactNode; demo: boolean; active?: "home" | "history" | "hospital"; backLabel?: string; backFallback?: string; onBack?:()=>void; hideNav?:boolean; careStage?:CareStage }) {
   return (
-    <main className="min-h-[100dvh] bg-[#F1F0E9] px-5 pb-[calc(7rem+env(safe-area-inset-bottom))] text-[#202923] [font-size:18px]">
+    <main className="care-ui min-h-[100dvh] bg-[#F7F5EF] px-5 pb-[calc(7rem+env(safe-area-inset-bottom))] text-[#202923] [font-size:18px]">
       <div className="mx-auto max-w-[640px]">{demo && active !== "hospital" ? <div className="pt-4 text-center"><span className="inline-flex rounded-full bg-white px-3 py-1 text-base font-black text-[#587066]">오늘안부 데모</span></div> : null}{demo ? <p className="pt-3 text-center text-sm leading-6 text-[#52645B]">샘플 체험 · 실제 환자 기록에 저장되거나 병원에 전송되지 않아요.</p> : null}{backLabel ? <header className="flex items-center justify-between border-b border-[#D5DED7] py-3"><PatientBack label={backLabel === "오늘" && careStage === "completedCare" ? "홈" : backLabel} fallback={backFallback} onBack={onBack}/><span className="text-lg font-black text-[#315E50]">오늘안부 Care</span></header> : null}{children}</div>{!hideNav ? <PatientBottomNav demo={demo} current={active} careStage={careStage}/> : null}
     </main>
   );
