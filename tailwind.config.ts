@@ -9,21 +9,21 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          primary: "#2563EB",
+          primary: "#245FD2",
           hover: "#1D4ED8",
-          secondary: "#2563EB",
+          secondary: "#245FD2",
           accent: "#FEE500",
           text: "#111827",
-          subtext: "#6B7280",
-          background: "#FFF8F1",
+          subtext: "#526176",
+          background: "#F5F8FC",
           card: "#FFFFFF",
           ink: "#111827",
-          sage: "#2563EB",
+          sage: "#245FD2",
           mint: "#EFF6FF",
           border: "#BFDBFE",
           coral: "#FF7A6A",
           apricot: "#fff0e6",
-          cream: "#FFF8F1",
+          cream: "#F5F8FC",
           sky: "#e8f4f8",
           line: "#F1E5DA",
         },
@@ -33,7 +33,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
-          "Pretendard Variable",
+          "Pretendard Care",
           "Pretendard",
           "SUIT",
           "Noto Sans KR",

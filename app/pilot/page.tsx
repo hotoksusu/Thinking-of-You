@@ -1,8 +1,69 @@
-"use client";
+'use client';
+
 import Link from 'next/link';
-import {useState} from 'react';
-import {careRequest} from '@/lib/care-server';
-export default function Pilot(){
- const [message,setMessage]=useState(''),[busy,setBusy]=useState(false),[done,setDone]=useState(false);
- return <main className="care-ui min-h-screen p-5"><div className="mx-auto max-w-2xl"><Link href="/" className="inline-flex min-h-12 items-center font-bold">← 오늘안부 Care</Link><h1 className="mt-6 text-3xl font-black">병원 파일럿 도입 상담</h1><p className="care-subtext mt-4">인공관절·척추 수술 후 회복관리 업무를 함께 검증합니다. 환자 참여율, 실제 확인·연락 시간과 미처리 업무를 측정합니다.</p><p className="mt-3 text-sm">아래 가격은 초기 검증용 가설입니다. 실제 계약·청구 조건은 상담에서 정합니다. 필수 보안·환자안전 기능은 요금제별로 차별하지 않습니다.</p><ul className="my-5 grid grid-cols-2 gap-3">{[['Basic','29만원','소규모 병원'],['Standard','49만원','일반 전문병원'],['Pro','79만원','중대형 병원'],['Enterprise','상담 후 견적','다기관·연동 검토']].map(([plan,price,who])=><li key={plan} className="care-surface p-4"><b>{plan}</b><p>월 {price}</p><small>{who}</small></li>)}</ul><p className="text-sm">환자 등록량·직원 계정·관리부서 규모는 파일럿에서 협의합니다. 자동 결제나 즉시 계정 발급 기능은 제공하지 않습니다.</p><section className="care-surface my-5 p-5"><h2 className="text-xl font-black">도입 담당자 정보</h2><p className="my-3 text-sm">환자 이름·진단·기록을 입력하지 마세요. 병원 담당자 연락만 접수합니다.</p>{done?<p role="status">상담 요청을 서버에 접수했습니다. 실제 상담 일정은 담당자와 별도로 조율합니다.</p>:<form className="grid gap-4" onSubmit={async e=>{e.preventDefault();if(busy)return;setBusy(true);const f=Object.fromEntries(new FormData(e.currentTarget));try{await careRequest('pilot','POST',{...f,consent:f.consent==='on'});setDone(true);setMessage('');}catch{setMessage('아직 접수되지 않았습니다. 서버 연결을 확인하고 다시 시도해주세요.');}finally{setBusy(false);}}}>{[['hospital','병원명'],['contact','담당자 이름'],['email','연락 이메일']].map(([name,label])=><label key={name}>{label}<input required maxLength={100} name={name} type={name==='email'?'email':'text'} className="mt-1 min-h-12 w-full rounded border p-3"/></label>)}<label>검토 요금제<select name="plan" className="ml-2 min-h-12 rounded border p-2">{['Basic','Standard','Pro','Enterprise'].map(p=><option key={p}>{p}</option>)}</select></label><label className="flex gap-3 leading-7"><input required type="checkbox" name="consent" className="mt-1 size-5 shrink-0"/>상담 연락을 위해 위 담당자 정보를 접수·이용하는 데 동의합니다. 다른 홍보·환자 기록 이용에 대한 동의는 포함하지 않습니다.</label><p className="text-sm">이용 목적: 도입 상담 및 신청 관리. 처리 주체·보존·삭제·위탁 상세는 운영 전 확정이 필요합니다. <Link className="underline" href="/care/privacy">정보 처리·보안 운영 현황</Link></p><button disabled={busy} className="primary">{busy?'접수 확인 중…':'파일럿 상담 요청 접수'}</button>{message&&<p role="alert">{message}</p>}</form>}</section></div></main>;
+import { useRef, useState, type FormEvent } from 'react';
+import { CareBrandLogo } from '@/components/care-brand-logo';
+import { careRequest, CareServerError } from '@/lib/care-server';
+
+const fields = [
+  { name: 'hospital', label: '병원명', type: 'text', max: 100, autoComplete: 'organization' },
+  { name: 'contact', label: '담당자명', type: 'text', max: 60, autoComplete: 'name' },
+  { name: 'phone', label: '연락처', type: 'tel', max: 25, autoComplete: 'tel' },
+  { name: 'email', label: '이메일', type: 'email', max: 200, autoComplete: 'email' },
+];
+const selections = [
+  { name: 'department', label: '주요 진료과', options: ['정형외과', '재활의학과', '신경외과', '기타'] },
+  { name: 'monthlyVolume', label: '월 수술·퇴원환자 규모', options: ['30명 이하', '31~100명', '101~200명', '201명 이상', '확인 중'] },
+  { name: 'currentWorkflow', label: '현재 사후관리 방식', options: ['전화·문자', '외래 중심', '전용 시스템', '별도 관리 없음', '기타'] },
+  { name: 'adoptionGoal', label: '도입 희망 사항', options: ['파일럿 상담', '제품 시연', '업무 흐름 검토', '리포트 검토'] },
+];
+
+export default function Pilot() {
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const submitting = useRef(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submitting.current) return;
+    submitting.current = true;
+    setBusy(true);
+    setMessage('');
+    const form = Object.fromEntries(new FormData(event.currentTarget));
+    try {
+      await careRequest('pilot', 'POST', { ...form, version: 'v2', consent: form.consent === 'on' });
+      setDone(true);
+    } catch (error) {
+      setMessage(error instanceof CareServerError && error.status === 400
+        ? '입력 내용과 개인정보 이용 동의를 확인해주세요.'
+        : '접수 결과를 확인하지 못했습니다. 입력 내용은 그대로 있으니 다시 시도해주세요.');
+    } finally {
+      submitting.current = false;
+      setBusy(false);
+    }
+  }
+
+  return <main className="care-ui min-h-screen px-5 py-6">
+    <div className="mx-auto max-w-2xl">
+      <CareBrandLogo />
+      <h1 className="mt-6">병원 도입 문의</h1>
+      <p className="care-subtext mt-3">정형외과 퇴원환자 관리를 위한 제품 시연과 4주 파일럿을 상담합니다.</p>
+      <section className="care-surface my-5 p-5 sm:p-7">
+        <h2>도입 담당자 정보</h2>
+        <p className="my-3">병원 업무와 담당자 연락처만 입력해주세요. 환자 이름, 진단, 진료기록은 받지 않습니다.</p>
+        {done ? <p role="status" className="rounded-xl bg-[#EFF4FD] p-4">상담 요청을 접수했습니다. 남겨주신 연락처로 상담 일정을 조율합니다.</p> :
+          <form className="grid gap-4" onSubmit={submit}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {fields.map(field => <label key={field.name}>{field.label}<input required name={field.name} type={field.type} maxLength={field.max} autoComplete={field.autoComplete} className="mt-1 block w-full" /></label>)}
+              {selections.map(field => <label key={field.name}>{field.label}<select required name={field.name} defaultValue="" className="mt-1 block w-full"><option value="" disabled>선택해주세요</option>{field.options.map(option => <option key={option}>{option}</option>)}</select></label>)}
+            </div>
+            <p id="pilot-consent" className="mt-2 text-base">담당자명, 연락처, 이메일과 병원 업무 정보를 상담과 신청 관리에 사용합니다. 동의를 거부할 수 있으며, 이 양식의 상담 접수에는 동의가 필요합니다. <Link href="/care/privacy" className="underline">정보 처리 안내</Link></p>
+            <label className="flex min-h-12 items-center gap-3"><input required type="checkbox" name="consent" aria-describedby="pilot-consent" />상담을 위한 개인정보 이용에 동의합니다.</label>
+            <button type="submit" className="primary" disabled={busy} aria-busy={busy}>{busy ? '접수 확인 중…' : '파일럿 상담 요청 접수'}</button>
+            {message && <p role="alert">{message}</p>}
+          </form>}
+      </section>
+    </div>
+  </main>;
 }

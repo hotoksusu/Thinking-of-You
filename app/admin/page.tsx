@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { careBrand } from '@/lib/care-brand';
 import { AccessGuard } from "@/components/access-guard";
 import {
   BarChart3,
@@ -57,7 +58,7 @@ function AdminDashboard() {
       <div className="mx-auto flex min-h-screen max-w-[1600px]">
         <aside className="hidden w-64 shrink-0 bg-slate-950 px-5 py-7 text-white lg:block">
           <Link href="/" className="text-xl font-black tracking-tight">
-            오늘안부 Admin
+            {careBrand.shortName} 운영관리
           </Link>
           <p className="mt-2 text-xs text-slate-400">내부 운영 전용</p>
           <nav className="mt-10 space-y-1">

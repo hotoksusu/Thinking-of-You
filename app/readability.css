@@ -1,0 +1,167 @@
+/* Medical Clarity + Human Warmth. Shared presentation tokens; no status logic changes. */
+@font-face{font-family:"Pretendard Care";src:url('/fonts/PretendardVariable.woff2') format('woff2');font-weight:400 700;font-style:normal;font-display:swap}
+:root{
+ --ui-font:"Pretendard Care","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+ --ui-text:#16243A;--ui-secondary:#526176;--ui-primary:#245FD2;--ui-primary-hover:#194BAE;
+ --ui-bg:#F5F8FC;--ui-surface:#FFFFFF;--ui-border:#73859E;--ui-divider:#DAE2ED;--ui-focus:#194BAE;
+ --ui-body:1.0625rem;--ui-meta:.9375rem;--ui-h1:clamp(2rem,3.5vw,2.5rem);--ui-h2:clamp(1.375rem,2.5vw,1.75rem);
+ --ui-leading:1.65;--ui-weight-body:400;--ui-weight-label:600;--ui-weight-heading:700;
+ --ui-tracking:-.012em;--ui-radius:1rem;--ui-shadow:0 4px 18px #16243A06;
+}
+html{overflow-x:visible;scroll-padding-block:1.5rem}
+body{background:var(--ui-bg);color:var(--ui-text);font-family:var(--ui-font);font-size:var(--ui-body);line-height:var(--ui-leading);letter-spacing:var(--ui-tracking);overflow-x:visible;font-synthesis:none}
+.ui-scope{min-width:0;min-height:100dvh;background:var(--ui-bg);color:var(--ui-text);font-family:var(--ui-font);font-size:var(--ui-body);line-height:var(--ui-leading)}
+.ui-scope *, .ui-scope *::before,.ui-scope *::after{box-sizing:border-box}
+.ui-scope :where(h1,h2,h3,h4){font-weight:var(--ui-weight-heading);letter-spacing:-.02em;line-height:1.4;overflow-wrap:anywhere;word-break:keep-all;text-wrap:pretty}
+.ui-scope h1{font-size:var(--ui-h1)}.ui-scope h2{font-size:var(--ui-h2)}.ui-scope h3{font-size:1.1875rem}
+.ui-scope :where(p,li,dd){line-height:var(--ui-leading);font-weight:var(--ui-weight-body);word-break:keep-all;overflow-wrap:anywhere}
+.ui-scope :where(.font-black,.font-extrabold){font-weight:700}
+.ui-scope :where(.text-xs,.text-sm,[class~="text-[11px]"],[class~="text-[12px]"]){font-size:var(--ui-meta);line-height:1.6;letter-spacing:0}
+.ui-scope :where(button,a,input,select,textarea,summary){font-family:inherit;letter-spacing:inherit;touch-action:manipulation}
+.ui-scope :where(button,a,summary){line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+.ui-scope :where(button,a,input,select,textarea,summary):focus-visible{outline:3px solid var(--ui-focus);outline-offset:3px;box-shadow:0 0 0 5px #fff}
+.ui-scope :where(input:not([type=checkbox]):not([type=radio]),textarea,select){max-width:100%;min-width:0;min-height:48px;border:1px solid var(--ui-border);border-radius:.75rem;background-color:#fff;color:var(--ui-text);font-size:1rem;line-height:1.6;padding:.7rem .85rem}
+.ui-scope :where(textarea){min-height:7rem;resize:vertical}
+.ui-scope :where(input,textarea)::placeholder{color:#66758A;opacity:1}
+.ui-scope :where(input[type=checkbox],input[type=radio]){width:1.25rem;height:1.25rem;min-width:1.25rem;accent-color:var(--ui-primary);vertical-align:middle}
+.ui-scope select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23526176' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;padding-right:2.5rem}
+.ui-scope label{font-weight:var(--ui-weight-label);line-height:1.6}
+.ui-scope :where(button:disabled,input:disabled,select:disabled){opacity:1;background-color:#E7EDF5;color:#526176;cursor:not-allowed;border-color:#73859E}
+.ui-scope :where(a,button)[aria-busy=true]{cursor:progress}
+.ui-scope :where(button:not(:disabled),a[href]):hover{filter:none}
+.ui-scope :where(button:not(:disabled),a[href]):active{filter:none}
+.ui-scope .primary,.ui-scope .care-primary,.ui-scope .primary-link{min-height:52px;margin-top:1.5rem;border-radius:.875rem;padding:.85rem 1.25rem;background:var(--ui-primary);color:#fff;font-weight:600;font-size:1rem;line-height:1.5;display:flex;align-items:center;justify-content:center;gap:.5rem;text-align:center}
+.ui-scope .primary:hover,.ui-scope .care-primary:hover,.ui-scope .primary-link:hover{background:var(--ui-primary-hover)}
+.ui-scope :where(.secondary,.secondary-link){min-height:48px;border:1px solid var(--ui-border);border-radius:.875rem;background:#fff;color:var(--ui-primary);font-size:1rem;font-weight:600;line-height:1.5;padding:.7rem 1rem}
+.ui-scope :where(.secondary,.secondary-link):hover{background:#EDF3FE;border-color:var(--ui-primary)}
+.ui-scope .care-surface{border:1px solid var(--ui-divider);border-radius:1.25rem;box-shadow:var(--ui-shadow);background:#fff}
+.ui-scope .care-ui{--care-green:var(--ui-primary);--care-ink:var(--ui-text);--care-muted:var(--ui-secondary);--care-paper:var(--ui-bg);background:var(--ui-bg);color:var(--ui-text);font-size:inherit}
+.ui-scope :where([class~="text-[#315E50]"],[class~="text-[#315D50]"],[class~="text-[#2F6B46]"],[class~="text-[#245C3B]"]){color:var(--ui-primary)}
+.ui-scope :where([class~="bg-[#315E50]"],[class~="bg-[#315D50]"],[class~="bg-[#2F6B46]"]){background:var(--ui-primary);color:#fff}
+.ui-scope :where([class~="bg-[#29483D]"],[class~="bg-[#244B3D]"]){background:#173969;color:#fff}
+.ui-scope :where([class~="text-[#58665E]"],[class~="text-[#52645B]"],[class~="text-[#52635C]"],[class~="text-[#607068]"],[class~="text-[#617069]"],[class~="text-[#56675F]"],[class~="text-[#596A60]"]){color:var(--ui-secondary)}
+.ui-scope :where([class~="bg-[#F1F6F2]"],[class~="bg-[#F7F4EC]"],[class~="bg-[#FFFCF7]"],[class~="bg-[#F1F0E9]"],[class~="bg-[#F7F9F6]"]){background-color:var(--ui-bg)}
+.ui-scope .care-subtext{color:var(--ui-secondary);font-size:inherit;line-height:var(--ui-leading)}
+.ui-scope .care-kicker{color:var(--ui-primary);font-size:var(--ui-meta);letter-spacing:0;font-weight:600}
+.ui-scope .care-connection{gap:.5rem}.ui-scope .care-connection li{font-size:var(--ui-meta);font-weight:600}
+.ui-scope .care-connection small{font-size:var(--ui-meta);letter-spacing:0;color:var(--ui-secondary)}
+.ui-scope .care-step-icon{background:#EDF3FE;border-color:var(--ui-bg);color:var(--ui-primary)}
+.ui-scope .care-saved-mark{background:#EDF3FE;color:var(--ui-primary);box-shadow:0 0 0 7px #EDF3FE80}
+.ui-scope .care-record-illustration{filter:hue-rotate(65deg) saturate(1.25)}
+.patient-ui{--ui-scale:1;--ui-body:calc(1.125rem * var(--ui-scale));--ui-meta:calc(1rem * var(--ui-scale));--ui-h1:calc(1.875rem * var(--ui-scale));--ui-h2:calc(1.5rem * var(--ui-scale));--ui-leading:1.7}
+.patient-ui[data-text-size=large]{--ui-scale:1.125}
+.patient-ui :where(h3){font-size:calc(1.25rem * var(--ui-scale))}
+.patient-ui :where(.text-base,.text-lg,.care-subtext){font-size:var(--ui-body);line-height:var(--ui-leading)}
+.patient-ui :where(.text-xl){font-size:calc(1.25rem * var(--ui-scale))}
+.patient-ui :where(.text-2xl){font-size:var(--ui-h2)}
+.patient-ui :where(button,a.primary,a.secondary,.care-primary,input:not([type=checkbox]),textarea,select){font-size:var(--ui-body);min-height:48px}
+.patient-ui :where(.primary,.care-primary,.secondary){font-size:var(--ui-body);min-height:56px}
+.patient-display-tools{display:flex;align-items:center;justify-content:flex-end;gap:.5rem;flex-wrap:wrap;max-width:680px;margin:auto;padding:.75rem 1.25rem;font-size:1rem;color:var(--ui-secondary)}
+.patient-display-tools span{margin-right:auto}.patient-display-tools button{font-size:1rem;min-height:44px;padding:.5rem .75rem;border:1px solid var(--ui-border);border-radius:.65rem;background:#fff;color:var(--ui-text)}
+.patient-display-tools [aria-pressed=true]{background:#EDF3FE;border-color:var(--ui-primary);color:var(--ui-primary);font-weight:600}
+.patient-ui .care-condition{font-size:var(--ui-body);background:#F5F8FF;color:var(--ui-text);border:1px solid var(--ui-border);min-height:120px;line-height:1.55;padding:.875rem .375rem;gap:.6rem}
+.patient-ui .care-condition[aria-pressed=true]{background:#EDF3FE;border:2px solid var(--ui-primary);color:var(--ui-primary);box-shadow:0 0 0 2px #245FD215}
+.patient-ui .care-history-days{margin-inline:-.25rem;gap:.25rem;grid-template-columns:repeat(auto-fit,minmax(2.75rem,1fr))}
+.patient-ui .care-history-days button{font-size:var(--ui-meta);min-height:56px;padding:.5rem .25rem;border:1px solid var(--ui-divider)}
+.patient-ui .care-history-days button[aria-pressed=true]{background:var(--ui-primary);color:#fff}
+.patient-ui .care-history-days button:disabled{background:#F0F3F8;color:var(--ui-secondary)}
+.patient-ui nav[aria-label="환자 메뉴"]{border-color:var(--ui-border);box-shadow:0 4px 20px #16243A12;max-height:40vh;overflow:auto}
+.patient-ui nav[aria-label="환자 메뉴"] a{font-size:var(--ui-meta);padding:.4rem .15rem;gap:.3rem}
+.patient-ui nav[aria-label="환자 메뉴"] [aria-current=page]{background:var(--ui-primary);color:#fff}
+.patient-ui :where([role=alert]){border-left:4px solid #9C4C20}
+.patient-ui .care-inline-row{align-items:flex-start;padding-block:1.25rem;border-color:var(--ui-divider)}
+.patient-ui .care-inline-row p{margin-top:.25rem}
+.public-ui :where(main){background:var(--ui-bg);color:var(--ui-text)}
+.public-ui .care-landing-hero{padding-block:2rem 2.5rem}
+.public-ui .care-landing-hero h1{font-size:clamp(2rem,6vw,3.25rem);font-weight:700;line-height:1.25;max-width:18ch}
+.public-ui .care-landing-art{order:0;max-width:260px}
+.public-ui :where(section){scroll-margin-top:6rem}
+.public-ui :where(section p){max-width:68ch}
+.public-ui :where(section h2){max-width:30ch}
+.public-ui :where(.brand-title){font-family:var(--ui-font);color:var(--ui-text)}
+.public-ui .company-content section{padding-block:clamp(2rem,5vw,4rem)}
+.public-ui .company-content :where(.text-center p,p.text-center){text-align:left}
+.public-ui .company-content [data-section-kicker]{font-size:1rem;font-weight:600;letter-spacing:0;color:var(--ui-primary)}
+.hospital-ui{--ui-body:1.0625rem;--ui-meta:.9375rem;--ui-leading:1.6}
+.hospital-ui .text-lg{font-size:1.0625rem;line-height:1.65}
+.hospital-ui :where(table){width:100%;table-layout:auto;font-size:1rem;line-height:1.6}
+.hospital-ui :where(th,td){padding:.875rem .75rem;white-space:normal;overflow-wrap:anywhere;vertical-align:top}
+.hospital-ui :where(th){font-size:.9375rem;font-weight:600;color:var(--ui-secondary);background:#F5F8FC}
+.hospital-ui :where(tbody tr){border-bottom:1px solid var(--ui-divider)}
+.hospital-ui :where(tbody tr):hover{background:#F0F5FF}
+.hospital-ui .care-hospital-sidebar{background-color:#173969;color:white}
+.hospital-ui .care-hospital-sidebar p{color:#E4ECFA;line-height:1.6}
+.hospital-ui .care-hospital-sidebar :where(.text-xs,.text-sm,[class~="text-[11px]"]){font-size:.9375rem}
+.hospital-ui .care-hospital-sidebar [aria-current=page]{background:#fff;color:#173969}
+.hospital-ui :where(.truncate){white-space:normal;overflow:visible;text-overflow:clip}
+.hospital-ui [aria-label="서버 병원 운영"]{padding:clamp(1rem,2.5vw,1.75rem)}
+.hospital-ui [aria-label="서버 병원 운영"]>h2{font-size:1.75rem}
+.hospital-ui [aria-label="서버 환자 업무 상세"]{border-color:var(--ui-border);padding:clamp(1rem,2vw,1.5rem)}
+.hospital-ui [aria-label="서버 환자 업무 상세"] ol li{padding-block:.875rem;line-height:1.7;overflow-wrap:anywhere}
+.hospital-ui [aria-label="서버 환자 업무 상세"] textarea{font-size:1.0625rem;line-height:1.75;min-height:8rem}
+.hospital-ui .care-operation-tabs{gap:.5rem;border-bottom:1px solid var(--ui-divider);padding-bottom:1rem}
+.hospital-ui .care-operation-tabs [aria-pressed=true]{background:#EDF3FE;color:var(--ui-primary);border-color:var(--ui-primary)}
+.hospital-ui .care-operation-tabs .secondary,.hospital-ui .care-range-shortcuts .secondary{font-size:1rem}
+.hospital-ui :where(details){scroll-margin-top:6rem}
+.hospital-ui :where(summary){font-weight:600;line-height:1.6;padding-block:.5rem}
+.hospital-ui .care-report article{border:1px solid var(--ui-divider);box-shadow:none}
+.ui-scope [role=dialog]{max-height:calc(100dvh - 2rem);overflow:auto;overscroll-behavior:contain}
+.ui-scope [role=status]:not(:empty){overflow-wrap:anywhere}
+.ui-scope :where(pre){white-space:pre-wrap;overflow-wrap:anywhere;font-size:var(--ui-meta)}
+@media(min-width:768px){.public-ui .care-landing-hero{padding-block:4rem;gap:3rem}.public-ui .care-landing-art{max-width:410px}}
+@media(max-width:767px){.ui-scope :where(.grid){min-width:0}.hospital-ui .care-report :where(.grid){grid-template-columns:1fr}.ui-scope [class*="max-w-"]{max-width:100%}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.ui-scope *,.ui-scope *:before,.ui-scope *:after{animation:none!important;transition:none!important}}
+@media print{.patient-display-tools{display:none}.ui-scope{background:#fff;color:#16243A}.hospital-ui .care-report{font-size:12pt}}
+.ui-scope .care-status{display:inline-flex;align-items:center;min-height:1.8rem;padding:.2rem .55rem;border:1px solid #73859E;border-radius:.45rem;color:#526176;background:#F0F3F8;font-size:.9375rem;font-weight:600;line-height:1.5}
+.ui-scope .care-status[data-level=stable]{color:#246141;background:#EDF7EF;border-color:#6B9379}
+.ui-scope .care-status[data-level=needs_attention]{color:#873D16;background:#FFF3E8;border-color:#B37752}
+.ui-scope .care-status[data-level=watch]{color:#785309;background:#FFF8DF;border-color:#A78B48}
+.hospital-ui .care-operation-tabs [aria-selected=true]{background:#EDF3FE;color:#245FD2;border-color:#245FD2}
+.hospital-ui .care-work-row{padding:.9rem .75rem;border-radius:.75rem;align-items:start}
+.hospital-ui .care-work-row:hover{background:#EDF3FE}
+.hospital-ui .care-work-row small{font-size:.9375rem;font-weight:400;line-height:1.65;margin-top:.4rem;color:#526176}
+.hospital-ui .care-row-meta{display:grid;gap:.25rem;font-size:.9375rem;color:#526176;overflow-wrap:anywhere}
+.hospital-ui .care-save-feedback{padding:.85rem 1rem;border:1px solid #6B9379;border-radius:.75rem;background:#EDF7EF;color:#246141;font-weight:500}
+@media(min-width:1024px){.hospital-ui .care-work-row{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:1.5rem}}
+.hospital-ui .care-hospital-header>div:first-child{height:auto;flex-wrap:wrap;padding-block:.65rem}
+.hospital-ui .care-hospital-header>div:first-child>div{min-width:0;max-width:100%;flex-wrap:wrap}
+.hospital-ui .care-toolbar-controls{flex:1 1 auto;justify-content:flex-end;flex-wrap:wrap;min-width:0}
+.hospital-ui .care-toolbar-controls select{min-width:0;max-width:100%;flex:1 1 8rem;width:auto;height:auto}
+.hospital-ui [aria-label="회복 기간"]{flex-wrap:wrap;max-width:100%}
+.hospital-ui [aria-label="회복 기간"] button{flex:1 1 auto;min-width:0;font-size:1rem}
+.hospital-ui .hospital-patient-detail{font-size:var(--ui-body);line-height:var(--ui-leading)}
+.hospital-ui .hospital-patient-detail .patient-identity h1{font-size:var(--ui-h1)}
+.hospital-ui .hospital-patient-detail :where(button,a,select,input,textarea,.patient-context,.metric-value){font-size:1rem;line-height:1.6}
+.hospital-ui .hospital-patient-detail .section-title{font-size:var(--ui-h2);line-height:1.4}
+.hospital-ui .hospital-patient-detail .metric-emphasis{font-size:1.75rem}
+.hospital-ui .hospital-patient-detail :where(.metric-label,.eyebrow,.status-badge){font-size:var(--ui-meta);letter-spacing:0}
+.public-ui .company-content .grid>*{min-width:0}
+.public-ui .care-process-flow>span{min-width:0;flex:1 1 8rem;overflow-wrap:anywhere}
+html:has(.patient-ui){scroll-padding-bottom:10rem}
+.patient-ui :where(button,a,input,select,textarea){scroll-margin-block:2rem 10rem}
+.patient-ui button{height:auto}
+.patient-ui .care-pain-grid{grid-template-columns:repeat(auto-fit,minmax(3rem,1fr))}
+.patient-ui .care-pain-legend{grid-template-columns:repeat(auto-fit,minmax(4rem,1fr));font-size:var(--ui-meta);line-height:1.6;color:var(--ui-secondary)}
+.patient-ui :where([class~="text-[13px]"],[class~="text-[14px]"]){font-size:var(--ui-meta);line-height:1.6}
+.public-ui .care-process-flow>.contents>span{min-width:0;flex:1 1 8rem;overflow-wrap:anywhere}
+.public-ui .care-process-flow>.contents>svg{display:none}
+.public-ui .company-content>header>div{flex-wrap:wrap;gap:.75rem;padding-block:.75rem}
+.public-ui .company-content header nav{flex-wrap:wrap;gap:1rem}
+.hospital-ui .hospital-patient-detail :where(.grid>div,.grid>section){min-width:0}
+.hospital-ui .hospital-patient-detail [class~="justify-between"]{flex-wrap:wrap}
+.hospital-ui .hospital-patient-detail [class~="justify-between"] span{min-width:0;overflow-wrap:anywhere;text-align:left}
+
+.public-ui :where([class~="text-[#6A7972]"],[class~="text-[#8A766B]"]){color:var(--ui-secondary)}
+.public-ui [class~="bg-[#315E50]"] [class~="text-[#B7D8CB]"]{color:#FFFFFF}
+.public-ui [class~="bg-[#29483D]"] [class~="text-[#3F7563]"]{color:#E4ECFA}
+.patient-ui button[aria-pressed=false]{border-color:var(--ui-border)}
+.patient-ui svg circle[fill="#BDC9BE"]{fill:var(--ui-secondary)}
+.ui-scope time,.ui-scope .care-row-meta,.ui-scope .metric-value{font-variant-numeric:tabular-nums}
+
+.hospital-ui .care-hospital-sidebar{max-height:100dvh;overflow-y:auto;scrollbar-gutter:stable}
+.hospital-ui .care-hospital-sidebar>button{position:static;width:100%;margin-top:1rem}
+.patient-ui .primary,.patient-ui .care-primary,.patient-ui .secondary{font-size:var(--ui-body);min-height:56px;font-weight:600}
+.patient-ui .care-condition{font-weight:600}
+.patient-ui .patient-display-tools,.patient-ui .patient-display-tools button{font-size:var(--ui-meta)}
+.public-ui main>header{background:rgba(245,248,252,.96);border-color:var(--ui-divider)}
+.ui-scope .care-public-menu{width:min(18rem,calc(100vw - 2.5rem));max-width:none}

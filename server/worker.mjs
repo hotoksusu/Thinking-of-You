@@ -9,4 +9,6 @@ export default { async fetch(request, env, context) { const api = await careApi(
                 break;
         }
     } const headers = new Headers(response.headers); headers.set('Referrer-Policy', 'no-referrer'); headers.set('X-Content-Type-Options', 'nosniff');headers.set('Permissions-Policy','camera=(), microphone=(), geolocation=()');if(url.protocol==='https:')headers.set('Strict-Transport-Security','max-age=31536000'); if (['/i', '/app/patient','/care/server'].some(p => url.pathname.startsWith(p)))
-        headers.set('Cache-Control', 'no-store'); return new Response(response.body, { status: response.status, headers }); } };
+        headers.set('Cache-Control', 'no-store');
+    else if (url.pathname === '/sw.js' || url.pathname === '/manifest.json' || url.pathname === '/manifest.webmanifest' || headers.get('Content-Type')?.includes('text/html')) headers.set('Cache-Control', 'no-cache');
+    return new Response(response.body, { status: response.status, headers }); } };

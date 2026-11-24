@@ -1,28 +1,47 @@
-import type { Metadata, Viewport } from "next";
-import { Suspense } from "react";
-import { LegacyKakaoLoader } from "@/components/legacy-kakao-loader";
-import { PwaRegister } from "@/components/pwa-register";
-import "./globals.css";
-import "./onboarding.css";
+import type { CSSProperties } from 'react';
+import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
+import { LegacyKakaoLoader } from '@/components/legacy-kakao-loader';
+import { PwaRegister } from '@/components/pwa-register';
+import { ReadabilityFrame } from '@/components/readability-frame';
+import { careBrand, careDemo, isDanyeon } from '@/lib/care-brand';
+import './globals.css';
+import './onboarding.css';
+import './readability.css';
+import './danyeon.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://oneul-anbu.yos1015.chatgpt.site"),
-  applicationName: "오늘안부 Care",
-  title: "오늘안부 Care | 퇴원 후 회복·안심관리",
-  description: "퇴원 후 환자의 일상 변화를 살펴보고 필요한 순간 병원과 환자를 다시 연결합니다.",
+  metadataBase: new URL(careBrand.siteOrigin),
+  applicationName: careBrand.name,
+  title: careBrand.name + ' | ' + careBrand.slogan,
+  description: careBrand.description,
   openGraph: {
-    title: "오늘안부 Care · 퇴원 후에도 병원과 함께",
-    description: "퇴원 후 사라지는 병원과 환자의 연결을 이어갑니다.",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "퇴원 후에도 병원과 함께, 오늘안부 Care" }],
+    title: careBrand.name + ' · ' + careBrand.og.title,
+    description: careBrand.og.description,
+    images: [{ url: careBrand.og.image, width: 1200, height: 630, alt: careBrand.name + ' · ' + careBrand.og.title }],
   },
-  manifest: "/manifest.json",
-  appleWebApp: { capable: true, title: "오늘안부", statusBarStyle: "default" },
+  manifest: careBrand.manifest,
+  appleWebApp: { capable: true, title: careBrand.shortName, statusBarStyle: 'default' },
   icons: {
-    shortcut: [{ url: "/icons/favicon-v2.ico" }],
-    icon: [{ url: "/icons/favicon-v2.ico", sizes: "64x64", type: "image/x-icon" },{ url: "/icons/oneul-anbu-icon-192.png", sizes: "192x192", type: "image/png" },{ url: "/icons/oneul-anbu-icon-512.png", sizes: "512x512", type: "image/png" }],
-    apple: [{ url: "/icons/oneul-anbu-apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: [{ url: careBrand.favicon }],
+    icon: [{ url: careBrand.favicon }, { url: careBrand.icon192, sizes: '192x192', type: 'image/png' }, { url: careBrand.icon512, sizes: '512x512', type: 'image/png' }],
+    apple: [{ url: careBrand.apple }],
   },
+  robots: careDemo.available ? { index: false, follow: false } : undefined,
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#FFFFFF" };
-export default function RootLayout({children}:Readonly<{children:React.ReactNode}>){return <html lang="ko"><body><Suspense fallback={null}><LegacyKakaoLoader/></Suspense><PwaRegister/>{children}</body></html>}
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: careBrand.colors.white };
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const colors = careBrand.colors;
+  const style = {
+    '--ui-primary': colors.primary, '--ui-primary-hover': colors.navy, '--ui-focus': colors.navy,
+    '--ui-bg': colors.soft, '--ui-text': colors.ink, '--ui-secondary': colors.muted,
+    '--ui-surface': colors.white,
+  } as CSSProperties;
+  return <html lang="ko" data-care-brand={isDanyeon ? 'danyeon' : undefined} data-care-demo={careDemo.local ? 'local' : undefined} style={style}><body>
+    <Suspense fallback={null}><LegacyKakaoLoader /></Suspense>
+    {!careDemo.local && <PwaRegister />}
+    <ReadabilityFrame>{careDemo.local && <p className="danyeon-demo-banner">{careBrand.name} 비공개 데모 · 합성 데이터</p>}{children}</ReadabilityFrame>
+  </body></html>;
+}

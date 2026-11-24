@@ -12,11 +12,14 @@ import { PatientLink, usePatientNavigation } from '@/components/patient-navigati
 import { AdaptiveCheckin, PatientShell } from '@/components/patient-care-mvp';
 import { careRequest, CareServerError, optionalServerState, saveServerCheck, serverSessionKnown } from '@/lib/care-server';
 import { getPatientSession, inspectPatientInvitation } from '@/lib/demo-auth';
+import { careProducts, emergencyNotice, isDanyeon } from '@/lib/care-brand';
 import { type CareState } from '@/lib/care-mvp';
 type Mode = 'home' | 'onboarding' | 'checkin' | 'history' | 'hospital';
 type Invitation = {
     patientName?: string;
     hospitalName: string;
+    careDays?: number;
+    monitoringHours?: string;
     patientId: string;
     hospitalId: string;
 };
@@ -84,7 +87,7 @@ export function PatientServerGate({ mode, demo, children }: {
     if (view === 'legacy')
         return <>{children}</>;
     if (view === 'invite' && invite)
-        return <PatientShell demo={false} hideNav><section className="care-surface my-6 p-6"><p className="care-kicker">{invite.hospitalName} · 회복 기록</p><h1 className="mt-4 text-3xl font-black">퇴원 후 회복 상태를<br />병원에 알려주세요.</h1><p className="care-subtext mt-4">본인의 안내 링크인지 확인해주세요. 기록은 연결된 병원 담당자가 회복 변화를 확인할 때 참고할 수 있습니다.</p><p className="care-subtext mt-3">실시간 응급 대응 서비스가 아닙니다. 급한 도움이 필요하면 병원 또는 119에 연락해주세요.</p><label className="mt-4 flex min-h-14 items-start gap-3 rounded-xl bg-[#F7F5EF] p-4 text-base leading-7"><input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} className="mt-1 size-5 shrink-0"/>본인에게 발급된 링크임을 확인했고, 연결된 병원의 회복관리 기록 이용 안내를 확인했습니다.</label>{connectError ? <p role="alert" className="mt-3 text-[#803F2D]">{connectError}</p> : null}<button disabled={!confirmed || saving} className="primary" onClick={async () => { setSaving(true); setConnectError(''); try {
+        return <PatientShell demo={false} hideNav><section className="care-surface my-6 p-6"><p className="care-kicker">{invite.hospitalName} · {careProducts.check.name}</p><h1 className="mt-4 text-3xl font-black">퇴원 후 회복 상태를<br />병원에 알려주세요.</h1><p className="care-subtext mt-4">본인의 안내 링크인지 확인해주세요. 기록은 연결된 병원 담당자가 회복 변화를 확인할 때 참고할 수 있습니다.</p><p className="care-subtext mt-3">{emergencyNotice}</p>{isDanyeon && <p className="mt-3">회복관리 프로그램 · {invite.careDays ?? 14}일<br />병원 확인 시간 · {invite.monitoringHours || '병원에 문의해주세요'}</p>}<label className="mt-4 flex min-h-14 items-start gap-3 rounded-xl bg-[#F7F5EF] p-4 text-base leading-7"><input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} className="mt-1 size-5 shrink-0"/>본인에게 발급된 링크임을 확인했고, 연결된 병원의 회복관리 기록 이용 안내를 확인했습니다.</label>{connectError ? <p role="alert" className="mt-3 text-[#803F2D]">{connectError}</p> : null}<button disabled={!confirmed || saving} className="primary" onClick={async () => { setSaving(true); setConnectError(''); try {
             await careRequest('connect', 'POST', { token, confirmed: true });
             sessionStorage.setItem('oneul-anbu:server-connected', '1');
             localStorage.setItem('oneul-anbu:care-auth-source', 'server');
@@ -107,5 +110,5 @@ export function PatientServerGate({ mode, demo, children }: {
         const record = checks.find(c => c.id === params.get('recordId'));
         return <PatientShell demo={false} active="history" backLabel="오늘">{record ? <section className="care-surface my-5 p-5"><h1 className="mb-5 text-2xl font-black">{record.date} 기록</h1><RecordFacts record={record}/>{record.date === TODAY ? <PatientLink href={nav.href('checkin', { edit: '1' })} className="secondary">오늘 기록 수정하기</PatientLink> : null}</section> : <PatientHistory patient={patient} state={state}/>}</PatientShell>;
     }
-    return <PatientShell demo={false}><p className="pt-4 text-sm text-[#58665E]">서버와 연결된 나의 회복 기록</p><p className="mt-2 text-sm leading-6">실시간 응급 모니터링이 아닙니다. 기록 저장은 의료진 확인 완료를 의미하지 않습니다.<br/>병원 확인 시간: {hospital?.openingHours || "병원에 확인해주세요"} · 급한 도움이 필요하면 병원 또는 119에 연락해주세요.</p><PatientHome patient={patient} state={state} today={TODAY} demo={false} server/><details className="my-5 border-t py-3"><summary className="min-h-12 cursor-pointer text-sm">이 기기 연결 관리</summary><button className="secondary" onClick={async()=>{try{await careRequest("disconnect","POST");sessionStorage.removeItem("oneul-anbu:server-connected");localStorage.removeItem("oneul-anbu:care-auth-source");location.assign("/patient");}catch{setError("networkError");}}}>이 기기의 환자 연결 종료</button><p className="mt-2 text-sm">서버의 회복 기록은 삭제하지 않습니다. 다시 이용하려면 병원 안내 링크를 열어주세요.</p></details></PatientShell>;
+    return <PatientShell demo={false}><PatientHome patient={patient} state={state} today={TODAY} demo={false} server/><aside className="care-surface p-4 mt-4"><p>{emergencyNotice}</p><p className="mt-2">병원 확인 시간 · {hospital?.openingHours || '병원에 문의해주세요'}</p><PatientLink href={nav.href('hospital')} className="inline-flex min-h-12 items-center font-bold underline">병원 문의 방법 보기</PatientLink></aside><details className="my-5 border-t py-3"><summary className="min-h-12 cursor-pointer text-sm">이 기기 연결 관리</summary><button className="secondary" onClick={async()=>{try{await careRequest("disconnect","POST");sessionStorage.removeItem("oneul-anbu:server-connected");localStorage.removeItem("oneul-anbu:care-auth-source");location.assign("/patient");}catch{setError("networkError");}}}>이 기기의 환자 연결 종료</button><p className="mt-2 text-sm">서버의 회복 기록은 삭제하지 않습니다. 다시 이용하려면 병원 안내 링크를 열어주세요.</p></details></PatientShell>;
 }

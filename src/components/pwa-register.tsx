@@ -10,7 +10,7 @@ export function PwaRegister() {
 
     const resetOldOfflineCache = async () => {
       try {
-        const registration = await navigator.serviceWorker.register("/sw.js?v=6", {
+        const registration = await navigator.serviceWorker.register("/sw.js?v=7", {
           updateViaCache: "none",
         });
         await registration.update();

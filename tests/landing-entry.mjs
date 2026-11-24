@@ -13,7 +13,7 @@ for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
     new PerformanceObserver(list=>window.__shifts.push(...list.getEntries().filter(e=>!e.hadRecentInput).map(e=>e.value))).observe({type:'layout-shift',buffered:true});
    });
    await page.goto(origin);
-   assert.equal(await page.getByRole('link',{name:/체험하기|받은 링크/}).count(),0);
+   assert.equal(await page.getByRole('link',{name:/체험하기/}).count(),0);
    assert.equal(await page.getByRole('link',{name:'환자 화면 미리보기',exact:true}).count(),0);
    await page.goto(origin+'/demo/patient'); // Development-only QA fixture.
    await page.getByRole('button',{name:'보통이에요',exact:true}).click();
@@ -29,15 +29,15 @@ for (const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
    await page.goto(origin+'/i?token=qa-valid');
    await page.getByRole('heading',{name:/보내드린 회복관리/}).waitFor();
    assert.equal(await page.getByRole('link',{name:/미리보기|체험|데모/}).count(),0);
-   await page.getByRole('button',{name:'오늘 상태 알려주기 →'}).click();
+   await page.getByRole('button',{name:'오늘 상태 알려주기'}).click();
    await page.getByRole('button',{name:'오늘 상태 입력하기'}).click();
    await page.waitForURL('**/app/patient');
    await page.getByRole('heading').first().waitFor();
    await page.goto(origin+'/i?token=qa-valid');
    await page.waitForURL('**/app/patient');
    await page.goto(origin);
-   await page.getByRole('heading',{name:/퇴원 후 환자관리.*확인이 필요한 환자부터/}).waitFor();
-   await page.getByRole('link',{name:'병원에서 링크를 받았어요 · 환자 이용 안내'}).click();
+   await page.getByRole('heading',{name:/퇴원 후 회복 기록.*병원과 이어가세요/}).waitFor();
+   await page.getByRole('link',{name:'병원에서 링크를 받았어요'}).click();
    await page.waitForURL('**/app/patient');
    await page.goto(origin+'/i?token=missing');
    await page.getByRole('heading',{name:'초대 링크를 확인할 수 없어요'}).waitFor();

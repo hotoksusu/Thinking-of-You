@@ -43,7 +43,7 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     await page.getByRole('heading',{name:'도움이 필요할 때',exact:true}).waitFor();
     assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'병원 안내');
     await page.getByRole('button',{name:'오늘',exact:true}).click();
-    await page.getByRole('button',{name:'보통이에요',exact:true}).click();await page.getByRole('link',{name:'오늘 상태 기록하기 →',exact:true}).click();await answer(page);
+    await page.getByRole('button',{name:'보통이에요',exact:true}).click();await page.getByRole('link',{name:'오늘 상태 기록하기',exact:true}).click();await answer(page);
     await page.getByRole('link',{name:'오늘 기록 수정하기',exact:true}).click();await answer(page,2);
     await page.getByRole('link',{name:'오늘 기록 수정하기',exact:true}).click();await answer(page,3);
     const checks=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).checkIns.filter(c=>c.patientId==='patient_001').sort((a,b)=>(b.updatedAt||b.createdAt).localeCompare(a.updatedAt||a.createdAt)),demoKey);
@@ -60,10 +60,10 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     assert.ok(page.url().includes('patientId=patient_002'));
     // Synthetic real-patient invite has its own data and session, separate from demo.
     await page.evaluate(({seed,careKey})=>{localStorage.setItem(careKey,JSON.stringify(seed));localStorage.setItem('oneul-anbu:demo:invitations',JSON.stringify([{id:'qa',patientId:'patient_001',hospitalId:'hospital_001',token:'qa',status:'pending',expiresAt:'2999-01-01'}]));},{seed,careKey});
-    await page.goto(origin+'/i?token=qa');await page.getByRole('button',{name:'오늘 상태 알려주기 →'}).click();await page.getByRole('button',{name:'오늘 상태 입력하기',exact:true}).click();
+    await page.goto(origin+'/i?token=qa');await page.getByRole('button',{name:'오늘 상태 알려주기'}).click();await page.getByRole('button',{name:'오늘 상태 입력하기',exact:true}).click();
     await page.waitForURL('**/app/patient');await page.getByRole('heading',{name:'오늘 몸은 좀 어떠세요?'}).waitFor();
     assert.equal(await page.getByText('오늘안부 데모',{exact:true}).count(),0);
-    await page.getByRole('button',{name:'보통이에요',exact:true}).click();await page.getByRole('link',{name:'오늘 상태 기록하기 →',exact:true}).click();await answer(page);
+    await page.getByRole('button',{name:'보통이에요',exact:true}).click();await page.getByRole('link',{name:'오늘 상태 기록하기',exact:true}).click();await answer(page);
     await page.getByRole('link',{name:'회복 추이 보기',exact:true}).click();
     await page.getByRole('heading',{name:'최근 7일의 흐름',exact:true}).waitFor();
     assert.equal(await page.locator('nav [aria-current="page"]').innerText(),'회복 기록');
@@ -95,7 +95,7 @@ for(const width of [1440,390]) test(`journey ${width}: demo, real session, back,
     assert.equal(await page.getByRole('link',{name:'오늘',exact:true}).count(),0);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     await page.screenshot({path:`qa/patient-care-ended-${width}.png`,fullPage:true});
-    await page.getByRole('link',{name:'병원 안내 보기 →',exact:true}).click();
+    await page.getByRole('link',{name:'병원 안내 보기',exact:true}).click();
     await page.getByRole('heading',{name:'도움이 필요할 때',exact:true}).waitFor();
     await page.getByRole('button',{name:'홈',exact:true}).click();
     await page.getByRole('heading',{name:'오늘안부 관리기간이 종료되었어요'}).waitFor();

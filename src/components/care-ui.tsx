@@ -1,0 +1,5 @@
+"use client";
+export function CareTabs({items,value,onChange,prefix}:{items:{key:string;label:string}[];value:string;onChange:(value:string)=>void;prefix:string}){
+ return <div role="tablist" aria-label="병원 업무 보기" className="care-operation-tabs my-4 flex flex-wrap gap-2">{items.map(item=><button key={item.key} id={prefix+'-tab-'+item.key} type="button" role="tab" aria-selected={value===item.key} aria-controls={prefix+'-panel-'+item.key} tabIndex={value===item.key?0:-1} className="secondary" onClick={()=>onChange(item.key)} onKeyDown={e=>{const index=items.findIndex(i=>i.key===value);const next=e.key==='ArrowRight'?items[(index+1)%items.length]:e.key==='ArrowLeft'?items[(index-1+items.length)%items.length]:e.key==='Home'?items[0]:e.key==='End'?items.at(-1):null;if(next){e.preventDefault();onChange(next.key);document.getElementById(prefix+'-tab-'+next.key)?.focus();}}}>{item.label}</button>)}</div>;
+}
+export function StatusBadge({level,label}:{level:string;label:string}){return <span className="care-status" data-level={level}>{label}</span>;}

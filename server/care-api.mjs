@@ -76,7 +76,10 @@ export async function careApi(request, env, context) {
             const { token } = await body(request), inv = await invitation(token, env), p = await env.DB.prepare('SELECT payload FROM care_patients WHERE id=? AND hospital_id=?').bind(inv.patient_id, inv.hospital_id).first(), h = await env.DB.prepare('SELECT payload FROM care_hospitals WHERE id=?').bind(inv.hospital_id).first();
             if (!p || !h)
                 fail('INVALID_INVITATION', 404);
-            return json({ hospitalName: JSON.parse(h.payload).name, patientId: inv.patient_id, hospitalId: inv.hospital_id });
+            const hospital = JSON.parse(h.payload);
+            const policyRow = await env.DB.prepare('SELECT payload FROM care_policies WHERE tenant_id=?').bind(inv.hospital_id).first();
+            const policy = policyRow ? JSON.parse(policyRow.payload) : {};
+            return json({ hospitalName: hospital.name, patientId: inv.patient_id, hospitalId: inv.hospital_id, careDays: policy.careDays ?? 14, monitoringHours: policy.monitoringHours || hospital.openingHours || '' });
         }
         if (route === '/api/care/connect' && request.method === 'POST') {
             const input = await body(request);
@@ -107,7 +110,12 @@ export async function careApi(request, env, context) {
             if (request.method === 'PUT' && (!existing || input.expectedUpdatedAt !== existingRow.updated_at))
                 fail('RECORD_CHANGED', 409);
             const check = normalizeCheck(input, s.patient_id, day, existing),eventKey=s.hospital_id+":"+s.patient_id+":"+check.id;
-            const stmt = request.method === 'PUT' ? env.DB.prepare('UPDATE care_checkins SET payload=?,updated_at=? WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=?').bind(JSON.stringify(check), check.updatedAt, s.patient_id, s.hospital_id, day, input.expectedUpdatedAt) : env.DB.prepare('INSERT INTO care_checkins(patient_id,hospital_id,day,payload,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(patient_id,hospital_id,day) DO NOTHING').bind(s.patient_id, s.hospital_id, day, JSON.stringify(check), check.updatedAt);
+            const activePatient = "EXISTS (SELECT 1 FROM care_patients WHERE id=? AND hospital_id=? AND COALESCE(json_extract(payload,'$.careStatus'),'active')!='completed')";
+            const stmt = request.method === 'PUT'
+                ? env.DB.prepare('UPDATE care_checkins SET payload=?,updated_at=? WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=? AND ' + activePatient)
+                    .bind(JSON.stringify(check),check.updatedAt,s.patient_id,s.hospital_id,day,input.expectedUpdatedAt,s.patient_id,s.hospital_id)
+                : env.DB.prepare('INSERT INTO care_checkins(patient_id,hospital_id,day,payload,updated_at) SELECT ?,?,?,?,? WHERE ' + activePatient + ' ON CONFLICT(patient_id,hospital_id,day) DO NOTHING')
+                    .bind(s.patient_id,s.hospital_id,day,JSON.stringify(check),check.updatedAt,s.patient_id,s.hospital_id);
             const priorRow = await env.DB.prepare('SELECT payload FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day<? ORDER BY day DESC LIMIT 1').bind(s.patient_id, s.hospital_id, day).first(), status = evaluatePatientStatus(check, priorRow ? JSON.parse(priorRow.payload) : undefined), statements = [stmt];
             const classification={...status,ruleVersion:'demo-v1',evaluatedAt:check.updatedAt,approved:!!policyRow&&JSON.parse(policyRow.payload).approved===true};
             statements.push(env.DB.prepare('INSERT INTO care_classifications(tenant_id,patient_id,source_id,source_updated_at,payload) SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=?) ON CONFLICT DO NOTHING').bind(s.hospital_id,s.patient_id,check.id,check.updatedAt,JSON.stringify(classification),s.patient_id,s.hospital_id,day,check.updatedAt));
@@ -116,11 +124,16 @@ export async function careApi(request, env, context) {
                 statements.push(env.DB.prepare("INSERT INTO care_alerts(id,patient_id,hospital_id,payload) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=? AND json_extract(payload,'$.id')=?)").bind(alert.id, s.patient_id, s.hospital_id, JSON.stringify(alert), s.patient_id, s.hospital_id, day, check.updatedAt, check.id));
                 statements.push(env.DB.prepare("INSERT INTO care_notifications(id,tenant_id,patient_id,event_key,status,updated_at) SELECT ?,?,?,?,'not_configured',? WHERE EXISTS(SELECT 1 FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=?) ON CONFLICT(event_key) DO NOTHING").bind(id(),s.hospital_id,s.patient_id,eventKey,Date.now(),s.patient_id,s.hospital_id,day,check.updatedAt));
             }
-            statements.push(env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) VALUES(?,?,?,?,?,?)').bind(id(),s.hospital_id,await digest(s.token_hash),'checkin.save','success',Date.now()));
+            statements.push(env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) SELECT ?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=?)').bind(id(),s.hospital_id,await digest(s.token_hash),'checkin.save','success',Date.now(),s.patient_id,s.hospital_id,day,check.updatedAt));
             const results = await env.DB.batch(statements);
-            if (request.method === 'PUT' && !results[0].meta.changes)
-                fail('RECORD_CHANGED', 409);
-            const savedRow = await env.DB.prepare('SELECT payload FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=?').bind(s.patient_id, s.hospital_id, day).first(), saved = JSON.parse(savedRow.payload);
+            if (!results[0].meta.changes) {
+                const stillActive = await env.DB.prepare('SELECT ' + activePatient + ' AS active').bind(s.patient_id,s.hospital_id).first();
+                if (!stillActive?.active) fail('CARE_COMPLETED',409);
+                if (request.method === 'PUT') fail('RECORD_CHANGED',409);
+            }
+            const savedRow = await env.DB.prepare('SELECT payload FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=?').bind(s.patient_id, s.hospital_id, day).first();
+            if (!savedRow) fail('RECORD_CHANGED',409);
+            const saved = JSON.parse(savedRow.payload);
             if(context?.waitUntil&&careSmsConfigured(env)){const job=(async()=>{const notice=await env.DB.prepare('SELECT id FROM care_notifications WHERE tenant_id=? AND event_key=?').bind(s.hospital_id,eventKey).first();if(notice)await sendCareNotice(env,s.hospital_id,notice.id);})();context.waitUntil(job.catch(()=>{}));}
             return json({ record: saved });
         }
@@ -191,9 +204,10 @@ export async function careApi(request, env, context) {
         if (route === '/api/care/staff/invitations' && request.method === 'POST') {
             const s = await staff(request, env), input = await body(request);
             await patientAccess(env,s,input.hospitalId,input.patientId);
-            const p = await env.DB.prepare('SELECT id FROM care_patients WHERE id=? AND hospital_id=?').bind(input.patientId, input.hospitalId).first();
+            const p = await env.DB.prepare('SELECT id,payload FROM care_patients WHERE id=? AND hospital_id=?').bind(input.patientId, input.hospitalId).first();
             if (!p)
                 fail('PATIENT_NOT_FOUND', 404);
+            if (JSON.parse(p.payload).careStatus === 'completed') fail('CARE_COMPLETED',409);
             const token = 'srv_' + random(), invId = id();
             await env.DB.batch([env.DB.prepare('UPDATE care_invitations SET revoked=1 WHERE patient_id=? AND hospital_id=?').bind(p.id,input.hospitalId),env.DB.prepare('INSERT INTO care_invitations(id,token_hash,patient_id,hospital_id,expires_at,created_at) VALUES(?,?,?,?,?,?)').bind(invId,await digest(token),p.id,input.hospitalId,Date.now()+7*DAY,Date.now()),env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) VALUES(?,?,?,?,?,?)').bind(id(),input.hospitalId,await digest(s.user),'invitation.issue','success',Date.now())]);
             return json({ id: invId, url: publicOrigin + '/i?token=' + token, expiresAt: new Date(Date.now() + 7 * DAY).toISOString() }, 201);

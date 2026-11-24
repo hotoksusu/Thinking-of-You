@@ -15,6 +15,12 @@ test('SMS outbox: genuine check-in, HMAC, tenant isolation, single claim, delive
  const synced=await (await call('staff/notifications','POST',{hospitalId:a.hospital.id,id:notice.id,action:'sync'})).json();assert.equal(synced.status,'delivered');assert.equal(DB.db.prepare('SELECT count(*) n FROM care_work').get().n,0);
  DB.db.prepare("UPDATE care_notifications SET status='failed',provider_id=NULL,attempts=0,next_attempt_at=0 WHERE id=?").run(notice.id);mode='network';await call('staff/notifications','POST',{hospitalId:a.hospital.id,id:notice.id,action:'send'});assert.equal(sent,2);assert.equal(DB.db.prepare('SELECT status FROM care_notifications WHERE id=?').get(notice.id).status,'unknown');await call('staff/notifications','POST',{hospitalId:a.hospital.id,id:notice.id,action:'send'});assert.equal(sent,2);
  DB.db.prepare("UPDATE care_notifications SET status='failed',attempts=0,next_attempt_at=0 WHERE id=?").run(notice.id);mode='reject';await call('staff/notifications','POST',{hospitalId:a.hospital.id,id:notice.id,action:'send'});assert.equal(DB.db.prepare('SELECT status FROM care_notifications WHERE id=?').get(notice.id).status,'failed');const before=sent;await call('staff/notifications','POST',{hospitalId:a.hospital.id,id:notice.id,action:'send'});assert.equal(sent,before);DB.db.prepare('UPDATE care_notifications SET next_attempt_at=0 WHERE id=?').run(notice.id);mode='accept';await Promise.all([call('staff/notifications','POST',{hospitalId:a.hospital.id,id:notice.id,action:'send'}),call('staff/notifications','POST',{hospitalId:a.hospital.id,id:notice.id,action:'send'})]);assert.equal(sent,before+1);
+ DB.db.prepare("UPDATE care_notifications SET status='failed', attempts=0, next_attempt_at=0 WHERE id=?").run(notice.id);
+ assert.equal((await call('staff/care-status','PUT',{hospitalId:a.hospital.id,patientId:a.patient.id,status:'completed'})).status,200);
+ await call('staff/notifications','POST',{hospitalId:a.hospital.id,id:notice.id,action:'send'});
+ assert.equal(sent,before+1,'care termination stops new provider requests');
+ assert.equal((await call('staff/invitations','POST',{hospitalId:a.hospital.id,patientId:a.patient.id})).status,409);
+ assert.equal((await call('state','GET',undefined,{Cookie:cookie})).status,401);
  assert.equal(DB.db.prepare('SELECT count(*) n FROM care_checkins').get().n,1);assert.ok(DB.db.prepare('SELECT count(*) n FROM care_notification_attempts').get().n>=4);
  }finally{DB.db.close();}
 });

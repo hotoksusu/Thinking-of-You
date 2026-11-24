@@ -54,5 +54,5 @@ export function PatientBack({ label = "이전 화면", fallback, onBack }: { lab
     const safe = previous && (nav.demo ? previous.startsWith("/demo/patient") : /^\/(app\/patient|patient)([/?]|$)/.test(previous));
     if (safe && previous !== location.pathname + location.search && window.history.length > 1) router.back();
     else router.replace(fallback || nav.href());
-  }}><ArrowLeft aria-hidden size={22}/>{label}</button>;
+  }}>{label}</button>;
 }

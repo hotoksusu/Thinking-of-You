@@ -1,4 +1,5 @@
 "use client";
+import { careBrand } from '@/lib/care-brand';
 import { useState } from "react";
 import { HeartPulse, Link2Off } from "lucide-react";
 import { PatientBack, PatientLink, usePatientNavigation } from "@/components/patient-navigation";
@@ -21,15 +22,15 @@ export function PatientError({ type, retry }: { type: PatientErrorType; retry: (
   const [title, description] = messages[type];
   return <main className="care-ui min-h-[100dvh] bg-[#F7F5EF] px-5 pb-10 text-[#202923]">
     <div className="mx-auto max-w-[640px]">
-      <header className="flex min-h-20 flex-wrap items-center justify-between gap-2 border-b border-[#D5DED7]"><PatientBack fallback={nav.demo ? "/demo/patient" : "/patient"}/><span className="flex items-center gap-2 text-lg font-black text-[#315E50]"><HeartPulse size={21}/>오늘안부 Care</span></header>
-      {nav.demo ? <p className="mt-4 font-bold text-[#315E50]">오늘안부 데모</p> : null}
+      <header className="flex min-h-20 flex-wrap items-center justify-between gap-2 border-b border-[#D5DED7]"><PatientBack fallback={nav.demo ? "/demo/patient" : "/patient"}/><span className="flex items-center gap-2 text-lg font-black text-[#315E50]"><HeartPulse size={21}/>{careBrand.name}</span></header>
+      {nav.demo ? <p className="mt-4 font-bold text-[#315E50]">{careBrand.shortName} 데모</p> : null}
       <section aria-labelledby="patient-error-title" className="mt-[clamp(1.5rem,8vh,5rem)] care-surface p-6 sm:p-8">
         <Link2Off aria-hidden className="text-[#315E50]" size={36}/><h1 id="patient-error-title" className="mt-5 text-3xl font-black leading-tight">{title}</h1>
         <p className="mt-4 text-xl leading-8 text-[#40554A]">{description}</p>
         <button className="mt-7 flex min-h-14 w-full items-center justify-center rounded-2xl bg-[#315E50] text-xl font-black text-white" onClick={() => { setAttempted(true); retry(); }}>다시 시도하기</button>
         {attempted ? <p role="status" className="mt-3 text-lg leading-7">연결이 되지 않으면 아래 안내에서 받은 링크를 찾는 방법을 확인해주세요.</p> : null}
         <button aria-expanded={help} className="mt-3 min-h-14 w-full rounded-2xl border-2 border-[#315E50] text-xl font-black text-[#315E50]" onClick={() => setHelp(v => !v)}>병원 안내 보기</button>
-        {help ? <div className="mt-5 rounded-2xl bg-[#F1F0E9] p-5 text-lg leading-8"><h2 className="text-xl font-black">병원에서 받은 링크 찾기</h2><p className="mt-3">문자나 카카오톡에서 ‘오늘안부’ 또는 진료받은 병원 이름을 검색해주세요. 가장 최근에 받은 회복관리 링크를 눌러주세요.</p><p className="mt-3">링크가 없거나 만료되었다면 퇴원 안내문 또는 병원에서 받은 문자에 적힌 연락처로 새 링크를 요청해주세요.</p></div> : null}
+        {help ? <div className="mt-5 rounded-2xl bg-[#F1F0E9] p-5 text-lg leading-8"><h2 className="text-xl font-black">병원에서 받은 링크 찾기</h2><p className="mt-3">문자나 카카오톡에서 ‘{careBrand.shortName}’ 또는 진료받은 병원 이름을 검색해주세요. 가장 최근에 받은 회복관리 링크를 눌러주세요.</p><p className="mt-3">링크가 없거나 만료되었다면 퇴원 안내문 또는 병원에서 받은 문자에 적힌 연락처로 새 링크를 요청해주세요.</p></div> : null}
         {nav.demo ? <PatientLink href="/demo/patient" className="mt-4 flex min-h-12 items-center justify-center font-bold text-[#315E50]">데모 홈으로 돌아가기</PatientLink> : null}
         {!nav.demo ? <div className="mt-4 grid gap-2"><PatientLink href="/patient" className="flex min-h-12 items-center justify-center font-bold text-[#315E50] underline">서비스 이용 경로 선택</PatientLink><PatientLink href="/" className="flex min-h-12 items-center justify-center font-bold text-[#315E50] underline">랜딩페이지로 돌아가기</PatientLink></div> : null}
       </section>

@@ -1,5 +1,3 @@
-const CACHE_NAME = "oneul-anbu-cache-reset-v6";
-
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
@@ -15,6 +13,7 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method === "GET") {
-    event.respondWith(fetch(event.request));
+    const init = event.request.mode === 'navigate' ? { cache: 'no-cache' } : undefined;
+    event.respondWith(fetch(event.request, init));
   }
 });
