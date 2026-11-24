@@ -53,6 +53,34 @@ test('care termination during a check-in prevents the late write and success aud
   } finally { DB.db.close(); }
 });
 
+test('configured launch origin issues links on the new host and keeps the same-origin boundary', async () => {
+  const {careApi} = await loadApi();
+  const DB = database(), env = {DB, CARE_ADMIN_EMAIL:ADMIN};
+  try {
+    const {hospital,patient} = await provision(careApi,env);
+    const origin = 'https://danyeon.yos1015.chatgpt.site';
+    env.CARE_PUBLIC_ORIGIN = origin;
+    const call = (path, body, from = origin, headers = {}) =>
+      careApi(new Request(origin+'/api/care/'+path, {method:'POST',headers:{Origin:from, 'Content-Type':'application/json', ...headers},body:JSON.stringify(body)}),env);
+    const issued = await call('staff/invitations',{hospitalId:hospital.id,patientId:patient.id},origin,adminHeaders);
+    assert.equal(issued.status,201);
+    const invite = new URL((await issued.json()).url);
+    assert.equal(invite.origin,origin);
+    assert.equal(invite.pathname,'/i');
+    const token = invite.searchParams.get('token');
+    const denied = await call('connect',{token,confirmed:true},'https://oneul-anbu.yos1015.chatgpt.site');
+    assert.equal(denied.status,403);
+    assert.equal(denied.headers.has('Access-Control-Allow-Origin'),false);
+    assert.equal(DB.db.prepare('SELECT COUNT(*) n FROM care_sessions').get().n,0);
+    const connected = await call('connect',{token,confirmed:true});
+    assert.equal(connected.status,200);
+    const cookie = connected.headers.get('Set-Cookie');
+    assert.match(cookie,/^__Host-care_session=/);
+    for (const attribute of ['HttpOnly','Secure','SameSite=Lax','Path=/']) assert.ok(cookie.includes(attribute));
+    assert.doesNotMatch(cookie,/Domain=/i);
+  } finally { DB.db.close(); }
+});
+
 test('DANYEON export and browser check-in-to-report workflow', {timeout:150000,skip:process.env.TEST_DANYEON_UI!=='1'}, async () => {
   const release = process.env.TEST_DANYEON_RELEASE === '1';
   const root = release ? 'dist/client' : 'out';
@@ -63,6 +91,9 @@ test('DANYEON export and browser check-in-to-report workflow', {timeout:150000,s
   const manifest = JSON.parse(await readFile(root+'/manifest.webmanifest','utf8'));
   if (release) {
     assert.doesNotMatch(html,/data-care-demo="local"|noindex/);
+    const origin = process.env.NEXT_PUBLIC_CARE_SITE_ORIGIN || 'https://danyeon.yos1015.chatgpt.site';
+    assert.ok(html.includes('href="' + new URL('/',origin).href + '"'));
+    assert.ok(html.includes(new URL('/brand/danyeon-og.png',origin).href));
     assert.deepEqual(JSON.parse(await readFile(root+'/manifest.json','utf8')),manifest);
   }
   assert.equal(manifest.name,'다녀온');

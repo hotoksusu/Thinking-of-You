@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { carePaths } from '@/lib/care-urls';
 import { ArrowRight, Building2, CalendarClock, Check, ClipboardList, Clock3, FileBarChart2, ShieldCheck, Smartphone } from 'lucide-react';
 import { CareBrandLogo } from '@/components/care-brand-logo';
 import { PatientEntryRedirect } from '@/components/patient-entry-redirect';
@@ -18,7 +19,7 @@ export function DanyeonLanding() {
     <header className="danyeon-wrap danyeon-header">
       <CareBrandLogo />
       <nav aria-label="주요 메뉴"><a href="#products">제품 기능</a><a href="#how-it-works">도입 방식</a><a href="#faq">자주 묻는 질문</a></nav>
-      <Link className="danyeon-staff" href="/care/server">병원 로그인 <ArrowRight size={16} aria-hidden /></Link>
+      <Link className="danyeon-staff" href={carePaths.desk}>병원 로그인 <ArrowRight size={16} aria-hidden /></Link>
     </header>
     <div className="danyeon-hero">
       <div className="danyeon-wrap danyeon-hero-grid">
@@ -33,7 +34,7 @@ export function DanyeonLanding() {
               ? <Link className="danyeon-button danyeon-button-outline" href={careDemo.entry}>서비스 체험하기</Link>
               : <a className="danyeon-button danyeon-button-outline" href="#demo">서비스 체험하기</a>}
           </div>
-          <Link className="danyeon-patient-link" href="/patient">병원에서 안내받으셨나요? <ArrowRight size={16} aria-hidden /></Link>
+          <Link className="danyeon-patient-link" href={carePaths.patient}>병원에서 안내받으셨나요? <ArrowRight size={16} aria-hidden /></Link>
         </div>
         <ProductPreview />
       </div>
@@ -75,7 +76,7 @@ export function DanyeonLanding() {
       <div className="danyeon-wrap danyeon-section danyeon-split"><div><h2>우리 병원의 회복관리부터</h2><p>환자 규모와 현재 사후관리 방식을 알려주시면 도입 범위를 함께 검토합니다.</p></div>
         <Link className="danyeon-button" href={careBrand.contact.inquiry}>병원 도입 문의 <ArrowRight size={18} aria-hidden /></Link></div>
     </section>
-    <footer className="danyeon-wrap danyeon-footer"><CareBrandLogo /><nav aria-label="서비스 정보"><Link href="/company">서비스 소개</Link><Link href={careBrand.contact.privacy}>개인정보 안내</Link><Link href={careBrand.contact.help}>도움말</Link></nav></footer>
+    <footer className="danyeon-wrap danyeon-footer"><CareBrandLogo /><nav aria-label="서비스 정보"><Link href={carePaths.company}>서비스 소개</Link><Link href={careBrand.contact.privacy}>개인정보 안내</Link><Link href={careBrand.contact.help}>도움말</Link></nav></footer>
   </main>;
 }
 

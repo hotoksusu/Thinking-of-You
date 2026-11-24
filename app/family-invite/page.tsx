@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { carePaths, careUrls } from '@/lib/care-urls';
+import { careBrand } from '@/lib/care-brand';
 import { Copy, Link as LinkIcon, RefreshCcw, Share2 } from "lucide-react";
 import { ConsumerShell } from "@/components/consumer-shell";
 import { Button, Card, FieldLabel, inputClassName } from "@/components/ui";
@@ -42,15 +44,17 @@ export default function FamilyInvitePage() {
   }
 
   async function shareInvite() {
-    const inviteUrl = `https://oneul-anbu.yos1015.chatgpt.site/parent-start?invited=1&code=${inviteCode}`;
+    const target = new URL(carePaths.familyInvitation, careUrls.shareOrigin);
+    target.search = new URLSearchParams({ invited: '1', code: inviteCode }).toString();
+    const inviteUrl = target.href;
     const nav = navigator as Navigator & {
       share?: (data: ShareData) => Promise<void>;
     };
 
     if (typeof nav.share === "function") {
       await nav.share({
-        title: "오늘안부 초대 코드",
-        text: `가족이 오늘안부에 초대했어요. 따로 매일 기록할 것 없이 평소처럼 생활하시면 됩니다. 초대 코드: ${inviteCode}`,
+        title: careBrand.shortName + ' 초대 코드',
+        text: `가족이 ${careBrand.shortName}에 초대했어요. 따로 매일 기록할 것 없이 평소처럼 생활하시면 됩니다. 초대 코드: ${inviteCode}`,
         url: inviteUrl,
       });
     } else {

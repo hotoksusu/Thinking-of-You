@@ -5,6 +5,7 @@
 - 개발과 운영 빌드의 기본 브랜드는 다녀온이다. 기존 화면 회귀에는 NEXT_PUBLIC_CARE_BRAND=legacy와 CARE_EXPORT_PROFILE=legacy-qa를 함께 사용한다.
 - 비공개 다녀온은 NEXT_PUBLIC_CARE_DEMO=local로 빌드한다. 생성물에는 검색 색인 제외 메타데이터가 포함되고 배포 패키징에서 제외된다.
 - 운영 패키지는 기존 설치형 브라우저를 위해 /manifest.json에도 다녀온 설치 정보를 제공한다. 서비스 워커 v7은 탐색 요청을 네트워크에서 재확인한다.
+- 공개 주소와 앱 경로는 src/lib/care-urls.ts에서 관리한다. NEXT_PUBLIC_CARE_SITE_ORIGIN, NEXT_PUBLIC_CARE_DEV_ORIGIN, NEXT_PUBLIC_CARE_DEMO_ORIGIN은 Next.js 빌드에서 선택적으로 덮어쓴다. Worker의 초대 발급과 Origin 검증은 운영 런타임 CARE_PUBLIC_ORIGIN을 사용한다. 운영 주소 전환 시 공개 빌드와 Worker 값을 함께 검증한다.
 - 레거시 URL, DB·스토리지 키, 기존 정적 에셋, 법적·역사적 문서는 유지한다.
 - 테스트용 브랜드 선택과 사전에 승인된 실제 SMS 발송 템플릿은 독립적이다. 새 문자·이메일 UI는 초안 미리보기로 표시한다. 정식 전환 시 메시지 발신명과 공유 이미지·아이콘을 함께 승인한다.
 - Pretendard Variable을 로컬에서 불러오며 Apple SD Gothic Neo, Malgun Gothic, 시스템 폰트 순서로 대체한다.

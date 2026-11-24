@@ -5,17 +5,19 @@ import { LegacyKakaoLoader } from '@/components/legacy-kakao-loader';
 import { PwaRegister } from '@/components/pwa-register';
 import { ReadabilityFrame } from '@/components/readability-frame';
 import { careBrand, careDemo, isDanyeon } from '@/lib/care-brand';
+import { careUrls } from '@/lib/care-urls';
 import './globals.css';
 import './onboarding.css';
 import './readability.css';
 import './danyeon.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(careBrand.siteOrigin),
+  metadataBase: new URL(careUrls.origin),
   applicationName: careBrand.name,
   title: careBrand.name + ' | ' + careBrand.slogan,
   description: careBrand.description,
   openGraph: {
+    url: careUrls.canonical,
     title: careBrand.name + ' · ' + careBrand.og.title,
     description: careBrand.og.description,
     images: [{ url: careBrand.og.image, width: 1200, height: 630, alt: careBrand.name + ' · ' + careBrand.og.title }],
