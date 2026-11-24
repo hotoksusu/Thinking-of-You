@@ -92,7 +92,8 @@ test('DANYEON export and browser check-in-to-report workflow', {timeout:150000,s
   if (release) {
     assert.doesNotMatch(html,/data-care-demo="local"|noindex/);
     const origin = process.env.NEXT_PUBLIC_CARE_SITE_ORIGIN || 'https://danyeon.yos1015.chatgpt.site';
-    assert.ok(html.includes('href="' + new URL('/',origin).href + '"'));
+    const canonical = html.match(/<link rel="canonical" href="([^"]+)"/)[1];
+    assert.equal(new URL(canonical).href, new URL('/',origin).href);
     assert.ok(html.includes(new URL('/brand/danyeon-og.png',origin).href));
     assert.deepEqual(JSON.parse(await readFile(root+'/manifest.json','utf8')),manifest);
   }
