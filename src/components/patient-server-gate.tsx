@@ -9,6 +9,7 @@ import { PatientHospitalGuide } from '@/components/patient-hospital-guide';
 import { PatientError, type PatientErrorType } from '@/components/patient-error';
 import { PatientPreviewLoading } from '@/components/patient-preview-loading';
 import { PatientLink, usePatientNavigation } from '@/components/patient-navigation';
+import { ProgramPatientFlow } from '@/components/patient-program-flow';
 import { AdaptiveCheckin, PatientShell } from '@/components/patient-care-mvp';
 import { careRequest, CareServerError, optionalServerState, saveServerCheck, serverSessionKnown } from '@/lib/care-server';
 import { getPatientSession, inspectPatientInvitation } from '@/lib/demo-auth';
@@ -19,6 +20,7 @@ type Invitation = {
     patientName?: string;
     hospitalName: string;
     careDays?: number;
+    programName?: string;
     monitoringHours?: string;
     patientId: string;
     hospitalId: string;
@@ -87,7 +89,7 @@ export function PatientServerGate({ mode, demo, children }: {
     if (view === 'legacy')
         return <>{children}</>;
     if (view === 'invite' && invite)
-        return <PatientShell demo={false} hideNav><section className="care-surface my-6 p-6"><p className="care-kicker">{invite.hospitalName} · {careProducts.check.name}</p><h1 className="mt-4 text-3xl font-black">퇴원 후 회복 상태를<br />병원에 알려주세요.</h1><p className="care-subtext mt-4">본인의 안내 링크인지 확인해주세요. 기록은 연결된 병원 담당자가 회복 변화를 확인할 때 참고할 수 있습니다.</p><p className="care-subtext mt-3">{emergencyNotice}</p>{isDanyeon && <p className="mt-3">회복관리 프로그램 · {invite.careDays ?? 14}일<br />병원 확인 시간 · {invite.monitoringHours || '병원에 문의해주세요'}</p>}<label className="mt-4 flex min-h-14 items-start gap-3 rounded-xl bg-[#F7F5EF] p-4 text-base leading-7"><input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} className="mt-1 size-5 shrink-0"/>본인에게 발급된 링크임을 확인했고, 연결된 병원의 회복관리 기록 이용 안내를 확인했습니다.</label>{connectError ? <p role="alert" className="mt-3 text-[#803F2D]">{connectError}</p> : null}<button disabled={!confirmed || saving} className="primary" onClick={async () => { setSaving(true); setConnectError(''); try {
+        return <PatientShell demo={false} hideNav><section className="care-surface my-6 p-6"><p className="care-kicker">{invite.hospitalName} · {careProducts.check.name}</p><h1 className="mt-4 text-3xl font-black">{invite.programName ? '회복 상태를 병원에 알려주세요.' : <>퇴원 후 회복 상태를<br />병원에 알려주세요.</>}</h1><p className="care-subtext mt-4">본인의 안내 링크인지 확인해주세요. 기록은 연결된 병원 담당자가 회복 변화를 확인할 때 참고할 수 있습니다.</p><p className="care-subtext mt-3">{emergencyNotice}</p>{isDanyeon && <p className="mt-3">{invite.programName || '회복관리 프로그램'} · {invite.careDays ?? 14}일<br />병원 확인 시간 · {invite.monitoringHours || '병원에 문의해주세요'}</p>}<label className="mt-4 flex min-h-14 items-start gap-3 rounded-xl bg-[#F7F5EF] p-4 text-base leading-7"><input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} className="mt-1 size-5 shrink-0"/>본인에게 발급된 링크임을 확인했고, 연결된 병원의 회복관리 기록 이용 안내를 확인했습니다.</label>{connectError ? <p role="alert" className="mt-3 text-[#803F2D]">{connectError}</p> : null}<button disabled={!confirmed || saving} className="primary" onClick={async () => { setSaving(true); setConnectError(''); try {
             await careRequest('connect', 'POST', { token, confirmed: true });
             sessionStorage.setItem('oneul-anbu:server-connected', '1');
             localStorage.setItem('oneul-anbu:care-auth-source', 'server');
@@ -101,6 +103,12 @@ export function PatientServerGate({ mode, demo, children }: {
     if (!state?.patients[0])
         return <PatientError type="missingPatient" retry={() => setRetry(v => v + 1)}/>;
     const patient = state.patients[0], hospital = state.hospitals.find(h => h.id === patient.hospitalId), checks = state.checkIns.filter(c => c.patientId === patient.id).sort((a, b) => b.date.localeCompare(a.date));
+    if (patient.enrollment) return <PatientShell demo={false} active={mode==='history'?'history':mode==='hospital'?'hospital':'home'} hideNav={mode==='checkin'} backLabel={mode==='checkin'?'이전 화면':undefined} backFallback={nav.href()}>
+        <ProgramPatientFlow key={patient.id+':'+TODAY+':'+routeKey} mode={mode} patient={patient} hospital={hospital} enrollment={patient.enrollment} records={(state.programCheckIns || []).filter(c=>c.patientId===patient.id).slice().reverse()} today={TODAY} edit={params.get('edit')==='1'} onDisconnect={async()=>{
+            try {await careRequest('disconnect','POST');sessionStorage.removeItem('oneul-anbu:server-connected');localStorage.removeItem('oneul-anbu:care-auth-source');location.assign('/patient');}
+            catch {setError('networkError');}
+        }}/>
+    </PatientShell>;
     if((mode==='home'||mode==='checkin')&&patientCareStage(patient)==='completedCare')return <PatientShell demo={false} careStage="completedCare"><PatientCareEnded patient={patient} state={state}/></PatientShell>;
     if (mode === 'checkin')
         return <AdaptiveCheckin key={(params.get('edit') || 'new') + ':' + (checks.find(c => c.date === TODAY)?.updatedAt || 'pending')} patient={patient} todayCheck={checks.find(c => c.date === TODAY)} history={checks} guardianMode={params.get('proxy') === 'guardian'} demo={false} edit={params.get('edit') === '1'} serverState={state} serverSave={(check, edit, existing) => saveServerCheck(check, edit, existing)}/>;

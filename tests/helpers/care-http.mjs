@@ -6,7 +6,7 @@ const mediaTypes = {
   '.html':'text/html; charset=utf-8', '.js':'text/javascript', '.css':'text/css',
   '.txt':'text/plain', '.json':'application/json', '.svg':'image/svg+xml',
   '.webp':'image/webp', '.woff2':'font/woff2', '.png':'image/png', '.ico':'image/x-icon',
-  '.webmanifest':'application/manifest+json',
+  '.webmanifest':'application/manifest+json', '.pdf':'application/pdf',
 };
 
 export async function serveCare(api, env, options = {}) {

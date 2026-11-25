@@ -1,6 +1,8 @@
 import { evaluatePatientStatus } from './status-rules.js';
 import { careOperations } from './care-operations.js';
 import { sendCareNotice,careSmsConfigured } from './care-sms.js';
+import { careOffset, departments, expectedCheckIn } from './recovery-program.js';
+import { assignedProgram, checkedProgramAnswers, departmentAllows, organizationProfile, organizationSummary, programOperations } from './care-programs.js';
 const COOKIE = '__Host-care_session';
 const DAY = 86400000;
 const json = (data, status = 200, extra = {}) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer', 'X-Content-Type-Options': 'nosniff', ...extra } });
@@ -12,10 +14,20 @@ const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seo
 const text = (v, max = 200) => typeof v === 'string' ? v.trim().slice(0, max) : '';
 const validDate = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v + 'T12:00:00Z')) && new Date(v + 'T12:00:00Z').toISOString().slice(0, 10) === v;
 async function body(request){if(!request.headers.get('content-type')?.startsWith('application/json'))fail('JSON_REQUIRED',415);const reader=request.body?.getReader(),chunks=[];let length=0;if(!reader)fail('INVALID_JSON');for(;;){const {done,value}=await reader.read();if(done)break;length+=value.byteLength;if(length>100000){await reader.cancel();fail('BODY_TOO_LARGE',413);}chunks.push(value);}const bytes=new Uint8Array(length);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}let parsed;try{parsed=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));}catch{fail('INVALID_JSON');}if(!parsed||Array.isArray(parsed)||typeof parsed!=='object')fail('INVALID_JSON');return parsed;}
-async function staff(request, env) { const user=request.headers.get('oai-authenticated-user-id'), email=request.headers.get('oai-authenticated-user-email')?.toLowerCase(); if(!user||!email)fail('STAFF_SIGN_IN_REQUIRED',401); const admin=!!env.CARE_ADMIN_EMAIL&&email===env.CARE_ADMIN_EMAIL.toLowerCase();const {results}=await env.DB.prepare('SELECT hospital_id,role FROM care_staff WHERE email=? AND active=1 AND role IN (?,?,?) AND (expires_at IS NULL OR expires_at>?)').bind(email,'nurse','doctor','hospital_admin',Date.now()).all();if(!admin&&!results.length)fail('STAFF_ACCESS_DENIED',403);return {user,email,admin,hospitals:results.map(r=>r.hospital_id),roles:Object.fromEntries(results.map(r=>[r.hospital_id,r.role]))}; }
+async function staff(request, env) { const user=request.headers.get('oai-authenticated-user-id'), email=request.headers.get('oai-authenticated-user-email')?.toLowerCase(); if(!user||!email)fail('STAFF_SIGN_IN_REQUIRED',401); const admin=!!env.CARE_ADMIN_EMAIL&&email===env.CARE_ADMIN_EMAIL.toLowerCase();const {results}=await env.DB.prepare('SELECT hospital_id,role,department_scope FROM care_staff WHERE email=? AND active=1 AND role IN (?,?,?) AND (expires_at IS NULL OR expires_at>?)').bind(email,'nurse','doctor','hospital_admin',Date.now()).all();if(!admin&&!results.length)fail('STAFF_ACCESS_DENIED',403);return {user,email,admin,hospitals:results.map(r=>r.hospital_id),roles:Object.fromEntries(results.map(r=>[r.hospital_id,r.role])),departments:Object.fromEntries(results.map(r=>[r.hospital_id,r.department_scope]))}; }
 const authorize=(s,hospital,permission='clinical')=>{const role=s.roles[hospital];if(!role)fail('HOSPITAL_ACCESS_DENIED',403);if(permission==='admin'&&role!=='hospital_admin')fail('ROLE_ACCESS_DENIED',403);};
-async function patientAccess(env,s,hospital,patient){authorize(s,hospital);if(s.roles[hospital]==='nurse'){const row=await env.DB.prepare("SELECT patient_id FROM care_work WHERE tenant_id=? AND patient_id=? AND json_extract(payload,'$.assignee')=?").bind(hospital,patient,s.email).first();if(!row)fail('PATIENT_ACCESS_DENIED',403);}}
-async function staffState(env,s){const state=await stateFor(env,s.hospitals),allowed=new Set();for(const p of state.patients){try{await patientAccess(env,s,p.hospitalId,p.id);allowed.add(p.id);}catch{}}return {...state,patients:state.patients.filter(p=>allowed.has(p.id)),checkIns:state.checkIns.filter(c=>allowed.has(c.patientId)),statuses:state.statuses.filter(c=>allowed.has(c.patientId)),careSignals:state.careSignals.filter(c=>allowed.has(c.patientId))};}
+async function patientAccess(env,s,hospital,patient,knownPatient,knownHospital) {
+    authorize(s,hospital);
+    if (s.roles[hospital] === 'hospital_admin') return;
+    const p = knownPatient || JSON.parse((await env.DB.prepare('SELECT payload FROM care_patients WHERE id=? AND hospital_id=?').bind(patient,hospital).first())?.payload || 'null');
+    const h = knownHospital || JSON.parse((await env.DB.prepare('SELECT payload FROM care_hospitals WHERE id=?').bind(hospital).first())?.payload || 'null');
+    if (!departmentAllows(s.roles[hospital],s.departments[hospital],p,h)) fail('PATIENT_ACCESS_DENIED',403);
+    if (s.roles[hospital] === 'nurse') {
+        const row = await env.DB.prepare("SELECT patient_id FROM care_work WHERE tenant_id=? AND patient_id=? AND json_extract(payload,'$.assignee')=?").bind(hospital,patient,s.email).first();
+        if (!row) fail('PATIENT_ACCESS_DENIED',403);
+    }
+}
+async function staffState(env,s){const state=await stateFor(env,s.hospitals),allowed=new Set();for(const p of state.patients){try{await patientAccess(env,s,p.hospitalId,p.id,p,state.hospitals.find(h=>h.id===p.hospitalId));allowed.add(p.id);}catch{}}return {...state,patients:state.patients.filter(p=>allowed.has(p.id)),checkIns:state.checkIns.filter(c=>allowed.has(c.patientId)),programCheckIns:state.programCheckIns.filter(c=>allowed.has(c.patientId)),statuses:state.statuses.filter(c=>allowed.has(c.patientId)),careSignals:state.careSignals.filter(c=>allowed.has(c.patientId))};}
 async function audit(env,request,action,outcome,tenant=null){await env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) VALUES(?,?,?,?,?,?)').bind(id(),tenant,await digest(request.headers.get('oai-authenticated-user-id')||request.headers.get('cookie')||'anonymous'),action,outcome,Date.now()).run();}
 async function patientSession(request, env) { const token = request.headers.get('cookie')?.split(';').map(v => v.trim()).find(v => v.startsWith(COOKIE + '='))?.slice(COOKIE.length + 1); if (!token)
     fail('PATIENT_SESSION_REQUIRED', 401); const row = await env.DB.prepare('SELECT s.* FROM care_sessions s JOIN care_invitations i ON i.id=s.invitation_id WHERE s.token_hash=? AND s.expires_at>? AND i.revoked=0').bind(await digest(token), Date.now()).first(); if (!row)
@@ -26,16 +38,16 @@ async function invitation(token, env) { if (typeof token !== 'string' || !/^srv_
     fail('EXPIRED_INVITATION', 410); return row; }
 async function stateFor(env, hospitalIds, patientId) {
     if (!hospitalIds.length)
-        return { hospitals: [], patients: [], episodes: [], checkIns: [], statuses: [], careSignals: [], careTasks: [], followUps: [], decisions: [] };
+        return { hospitals: [], patients: [], episodes: [], checkIns: [], programCheckIns: [], statuses: [], careSignals: [], careTasks: [], followUps: [], decisions: [] };
     const placeholders = hospitalIds.map(() => '?').join(','), args = patientId ? [...hospitalIds, patientId] : hospitalIds, scope = `hospital_id IN (${placeholders})${patientId ? ' AND patient_id=?' : ''}`;
     const hospitals = await env.DB.prepare(`SELECT payload FROM care_hospitals WHERE id IN (${placeholders})`).bind(...hospitalIds).all();
     const patients = await env.DB.prepare(`SELECT payload FROM care_patients WHERE hospital_id IN (${placeholders})${patientId ? ' AND id=?' : ''}`).bind(...args).all();
     const checks = await env.DB.prepare(`SELECT payload FROM care_checkins WHERE ${scope} ORDER BY day`).bind(...args).all(), alerts = await env.DB.prepare(`SELECT payload FROM care_alerts WHERE ${scope}`).bind(...args).all();
-    const parse = r => JSON.parse(r.payload), ps = patients.results.map(parse), cs = checks.results.map(parse), statuses = ps.flatMap(p => { const list = cs.filter(c => c.patientId === p.id); return list.length ? [{ ...evaluatePatientStatus(list.at(-1), list.at(-2)), source: 'system', ruleVersion: 'demo-v1' }] : []; });
+    const parse = r => JSON.parse(r.payload), ps = patients.results.map(parse), records = checks.results.map(parse), cs = records.filter(c=>!c.program), statuses = ps.flatMap(p => { const list = cs.filter(c => c.patientId === p.id); return list.length ? [{ ...evaluatePatientStatus(list.at(-1), list.at(-2)), source: 'system', ruleVersion: 'demo-v1' }] : []; });
     const classifications=await env.DB.prepare(`SELECT source_id,source_updated_at,payload FROM care_classifications WHERE tenant_id IN (${placeholders})${patientId?' AND patient_id=?':''}`).bind(...args).all();
     const persisted=statuses.map(status=>{const last=cs.filter(c=>c.patientId===status.patientId).at(-1),row=classifications.results.find(r=>r.source_id===last?.id&&r.source_updated_at===last?.updatedAt);return row?{...JSON.parse(row.payload),source:'system'}:status;});
-    const hospitalPayloads=[];for(const r of hospitals.results){const h=parse(r),p=await env.DB.prepare('SELECT payload FROM care_policies WHERE tenant_id=?').bind(h.id).first();if(p&&JSON.parse(p.payload).monitoringHours)h.openingHours=JSON.parse(p.payload).monitoringHours;hospitalPayloads.push(h);}
-    return { hospitals: hospitalPayloads, patients: ps, episodes: [], checkIns: cs, statuses:persisted, careSignals: alerts.results.map(parse), careTasks: [], followUps: [], decisions: [] };
+    const hospitalPayloads=[];for(const r of hospitals.results){const h=parse(r),p=await env.DB.prepare('SELECT payload FROM care_policies WHERE tenant_id=?').bind(h.id).first();if(p&&JSON.parse(p.payload).monitoringHours)h.openingHours=JSON.parse(p.payload).monitoringHours;hospitalPayloads.push(patientId ? {id:h.id,name:h.name,phone:h.phone,openingHours:h.openingHours,address:h.address,status:h.status} : h);}
+    return { hospitals: hospitalPayloads, patients: ps, episodes: [], checkIns: cs, programCheckIns:records.filter(c=>c.program), statuses:persisted, careSignals: alerts.results.map(parse), careTasks: [], followUps: [], decisions: [] };
 }
 function normalizeCheck(input, patientId, day, existing) { if (!Number.isInteger(input.painScore) || input.painScore < 0 || input.painScore > 10 || ![0, 1, 2].includes(input.mobilityScore) || !['better', 'same', 'worse'].includes(input.dayComparison) || typeof input.hasConcern !== 'boolean')
     fail('INVALID_CHECKIN'); const pain = input.painScore, now = new Date(Math.max(Date.now(), (Date.parse(existing?.updatedAt || '') || 0) + 1)).toISOString(); return { id: existing?.id || id(), patientId, date: day, checkInDate: day, pain: pain <= 2 ? 0 : pain <= 4 ? 1 : pain <= 6 ? 2 : 3, painScore: pain, mobility: input.mobilityScore, mobilityScore: input.mobilityScore, dayComparison: input.dayComparison, initialCondition: ['좋아요', '보통이에요', '불편해요'].includes(input.initialCondition) ? input.initialCondition : existing?.initialCondition, hasConcern: input.hasConcern, concernText: input.hasConcern ? text(input.concernText, 200) : '', customConcern: text(input.customConcern, 100), concerns: Array.isArray(input.concerns) ? input.concerns.filter(x => ['swelling', 'fever', 'incision_discomfort', 'sleep', 'numbness', 'walking', 'medication', 'dizziness', 'fall', 'other', 'none'].includes(x)).slice(0, 3) : [], painContext: ['rest', 'moving', 'walking', 'night', 'constant', 'unsure'].includes(input.painContext) ? input.painContext : undefined, movementDifficulty: text(input.movementDifficulty, 100),
@@ -70,7 +82,8 @@ export async function careApi(request, env, context) {
             fail('METHOD_NOT_ALLOWED', 405);
         if (request.method !== 'GET' && request.headers.get('origin') !== publicOrigin)
             fail('ORIGIN_REJECTED', 403);
-        const operation=await careOperations(request,env,{staff,authorize,patientAccess,body,fail,json,id,text,validDate,today,digest,audit,stateFor,staffState});
+        const dependencies={staff,authorize,patientAccess,body,fail,json,id,text,validDate,today,digest,audit,stateFor,staffState};
+        const operation=await programOperations(request,env,dependencies) || await careOperations(request,env,dependencies);
         if(operation)return operation;
         if (route === '/api/care/invitation' && request.method === 'POST') {
             const { token } = await body(request), inv = await invitation(token, env), p = await env.DB.prepare('SELECT payload FROM care_patients WHERE id=? AND hospital_id=?').bind(inv.patient_id, inv.hospital_id).first(), h = await env.DB.prepare('SELECT payload FROM care_hospitals WHERE id=?').bind(inv.hospital_id).first();
@@ -79,7 +92,8 @@ export async function careApi(request, env, context) {
             const hospital = JSON.parse(h.payload);
             const policyRow = await env.DB.prepare('SELECT payload FROM care_policies WHERE tenant_id=?').bind(inv.hospital_id).first();
             const policy = policyRow ? JSON.parse(policyRow.payload) : {};
-            return json({ hospitalName: hospital.name, patientId: inv.patient_id, hospitalId: inv.hospital_id, careDays: policy.careDays ?? 14, monitoringHours: policy.monitoringHours || hospital.openingHours || '' });
+            const enrollment = JSON.parse(p.payload).enrollment;
+            return json({ hospitalName: hospital.name, patientId: inv.patient_id, hospitalId: inv.hospital_id, programName: enrollment?.name, careDays: enrollment?.careDays ?? policy.careDays ?? 14, monitoringHours: policy.monitoringHours || hospital.openingHours || '' });
         }
         if (route === '/api/care/connect' && request.method === 'POST') {
             const input = await body(request);
@@ -94,14 +108,20 @@ export async function careApi(request, env, context) {
         if (route === '/api/care/state' && request.method === 'GET') {
             const s = await patientSession(request, env);
             const state=await stateFor(env,[s.hospital_id],s.patient_id),policy=await env.DB.prepare('SELECT payload FROM care_policies WHERE tenant_id=?').bind(s.hospital_id).first(),days=policy?JSON.parse(policy.payload).careDays:14;
-            state.patients=state.patients.map(p=>Date.parse(today())-Date.parse(p.dischargeDate)>=days*DAY?{...p,careStatus:'completed'}:p);
+            state.patients=state.patients.map(p=>{
+                if (p.enrollment) delete p.enrollment.reviewInstructions;
+                return p.enrollment?.completion!=='staff' && careOffset(p,today())>=(p.enrollment?.careDays ?? days)?{...p,careStatus:'completed'}:p;
+            });
             await audit(env,request,'patient.read','success',s.hospital_id);return json(state);
         }
         if (route === '/api/care/checkins' && (request.method === 'POST' || request.method === 'PUT')) {
             const s = await patientSession(request, env), input = await body(request), day = today();
             const patientRow=await env.DB.prepare('SELECT payload FROM care_patients WHERE id=? AND hospital_id=?').bind(s.patient_id,s.hospital_id).first();
             if(!patientRow)fail('PATIENT_NOT_FOUND',404);
-            const patientData=JSON.parse(patientRow.payload),policyRow=await env.DB.prepare('SELECT payload FROM care_policies WHERE tenant_id=?').bind(s.hospital_id).first(),careDays=policyRow?JSON.parse(policyRow.payload).careDays:14;if(patientData.careStatus==='completed'||today()<patientData.dischargeDate||Date.parse(today())-Date.parse(patientData.dischargeDate)>=careDays*DAY)fail('CARE_COMPLETED',409);
+            const patientData=JSON.parse(patientRow.payload),policyRow=await env.DB.prepare('SELECT payload FROM care_policies WHERE tenant_id=?').bind(s.hospital_id).first(),careDays=policyRow?JSON.parse(policyRow.payload).careDays:14;
+            const enrollment=patientData.enrollment, offset=careOffset(patientData,day);
+            if (patientData.careStatus==='completed'||offset<0||offset>=(enrollment?.careDays ?? careDays)) fail('CARE_COMPLETED',409);
+            if (enrollment && !expectedCheckIn(patientData,day,careDays)) fail('CHECKIN_NOT_SCHEDULED',409);
             if (input.date !== day || input.patientId && input.patientId !== s.patient_id)
                 fail('CHECKIN_SCOPE_REJECTED', 403);
             const existingRow = await env.DB.prepare('SELECT payload,updated_at FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=?').bind(s.patient_id, s.hospital_id, day).first(), existing = existingRow ? JSON.parse(existingRow.payload) : null;
@@ -109,20 +129,33 @@ export async function careApi(request, env, context) {
                 return json({ record: existing, duplicate: true });
             if (request.method === 'PUT' && (!existing || input.expectedUpdatedAt !== existingRow.updated_at))
                 fail('RECORD_CHANGED', 409);
-            const check = normalizeCheck(input, s.patient_id, day, existing),eventKey=s.hospital_id+":"+s.patient_id+":"+check.id;
+            let check;
+            if (enrollment) {
+                const { id:programId, version, name, department, questions } = enrollment;
+                if (input.programId !== programId || input.programVersion !== version) fail('RECORD_CHANGED',409);
+                const answers = checkedProgramAnswers(questions,input.answers,fail);
+                const now = new Date(Math.max(Date.now(),(Date.parse(existing?.updatedAt || '') || 0) + 1)).toISOString();
+                check = {id:existing?.id || id(),patientId:s.patient_id,date:day,createdAt:existing?.createdAt || now,updatedAt:now,program:{id:programId,version,name,department,questions},answers};
+            } else {
+                check = normalizeCheck(input,s.patient_id,day,existing);
+            }
+            const eventKey=s.hospital_id+":"+s.patient_id+":"+check.id;
             const activePatient = "EXISTS (SELECT 1 FROM care_patients WHERE id=? AND hospital_id=? AND COALESCE(json_extract(payload,'$.careStatus'),'active')!='completed')";
             const stmt = request.method === 'PUT'
                 ? env.DB.prepare('UPDATE care_checkins SET payload=?,updated_at=? WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=? AND ' + activePatient)
                     .bind(JSON.stringify(check),check.updatedAt,s.patient_id,s.hospital_id,day,input.expectedUpdatedAt,s.patient_id,s.hospital_id)
                 : env.DB.prepare('INSERT INTO care_checkins(patient_id,hospital_id,day,payload,updated_at) SELECT ?,?,?,?,? WHERE ' + activePatient + ' ON CONFLICT(patient_id,hospital_id,day) DO NOTHING')
                     .bind(s.patient_id,s.hospital_id,day,JSON.stringify(check),check.updatedAt,s.patient_id,s.hospital_id);
-            const priorRow = await env.DB.prepare('SELECT payload FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day<? ORDER BY day DESC LIMIT 1').bind(s.patient_id, s.hospital_id, day).first(), status = evaluatePatientStatus(check, priorRow ? JSON.parse(priorRow.payload) : undefined), statements = [stmt];
+            const statements = [stmt];
+            if (!enrollment) {
+            const priorRow = await env.DB.prepare('SELECT payload FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day<? ORDER BY day DESC LIMIT 1').bind(s.patient_id, s.hospital_id, day).first(), status = evaluatePatientStatus(check, priorRow ? JSON.parse(priorRow.payload) : undefined);
             const classification={...status,ruleVersion:'demo-v1',evaluatedAt:check.updatedAt,approved:!!policyRow&&JSON.parse(policyRow.payload).approved===true};
             statements.push(env.DB.prepare('INSERT INTO care_classifications(tenant_id,patient_id,source_id,source_updated_at,payload) SELECT ?,?,?,?,? WHERE EXISTS(SELECT 1 FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=?) ON CONFLICT DO NOTHING').bind(s.hospital_id,s.patient_id,check.id,check.updatedAt,JSON.stringify(classification),s.patient_id,s.hospital_id,day,check.updatedAt));
             if (status.level !== 'stable') {
                 const alert = { id: id(), patientId: s.patient_id, type: 'other', severity: status.level === 'needs_attention' ? 'priority' : 'check', reason: status.reason, detectedAt: check.updatedAt, sourceCheckInIds: [check.id], status: 'open' };
                 statements.push(env.DB.prepare("INSERT INTO care_alerts(id,patient_id,hospital_id,payload) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=? AND json_extract(payload,'$.id')=?)").bind(alert.id, s.patient_id, s.hospital_id, JSON.stringify(alert), s.patient_id, s.hospital_id, day, check.updatedAt, check.id));
                 statements.push(env.DB.prepare("INSERT INTO care_notifications(id,tenant_id,patient_id,event_key,status,updated_at) SELECT ?,?,?,?,'not_configured',? WHERE EXISTS(SELECT 1 FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=?) ON CONFLICT(event_key) DO NOTHING").bind(id(),s.hospital_id,s.patient_id,eventKey,Date.now(),s.patient_id,s.hospital_id,day,check.updatedAt));
+            }
             }
             statements.push(env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) SELECT ?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=? AND updated_at=?)').bind(id(),s.hospital_id,await digest(s.token_hash),'checkin.save','success',Date.now(),s.patient_id,s.hospital_id,day,check.updatedAt));
             const results = await env.DB.batch(statements);
@@ -134,19 +167,41 @@ export async function careApi(request, env, context) {
             const savedRow = await env.DB.prepare('SELECT payload FROM care_checkins WHERE patient_id=? AND hospital_id=? AND day=?').bind(s.patient_id, s.hospital_id, day).first();
             if (!savedRow) fail('RECORD_CHANGED',409);
             const saved = JSON.parse(savedRow.payload);
-            if(context?.waitUntil&&careSmsConfigured(env)){const job=(async()=>{const notice=await env.DB.prepare('SELECT id FROM care_notifications WHERE tenant_id=? AND event_key=?').bind(s.hospital_id,eventKey).first();if(notice)await sendCareNotice(env,s.hospital_id,notice.id);})();context.waitUntil(job.catch(()=>{}));}
+            if(!enrollment&&context?.waitUntil&&careSmsConfigured(env)){const job=(async()=>{const notice=await env.DB.prepare('SELECT id FROM care_notifications WHERE tenant_id=? AND event_key=?').bind(s.hospital_id,eventKey).first();if(notice)await sendCareNotice(env,s.hospital_id,notice.id);})();context.waitUntil(job.catch(()=>{}));}
             return json({ record: saved });
         }
         if (route === '/api/care/staff/state' && request.method === 'GET') {
             const s=await staff(request,env);for(const tenant of s.hospitals)await audit(env,request,'staff.read','success',tenant);if(!s.hospitals.length)await audit(env,request,'platform.catalog.read','success');
-            const catalog=s.admin?(await env.DB.prepare('SELECT payload FROM care_hospitals').all()).results.map(r=>{const h=JSON.parse(r.payload);return {id:h.id,name:h.name};}):[];
+            const catalog=s.admin?(await env.DB.prepare('SELECT payload FROM care_hospitals').all()).results.map(r=>{const h=JSON.parse(r.payload);return organizationSummary(h);}):[];
             return json({ state:await staffState(env,s),admin:s.admin,email:s.email,roles:s.roles,catalog });
+        }
+        if (route === '/api/care/staff/hospitals' && request.method === 'PUT') {
+            const s = await staff(request,env), input = await body(request);
+            if (!s.admin) authorize(s,input.hospitalId,'admin');
+            const row = await env.DB.prepare('SELECT payload FROM care_hospitals WHERE id=?').bind(input.hospitalId).first();
+            if (!row) fail('HOSPITAL_NOT_FOUND',404);
+            const prior = JSON.parse(row.payload), profile = organizationProfile(input,fail,text);
+            const removed = JSON.stringify((prior.departments || []).filter(dep=>profile.departments && !profile.departments.includes(dep)));
+            if (!s.admin) delete profile.adoptionStatus;
+            const hospital = {...prior,...profile};
+            for (const key of ['phone','openingHours','address']) if (input[key] !== undefined) hospital[key] = text(input[key],key==='openingHours'?300:200);
+            const update = env.DB.prepare(`
+                UPDATE care_hospitals SET payload=? WHERE id=? AND payload=?
+                AND NOT EXISTS (SELECT 1 FROM care_staff WHERE hospital_id=? AND active=1 AND department_scope IN (SELECT value FROM json_each(?)))
+                AND NOT EXISTS (SELECT 1 FROM care_program_versions WHERE tenant_id=? AND json_extract(payload,'$.department') IN (SELECT value FROM json_each(?)))
+            `).bind(JSON.stringify(hospital),input.hospitalId,row.payload,input.hospitalId,removed,input.hospitalId,removed);
+            const results = await env.DB.batch([
+                update,
+                env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) VALUES(?,?,?,?,?,?)').bind(id(),input.hospitalId,await digest(s.user),'hospital.update','attempted',Date.now()),
+            ]);
+            if (!results[0].meta.changes) fail('DEPARTMENT_IN_USE_OR_RECORD_CHANGED',409);
+            return json(hospital);
         }
         if (route === '/api/care/staff/hospitals' && request.method === 'POST') {
             const s = await staff(request, env);
             if (!s.admin)
                 fail('ADMIN_REQUIRED', 403);
-            const input = await body(request), hospital = { id: id(), name: text(input.name, 100), phone: text(input.phone, 30), openingHours: text(input.openingHours, 300), address: text(input.address, 200), status: 'active' };
+            const input = await body(request), hospital = { id: id(), name: text(input.name, 100), phone: text(input.phone, 30), openingHours: text(input.openingHours, 300), address: text(input.address, 200), status: 'active', ...organizationProfile(input,fail,text) };
             if (!hospital.name)
                 fail('HOSPITAL_NAME_REQUIRED');
             await env.DB.batch([env.DB.prepare('INSERT INTO care_hospitals(id,payload) VALUES(?,?)').bind(hospital.id, JSON.stringify(hospital)),env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) VALUES(?,?,?,?,?,?)').bind(id(),hospital.id,await digest(s.user),'hospital.create','success',Date.now())]);
@@ -161,16 +216,19 @@ export async function careApi(request, env, context) {
             if(input.expiresOn&&(!validDate(input.expiresOn)||input.expiresOn<today()))fail('INVALID_EXPIRY');const expiresAt=input.expiresOn?Date.parse(input.expiresOn+'T23:59:59+09:00'):null;
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
                 fail('INVALID_EMAIL');
-            const h = await env.DB.prepare('SELECT id FROM care_hospitals WHERE id=?').bind(input.hospitalId).first();
+            const h = await env.DB.prepare('SELECT id,payload FROM care_hospitals WHERE id=?').bind(input.hospitalId).first();
             if (!h)
                 fail('HOSPITAL_NOT_FOUND', 404);
-            await env.DB.batch([env.DB.prepare('INSERT INTO care_staff(email,hospital_id,role,active,expires_at) VALUES(?,?,?,1,?) ON CONFLICT(email,hospital_id) DO UPDATE SET role=excluded.role,active=1,expires_at=excluded.expires_at').bind(email,h.id,role,expiresAt),env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) VALUES(?,?,?,?,?,?)').bind(id(),h.id,await digest(s.user),'member.grant.'+role,'success',Date.now())]);
+            const profile = JSON.parse(h.payload);
+            const departmentScope = role === 'hospital_admin' ? null : text(input.departmentScope) || null;
+            if (departmentScope && (!departments.includes(departmentScope) || (profile.departments?.length && !profile.departments.includes(departmentScope)))) fail('INVALID_DEPARTMENT');
+            await env.DB.batch([env.DB.prepare('INSERT INTO care_staff(email,hospital_id,role,active,expires_at,department_scope) VALUES(?,?,?,1,?,?) ON CONFLICT(email,hospital_id) DO UPDATE SET role=excluded.role,active=1,expires_at=excluded.expires_at,department_scope=excluded.department_scope').bind(email,h.id,role,expiresAt,departmentScope),env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) VALUES(?,?,?,?,?,?)').bind(id(),h.id,await digest(s.user),'member.grant.'+role,'success',Date.now())]);
             return json({ added: true });
         }
         if (route === '/api/care/staff/patients' && request.method === 'POST') {
             const s = await staff(request, env), input = await body(request);
             authorize(s, input.hospitalId,'admin');
-            const h = await env.DB.prepare('SELECT id FROM care_hospitals WHERE id=?').bind(input.hospitalId).first();
+            const h = await env.DB.prepare('SELECT id,payload FROM care_hospitals WHERE id=?').bind(input.hospitalId).first();
             if (!h)
                 fail('HOSPITAL_NOT_FOUND', 404);
             if (input.confirmed !== true)
@@ -182,11 +240,39 @@ export async function careApi(request, env, context) {
             if(['active','invited','follow_up','completion_due','completed'].includes(p.careStatus))patient.careStatus=p.careStatus;
             if (!patient.name || !patient.phone || !Number.isInteger(patient.age) || patient.age < 0 || patient.age > 130 || !validDate(patient.dischargeDate) || patient.surgeryDate && !validDate(patient.surgeryDate) || patient.nextAppointment && !validDate(patient.nextAppointment))
                 fail('INVALID_PATIENT');
+            const profile = JSON.parse(h.payload);
+            let assignment;
+            if (input.program) {
+                assignment = await assignedProgram(env,h.id,input.program,p.careStartOn || p.dischargeDate,validDate,fail);
+                const { enrollment } = assignment;
+                if (p.department && p.department !== enrollment.department) fail('INVALID_PROGRAM_SELECTION');
+                patient.enrollment = enrollment;
+                patient.department = enrollment.department;
+                patient.procedureDetail = enrollment.treatment;
+            } else if (!sourceRef) {
+                patient.department = patient.department || profile.primaryDepartment || '';
+                const supportsLegacy = !profile.departments?.length || profile.departments.includes('정형외과');
+                if (!supportsLegacy || patient.department && patient.department !== '정형외과') fail('PROGRAM_REQUIRED',409);
+            }
             const checks = Array.isArray(input.records) ? input.records : [];
+            if (!assignment && patient.department && patient.department!=='정형외과') {
+                if (!sourceRef?.startsWith('legacy:') || !checks.length) fail('PROGRAM_REQUIRED',409);
+                patient.careStatus='completed';
+            }
+            if (assignment && (checks.length || sourceRef)) fail('INVALID_PROGRAM_SELECTION');
             if (checks.length > 3650)
                 fail('TOO_MANY_RECORDS');
             const seen = new Set();
-            const statements = [env.DB.prepare('INSERT INTO care_patients(id,hospital_id,payload,source_ref) VALUES(?,?,?,?)').bind(patient.id, h.id, JSON.stringify(patient), sourceRef)];
+            const args = [patient.id,h.id,JSON.stringify(patient),sourceRef];
+            const statements = [assignment
+                ? env.DB.prepare("INSERT INTO care_patients(id,hospital_id,payload,source_ref) SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM care_program_versions WHERE tenant_id=? AND program_id=? AND version=? AND status='active' AND payload=?)").bind(...args,h.id,patient.enrollment.id,patient.enrollment.version,assignment.payload)
+                : env.DB.prepare('INSERT INTO care_patients(id,hospital_id,payload,source_ref) VALUES(?,?,?,?)').bind(...args)];
+            if (p.assignee) {
+                const assignee = text(p.assignee,200).toLowerCase();
+                const member = await env.DB.prepare('SELECT role,department_scope FROM care_staff WHERE hospital_id=? AND email=? AND active=1 AND (expires_at IS NULL OR expires_at>?)').bind(h.id,assignee,Date.now()).first();
+                if (!member || !departmentAllows(member.role,member.department_scope,patient,profile)) fail('INVALID_ASSIGNEE');
+                statements.push(env.DB.prepare('INSERT INTO care_work(tenant_id,patient_id,payload,revision) SELECT ?,?,?,1 WHERE EXISTS (SELECT 1 FROM care_patients WHERE id=? AND hospital_id=?)').bind(h.id,patient.id,JSON.stringify({assignee}),patient.id,h.id));
+            }
             for (const old of checks) {
                 const day = old.checkInDate || old.date;
                 if (!validDate(day) || day > today() || seen.has(day))
@@ -194,11 +280,15 @@ export async function careApi(request, env, context) {
                 seen.add(day);
                 if (!Number.isInteger(old.mobilityScore ?? old.mobility) || (old.mobilityScore ?? old.mobility) < 0 || (old.mobilityScore ?? old.mobility) > 3 || typeof old.hasConcern !== 'boolean' || !(old.painScore === null || typeof old.painScore === 'number' && old.painScore >= 0 && old.painScore <= 10 || old.painScore === undefined && Number.isInteger(old.pain) && old.pain >= 0 && old.pain <= 3))
                     fail('INVALID_IMPORTED_RECORD');
-                const record = { ...old, id: typeof old.id === 'string' ? old.id : id(), patientId: patient.id, date: day, checkInDate: day, createdAt: old.createdAt || new Date(day + 'T12:00:00+09:00').toISOString(), updatedAt: new Date().toISOString() };
+                const legacy = {...old};
+                delete legacy.program;
+                delete legacy.answers;
+                const record = { ...legacy, id: typeof old.id === 'string' ? old.id : id(), patientId: patient.id, date: day, checkInDate: day, createdAt: old.createdAt || new Date(day + 'T12:00:00+09:00').toISOString(), updatedAt: new Date().toISOString() };
                 statements.push(env.DB.prepare('INSERT INTO care_checkins(patient_id,hospital_id,day,payload,updated_at) VALUES(?,?,?,?,?)').bind(patient.id, h.id, day, JSON.stringify(record), record.updatedAt));
             }
             statements.push(env.DB.prepare('INSERT INTO care_audit(id,tenant_id,actor_hash,action,outcome,created_at) VALUES(?,?,?,?,?,?)').bind(id(),h.id,await digest(s.user),'patient.register','success',Date.now()));
-            await env.DB.batch(statements);
+            const results = await env.DB.batch(statements);
+            if (!results[0].meta.changes) fail('PROGRAM_NOT_ASSIGNABLE',409);
             return json(patient, 201);
         }
         if (route === '/api/care/staff/invitations' && request.method === 'POST') {

@@ -10,6 +10,8 @@ import './globals.css';
 import './onboarding.css';
 import './readability.css';
 import './danyeon.css';
+import './danyeon-landing.css';
+import './overview.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(careUrls.origin),

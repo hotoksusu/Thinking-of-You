@@ -44,8 +44,10 @@ mkdirSync(server, { recursive: true });
 // Bundle the dependency-free Worker into one deployable ESM entrypoint.
 const ts = await import("typescript");
 const rule = ts.transpileModule(readFileSync(resolve("src/lib/status-rules.ts"),"utf8"),{compilerOptions:{module:ts.ModuleKind.ES2022,target:ts.ScriptTarget.ES2022}}).outputText;
+const program = ts.transpileModule(readFileSync(resolve("src/lib/recovery-program.ts"),"utf8"),{compilerOptions:{module:ts.ModuleKind.ES2022,target:ts.ScriptTarget.ES2022}}).outputText;
+const programServer = readFileSync(resolve("server/care-programs.mjs"),"utf8").replace(/^import .*recovery-program\.js.*;\s*/m,"");
 const sms = readFileSync(resolve("server/care-sms.mjs"),"utf8");
-const operations = readFileSync(resolve("server/care-operations.mjs"),"utf8").replace(/^import .*care-sms\.js.*;\s*/m,"");
-const api = readFileSync(resolve("server/care-api.mjs"),"utf8").replace(/^import .*care-sms\.js.*;\s*/m,"").replace(/^import .*care-operations\.js.*;\s*/m,"").replace(/^import .*status-rules\.js.*;\s*/m,"");
+const operations = readFileSync(resolve("server/care-operations.mjs"),"utf8").replace(/^import .*(?:care-sms|recovery-program|care-programs)\.js.*;\s*/gm,"");
+const api = readFileSync(resolve("server/care-api.mjs"),"utf8").replace(/^import .*care-sms\.js.*;\s*/m,"").replace(/^import .*care-operations\.js.*;\s*/m,"").replace(/^import .*(?:status-rules|recovery-program|care-programs)\.js.*;\s*/gm,"");
 const worker = readFileSync(resolve("server/worker.mjs"),"utf8").replace(/^import .*care-api\.js.*;\s*/m,"");
-writeFileSync(join(server,"index.js"),rule+"\n"+sms+"\n"+operations+"\n"+api+"\n"+worker,"utf8");
+writeFileSync(join(server,"index.js"),rule+"\n"+program+"\n"+programServer+"\n"+sms+"\n"+operations+"\n"+api+"\n"+worker,"utf8");

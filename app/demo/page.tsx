@@ -2,7 +2,7 @@ import { CareBrandLogo } from '@/components/care-brand-logo';
 import { careDemo, careProducts } from '@/lib/care-brand';
 
 const demos = [
-  { href:'/demo/patient', title:'환자 체험', description:'체크인에 답하고 저장한 회복 기록을 확인합니다.' },
+  { href:'/demo/patient', title:'환자 체험', description:'정형외과 대표 시연의 체크인과 회복기록을 확인합니다.' },
   { href:'/demo/hospital', title:'병원 담당자 체험', description:'업무 목록에서 응답을 확인하고 조치와 후속 일정을 기록합니다.' },
   { href:'/demo/operator', title:'서비스 운영관리자 체험', description:'합성 데이터로 병원과 도입 문의 관리를 살펴봅니다.' },
 ];
@@ -18,6 +18,11 @@ export default function DemoPage() {
         <h2 className="text-lg">{demo.title}</h2><p className="mt-2">{demo.description}</p>
         <a className="danyeon-text-link" href={careDemo.local ? '/__demo' + demo.href.slice(5) : demo.href}>{demo.title} 시작</a>
       </article>)}</div>
+      {careDemo.local && <article className="danyeon-product mt-4">
+        <h2 className="text-lg">진료과 확장 구조 검증</h2>
+        <p className="mt-2">정형외과와 다른 질문 형식, 체크인 주기, 버전 기록을 가상 데이터로 확인합니다.</p>
+        <a href="/__demo/expansion" className="danyeon-text-link">구조 검증용 환자 체험 시작</a>
+      </article>}
       <p className="mt-5">체험에서는 실제 환자 기록을 조회하거나 문자를 보내지 않습니다.</p>
     </section>
   </main>;

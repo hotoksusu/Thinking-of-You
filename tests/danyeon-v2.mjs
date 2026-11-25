@@ -114,7 +114,7 @@ test('DANYEON export and browser check-in-to-report workflow', {timeout:150000,s
     const desk = await browser.newPage({viewport:{width:1440,height:900},serviceWorkers:'block'});
     await mkdir(screenshots,{recursive:true});
     await patient.goto(publicSite.base);
-    await patient.getByRole('heading',{name:'병원을 다녀온 후에도.'}).waitFor();
+    await patient.getByRole('heading',{level:1,name:/환자관리는 더 체계적으로/}).waitFor();
     assert.ok((await patient.title()).includes('다녀온'));
     assert.match(await patient.locator('link[rel="shortcut icon"]').getAttribute('href'),/danyeon\.svg/);
     await patient.getByText('환자가 앱을 설치해야 하나요?',{exact:true}).click();
@@ -184,12 +184,13 @@ test('DANYEON export and browser check-in-to-report workflow', {timeout:150000,s
     await patient.goto(publicSite.base+'/pilot');
     await patient.getByLabel('병원명',{exact:true}).fill(pilot.hospital);
     await patient.getByLabel('담당자명',{exact:true}).fill(pilot.contact);
-    await patient.getByLabel('연락처',{exact:true}).fill(pilot.phone);
-    await patient.getByLabel('이메일',{exact:true}).fill(pilot.email);
-    await patient.getByLabel('주요 진료과').selectOption(pilot.department);
-    await patient.getByLabel('월 수술·퇴원환자 규모').selectOption(pilot.monthlyVolume);
+    await patient.getByLabel('연락처 (선택)',{exact:true}).fill(pilot.phone);
+    await patient.getByLabel('업무용 이메일',{exact:true}).fill(pilot.email);
+    await patient.getByLabel('의료기관 유형').selectOption('병원');
+    await patient.getByLabel('진료과',{exact:true}).selectOption(pilot.department);
+    await patient.getByLabel('월간 회복관리 대상 환자 수').selectOption(pilot.monthlyVolume);
     await patient.getByLabel('현재 사후관리 방식').selectOption(pilot.currentWorkflow);
-    await patient.getByLabel('도입 희망 사항').selectOption(pilot.adoptionGoal);
+    await patient.getByLabel('도입 검토 목적').selectOption(pilot.adoptionGoal);
     await patient.getByRole('checkbox').check();
     await patient.getByRole('button',{name:'파일럿 상담 요청 접수'}).click();
     await patient.getByRole('status').filter({hasText:'상담 요청을 접수했습니다'}).waitFor();

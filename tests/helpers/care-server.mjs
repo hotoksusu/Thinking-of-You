@@ -2,7 +2,25 @@ import fs from 'node:fs';
 import {DatabaseSync} from 'node:sqlite';
 import ts from 'typescript';
 const dataUrl=code=>'data:text/javascript;base64,'+Buffer.from(code).toString('base64');
-export async function loadApi(){if(process.env.TEST_SERVER_BUNDLE){const compiled=await import(dataUrl(fs.readFileSync(process.env.TEST_SERVER_BUNDLE,"utf8")));return {careApi:(request,env,context)=>compiled.default.fetch(request,env,context)};}const rule=ts.transpileModule(fs.readFileSync('src/lib/status-rules.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.ES2022}}).outputText,sms=dataUrl(fs.readFileSync('server/care-sms.mjs','utf8')),ops=dataUrl(fs.readFileSync('server/care-operations.mjs','utf8').replace("'./care-sms.js'",JSON.stringify(sms))),api=fs.readFileSync('server/care-api.mjs','utf8').replace("'./care-sms.js'",JSON.stringify(sms)).replace("'./care-operations.js'",JSON.stringify(ops)).replace("'./status-rules.js'",JSON.stringify(dataUrl(rule)));return import(dataUrl(api));}
+export async function loadApi() {
+  if (process.env.TEST_SERVER_BUNDLE) {
+    const compiled = await import(dataUrl(fs.readFileSync(process.env.TEST_SERVER_BUNDLE,'utf8')));
+    return { careApi:(request,env,context)=>compiled.default.fetch(request,env,context) };
+  }
+  const read = file => fs.readFileSync(file,'utf8');
+  const transpile = file => dataUrl(ts.transpileModule(read(file),{compilerOptions:{module:ts.ModuleKind.ES2022}}).outputText);
+  const program = transpile('src/lib/recovery-program.ts');
+  const rules = transpile('src/lib/status-rules.ts');
+  const sms = dataUrl(read('server/care-sms.mjs'));
+  const programs = dataUrl(read('server/care-programs.mjs').replace("'./recovery-program.js'",JSON.stringify(program)));
+  const ops = dataUrl(read('server/care-operations.mjs').replace("'./care-programs.js'",JSON.stringify(programs)).replace("'./care-sms.js'",JSON.stringify(sms)).replace("'./recovery-program.js'",JSON.stringify(program)));
+  return import(dataUrl(read('server/care-api.mjs')
+    .replace("'./care-sms.js'",JSON.stringify(sms))
+    .replace("'./care-programs.js'",JSON.stringify(programs))
+    .replace("'./recovery-program.js'",JSON.stringify(program))
+    .replace("'./care-operations.js'",JSON.stringify(ops))
+    .replace("'./status-rules.js'",JSON.stringify(rules))));
+}
 export function database(filename=':memory:',initialize=true){const db=new DatabaseSync(filename);db.exec('PRAGMA foreign_keys=ON');if(initialize){for(const name of fs.readdirSync('drizzle').filter(n=>n.endsWith('.sql')).sort())db.exec(fs.readFileSync('drizzle/'+name,'utf8'));}const prepare=sql=>({bind(...args){return statement(sql,args);},...statement(sql,[])});function statement(sql,args){return {async first(){return db.prepare(sql).get(...args)||null;},async all(){return {results:db.prepare(sql).all(...args)};},async run(){return {meta:{changes:Number(db.prepare(sql).run(...args).changes)}};}};}return {db,prepare,async batch(statements){db.exec('BEGIN');try{const results=[];for(const stmt of statements)results.push(await stmt.run());db.exec('COMMIT');return results;}catch(e){db.exec('ROLLBACK');throw e;}}};}
 export const ADMIN='owner-qa@example.test';
 export function request(path,method='GET',body,headers={}){return new Request('https://care.example.test/api/care/'+path,{method,headers:{...method!=='GET'?{'Origin':'https://care.example.test','Content-Type':'application/json'}:{},...headers},body:body===undefined?undefined:JSON.stringify(body)});}

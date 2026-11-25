@@ -9,6 +9,8 @@ export const carePaths = {
   hospitalLogin: '/hospital/login', hospitalSupport: '/hospital/support',
   admin: '/admin', adminLogin: '/admin/login',
   demo: '/demo', inquiry: '/pilot', help: '/help', privacy: '/settings/privacy', carePrivacy: '/care/privacy',
+  overview: '/overview', healthcareOverview: '/overview/healthcare', businessOverview: '/overview/business',
+  contact: '/contact', partnershipInquiry: '/contact/partnership', investmentInquiry: '/contact/investment',
   company: '/company', familyInvitation: '/parent-start',
 };
 
