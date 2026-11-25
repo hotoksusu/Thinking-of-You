@@ -11,6 +11,37 @@
 .danyeon-wordmark-name { display: block; font-size: 1.45rem; font-weight: 800; letter-spacing: -.01em; }
 .danyeon-wordmark-name strong { color: var(--ui-primary); }
 .danyeon-wordmark-name small { display: block; font-size: .66rem; letter-spacing: .13em; margin-top: .24rem; }
+.danyeon-sign-in {
+  display: grid;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 1.5rem 1rem;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+}
+.danyeon-sign-in-card {
+  width: 100%;
+  max-width: 420px;
+  padding: clamp(1.4rem, 5vw, 2rem);
+  overflow-wrap: anywhere;
+  background: var(--ui-surface);
+  border: 1px solid #dce6f8;
+  border-radius: 24px;
+  box-shadow: 0 12px 36px #183a8610;
+}
+.danyeon-sign-in-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem 1rem; }
+.danyeon-sign-in-header p { color: var(--ui-primary-hover); font-size: .875rem; font-weight: 700; }
+.danyeon-sign-in-card h1 { margin-top: 1.6rem; font-size: clamp(1.75rem, 6vw, 2rem); font-weight: 800; line-height: 1.25; }
+.danyeon-sign-in-subtitle { margin-top: .5rem; color: var(--ui-secondary); }
+.danyeon-sign-in-action { display: grid; gap: .65rem; margin-top: 1.65rem; }
+.danyeon-sign-in-action .danyeon-button { width: 100%; min-height: 52px; }
+.danyeon-sign-in-action p, .danyeon-sign-in-support p { color: var(--ui-secondary); font-size: .875rem; line-height: 1.55; }
+.danyeon-sign-in-support { margin-top: 1.4rem; }
+.danyeon-sign-in-card nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1rem; }
+.danyeon-sign-in-card nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ui-primary-hover); font-size: .875rem; font-weight: 650; text-decoration: underline; text-underline-offset: .2em; }
+.danyeon-sign-in-card :is(a, button):focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 3px; }
+.danyeon-sign-in-card footer { border-top: 1px solid #dce6f8; margin-top: .25rem; padding-top: .2rem; }
+.danyeon-sign-in-card footer nav { gap: 0 .85rem; }
 .danyeon-staff { display: inline-flex; gap: .45rem; align-items: center; min-height: 44px; font-size: .95rem; font-weight: 700; color: var(--ui-primary-hover); }
 .danyeon-hero { border-block: 1px solid #e1eaf9; background: linear-gradient(120deg, #f7faff 20%, var(--ui-bg) 76%); }
 .danyeon-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(1.75rem, 5vw, 5rem); min-height: 565px; padding-block: clamp(3rem, 7vw, 6.5rem); }

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { careUrls } from '@/lib/care-urls';
 import { CareBrandLogo } from '@/components/care-brand-logo';
+import { CareSignIn, type StaffAccessStatus } from '@/components/care-sign-in';
 import { careBrand, careDemo, careProducts, isDanyeon } from '@/lib/care-brand';
 import { useEffect, useState } from 'react';
 import { careRequest, CareServerError } from '@/lib/care-server';
@@ -24,17 +25,20 @@ export default function ServerCare() {
     } | null>(null), [confirmed, setConfirmed] = useState(false), [imports, setImports] = useState<{
         patient: Patient;
         records: CheckIn[];
-    }[]>([]), [report, setReport] = useState(false), [loginNeeded, setLoginNeeded] = useState(false);
+    }[]>([]), [report, setReport] = useState(false);
+    const [accessStatus, setAccessStatus] = useState<StaffAccessStatus>('checking');
     async function refresh() { try {
         const next = await careRequest<StaffState>('staff/state');
         setData(next);
-        setLoginNeeded(false);
+        setAccessStatus('checking');
         setHospitalId(current => current || next.state.hospitals[0]?.id || next.catalog?.[0]?.id || '');
         setMessage('');
     }
     catch (e) {
-        setLoginNeeded(e instanceof CareServerError && e.status === 401);
-        setMessage(e instanceof CareServerError && e.status === 401 ? 'ChatGPT로 로그인한 뒤 등록된 병원 권한을 확인합니다.' : e instanceof CareServerError && e.status === 403 ? '이 계정에는 서버 병원 관리 권한이 없습니다. 사이트 운영자에게 권한 등록을 요청해주세요.' : '서버 연결 또는 초기 설정을 확인해주세요. 아직 서버 저장을 사용할 수 없습니다.');
+        const status = e instanceof CareServerError ? e.status : null;
+        if (status === 401 || status === 403) setData(null);
+        setAccessStatus(status === 401 ? 'sign-in' : status === 403 ? 'denied' : 'unavailable');
+        setMessage(status === 401 ? '병원 담당자 계정으로 로그인해 주세요.' : status === 403 ? '이 계정에는 이용 권한이 없습니다.' : '연결 상태를 확인한 뒤 다시 시도해 주세요.');
     } }
     useEffect(() => { void refresh(); }, []);
     async function perform(action: () => Promise<unknown>, success: string) { if (pending)
@@ -45,7 +49,7 @@ export default function ServerCare() {
     }
     catch (e) {
         const code=e instanceof CareServerError?e.code:'';
-            if(e instanceof CareServerError&&e.status===401){setData(null);setLoginNeeded(true);}
+            if(e instanceof CareServerError&&e.status===401){setData(null);setAccessStatus('sign-in');}
             const messages:Record<string,string>={INVALID_PATIENT:'환자 이름·연락처·연령·날짜를 확인해주세요.',INVALID_IMPORTED_RECORD:'기존 자료의 날짜나 점수 형식을 확인해주세요. 원본은 변경하지 않았습니다.',INVALID_EMAIL:'담당자의 로그인 이메일을 확인해주세요.',REAL_DATA_CONFIRMATION_REQUIRED:'실제 운영 자료와 등록 권한을 먼저 확인해주세요.',HOSPITAL_ACCESS_DENIED:'이 병원에 접근할 권한이 없습니다.',STAFF_ACCESS_DENIED:'담당자 접근 권한을 확인해주세요.',STAFF_SIGN_IN_REQUIRED:'로그인 연결이 만료됐어요. 다시 로그인해주세요.',SERVER_NOT_CONFIGURED:'서버 초기 설정이 아직 완료되지 않았어요.'};
             setMessage(messages[code]||'처리하지 못했어요. 연결 상태와 입력 내용을 확인한 뒤 다시 시도해주세요.');
     }
@@ -53,7 +57,13 @@ export default function ServerCare() {
         setPending(false);
     } }
     const state = data?.state, patients = state?.patients.filter(p => p.hospitalId === hospitalId) || [], patient = patients.find(p => p.id === selected);
-    return <main className="care-ui min-h-screen p-5"><div className="mx-auto max-w-6xl"><header className="flex flex-wrap items-center justify-between gap-3">{isDanyeon ? <CareBrandLogo /> : <Link href="/hospital/dashboard" className="inline-flex min-h-12 items-center font-bold text-[#315D50]">← 기존 병원 화면</Link>}<p className="care-kicker">서버 연계 회복관리</p></header><h1 className="mt-4 text-3xl font-black">{isDanyeon ? (data?.admin && !data.roles[hospitalId] ? careBrand.name + ' 운영관리' : careProducts.desk.name) : '병원과 환자 연결'}</h1><p className="care-subtext mt-3">{careDemo.local ? '시연용 병원과 합성 환자로 등록, 응답 확인, 조치와 후속 일정을 체험할 수 있습니다.' : '서버에서 검증한 계정만 등록·발급·조회할 수 있어요. 테스트 데이터는 자동으로 생성하지 않습니다.'}</p>{message ? <p role="status" className="mt-4 rounded-xl bg-white p-4 leading-7">{message}</p> : null}{!data ? loginNeeded ? <a target="_top" href={careUrls.signIn} className="primary">ChatGPT로 병원 담당자 로그인</a> : <button onClick={() => void refresh()} className="secondary w-full">서버 연결 다시 확인</button> : <><p className="mt-4 text-sm text-[#58665E]">연결된 계정 · {data.email}</p><a target="_top" href={careDemo.local ? '/__demo/exit' : careUrls.signOut} className="inline-flex min-h-12 items-center underline">{careDemo.local ? '체험 선택으로 돌아가기' : '병원 계정 로그아웃'}</a>
+    if (isDanyeon && !data) {
+        return <CareSignIn status={accessStatus} onRetry={() => {
+            setAccessStatus('checking');
+            void refresh();
+        }} />;
+    }
+    return <main className="care-ui min-h-screen p-5"><div className="mx-auto max-w-6xl"><header className="flex flex-wrap items-center justify-between gap-3">{isDanyeon ? <CareBrandLogo /> : <Link href="/hospital/dashboard" className="inline-flex min-h-12 items-center font-bold text-[#315D50]">← 기존 병원 화면</Link>}<p className="care-kicker">의료기관 회복관리</p></header><h1 className="mt-4 text-3xl font-black">{isDanyeon ? (data?.admin && !data.roles[hospitalId] ? careBrand.name + ' 운영관리' : careProducts.desk.name) : '병원과 환자 연결'}</h1><p className="care-subtext mt-3">{careDemo.local ? '시연용 병원과 합성 환자로 등록, 응답 확인, 조치와 후속 일정을 체험할 수 있습니다.' : '담당 환자의 회복 기록을 확인하고 후속 업무를 관리할 수 있습니다.'}</p>{message ? <p role="status" className="mt-4 rounded-xl bg-white p-4 leading-7">{message}</p> : null}{!data ? accessStatus === 'sign-in' ? <a target="_top" href={careUrls.signIn} className="primary">ChatGPT로 병원 담당자 로그인</a> : <button onClick={() => void refresh()} className="secondary w-full">서버 연결 다시 확인</button> : <><p className="mt-4 text-sm text-[#58665E]">연결된 계정 · {data.email}</p><a target="_top" href={careDemo.local ? '/__demo/exit' : careUrls.signOut} className="inline-flex min-h-12 items-center underline">{careDemo.local ? '체험 선택으로 돌아가기' : '병원 계정 로그아웃'}</a>
  {data.admin ? <details className="care-surface mt-5 p-5"><summary className="min-h-11 cursor-pointer font-bold">{careDemo.local ? '가상 병원 등록' : '실제 병원 등록'}</summary><form onSubmit={e => { e.preventDefault(); const form = new FormData(e.currentTarget); void perform(() => careRequest('staff/hospitals', 'POST', Object.fromEntries(form)), '병원을 서버에 등록했어요.'); }} className="mt-3 grid gap-3">{[['name', '병원명'], ['phone', '대표전화'], ['openingHours', '진료시간'], ['address', '주소']].map(([name, label]) => <label key={name} className="text-sm font-bold">{label}<input required={name === 'name'} name={name} maxLength={name === 'openingHours' ? 300 : 200} className="mt-1 min-h-12 w-full rounded-xl border p-3"/></label>)}<button disabled={pending} className="primary">병원 정보 저장</button></form></details> : null}
  <label className="mt-5 block font-bold">관리할 병원<select value={hospitalId} onChange={e => { setHospitalId(e.target.value); setSelected(''); setInvite(null); }} className="mt-2 min-h-12 w-full rounded-xl border bg-white p-3"><option value="">병원을 선택해주세요</option>{[...(state?.hospitals||[]),...(data.catalog||[]).filter(h=>!state?.hospitals.some(x=>x.id===h.id))].map(h => <option key={h.id} value={h.id}>{h.name}</option>)}</select></label>
  {data.admin?<><p className="mt-3 text-sm">플랫폼 운영자에게 환자 열람권한은 기본 부여되지 않습니다. 병원 관리자가 별도로 승인한 역할만 적용됩니다.</p>{isDanyeon && <CareOperatorOverview hospitals={data.catalog || []}/>}<PilotManagement/></>:null}{hospitalId ? <>{data.roles?.[hospitalId]?<ServerOperations key={hospitalId} hospitalId={hospitalId} role={data.roles[hospitalId]} onChanged={()=>void refresh()}/>:null}<div id="server-patients">{data.roles?.[hospitalId]==='hospital_admin'?<><details className="care-surface mt-5 p-5"><summary className="min-h-11 cursor-pointer font-bold">{careDemo.local ? '가상 환자 등록' : '실제 환자 등록'}</summary><form onSubmit={e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.currentTarget)); void perform(() => careRequest('staff/patients', 'POST', { hospitalId, patient: f, confirmed: f.confirmed === 'on' }), '환자를 서버에 등록했어요.'); }} className="mt-3 grid gap-3">{[['name', '환자 이름', 'text'], ['phone', '연락처', 'tel'], ['age', '연령', 'number'], ['dischargeDate', '퇴원일', 'date'], ['surgeryDate', '수술일 (선택)', 'date'], ['nextAppointment', '다음 진료일 (선택)', 'date']].map(([name, label, type]) => <label key={name} className="text-sm font-bold">{label}<input required={['name', 'phone', 'age', 'dischargeDate'].includes(name)} name={name} type={type} min={type === 'number' ? 0 : undefined} max={type === 'number' ? 130 : undefined} className="mt-1 min-h-12 w-full rounded-xl border p-3"/></label>)}<label className="text-sm font-bold">치료 구분<select name="surgeryType" className="mt-1 min-h-12 w-full rounded-xl border bg-white p-3">{['인공관절', '척추', '골절', '기타'].map(v => <option key={v}>{v}</option>)}</select></label><label className="flex min-h-12 items-start gap-3 text-sm leading-7"><input required type="checkbox" name="confirmed" className="mt-1 size-5"/>{careDemo.local ? '시연에 사용할 합성 정보만 입력했습니다.' : '실제 운영 환자이며, 병원에서 회복관리 대상과 개인정보 이용 근거를 확인했습니다.'}</label><button disabled={pending} className="primary">서버에 환자 등록</button></form></details>

@@ -6,8 +6,9 @@ const origin = process.env.NEXT_PUBLIC_CARE_DEMO === 'local' ? demoOrigin
 
 export const carePaths = {
   home: '/', patient: '/patient', invitation: '/i', desk: '/care/server',
-  hospitalLogin: '/hospital/login', admin: '/admin', adminLogin: '/admin/login',
-  demo: '/demo', inquiry: '/pilot', help: '/help', privacy: '/settings/privacy',
+  hospitalLogin: '/hospital/login', hospitalSupport: '/hospital/support',
+  admin: '/admin', adminLogin: '/admin/login',
+  demo: '/demo', inquiry: '/pilot', help: '/help', privacy: '/settings/privacy', carePrivacy: '/care/privacy',
   company: '/company', familyInvitation: '/parent-start',
 };
 
